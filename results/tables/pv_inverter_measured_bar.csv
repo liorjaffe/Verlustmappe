@@ -1,0 +1,9 @@
+quantity,value,unit
+E_dc,5345.91,kWh
+E_ac,5190.35,kWh
+eta,0.9709,
+loss,155.56,kWh
+E_ac_counter,5190.35,kWh
+eta_clean_days,0.9709,
+n_clean_days,16,
+method,eta from 16 gap-validated days (counter==integral within 2%); E_ac from the cumulative counter; E_dc = E_ac/eta,

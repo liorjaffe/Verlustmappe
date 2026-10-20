@@ -1,0 +1,85 @@
+"""Preliminary PV channel: energy generation and losses from irradiance to AC.
+
+STATUS: "vorerst" (preliminary). No real PV modules, inverter, cables or
+distances have been chosen. Every number comes from the registry as PRELIM
+(typical-market value anchored on published 2025/26 datasheet ranges) or
+BACKLOG. When real hardware exists: replace registry entries, flip statuses
+to DATASHEET/MEASURED, and the SAME functions produce the final numbers.
+
+Chain (per IEC 61724 performance-ratio family and standard PV loss decomposition,
+e.g. PVsyst/SAM loss trees):
+    irradiation (POA) -> soiling/mismatch/shading -> DC at cell temperature
+    -> DC cable -> inverter (Euro efficiency) -> AC cable -> AC to the bus
+
+  E_DC,STC = H_POA * A_array * eta_module          (STC potential)
+  E_DC     = E_DC,STC * (1 - soiling)(1 - mismatch)(1 - shading)
+             * [1 + gamma_Pmax * (T_cell - 25)]     (temp derating, gamma<0)
+             * (1 + bifacial_gain)                   (optional)
+  E_AC     = E_DC * (1 - dc_cable) * eta_euro * (1 - ac_cable)
+  capture ratio (performance ratio family): E_DC / (H_POA * A * eta_module)
+
+Two modes of operation:
+  mode 'measured' (SMA telemetry exists): E_DC and E_AC come from the inverter
+  directly (as already done in devices/pv_measured.py); this channel only ADDS the
+  site-loss bars that the inverter cannot see (soiling, mismatch, shading,
+  temperature), each flagged GUESS/PRELIM.
+  mode 'preliminary' (no hardware, no telemetry): everything computed from
+  irradiation + registry PRELIM values, whole result labelled PRELIM.
+"""
+import numpy as np
+from .. import registry as R
+
+def cell_temperature(T_ambient_C, G_W_m2, noct_C=None):
+    """Sandia/NOCT-style cell temperature: T_cell = T_amb + (NOCT-20)/800 * G."""
+    noct = noct_C if noct_C is not None else R.get("pv.noct_C")
+    return T_ambient_C + (noct - 20.0) / 800.0 * G_W_m2
+
+def pv_account(H_poa_kWh_m2=None, A_array_m2=None, E_dc_measured_kWh=None, E_ac_measured_kWh=None,
+               T_ambient_C=25.0, G_typical_W_m2=800.0, months=1.0, mode=None):
+    """Returns the loss map bars for the PV channel plus the AC energy delivered
+    to the bus. See module docstring for the two modes."""
+    status_mode = mode or ("measured" if (E_dc_measured_kWh and E_ac_measured_kWh) else "preliminary")
+    if status_mode == "preliminary" and (H_poa_kWh_m2 is None or A_array_m2 is None):
+        return dict(unit="PV", mode="preliminary", bars=[], error=
+                    "preliminary mode needs irradiation (H_poa) and array area; "
+                    "neither exists yet - install sensors or enter the design")
+    eta_stc = R.get("pv.module_efficiency_STC")
+    if status_mode == "preliminary":
+        e_stc = H_poa_kWh_m2 * A_array_m2 * eta_stc
+    else:
+        # measured DC is the anchor; STC potential still useful for the capture bar
+        e_stc = H_poa_kWh_m2 * A_array_m2 * eta_stc if (H_poa_kWh_m2 and A_array_m2) else None
+    # site losses (GUESS/PRELIM family)
+    soiling = R.get("pv.soiling_rel"); mismatch = R.get("pv.mismatch_rel"); shading = R.get("pv.shading_rel")
+    # cell temperature derating
+    T_cell = cell_temperature(T_ambient_C, G_typical_W_m2)
+    gamma = R.get("pv.p_tc_pmax_per_K")
+    temp_factor = 1.0 + gamma * (T_cell - 25.0)
+    if status_mode == "preliminary":
+        e_dc = e_stc * (1-soiling) * (1-mismatch) * (1-shading) * temp_factor * (1 + R.get("pv.bifacial_gain_frac"))
+    else:
+        e_dc = E_dc_measured_kWh
+    # cables + inverter
+    e_after_dc_cable = e_dc * (1 - R.get("cable.dc_loss_rel"))
+    e_ac_conv = e_after_dc_cable * R.get("inv_pv.eta_euro")
+    e_ac = e_ac_conv * (1 - R.get("cable.ac_loss_rel"))
+    if status_mode == "measured" and E_ac_measured_kWh is not None:
+        e_ac = E_ac_measured_kWh   # the inverter sees its own AC; bars below stay preliminary
+
+    bars = [
+        dict(stage="Soiling", kWh=e_stc * soiling if e_stc else None, status="PRELIM"),
+        dict(stage="Mismatch", kWh=e_stc * mismatch if e_stc else None, status="PRELIM"),
+        dict(stage="Shading", kWh=e_stc * shading if e_stc else None, status="PRELIM"),
+        dict(stage="Cell temperature", kWh=(e_stc * (1-soiling)*(1-mismatch)*(1-shading) * (1-temp_factor)) if e_stc else None,
+             status="PRELIM"),
+        dict(stage="DC cable", kWh=(e_dc * R.get("cable.dc_loss_rel")), status="PRELIM"),
+        dict(stage="Inverter conversion", kWh=(e_after_dc_cable * (1 - R.get("inv_pv.eta_euro"))), status="MEASURED" if status_mode=="measured" else "PRELIM"),
+        dict(stage="AC cable", kWh=(e_ac_conv * R.get("cable.ac_loss_rel")), status="PRELIM"),
+    ]
+    out = dict(unit="PV", mode=status_mode, e_dc_kWh=e_dc, e_ac_kWh=e_ac, e_stc_kWh=e_stc,
+               T_cell_C=T_cell, bars=[b for b in bars if b["kWh"] is not None],
+               eta_dc_to_ac=(e_ac / e_dc) if e_dc > 0 else None,
+               capture_ratio=(e_dc / e_stc) if (e_stc and e_stc > 0) else None,
+               warning="PRELIMINARY PV channel: all site losses are typical-market guesses; "
+                       "replace registry PRELIM entries when hardware and layout exist")
+    return out

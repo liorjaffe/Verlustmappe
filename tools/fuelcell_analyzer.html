@@ -1,0 +1,3316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fuel Cell Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.32.0/plotly.min.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --panel-bg: #f7f8fa;
+  --border: #e2e5ea;
+  --text: #1a1d23;
+  --text-dim: #6b7280;
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --danger: #dc2626;
+  --input-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161a; --panel-bg: #1c1f26; --border: #2c313a; --text: #e7e9ee;
+    --text-dim: #9aa1ac; --accent: #4f8cff; --accent-text: #0b0f16; --danger: #f87171; --input-bg: #10131820;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14161a; --panel-bg: #1c1f26; --border: #2c313a; --text: #e7e9ee;
+  --text-dim: #9aa1ac; --accent: #4f8cff; --accent-text: #0b0f16; --danger: #f87171; --input-bg: #10131820;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; }
+header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+header h1 { font-size: 17px; margin: 0; white-space: nowrap; }
+header .sub { color: var(--text-dim); font-size: 12.5px; }
+.layout { display: flex; gap: 0; align-items: flex-start; min-height: calc(100vh - 60px); }
+main { flex: 1 1 auto; min-width: 0; padding: 16px; }
+aside { width: 380px; flex: 0 0 380px; border-left: 1px solid var(--border); padding: 16px; max-height: calc(100vh - 60px); overflow-y: auto; }
+@media (max-width: 900px) {
+  .layout { flex-direction: column; }
+  aside { width: 100%; flex-basis: auto; border-left: none; border-top: 1px solid var(--border); max-height: none; }
+}
+section.card { background: var(--panel-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+section.card h2 { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); margin: 0 0 10px 0; }
+button { font: inherit; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); border-radius: 7px; padding: 7px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
+button.danger-outline { color: var(--danger); border-color: var(--danger); background: transparent; }
+input[type="text"], input[type="number"], select { font: inherit; background: var(--input-bg); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px; width: 100%; }
+label.field { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 3px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row.wrap { flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px 3px 8px; font-size: 12.5px; background: var(--input-bg); }
+.chip .swatch { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.chip button { border: none; background: none; padding: 0 0 0 4px; font-size: 13px; color: var(--text-dim); }
+.region-card { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: var(--input-bg); }
+.region-card .head { display: flex; align-items: center; gap: 8px; }
+.region-card .head .swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+.region-card .head input[type="text"] { flex: 1; font-weight: 600; padding: 3px 6px; }
+.region-card .meta { font-size: 12px; color: var(--text-dim); margin: 6px 0 4px 0; }
+.region-card .stats { font-size: 12px; line-height: 1.5; }
+.muted { color: var(--text-dim); font-size: 12px; }
+table.compare { border-collapse: collapse; width: 100%; font-size: 12px; }
+table.compare th, table.compare td { border: 1px solid var(--border); padding: 5px 7px; text-align: right; white-space: nowrap; }
+table.compare th { background: var(--panel-bg); text-align: center; }
+table.compare td:first-child, table.compare th:first-child { text-align: left; }
+.scrollx { overflow-x: auto; }
+#plot { width: 100%; }
+.empty-state { color: var(--text-dim); text-align: center; padding: 60px 20px; border: 1.5px dashed var(--border); border-radius: 12px; }
+.toggle-row { display: flex; justify-content: space-between; align-items: center; }
+a.filelabel { display: inline-block; border: 1px solid var(--border); border-radius: 7px; padding: 7px 12px; cursor: pointer; background: var(--input-bg); }
+a.filelabel:hover { border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>&#9889; Fuel Cell Analyzer</h1>
+  <span class="sub">Load a CSV &rarr; channels (Current / Voltage / Power) are detected automatically</span>
+</header>
+
+<div style="padding: 16px 16px 0 16px;">
+  <div class="row wrap" style="margin-bottom: 12px;">
+    <label class="filelabel" for="fileInput">+ Load CSV file</label>
+    <input type="file" id="fileInput" accept=".csv" style="display:none" multiple>
+    <button id="liveToggleBtn" class="filelabel" style="cursor:pointer;">+ Live data feed</button>
+    <span class="muted" id="datasetHint">No file loaded yet.</span>
+  </div>
+  <div class="row wrap" id="livePanel" style="display:none; margin: -4px 0 12px 0; gap:8px; align-items:center;">
+    <input type="text" id="liveUrl" placeholder="ws://localhost:8000/ws" style="width:220px;">
+    <button id="liveConnectBtn">Connect</button>
+    <button id="liveDisconnectBtn" style="display:none;">Disconnect</button>
+    <span class="muted" id="liveStatus">Not connected</span>
+    <span class="muted" style="flex-basis:100%;">Not active until you click Connect. Each device becomes its own dataset, updated live alongside anything loaded from CSV.</span>
+  </div>
+  <div class="row wrap" id="datasetChips" style="margin-bottom: 10px;"></div>
+
+  <div id="emptyState" class="empty-state" style="margin-bottom: 14px;">
+    Load one or more CSV files to get started.<br>
+    <span class="muted">Multiple files = multiple test runs, overlaid for direct comparison.</span>
+  </div>
+
+  <div class="row" style="gap:6px; margin-bottom: 0;">
+    <button id="tabTsBtn" class="primary">Time Series</button>
+    <button id="tabIvBtn">I&ndash;V / Polarization</button>
+    <button id="tabDynBtn">Dynamic Response</button>
+    <button id="tabEffBtn">Efficiency</button>
+    <button id="tabStartBtn">Start/Stop</button>
+    <button id="tabLoadBtn">Load Profile</button>
+    <button id="tabStabBtn">Stability</button>
+    <button id="tabCrossBtn">Cross-Plot</button>
+    <button id="tabCellBtn">Cell Balance</button>
+    <button id="tabDegBtn">Degradation</button>
+    <button id="tabEvtBtn">Auto Events</button>
+    <button id="tabSummaryBtn">Summary</button>
+  </div>
+</div>
+
+<div class="layout" id="tsViewWrap">
+  <main>
+    <div id="plot"></div>
+  </main>
+
+
+  <aside>
+    <section class="card" id="unclassifiedCard" style="display:none;">
+      <h2>Unclassified columns</h2>
+      <p class="muted" style="margin-top:0;">Not auto-detected as Voltage/Current/Power/Temperature/Pressure/Flow. Assign a type to include them in the analysis.</p>
+      <div id="unclassifiedList"></div>
+    </section>
+
+    <section class="card">
+      <h2>Region marking</h2>
+      <div class="row wrap">
+        <button id="modeBtn">Mark region: <b id="modeState">Off</b></button>
+        <button id="addRegionBtn" class="primary" disabled>+ Save selection as region</button>
+      </div>
+      <p class="muted" style="margin: 8px 0 0 0;">
+        Turn on, then drag a box over a time span on the chart (horizontal only - the y-axis stays fixed). Then click "Save selection".
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="toggle-row">
+        <h2 style="margin:0;">Trend (moving average)</h2>
+        <input type="checkbox" id="trendToggle">
+      </div>
+      <div style="margin-top:8px;">
+        <label class="field">Window width (number of samples)</label>
+        <input type="number" id="trendWindow" value="25" min="2">
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Marked regions</h2>
+      <div id="regionList"><p class="muted">No region marked yet.</p></div>
+      <button id="clearRegionsBtn" class="danger-outline" style="margin-top:6px;">Clear all regions</button>
+    </section>
+
+    <section class="card">
+      <h2>Comparison table</h2>
+      <p class="muted" id="compareHint">Check regions above to compare only those here (no selection = all regions).</p>
+      <div class="scrollx"><div id="compareTable"></div></div>
+      <button id="exportBtn" style="margin-top:10px;" disabled>Export as CSV</button>
+      <p class="muted" id="exportHint"></p>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="ivViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">X-axis:</label>
+      <select id="ivXModeSelect" style="width:auto;">
+        <option value="absolute">Current (A)</option>
+        <option value="density">Current density (A/cm&sup2;)</option>
+      </select>
+      <span class="muted" id="ivDensityHint"></span>
+    </div>
+    <div id="ivEmptyState" class="empty-state">Load a dataset with both Voltage and Current columns to see its I&ndash;V curve.</div>
+    <div id="ivPlot"></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>Per-dataset settings</h2>
+      <div id="ivDatasetSettings"><p class="muted">No dataset loaded.</p></div>
+    </section>
+
+    <section class="card">
+      <h2>Query a point</h2>
+      <div class="row wrap">
+        <div style="flex:1;">
+          <label class="field">V at I =</label>
+          <input type="number" id="ivQueryI" placeholder="e.g. 40" step="any">
+        </div>
+        <div style="flex:1;">
+          <label class="field">I at V =</label>
+          <input type="number" id="ivQueryV" placeholder="e.g. 48" step="any">
+        </div>
+      </div>
+      <div class="scrollx" style="margin-top:10px;"><div id="ivQueryResult"><p class="muted">Enter a value above.</p></div></div>
+    </section>
+
+    <section class="card">
+      <h2>Characteristics</h2>
+      <div class="scrollx"><div id="ivCharTable"><p class="muted">No data yet.</p></div></div>
+      <button id="ivExportBtn" style="margin-top:10px;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="dynViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">Recovery tolerance:</label>
+      <input type="number" id="dynTolerance" value="5" min="0" step="any" style="width:70px;">
+      <span class="muted">% of baseline</span>
+    </div>
+    <div id="dynEmptyState" class="empty-state">Mark at least one region around a transient event (e.g. FC start-up, a load step) in the Time Series tab first.</div>
+    <div class="scrollx"><div id="dynTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        Reuses the regions you marked in the Time Series tab. For each region:<br><br>
+        <b>Baseline</b> = average of the last few points just before the region starts.<br>
+        <b>Extreme</b> = the point inside the region furthest from baseline (the dip/spike itself).<br>
+        <b>Fall/Rise time</b> = 10%&ndash;90% transition time from baseline to the extreme.<br>
+        <b>Recovery time</b> = time after the extreme until the signal first returns within the tolerance band around baseline. Shows "did not recover" if it never does within the marked region &mdash; extend the region if so.<br><br>
+        <span class="muted">Times are shown in seconds. If your file's time column isn't a real timestamp (e.g. a plain elapsed-time column), that column's own unit is assumed to be seconds.</span>
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="dynExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="effViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">H&#8322; energy basis:</label>
+      <select id="effBasisSelect" style="width:auto;">
+        <option value="lhv">LHV (2.998 Wh/NL)</option>
+        <option value="hhv">HHV (3.542 Wh/NL)</option>
+      </select>
+    </div>
+    <div id="effEmptyState" class="empty-state">Needs a Flow channel plus Power (or Voltage+Current) in the same dataset. Mark regions in Time Series for a per-region breakdown, or leave unmarked for whole-file totals.</div>
+    <div id="effPlot"></div>
+    <div class="scrollx" style="margin-top:16px;"><div id="effTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        Electrical efficiency = electrical power out &divide; H&#8322; energy in, using the H&#8322; flow channel converted to power via its LHV or HHV energy content. Specific consumption = NL H&#8322; per kWh electrical produced. Totals are computed per marked region if you have any, otherwise over the whole file.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="effExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="startViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">On/off threshold:</label>
+      <input type="number" id="startThreshold" value="10" min="1" max="99" step="any" style="width:70px;">
+      <span class="muted">% of peak value</span>
+    </div>
+    <div id="startEmptyState" class="empty-state">Needs a Current (or Power) channel. Cycles are detected automatically wherever the signal rises above the threshold and falls back below it.</div>
+    <div class="scrollx"><div id="startTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        Cycles are auto-detected from the Current channel (or Power, if no Current channel exists): a cycle runs from the first sample above the threshold to the last one before it drops back below it. For each cycle: <b>Start-up time</b> is the 10&ndash;90% rise time from the pre-cycle baseline to the cycle's peak. <b>Shutdown time</b> is how long it takes to fall back within tolerance of the post-cycle baseline after the peak.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="startExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="loadViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">Rated power (W):</label>
+      <input type="number" id="loadRated" placeholder="e.g. 5000" min="0" step="any" style="width:100px;">
+      <label class="field" style="margin:0;">Min. stable power (W):</label>
+      <input type="number" id="loadMinStable" placeholder="e.g. 200" min="0" step="any" style="width:100px;">
+      <label class="field" style="margin:0;">Load-change threshold:</label>
+      <input type="number" id="loadChangeThresh" value="5" min="0" step="any" style="width:70px;">
+      <span class="muted">% of rated, between samples</span>
+    </div>
+    <div id="loadEmptyState" class="empty-state">Needs a Power channel (or Voltage+Current) and a rated power value above.</div>
+    <div id="loadPlot"></div>
+    <div class="scrollx" style="margin-top:16px;"><div id="loadTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        Bins are time-weighted shares of the file's duration, not sample counts. <b>Load factor</b> = average load &divide; peak load. <b>Capacity factor</b> = average load &divide; rated power. A "load change" counts each time consecutive samples differ by more than the threshold (% of rated power).
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="loadExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="stabViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">Anomaly threshold:</label>
+      <input type="number" id="stabSigma" value="4" min="0.5" step="any" style="width:70px;">
+      <span class="muted">&sigma; of point-to-point change</span>
+      <label class="field" style="margin:0 0 0 10px;">Steady-state window:</label>
+      <input type="number" id="stabWindow" value="20" min="3" step="1" style="width:70px;">
+      <span class="muted">samples</span>
+    </div>
+    <div id="stabEmptyState" class="empty-state">Load a dataset to see stability metrics and auto-detected anomalies.</div>
+    <h3 style="font-size:13px; margin: 18px 0 6px;">Stability summary</h3>
+    <div class="scrollx"><div id="stabTable"></div></div>
+    <h3 style="font-size:13px; margin: 18px 0 6px;">Detected anomalies (sudden changes)</h3>
+    <div class="scrollx"><div id="anomalyTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        <b>CV%</b> = std dev &divide; |mean| &times; 100. <b>Steady-state</b> uses a rolling std-dev window; a point counts as steady once its local variability drops to a small fraction of the channel's overall std dev. <b>Anomalies</b> are consecutive-sample jumps larger than the threshold &times; the channel's overall std dev of point-to-point changes &mdash; lower the threshold to catch more/smaller events.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="stabExportBtn" style="margin-top:0;" disabled>Export stability CSV</button>
+      <button id="anomalyExportBtn" style="margin-top:8px;" disabled>Export anomalies CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="crossViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">X:</label>
+      <select id="crossXSelect" style="width:auto;"></select>
+      <label class="field" style="margin:0 0 0 10px;">Y:</label>
+      <select id="crossYSelect" style="width:auto;"></select>
+    </div>
+    <div id="crossEmptyState" class="empty-state">Load at least one dataset, then pick any two channels &mdash; e.g. Temperature vs. Voltage, or Efficiency vs. Pressure.</div>
+    <div id="crossPlot"></div>
+    <p class="muted" id="crossCorr" style="margin-top:10px;"></p>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        Pick any two channels from any loaded dataset(s). Points are paired by matching timestamps within each dataset. Pearson correlation (r) is shown per dataset.
+      </p>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="cellViewWrap" style="display:none;">
+  <main>
+    <div id="cellEmptyState" class="empty-state">Needs columns named like "cell_1", "cell 2", "Zelle_3", etc. &mdash; auto-detected separately from the main Voltage channel.</div>
+    <div id="cellBarPlot"></div>
+    <h3 style="font-size:13px; margin: 18px 0 6px;">Spread over time</h3>
+    <div id="cellSpreadPlot"></div>
+    <div class="scrollx" style="margin-top:16px;"><div id="cellTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        <b>Spread</b> = max cell voltage &minus; min cell voltage at each moment. The bar chart shows each cell's average voltage across the whole file, sorted by cell number, so a consistently weak cell stands out. "Worst cell" is the one with the lowest average voltage.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="cellExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="degViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">Track voltage at current =</label>
+      <input type="number" id="degTargetI" placeholder="e.g. 40" step="any" style="width:90px;">
+      <span class="muted">A (interpolated per dataset, like the I&ndash;V tab)</span>
+    </div>
+    <div id="degEmptyState" class="empty-state">Each dataset here is one test session. Set its operating hours below, and a target current above, to track voltage degradation across sessions.</div>
+    <div id="degPlot"></div>
+    <div class="scrollx" style="margin-top:16px;"><div id="degTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>Operating hours per dataset</h2>
+      <div id="degHoursList"><p class="muted">No dataset loaded.</p></div>
+    </section>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        Voltage at a fixed current is the standard, load-independent way to track fuel-cell degradation across sessions with different load profiles (same approach DOE/NREL evaluations use). Degradation rate is the linear-regression slope of V vs. operating hours, shown in mV/h and %/h relative to the first session.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="degExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="evtViewWrap" style="display:none;">
+  <main>
+    <div class="row wrap" style="margin-bottom: 10px;">
+      <label class="field" style="margin:0;">Dataset:</label>
+      <select id="evtDatasetSelect" style="width:auto;"></select>
+      <label class="field" style="margin:0 0 0 10px;">Channel:</label>
+      <select id="evtChannelSelect" style="width:auto;"></select>
+      <button id="evtAnalyzeBtn" class="primary" style="margin-left:10px;">Analyze</button>
+    </div>
+    <div class="row wrap" style="margin-bottom: 10px; gap: 10px;">
+      <div><label class="field">Window (s)</label><input type="number" id="evtWin" value="60" min="1" step="any" style="width:70px;"></div>
+      <div><label class="field">MAD threshold</label><input type="number" id="evtMadThresh" value="4" min="0.5" step="any" style="width:70px;"></div>
+      <div><label class="field">Min event (s)</label><input type="number" id="evtMinEvent" value="2" min="0" step="any" style="width:70px;"></div>
+      <div><label class="field">Min gap (s)</label><input type="number" id="evtMinGap" value="10" min="0" step="any" style="width:70px;"></div>
+      <div><label class="field">Settle tol (%)</label><input type="number" id="evtTolPct" value="1" min="0" step="any" style="width:70px;"></div>
+      <div><label class="field">Settle hold (s)</label><input type="number" id="evtHold" value="30" min="0" step="any" style="width:70px;"></div>
+      <div><label class="field">Min steady (s)</label><input type="number" id="evtMinSteady" value="60" min="0" step="any" style="width:70px;"></div>
+    </div>
+    <div id="evtEmptyState" class="empty-state">Pick a dataset and channel, then click Analyze. Uses a rolling median/MAD (robust z-score) instead of mean/std, so a few large outliers don't skew the detection itself.</div>
+    <div id="evtPlot"></div>
+    <h3 style="font-size:13px; margin: 18px 0 6px;">Detected events</h3>
+    <div class="scrollx"><div id="evtTable"></div></div>
+    <h3 style="font-size:13px; margin: 18px 0 6px;">Steady segments (event-free, &ge; min steady)</h3>
+    <div class="scrollx"><div id="evtSteadyTable"></div></div>
+  </main>
+
+  <aside>
+    <section class="card">
+      <h2>About this analysis</h2>
+      <p class="muted" style="line-height:1.5;">
+        <b>Deviation score</b> = |value &minus; rolling median| &divide; rolling MAD (median absolute deviation, scaled) &mdash; a robust alternative to mean/std that isn't itself thrown off by the outliers it's trying to find. An <b>event</b> is a run where the score exceeds the threshold, merged with nearby runs and filtered by minimum duration. <b>Plateau</b> = median of the window just before the event. <b>Recovery</b> = time until the signal returns within tolerance of the plateau <i>and stays there</i> for the hold duration (not just a single touch). <b>Steady segments</b> are everything left over once events are removed, above the minimum duration &mdash; the usable data for comparisons.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="evtExportBtn" style="margin-top:0;" disabled>Export events CSV</button>
+      <button id="evtSteadyExportBtn" style="margin-top:8px;" disabled>Export steady segments CSV</button>
+    </section>
+  </aside>
+</div>
+
+<div class="layout" id="summaryViewWrap" style="display:none;">
+  <main>
+    <div id="summaryEmptyState" class="empty-state">Load one or more datasets to see a headline-metric overview, one row per dataset, pulled from every other tab.</div>
+     <div class="row wrap" style="margin-bottom:8px;">
+       <label class="field" style="margin:0;">Relative difference: dataset</label>
+       <select id="summaryRelA" style="width:auto;"><option value="">(none)</option></select>
+       <span>vs</span>
+       <select id="summaryRelB" style="width:auto;"><option value="">(none)</option></select>
+       <span class="muted" id="summaryRelHint" style="font-size:11px;">% difference of B relative to A, numeric columns only</span>
+     </div>
+    <div class="scrollx"><div id="summaryTable"></div></div>
+    <p class="muted" style="margin-top:10px;">A dash (&ndash;) means that metric's prerequisite data (or a setting like rated power) isn't available for that dataset &mdash; nothing is guessed or defaulted silently.</p>
+  </main>
+  <aside>
+    <section class="card">
+      <h2>Where each column comes from</h2>
+      <p class="muted" style="line-height:1.5;">
+        OCV / P<sub>max</sub> &larr; I&ndash;V tab &middot; Efficiency &larr; Efficiency tab (whole file) &middot; Cycles &larr; Start/Stop tab (default threshold) &middot; CV% &larr; Stability tab, first Voltage channel &middot; Cell spread &larr; Cell Balance tab &middot; Operating hours &larr; set on the Degradation tab.
+      </p>
+    </section>
+    <section class="card">
+      <h2>Export</h2>
+      <button id="summaryExportBtn" style="margin-top:0;" disabled>Export as CSV</button>
+    </section>
+  </aside>
+</div>
+
+<script>
+
+"use strict";
+
+// ===========================================================================
+// 1. Detection rules (same logic as the auto_plot.py / auto_plot_interactive.py scripts)
+// ===========================================================================
+const SIGNAL_RULES = {
+  voltage: { patterns: [/\bvoltage\b/, /\bvolts?\b/, /\bvcc\b/, /\bvbus\b/, /\(\s*[km]?v\s*\)/, /\[\s*[km]?v\s*\]/, /^v$/, /^u$/, /\bv\s*\(/, /\bu\s*\(/, /_v$/, /\bv_/], unit: "V", label: "Voltage" },
+  current: { patterns: [/\bcurrent\b/, /\bamps?\b/, /\bamperes?\b/, /\(\s*[km]?a\s*\)/, /\[\s*[km]?a\s*\]/, /^i$/, /\bi\s*\(/, /_i$/, /\bi_/], unit: "A", label: "Current" },
+  power:   { patterns: [/\bpower\b/, /\bwatts?\b/, /\(\s*[km]?w\s*\)/, /\[\s*[km]?w\s*\]/, /^p$/, /\bp\s*\(/, /_p$/, /\bp_/], unit: "W", label: "Power" },
+  temperature: {
+    patterns: [
+      /\btemperature\b/, /\btemp\b/, /\bcelsius\b/, /\bfahrenheit\b/,
+      /\(\s*deg\s*c\s*\)/, /\(\s*\u00b0\s*c\s*\)/, /\[\s*\u00b0\s*c\s*\]/,
+      /\(\s*\u00b0\s*f\s*\)/, /\[\s*\u00b0\s*f\s*\]/, /\(\s*k\s*\)/,
+    ],
+    unit: "\u00b0C", label: "Temperature",
+  },
+  pressure: {
+    patterns: [
+      /\bpressure\b/, /\bpress\b/,
+      /\(\s*bar\s*\)/, /\[\s*bar\s*\]/, /\bbar\b/,
+      /\(\s*psi\s*\)/, /\[\s*psi\s*\]/, /\bpsi\b/,
+      /\(\s*k?pa\s*\)/, /\[\s*k?pa\s*\]/,
+      // Deliberately no bare "^p$" here - that's already claimed by Power
+      // (an established convention), so a lone "P" column stays Power.
+      // A pressure column named just "P" needs a manual reclassification.
+    ],
+    unit: "bar", label: "Pressure",
+  },
+  flow: {
+    patterns: [
+      /\bflow\b/, /\bh2\s*flow\b/, /\bair\s*flow\b/, /\bgas\s*flow\b/,
+      /\(\s*nl\s*\/?\s*min\s*\)/, /\[\s*nl\s*\/?\s*min\s*\]/,
+      /\(\s*slpm\s*\)/, /\[\s*slpm\s*\]/, /\bslpm\b/, /\bnlpm\b/,
+      /\(\s*l\s*\/?\s*min\s*\)/, /\[\s*l\s*\/?\s*min\s*\]/,
+      /\(\s*nl\s*\/\s*h\s*\)/, /\[\s*nl\s*\/\s*h\s*\]/, /\bnl\s*\/\s*h\b/,
+      /\(\s*nl\s*\/\s*h\s*\)/, /\[\s*nl\s*\/\s*h\s*\]/, /\bnlh\b/, /\bnm3\s*\/\s*h\b/,
+    ],
+    unit: "NL/min", label: "Flow",
+    // WARNING: if the column header carries an explicit per-hour unit the
+    // user MUST downconvert (NL/h -> NL/min = /60) before this tab is valid;
+    // the header text is surfaced in the dataset list for exactly this check.
+  },
+};
+const TYPE_ORDER = ["voltage", "current", "power", "temperature", "pressure", "flow"];
+const TIME_PATTERNS = [/\btime\b/, /\btimestamp\b/, /\bdate\b/, /\bt\s*\(/, /^t$/, /\bsample\b/, /\bindex\b/, /\belapsed\b/];
+
+// JS's \b treats underscore as a "word" character, so /\bcurrent\b/ silently
+// fails to match "current_a" (no boundary between "t" and "_"). Normalizing
+// underscores/hyphens to spaces before matching fixes snake_case and
+// kebab-case headers ("current_a", "power-w", ...) without weakening the
+// patterns for anything else.
+function normalizeHeader(colName) {
+  return colName.toLowerCase().trim().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
+}
+function detectSignal(colName) {
+  const name = normalizeHeader(colName);
+  for (const sig of TYPE_ORDER) {
+    for (const pat of SIGNAL_RULES[sig].patterns) if (pat.test(name)) return sig;
+  }
+  return null;
+}
+function looksLikeTime(colName) {
+  const name = normalizeHeader(colName);
+  return TIME_PATTERNS.some((pat) => pat.test(name));
+}
+function toNumericArray(values) {
+  return values.map((v) => { const n = Number(v); return (v !== "" && v !== null && Number.isFinite(n)) ? n : NaN; });
+}
+
+// Classify a raw epoch number's unit from its magnitude (current era, ~2020s-2030s)
+// and convert it to milliseconds-since-epoch (what JS Date / Plotly date axes use).
+function epochToMs(value) {
+  const mag = Math.abs(value);
+  if (mag >= 1e17) return value / 1e6;   // nanoseconds  -> ms
+  if (mag >= 1e14) return value / 1e3;   // microseconds -> ms
+  if (mag >= 1e11) return value;         // already milliseconds
+  if (mag >= 1e8) return value * 1000;   // seconds -> ms
+  return null;                            // too small to plausibly be an epoch stamp
+}
+
+function coerceX(values, colName) {
+  // Numeric parse first, so plain elapsed-seconds columns never get
+  // misread as dates; datetime is only ever a deliberate fallback.
+  const asNum = toNumericArray(values);
+  const numOk = asNum.filter((v) => !Number.isNaN(v)).length / values.length;
+  if (numOk > 0.9) {
+    // A numeric column that's clearly named as time-related AND whose
+    // magnitude matches a plausible epoch timestamp (seconds / ms / us / ns)
+    // gets converted to a real datetime axis instead of being left as a
+    // raw, unreadable large number (e.g. "1.79T" from linear-axis SI notation).
+    if (colName && looksLikeTime(colName)) {
+      const sample = asNum.find((v) => Number.isFinite(v));
+      const ms = sample !== undefined ? epochToMs(sample) : null;
+      if (ms !== null) {
+        const year = new Date(ms).getFullYear();
+        if (year >= 2000 && year <= 2100) {
+          const converted = asNum.map((v) => (Number.isFinite(v) ? epochToMs(v) : NaN));
+          return { values: converted, isDatetime: true };
+        }
+      }
+    }
+    return { values: asNum, isDatetime: false };
+  }
+  const asDt = values.map((v) => { const t = Date.parse(v); return Number.isNaN(t) ? NaN : t; });
+  const dtOk = asDt.filter((v) => !Number.isNaN(v)).length / values.length;
+  if (dtOk > 0.9) return { values: asDt, isDatetime: true };
+  return { values: values.map((_, i) => i), isDatetime: false };
+}
+
+// ===========================================================================
+// 2. Stats helpers
+// ===========================================================================
+function mean(a){ if(!a.length) return NaN; return a.reduce((x,y)=>x+y,0)/a.length; }
+function stdDev(a){ if(a.length<2) return NaN; const m=mean(a); return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1)); }
+function median(a){ if(!a.length) return NaN; const s=a.slice().sort((x,y)=>x-y); const mid=Math.floor(s.length/2); return s.length%2? s[mid] : (s[mid-1]+s[mid])/2; }
+function channelStats(values){
+  const v = values.filter((x)=>Number.isFinite(x));
+  if(!v.length) return {n:0, mean:NaN, std:NaN, min:NaN, max:NaN, median:NaN};
+  return {n:v.length, mean:mean(v), std:stdDev(v), min:Math.min(...v), max:Math.max(...v), median:median(v)};
+}
+function movingAverageTrailingCentered(values, windowSize){
+  const n = values.length;
+  if (windowSize < 2) return values.slice();
+  const half = Math.floor(windowSize/2);
+  const trailing = new Array(n).fill(NaN);
+  let s=0, c=0; const q=[];
+  for(let i=0;i<n;i++){
+    const v=values[i]; q.push(v);
+    if(Number.isFinite(v)){s+=v;c++;}
+    if(q.length>windowSize){const rm=q.shift(); if(Number.isFinite(rm)){s-=rm;c--;}}
+    trailing[i] = c>0 ? s/c : NaN;
+  }
+  const out = new Array(n).fill(NaN);
+  for(let i=0;i<n;i++){ out[i] = trailing[Math.min(n-1, i+half)]; }
+  return out;
+}
+function fmtNum(x, decimals){
+  if (!Number.isFinite(x)) return "\u2013";
+  return x.toLocaleString("en-US", {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+}
+function decimalsFor(values){
+  const v = values.filter(Number.isFinite);
+  if (v.length<2) return 3;
+  const uniq = Array.from(new Set(v)).sort((a,b)=>a-b);
+  let smallest = Infinity;
+  for(let i=1;i<uniq.length;i++){ const d=uniq[i]-uniq[i-1]; if(d>0 && d<smallest) smallest=d; }
+  if(!Number.isFinite(smallest) || smallest<=0) return 3;
+  const dec = Math.ceil(-Math.log10(smallest));
+  return Math.min(6, Math.max(0, dec));
+}
+function fmtX(v, isDatetime){
+  if (!Number.isFinite(v)) return "\u2013";
+  if (isDatetime) return new Date(v).toLocaleString("en-US");
+  return fmtNum(v, 3);
+}
+function fmtDuration(x0, x1, isDatetime){
+  const d = x1-x0;
+  if (isDatetime) {
+    const s = d/1000;
+    if (s < 120) return s.toFixed(1)+" s";
+    const m = s/60;
+    if (m < 120) return m.toFixed(1)+" min";
+    return (m/60).toFixed(2)+" h";
+  }
+  return fmtNum(d,3);
+}
+
+// ===========================================================================
+// 3. App state
+// ===========================================================================
+const DATASET_COLORS = ["#1f77b4", "#d62728", "#2ca02c", "#9467bd", "#ff7f0e", "#8c564b", "#17becf"];
+const REGION_COLORS = ["#f2b705", "#7c4dff", "#00bfa5", "#ff5c8a", "#5c6bc0", "#ef6c00", "#26a69a"];
+
+let datasets = [];      // {id, name, color, xCol, xValues, isDatetime, channels: {voltage:[{name,values}], current:[...], power:[...]}}
+let regions = [];       // {id, label, x0, x1, color, compare:boolean}
+let nextDatasetId = 1;
+let nextRegionId = 1;
+let pendingSelection = null; // {x0, x1}
+let markMode = false;
+let trendEnabled = false;
+let liveDatasetsByDeviceId = {}; // device_id -> the dataset object in `datasets` fed by the live WebSocket
+
+const plotDiv = document.getElementById("plot");
+
+// ===========================================================================
+// 4. File loading
+// ===========================================================================
+document.getElementById("fileInput").addEventListener("change", (e) => {
+  const files = Array.from(e.target.files || []);
+  files.forEach(loadFile);
+  e.target.value = "";
+});
+
+// Drag-and-drop anywhere on the page, in case selecting multiple files in
+// the OS file picker isn't convenient - drop several CSVs at once.
+["dragenter", "dragover"].forEach((evt) => {
+  document.body.addEventListener(evt, (e) => { e.preventDefault(); document.body.style.outline = "2px dashed var(--accent)"; });
+});
+["dragleave", "drop"].forEach((evt) => {
+  document.body.addEventListener(evt, (e) => { e.preventDefault(); document.body.style.outline = "none"; });
+});
+document.body.addEventListener("drop", (e) => {
+  const files = Array.from(e.dataTransfer && e.dataTransfer.files ? e.dataTransfer.files : []).filter((f) => /\.csv$/i.test(f.name));
+  files.forEach(loadFile);
+});
+
+function loadFile(file) {
+  Papa.parse(file, {
+    header: true,
+    dynamicTyping: false,
+    skipEmptyLines: true,
+    complete: (res) => {
+      try { onParsed(file.name, res.data, res.meta.fields || []); }
+      catch (err) { alert("Could not process " + file.name + ": " + err.message); }
+    },
+    error: (err) => alert("Error reading " + file.name + ": " + err.message),
+  });
+}
+
+const CELL_VOLTAGE_PATTERN = /\b(?:cell|zelle)[\s_-]?0*(\d+)\b/i;
+
+function onParsed(fileName, rows, fields) {
+  if (!rows.length || fields.length < 2) { alert(fileName + ": no usable columns found."); return; }
+
+  let xCol = fields.find(looksLikeTime) || fields[0];
+  const xRaw = rows.map((r) => r[xCol]);
+  const { values: xValues, isDatetime } = coerceX(xRaw, xCol);
+
+  const channels = {};
+  TYPE_ORDER.forEach((t) => { channels[t] = []; });
+  const unrecognised = [];
+  const cellVoltages = [];
+  for (const col of fields) {
+    if (col === xCol) continue;
+    const raw = rows.map((r) => r[col]);
+    const numeric = toNumericArray(raw);
+    const numOk = numeric.filter((v) => !Number.isNaN(v)).length / numeric.length;
+    if (numOk < 0.5) continue;
+    const cellMatch = col.match(CELL_VOLTAGE_PATTERN);
+    if (cellMatch) { cellVoltages.push({ cellNum: parseInt(cellMatch[1], 10), name: col, values: numeric }); continue; }
+    const sig = detectSignal(col);
+    if (sig) channels[sig].push({ name: col, values: numeric });
+    else unrecognised.push({ name: col, values: numeric });
+  }
+  cellVoltages.sort((a, b) => a.cellNum - b.cellNum);
+
+  const anyChannel = TYPE_ORDER.some((t) => channels[t].length) || cellVoltages.length;
+  if (!anyChannel) {
+    alert(fileName + ": couldn't detect a Current/Voltage/Power/Temperature/Pressure/Flow column (" +
+      (unrecognised.length ? "found: " + unrecognised.map((c) => c.name).join(", ") : "no numeric columns") +
+      "). Rename the column header, or load it anyway and assign its type manually below.");
+    if (!unrecognised.length) return;
+    // Fall through: still create the dataset so unrecognised numeric columns
+    // can be manually assigned a type in the sidebar instead of losing the file.
+  }
+
+  const name = fileName.replace(/\.csv$/i, "");
+  // Re-uploading the same filename replaces the previous copy instead of
+  // silently stacking a duplicate on top of it (this was very likely why
+  // channels from an old test kept showing up alongside new ones).
+  const existing = datasets.find((d) => d.name === name);
+  if (existing) datasets = datasets.filter((d) => d.id !== existing.id);
+  const id = nextDatasetId++;
+  const color = existing ? existing.color : DATASET_COLORS[(id - 1) % DATASET_COLORS.length];
+  datasets.push({ id, name, color, xCol, xValues, isDatetime, channels, unrecognised, cellVoltages });
+
+  renderDatasetChips();
+  rebuildPlot();
+  renderRegionList(); // recompute stats since a new dataset now exists
+  ivDirty = true;
+  dynDirty = true;
+  effDirty = true;
+  startDirty = true;
+  loadDirty = true;
+  stabDirty = true;
+  crossDirty = true;
+  cellDirty = true;
+  degDirty = true;
+  evtDirty = true;
+  summaryDirty = true;
+  if (activeView === "iv") { rebuildIvAll(); ivDirty = false; }
+}
+
+function removeDataset(id) {
+  Object.keys(liveDatasetsByDeviceId).forEach((devId) => {
+    if (liveDatasetsByDeviceId[devId].id === id) delete liveDatasetsByDeviceId[devId];
+  });
+  datasets = datasets.filter((d) => d.id !== id);
+  renderDatasetChips();
+  rebuildPlot();
+  renderRegionList();
+  ivDirty = true;
+  dynDirty = true;
+  effDirty = true;
+  startDirty = true;
+  loadDirty = true;
+  stabDirty = true;
+  crossDirty = true;
+  cellDirty = true;
+  degDirty = true;
+  evtDirty = true;
+  summaryDirty = true;
+  if (activeView === "iv") { rebuildIvAll(); ivDirty = false; }
+}
+
+function renderDatasetChips() {
+  const box = document.getElementById("datasetChips");
+  box.innerHTML = "";
+  datasets.forEach((d) => {
+    const chip = document.createElement("span");
+    chip.className = "chip";
+    const nChParts = TYPE_ORDER.filter((t) => d.channels[t].length).map((t) => SIGNAL_RULES[t].label);
+    if (d.cellVoltages && d.cellVoltages.length) nChParts.push(d.cellVoltages.length + " cells");
+    const nCh = nChParts.join(", ");
+    const warnBadge = (d.unrecognised && d.unrecognised.length)
+      ? ' <span class="muted" title="Not auto-classified: ' + escapeHtml(d.unrecognised.map((c) => c.name).join(", ")) + '. Assign a type for them below.">&#9888; ' + d.unrecognised.length + ' unclassified</span>'
+      : "";
+    chip.innerHTML = '<span class="swatch" style="background:' + d.color + '"></span>' +
+      escapeHtml(d.name) + ' <span class="muted">(' + escapeHtml(nCh) + ')</span>' + warnBadge;
+    const rm = document.createElement("button");
+    rm.textContent = "\u2715";
+    rm.title = "Remove dataset";
+    rm.onclick = () => removeDataset(d.id);
+    chip.appendChild(rm);
+    box.appendChild(chip);
+  });
+  document.getElementById("emptyState").style.display = datasets.length ? "none" : "block";
+  document.getElementById("datasetHint").textContent = datasets.length
+    ? datasets.length + " dataset" + (datasets.length > 1 ? "s" : "") + " loaded."
+    : "No file loaded yet.";
+  renderUnclassifiedList();
+}
+
+function renderUnclassifiedList() {
+  const card = document.getElementById("unclassifiedCard");
+  const box = document.getElementById("unclassifiedList");
+  const withUnclassified = datasets.filter((d) => d.unrecognised && d.unrecognised.length);
+  if (!withUnclassified.length) { card.style.display = "none"; box.innerHTML = ""; return; }
+  card.style.display = "block";
+  box.innerHTML = "";
+  withUnclassified.forEach((ds) => {
+    ds.unrecognised.forEach((col, colIdx) => {
+      const row = document.createElement("div");
+      row.className = "row wrap";
+      row.style.marginBottom = "6px";
+      const label = document.createElement("span");
+      label.textContent = ds.name + ": " + col.name;
+      label.style.flex = "1 1 auto";
+      label.style.fontSize = "12.5px";
+      const sel = document.createElement("select");
+      sel.style.width = "auto";
+      sel.innerHTML = '<option value="">Assign type&hellip;</option>' +
+        TYPE_ORDER.map((t) => '<option value="' + t + '">' + SIGNAL_RULES[t].label + "</option>").join("");
+      sel.addEventListener("change", () => {
+        if (!sel.value) return;
+        ds.channels[sel.value].push({ name: col.name, values: col.values });
+        ds.unrecognised = ds.unrecognised.filter((c) => c !== col);
+        renderDatasetChips(); // also re-renders this list
+        rebuildPlot();
+        renderRegionList();
+        ivDirty = true; dynDirty = true; effDirty = true; startDirty = true; loadDirty = true; stabDirty = true; crossDirty = true; cellDirty = true; degDirty = true; evtDirty = true; summaryDirty = true;
+        if (activeView === "iv") { rebuildIvAll(); ivDirty = false; }
+        if (activeView === "dyn") { renderDynTable(); dynDirty = false; }
+      });
+      row.appendChild(label);
+      row.appendChild(sel);
+      box.appendChild(row);
+    });
+  });
+}
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+
+// ===========================================================================
+// 5. Plot building
+// ===========================================================================
+function activeTypes() {
+  return TYPE_ORDER.filter((t) => datasets.some((d) => d.channels[t].length));
+}
+
+function rebuildPlot() {
+  const types = activeTypes();
+  if (!types.length) { Plotly.purge(plotDiv); return; }
+
+  const nRows = types.length;
+  const gap = 0.06;
+  const rowH = (1 - gap * (nRows - 1)) / nRows;
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  const yRef = (i) => (i === 0 ? "y" : "y" + (i + 1));
+  const yKeyOf = (i) => (i === 0 ? "yaxis" : "yaxis" + (i + 1));
+
+  const layout = {
+    margin: { t: 30, r: 20, l: 60, b: 40 },
+    height: 300 * nRows + 60,
+    showlegend: true,
+    legend: { orientation: "h", y: -0.12 },
+    hovermode: "x unified",
+    dragmode: markMode ? "select" : "pan",
+    selectdirection: "h",
+    paper_bgcolor: "rgba(0,0,0,0)",
+    plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    shapes: regionShapes(),
+    annotations: regionAnnotations(),
+    // A single shared x-axis (rather than one per row linked via "matches")
+    // used by every trace below - simpler and avoids a Plotly compatibility
+    // issue where a range slider combined with WebGL (scattergl) traces
+    // across several linked axes can throw during rendering. Panning,
+    // scroll-to-zoom, and double-click-to-reset still work via dragmode/
+    // scrollZoom below; only the range-slider strip is gone.
+    xaxis: { domain: [0, 1] },
+  };
+  if (globalIsDatetime) layout.xaxis.type = "date";
+
+  const traces = [];
+  types.forEach((type, i) => {
+    const top = 1 - i * (rowH + gap);
+    const bottom = top - rowH;
+    const yKey = yKeyOf(i);
+
+    // Precision-aware axis formatting: pick enough decimals to show this
+    // channel's real resolution (e.g. a brief negative current dip at
+    // start-up) instead of a generic default that can round it away. A
+    // visible zero-line makes a brief sign change easy to spot at a glance.
+    const allVals = [];
+    datasets.forEach((ds) => ds.channels[type].forEach((chan) => allVals.push(...chan.values)));
+    const dec = decimalsFor(allVals);
+    const tickfmt = "." + dec + "f";
+
+    layout[yKey] = {
+      title: SIGNAL_RULES[type].label + " (" + SIGNAL_RULES[type].unit + ")",
+      domain: [bottom, top], fixedrange: true,
+      zeroline: true, zerolinewidth: 1.5, zerolinecolor: "#888",
+      tickformat: tickfmt, hoverformat: tickfmt,
+    };
+
+    datasets.forEach((ds) => {
+      ds.channels[type].forEach((chan, chanIdx) => {
+        const dash = ["solid", "dash", "dot", "dashdot"][chanIdx % 4];
+        traces.push({
+          type: "scattergl", mode: "lines",
+          x: ds.xValues, y: chan.values,
+          name: ds.name + ": " + chan.name,
+          xaxis: "x", yaxis: yRef(i),
+          line: { color: ds.color, dash, width: 1.4 },
+          legendgroup: "raw-" + ds.id,
+        });
+        if (trendEnabled) {
+          const w = Math.max(2, parseInt(document.getElementById("trendWindow").value, 10) || 25);
+          traces.push({
+            type: "scattergl", mode: "lines",
+            x: ds.xValues, y: movingAverageTrailingCentered(chan.values, w),
+            name: ds.name + ": " + chan.name + " (trend)",
+            xaxis: "x", yaxis: yRef(i),
+            line: { color: ds.color, width: 2.6 }, opacity: 0.55,
+            legendgroup: "trend-" + ds.id,
+          });
+        }
+      });
+    });
+  });
+
+  Plotly.react(plotDiv, traces, layout, { responsive: true, scrollZoom: true, displaylogo: false });
+
+  if (!plotDiv._selectionBound) {
+    plotDiv.on("plotly_selected", (evt) => {
+      const xr = extractXRange(evt);
+      if (!xr) { pendingSelection = null; updateAddRegionBtn(); return; }
+      // On a date-type axis Plotly may return date strings (or Date objects)
+      // instead of plain numbers - normalize everything back to epoch ms so
+
+      // it lines up with the numeric ds.xValues used everywhere else.
+      const toNum = (v) => (v instanceof Date ? v.getTime() : (typeof v === "string" ? Date.parse(v) : v));
+      const x0 = toNum(xr[0]), x1 = toNum(xr[1]);
+      pendingSelection = { x0: Math.min(x0, x1), x1: Math.max(x0, x1) };
+      updateAddRegionBtn();
+    });
+    plotDiv.on("plotly_deselect", () => { pendingSelection = null; updateAddRegionBtn(); });
+    plotDiv._selectionBound = true;
+  }
+}
+
+// A box-select can happen on any subplot row, so its axis key in the event
+// is "x", "x2", "x3", ... depending on which row was dragged - not always "x".
+function extractXRange(evt) {
+  if (!evt) return null;
+  if (evt.range) {
+    const key = Object.keys(evt.range).find((k) => /^x\d*$/.test(k));
+    if (key) return evt.range[key];
+  }
+  if (evt.selections && evt.selections.length) {
+    const s = evt.selections[0];
+    if (s.x0 !== undefined && s.x1 !== undefined) return [s.x0, s.x1];
+  }
+  return null;
+}
+
+function regionShapes() {
+  return regions.map((r) => ({
+    type: "rect", xref: "x", yref: "paper",
+    x0: r.x0, x1: r.x1, y0: 0, y1: 1,
+    fillcolor: r.color, opacity: 0.16, line: { width: 0 }, layer: "below",
+  }));
+}
+function regionAnnotations() {
+  return regions.map((r) => ({
+    x: (r.x0 + r.x1) / 2, y: 1, yref: "paper", xref: "x",
+    text: r.label, showarrow: false, yanchor: "bottom",
+    font: { size: 10, color: r.color },
+  }));
+}
+
+// ===========================================================================
+// 6. Region marking
+// ===========================================================================
+document.getElementById("modeBtn").addEventListener("click", () => {
+  markMode = !markMode;
+  document.getElementById("modeState").textContent = markMode ? "On" : "Off";
+  document.getElementById("modeBtn").classList.toggle("primary", markMode);
+  Plotly.relayout(plotDiv, { dragmode: markMode ? "select" : "pan", selectdirection: "h" });
+});
+
+function updateAddRegionBtn() {
+  document.getElementById("addRegionBtn").disabled = !pendingSelection;
+}
+
+document.getElementById("addRegionBtn").addEventListener("click", () => {
+  if (!pendingSelection) return;
+  const id = nextRegionId++;
+  const color = REGION_COLORS[(id - 1) % REGION_COLORS.length];
+  regions.push({ id, label: "Region " + id, x0: pendingSelection.x0, x1: pendingSelection.x1, color, compare: false });
+  pendingSelection = null;
+  updateAddRegionBtn();
+  Plotly.relayout(plotDiv, { shapes: regionShapes(), annotations: regionAnnotations(), selections: [] });
+  renderRegionList();
+  ivDirty = true;
+  dynDirty = true;
+  effDirty = true;
+  startDirty = true;
+  loadDirty = true;
+  stabDirty = true;
+  crossDirty = true;
+  cellDirty = true;
+  degDirty = true;
+  evtDirty = true;
+  summaryDirty = true;
+  if (activeView === "iv") { rebuildIvAll(); ivDirty = false; }
+});
+
+document.getElementById("clearRegionsBtn").addEventListener("click", () => {
+  if (!regions.length) return;
+  if (!confirm("Really delete all marked regions?")) return;
+  ivDirty = true;
+  dynDirty = true;
+  effDirty = true;
+  startDirty = true;
+  loadDirty = true;
+  stabDirty = true;
+  crossDirty = true;
+  cellDirty = true;
+  degDirty = true;
+  evtDirty = true;
+  summaryDirty = true;
+  regions = [];
+  Plotly.relayout(plotDiv, { shapes: [], annotations: [] });
+  renderRegionList();
+  if (activeView === "iv") { rebuildIvAll(); ivDirty = false; }
+});
+
+// ===========================================================================
+// 7. Region list + per-region per-dataset stats
+// ===========================================================================
+function regionDatasetStats(region, ds) {
+  const idx = [];
+  for (let i = 0; i < ds.xValues.length; i++) {
+    const x = ds.xValues[i];
+    if (Number.isFinite(x) && x >= region.x0 && x <= region.x1) idx.push(i);
+  }
+  const out = { n: idx.length };
+  TYPE_ORDER.forEach((type) => {
+    out[type] = ds.channels[type].map((chan) => ({
+      name: chan.name,
+      stats: channelStats(idx.map((i) => chan.values[i])),
+    }));
+  });
+  return out;
+}
+
+function renderRegionList() {
+  const box = document.getElementById("regionList");
+  box.innerHTML = "";
+  if (!regions.length) { box.innerHTML = '<p class="muted">No region marked yet.</p>'; renderCompareTable(); return; }
+
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+
+  regions.forEach((r) => {
+    const card = document.createElement("div");
+    card.className = "region-card";
+
+    const head = document.createElement("div");
+    head.className = "head";
+    const sw = document.createElement("span");
+    sw.className = "swatch";
+    sw.style.background = r.color;
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.value = r.label;
+    nameInput.oninput = () => { r.label = nameInput.value; Plotly.relayout(plotDiv, { annotations: regionAnnotations() }); };
+    const cmpLabel = document.createElement("label");
+    cmpLabel.style.display = "flex"; cmpLabel.style.alignItems = "center"; cmpLabel.style.gap = "4px"; cmpLabel.style.fontSize = "11px";
+    const cmpBox = document.createElement("input");
+    cmpBox.type = "checkbox";
+    cmpBox.checked = r.compare;
+    cmpBox.onchange = () => { r.compare = cmpBox.checked; renderCompareTable(); };
+    cmpLabel.appendChild(cmpBox);
+    cmpLabel.appendChild(document.createTextNode("Compare"));
+    const delBtn = document.createElement("button");
+    delBtn.textContent = "\u2715";
+    delBtn.title = "Delete region";
+    delBtn.onclick = () => {
+      regions = regions.filter((x) => x.id !== r.id);
+      Plotly.relayout(plotDiv, { shapes: regionShapes(), annotations: regionAnnotations() });
+      renderRegionList();
+      ivDirty = true;
+      dynDirty = true;
+      effDirty = true;
+      startDirty = true;
+      loadDirty = true;
+      stabDirty = true;
+      crossDirty = true;
+      cellDirty = true;
+      degDirty = true;
+      evtDirty = true;
+      summaryDirty = true;
+      if (activeView === "iv") { rebuildIvAll(); ivDirty = false; }
+    };
+    head.appendChild(sw); head.appendChild(nameInput); head.appendChild(cmpLabel); head.appendChild(delBtn);
+    card.appendChild(head);
+
+    const meta = document.createElement("div");
+    meta.className = "meta";
+    meta.textContent = fmtX(r.x0, globalIsDatetime) + "  \u2192  " + fmtX(r.x1, globalIsDatetime) + "   (duration: " + fmtDuration(r.x0, r.x1, globalIsDatetime) + ")";
+    card.appendChild(meta);
+
+    const statsDiv = document.createElement("div");
+    statsDiv.className = "stats";
+    if (!datasets.length) {
+      statsDiv.innerHTML = '<span class="muted">No dataset loaded.</span>';
+    } else {
+      datasets.forEach((ds) => {
+        const st = regionDatasetStats(r, ds);
+        let line = "<b>" + escapeHtml(ds.name) + "</b> (" + st.n + " points): ";
+        const parts = [];
+        TYPE_ORDER.forEach((type) => {
+          st[type].forEach((c) => {
+            const chan = ds.channels[type].find((x) => x.name === c.name);
+            const dec = decimalsFor(chan ? chan.values : []);
+            parts.push(c.name + " = " + fmtNum(c.stats.mean, dec) + " \u00b1 " + fmtNum(c.stats.std, dec) + " " + SIGNAL_RULES[type].unit);
+          });
+        });
+        line += parts.join(" &nbsp;|&nbsp; ") || '<span class="muted">no matching channels</span>';
+        const p = document.createElement("div");
+        p.innerHTML = line;
+        statsDiv.appendChild(p);
+      });
+    }
+    card.appendChild(statsDiv);
+    box.appendChild(card);
+  });
+
+  renderCompareTable();
+}
+
+// ===========================================================================
+// 8. Compare table + CSV export
+// ===========================================================================
+function buildCompareRows() {
+  const chosen = regions.filter((r) => r.compare);
+  const useRegions = chosen.length ? chosen : regions;
+  const types = activeTypes();
+  const rows = [];
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  useRegions.forEach((r) => {
+    datasets.forEach((ds) => {
+      const st = regionDatasetStats(r, ds);
+      const row = {
+        region: r.label, dataset: ds.name,
+        start: fmtX(r.x0, globalIsDatetime), end: fmtX(r.x1, globalIsDatetime),
+        duration: fmtDuration(r.x0, r.x1, globalIsDatetime), n: st.n,
+        byType: {},
+      };
+      types.forEach((type) => {
+        // If a dataset has multiple columns of the same type, the first one
+        // is shown here for compactness; per-column detail is in the region card.
+        const c = st[type][0];
+        row.byType[type] = c ? c.stats : { mean: NaN, std: NaN, min: NaN, max: NaN };
+      });
+      rows.push(row);
+    });
+  });
+  return { rows, types };
+}
+
+function renderCompareTable() {
+  const { rows, types } = buildCompareRows();
+  const box = document.getElementById("compareTable");
+  const exportBtn = document.getElementById("exportBtn");
+  if (!rows.length || !types.length) {
+    box.innerHTML = '<p class="muted">No data for a comparison table yet.</p>';
+    exportBtn.disabled = true;
+    return;
+  }
+  exportBtn.disabled = false;
+
+  let html = '<table class="compare"><thead><tr>';
+  html += '<th rowspan="2">Region</th><th rowspan="2">Dataset</th><th rowspan="2">Start</th><th rowspan="2">End</th><th rowspan="2">Duration</th><th rowspan="2">n</th>';
+  types.forEach((t) => { html += '<th colspan="4">' + SIGNAL_RULES[t].label + ' (' + SIGNAL_RULES[t].unit + ')</th>'; });
+  html += '</tr><tr>';
+  types.forEach(() => { html += '<th>Mean</th><th>StdDev</th><th>Min</th><th>Max</th>'; });
+  html += '</tr></thead><tbody>';
+  rows.forEach((row) => {
+    html += '<tr><td>' + escapeHtml(row.region) + '</td><td>' + escapeHtml(row.dataset) + '</td><td>' + row.start + '</td><td>' + row.end + '</td><td>' + row.duration + '</td><td>' + row.n + '</td>';
+    types.forEach((t) => {
+      const s = row.byType[t];
+      html += '<td>' + fmtNum(s.mean,3) + '</td><td>' + fmtNum(s.std,3) + '</td><td>' + fmtNum(s.min,3) + '</td><td>' + fmtNum(s.max,3) + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  box.innerHTML = html;
+}
+
+function buildCsvFromCompare() {
+  const { rows, types } = buildCompareRows();
+  const header = ["Region", "Dataset", "Start", "End", "Duration", "n"];
+  types.forEach((t) => { const u = SIGNAL_RULES[t].unit; header.push(t+"_mean_"+u, t+"_std_"+u, t+"_min_"+u, t+"_max_"+u); });
+  const lines = [header.join(";")];
+  rows.forEach((row) => {
+    const line = [row.region, row.dataset, row.start, row.end, row.duration, row.n];
+    types.forEach((t) => { const s = row.byType[t]; line.push(s.mean, s.std, s.min, s.max); });
+    lines.push(line.map((v) => '"' + String(v).replace(/"/g,'""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+let downloadsCap = null;
+(async () => {
+  try { downloadsCap = (window.claude && window.claude.use) ? await window.claude.use("downloads") : null; }
+  catch (e) { downloadsCap = null; }
+})();
+
+document.getElementById("exportBtn").addEventListener("click", async () => {
+  const csv = buildCsvFromCompare();
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename: "regions_comparison.csv", data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    // Fallback for local/offline use (e.g. opened directly as a file, outside claude.ai)
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "regions_comparison.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+});
+
+// ===========================================================================
+// 9. Trend toggle wiring
+// ===========================================================================
+document.getElementById("trendToggle").addEventListener("change", (e) => { trendEnabled = e.target.checked; rebuildPlot(); });
+document.getElementById("trendWindow").addEventListener("change", () => { if (trendEnabled) rebuildPlot(); });
+
+// ===========================================================================
+// 10. I-V / Polarization view
+// ===========================================================================
+let activeView = "ts"; // "ts" | "iv" | "dyn" | "eff" | "start" | "load" | "stab" | "cross"
+let ivDirty = true;
+let dynDirty = true;
+let effDirty = true;
+let startDirty = true;
+let loadDirty = true;
+let stabDirty = true;
+let crossDirty = true;
+let cellDirty = true;
+let degDirty = true;
+let evtDirty = true;
+let summaryDirty = true;
+
+function switchView(view) {
+  activeView = view;
+  document.getElementById("tsViewWrap").style.display = view === "ts" ? "flex" : "none";
+  document.getElementById("ivViewWrap").style.display = view === "iv" ? "flex" : "none";
+  document.getElementById("dynViewWrap").style.display = view === "dyn" ? "flex" : "none";
+  document.getElementById("effViewWrap").style.display = view === "eff" ? "flex" : "none";
+  document.getElementById("startViewWrap").style.display = view === "start" ? "flex" : "none";
+  document.getElementById("loadViewWrap").style.display = view === "load" ? "flex" : "none";
+  document.getElementById("stabViewWrap").style.display = view === "stab" ? "flex" : "none";
+  document.getElementById("crossViewWrap").style.display = view === "cross" ? "flex" : "none";
+  document.getElementById("cellViewWrap").style.display = view === "cell" ? "flex" : "none";
+  document.getElementById("degViewWrap").style.display = view === "deg" ? "flex" : "none";
+  document.getElementById("evtViewWrap").style.display = view === "evt" ? "flex" : "none";
+  document.getElementById("summaryViewWrap").style.display = view === "summary" ? "flex" : "none";
+  document.getElementById("tabTsBtn").classList.toggle("primary", view === "ts");
+  document.getElementById("tabIvBtn").classList.toggle("primary", view === "iv");
+  document.getElementById("tabDynBtn").classList.toggle("primary", view === "dyn");
+  document.getElementById("tabEffBtn").classList.toggle("primary", view === "eff");
+  document.getElementById("tabStartBtn").classList.toggle("primary", view === "start");
+  document.getElementById("tabLoadBtn").classList.toggle("primary", view === "load");
+  document.getElementById("tabStabBtn").classList.toggle("primary", view === "stab");
+  document.getElementById("tabCrossBtn").classList.toggle("primary", view === "cross");
+  document.getElementById("tabCellBtn").classList.toggle("primary", view === "cell");
+  document.getElementById("tabDegBtn").classList.toggle("primary", view === "deg");
+  document.getElementById("tabEvtBtn").classList.toggle("primary", view === "evt");
+  document.getElementById("tabSummaryBtn").classList.toggle("primary", view === "summary");
+  if (view === "iv" && ivDirty) { rebuildIvAll(); ivDirty = false; }
+  if (view === "dyn" && dynDirty) { renderDynTable(); dynDirty = false; }
+  if (view === "eff" && effDirty) { rebuildEffAll(); effDirty = false; }
+  if (view === "start" && startDirty) { renderStartTable(); startDirty = false; }
+  if (view === "load" && loadDirty) { rebuildLoadAll(); loadDirty = false; }
+  if (view === "stab" && stabDirty) { rebuildStabAll(); stabDirty = false; }
+  if (view === "cross" && crossDirty) { rebuildCrossAll(); crossDirty = false; }
+  if (view === "cell" && cellDirty) { rebuildCellAll(); cellDirty = false; }
+  if (view === "deg" && degDirty) { rebuildDegAll(); degDirty = false; }
+  if (view === "evt" && evtDirty) { populateEvtSelectors(); evtDirty = false; }
+  if (view === "summary" && summaryDirty) { renderSummaryTable(); summaryDirty = false; }
+}
+document.getElementById("tabTsBtn").addEventListener("click", () => switchView("ts"));
+document.getElementById("tabIvBtn").addEventListener("click", () => switchView("iv"));
+document.getElementById("tabDynBtn").addEventListener("click", () => switchView("dyn"));
+document.getElementById("tabEffBtn").addEventListener("click", () => switchView("eff"));
+document.getElementById("tabStartBtn").addEventListener("click", () => switchView("start"));
+document.getElementById("tabLoadBtn").addEventListener("click", () => switchView("load"));
+document.getElementById("tabStabBtn").addEventListener("click", () => switchView("stab"));
+document.getElementById("tabCrossBtn").addEventListener("click", () => switchView("cross"));
+document.getElementById("tabCellBtn").addEventListener("click", () => switchView("cell"));
+document.getElementById("tabDegBtn").addEventListener("click", () => switchView("deg"));
+document.getElementById("tabEvtBtn").addEventListener("click", () => switchView("evt"));
+document.getElementById("tabSummaryBtn").addEventListener("click", () => switchView("summary"));
+
+// Build (I, V, P) points for one dataset, either from every raw sample
+// ("sweep") or from the mean of each marked region ("regions" - steady
+// state). Power is always the physically-correct mean of the pointwise
+// V*I product, not the product of the means. Points are sorted by
+// ascending current for a clean curve and for interpolation.
+function ivPointsForDataset(ds) {
+  if (!ds.channels.voltage.length || !ds.channels.current.length) return null;
+  const vCol = ds.channels.voltage[0];
+  const iCol = ds.channels.current[0];
+  const mode = ds.ivMode || "sweep";
+  let Is = [], Vs = [], Ps = [];
+
+  if (mode === "regions") {
+    regions.forEach((r) => {
+      const idx = [];
+      for (let k = 0; k < ds.xValues.length; k++) {
+        const x = ds.xValues[k];
+        if (Number.isFinite(x) && x >= r.x0 && x <= r.x1) idx.push(k);
+      }
+      if (!idx.length) return;
+      const vVals = idx.map((k) => vCol.values[k]).filter(Number.isFinite);
+      const iVals = idx.map((k) => iCol.values[k]).filter(Number.isFinite);
+      const pVals = idx
+        .map((k) => (Number.isFinite(vCol.values[k]) && Number.isFinite(iCol.values[k])) ? vCol.values[k] * iCol.values[k] : NaN)
+        .filter(Number.isFinite);
+      if (!vVals.length || !iVals.length) return;
+      Vs.push(mean(vVals)); Is.push(mean(iVals));
+      Ps.push(pVals.length ? mean(pVals) : mean(vVals) * mean(iVals));
+    });
+  } else {
+    for (let k = 0; k < ds.xValues.length; k++) {
+      const v = vCol.values[k], i = iCol.values[k];
+      if (Number.isFinite(v) && Number.isFinite(i)) { Vs.push(v); Is.push(i); Ps.push(v * i); }
+    }
+  }
+  if (Is.length < 2) return null;
+
+  const order = Is.map((_, idx) => idx).sort((a, b) => Is[a] - Is[b]);
+  return {
+    I: order.map((k) => Is[k]), V: order.map((k) => Vs[k]), P: order.map((k) => Ps[k]),
+    vName: vCol.name, iName: iCol.name,
+  };
+}
+
+// Linear interpolation; returns null outside the curve's measured range
+// rather than extrapolating (extrapolated fuel-cell numbers are misleading).
+function interp1(xs, ys, xq) {
+  if (!xs.length) return null;
+  if (xq < xs[0] || xq > xs[xs.length - 1]) return null;
+  for (let i = 1; i < xs.length; i++) {
+    if (xq <= xs[i]) {
+      const x0 = xs[i - 1], x1 = xs[i], y0 = ys[i - 1], y1 = ys[i];
+      if (x1 === x0) return y0;
+      return y0 + ((xq - x0) / (x1 - x0)) * (y1 - y0);
+    }
+  }
+  return ys[ys.length - 1];
+}
+
+function ivCharacteristics(pts) {
+  const { I, V, P } = pts;
+  let iMaxIdx = 0, pMaxIdx = 0;
+  for (let k = 1; k < I.length; k++) if (I[k] > I[iMaxIdx]) iMaxIdx = k;
+  for (let k = 1; k < P.length; k++) if (P[k] > P[pMaxIdx]) pMaxIdx = k;
+  return {
+    ocvI: I[0], ocvV: V[0],
+    iMax: I[iMaxIdx], vAtIMax: V[iMaxIdx],
+    pMax: P[pMaxIdx], iAtPMax: I[pMaxIdx], vAtPMax: V[pMaxIdx],
+  };
+}
+
+function activeIvDatasets() {
+  return datasets.map((ds) => ({ ds, pts: ivPointsForDataset(ds) })).filter((x) => x.pts);
+}
+
+function rebuildIvAll() {
+  renderIvDatasetSettings();
+  rebuildIvPlot();
+  renderIvCharTable();
+  renderIvQueryResult();
+}
+
+function renderIvDatasetSettings() {
+  const box = document.getElementById("ivDatasetSettings");
+  box.innerHTML = "";
+  const withVI = datasets.filter((d) => d.channels.voltage.length && d.channels.current.length);
+  if (!withVI.length) { box.innerHTML = '<p class="muted">No dataset with both Voltage and Current yet.</p>'; return; }
+  withVI.forEach((ds) => {
+    if (ds.ivMode === undefined) ds.ivMode = "sweep";
+    if (ds.areaCm2 === undefined) ds.areaCm2 = null;
+    const row = document.createElement("div");
+    row.style.marginBottom = "10px"; row.style.paddingBottom = "10px"; row.style.borderBottom = "1px solid var(--border)";
+    row.innerHTML =
+      '<div class="row" style="margin-bottom:4px;"><span class="swatch" style="width:9px;height:9px;border-radius:50%;background:' + ds.color + '"></span><b>' + escapeHtml(ds.name) + '</b></div>' +
+      '<label class="field">Source</label>' +
+      '<select data-id="' + ds.id + '" class="ivModeSelect">' +
+        '<option value="sweep"' + (ds.ivMode === "sweep" ? " selected" : "") + '>Sweep (all points)</option>' +
+        '<option value="regions"' + (ds.ivMode === "regions" ? " selected" : "") + '>Steady-state regions (' + regions.length + ' marked)</option>' +
+      '</select>' +
+      '<label class="field" style="margin-top:6px;">Active area (cm&sup2;, optional)</label>' +
+      '<input type="number" min="0" step="any" class="ivAreaInput" data-id="' + ds.id + '" value="' + (ds.areaCm2 !== null ? ds.areaCm2 : "") + '" placeholder="e.g. 300">';
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".ivModeSelect").forEach((sel) => {
+    sel.addEventListener("change", (e) => {
+      const ds = datasets.find((d) => d.id === Number(e.target.getAttribute("data-id")));
+      if (ds) ds.ivMode = e.target.value;
+      rebuildIvPlot(); renderIvCharTable(); renderIvQueryResult();
+    });
+  });
+  box.querySelectorAll(".ivAreaInput").forEach((inp) => {
+    inp.addEventListener("input", (e) => {
+      const ds = datasets.find((d) => d.id === Number(e.target.getAttribute("data-id")));
+      const v = parseFloat(e.target.value);
+      if (ds) ds.areaCm2 = (Number.isFinite(v) && v > 0) ? v : null;
+      updateIvDensityAvailability();
+      rebuildIvPlot(); renderIvCharTable();
+    });
+  });
+  updateIvDensityAvailability();
+}
+
+function updateIvDensityAvailability() {
+  const items = activeIvDatasets();
+  const allHaveArea = items.length > 0 && items.every((x) => x.ds.areaCm2);
+  const sel = document.getElementById("ivXModeSelect");
+  sel.querySelector('option[value="density"]').disabled = !allHaveArea;
+  document.getElementById("ivDensityHint").textContent = allHaveArea ? "" : "Set an active area for every dataset to enable density.";
+  if (!allHaveArea && sel.value === "density") sel.value = "absolute";
+}
+
+function rebuildIvPlot() {
+  const items = activeIvDatasets();
+  document.getElementById("ivEmptyState").style.display = items.length ? "none" : "block";
+  const plotEl = document.getElementById("ivPlot");
+  if (!items.length) { Plotly.purge(plotEl); return; }
+
+  const useDensity = document.getElementById("ivXModeSelect").value === "density";
+  const xLabel = "Current" + (useDensity ? " density" : "") + " (" + (useDensity ? "A/cm\u00b2" : "A") + ")";
+
+  const traces = [];
+  items.forEach(({ ds, pts }) => {
+    const xVals = useDensity ? pts.I.map((v) => v / ds.areaCm2) : pts.I;
+    const mode = pts.I.length > 60 ? "lines" : "lines+markers";
+    traces.push({ type: "scatter", mode, x: xVals, y: pts.V, name: ds.name + " (V)", xaxis: "x", yaxis: "y", line: { color: ds.color, width: 2 } });
+    traces.push({ type: "scatter", mode, x: xVals, y: useDensity ? pts.P.map((v) => v / ds.areaCm2) : pts.P, name: ds.name + " (P)", xaxis: "x", yaxis: "y2", line: { color: ds.color, width: 2, dash: "dot" } });
+  });
+
+  const layout = {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 620,
+    showlegend: true, legend: { orientation: "h", y: -0.12 }, hovermode: "closest",
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    xaxis: { domain: [0, 1], title: xLabel },
+    yaxis: { domain: [0.54, 1], title: "Voltage (V)" },
+    yaxis2: { domain: [0, 0.46], title: useDensity ? "Power density (W/cm\u00b2)" : "Power (W)" },
+  };
+  Plotly.react(plotEl, traces, layout, { responsive: true, displaylogo: false });
+}
+
+function renderIvCharTable() {
+  const items = activeIvDatasets();
+  const box = document.getElementById("ivCharTable");
+  const btn = document.getElementById("ivExportBtn");
+  if (!items.length) { box.innerHTML = '<p class="muted">No data yet.</p>'; btn.disabled = true; return; }
+  btn.disabled = false;
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>OCV (V)</th><th>I_max (A)</th><th>V@I_max</th><th>P_max (W)</th><th>I@P_max</th><th>V@P_max</th><th>P_max density (W/cm&sup2;)</th></tr></thead><tbody>';
+  items.forEach(({ ds, pts }) => {
+    const c = ivCharacteristics(pts);
+    const pDens = ds.areaCm2 ? fmtNum(c.pMax / ds.areaCm2, 3) : "\u2013";
+    html += "<tr><td>" + escapeHtml(ds.name) + "</td><td>" + fmtNum(c.ocvV, 3) + "</td><td>" + fmtNum(c.iMax, 3) + "</td><td>" + fmtNum(c.vAtIMax, 3) + "</td><td>" + fmtNum(c.pMax, 3) + "</td><td>" + fmtNum(c.iAtPMax, 3) + "</td><td>" + fmtNum(c.vAtPMax, 3) + "</td><td>" + pDens + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildIvCharCsv() {
+  const items = activeIvDatasets();
+  const header = ["Dataset", "OCV_V", "I_max_A", "V_at_Imax_V", "P_max_W", "I_at_Pmax_A", "V_at_Pmax_V", "area_cm2", "P_max_density_W_cm2"];
+  const lines = [header.join(";")];
+  items.forEach(({ ds, pts }) => {
+    const c = ivCharacteristics(pts);
+    const pDens = ds.areaCm2 ? (c.pMax / ds.areaCm2) : "";
+    lines.push([ds.name, c.ocvV, c.iMax, c.vAtIMax, c.pMax, c.iAtPMax, c.vAtPMax, ds.areaCm2 || "", pDens].map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+document.getElementById("ivExportBtn").addEventListener("click", async () => {
+  const csv = buildIvCharCsv();
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename: "iv_characteristics.csv", data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "iv_characteristics.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+});
+
+function renderIvQueryResult() {
+  const items = activeIvDatasets();
+  const box = document.getElementById("ivQueryResult");
+  const iTarget = parseFloat(document.getElementById("ivQueryI").value);
+  const vTarget = parseFloat(document.getElementById("ivQueryV").value);
+  const hasI = Number.isFinite(iTarget), hasV = Number.isFinite(vTarget);
+  if (!items.length || (!hasI && !hasV)) { box.innerHTML = '<p class="muted">Enter a value above.</p>'; return; }
+
+  let html = '<table class="compare"><thead><tr><th>Dataset</th>';
+  if (hasI) html += "<th>V at I=" + iTarget + "</th><th>P at I=" + iTarget + "</th>";
+  if (hasV) html += "<th>I at V=" + vTarget + "</th><th>P at V=" + vTarget + "</th>";
+  html += "</tr></thead><tbody>";
+  items.forEach(({ ds, pts }) => {
+    html += "<tr><td>" + escapeHtml(ds.name) + "</td>";
+    if (hasI) {
+      const v = interp1(pts.I, pts.V, iTarget);
+      const p = interp1(pts.I, pts.P, iTarget);
+      html += "<td>" + (v === null ? "out of range" : fmtNum(v, 3)) + "</td><td>" + (p === null ? "\u2013" : fmtNum(p, 3)) + "</td>";
+    }
+    if (hasV) {
+      // V is usually descending as I rises; build a V-ascending view just for this lookup.
+      const order = pts.V.map((_, i) => i).sort((a, b) => pts.V[a] - pts.V[b]);
+      const Vsorted = order.map((i) => pts.V[i]), Isorted = order.map((i) => pts.I[i]);
+      const i = interp1(Vsorted, Isorted, vTarget);
+      const p = i === null ? null : interp1(pts.I, pts.P, i);
+      html += "<td>" + (i === null ? "out of range" : fmtNum(i, 3)) + "</td><td>" + (p === null ? "\u2013" : fmtNum(p, 3)) + "</td>";
+    }
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+document.getElementById("ivQueryI").addEventListener("input", renderIvQueryResult);
+document.getElementById("ivQueryV").addEventListener("input", renderIvQueryResult);
+document.getElementById("ivXModeSelect").addEventListener("change", rebuildIvPlot);
+
+// ===========================================================================
+// 11. Dynamic Response (rise/fall time, recovery time) - reuses marked regions
+// ===========================================================================
+
+// Average of the last few samples immediately before the region starts.
+// Returns null if the dataset has no data before region.x0.
+function baselineBeforeRegion(ds, values, region) {
+  const idx = [];
+  for (let i = 0; i < ds.xValues.length; i++) {
+    if (Number.isFinite(ds.xValues[i]) && ds.xValues[i] < region.x0) idx.push(i);
+  }
+  if (!idx.length) return null;
+  const nBaseline = Math.min(10, idx.length);
+  const lastIdx = idx.slice(-nBaseline);
+  const vals = lastIdx.map((i) => values[i]).filter(Number.isFinite);
+  return vals.length ? mean(vals) : null;
+}
+
+// The point within the region furthest from baseline (the dip/spike itself).
+function regionExtreme(ds, values, region, baseline) {
+  let bestIdx = -1, bestDev = -Infinity;
+  for (let i = 0; i < ds.xValues.length; i++) {
+    const x = ds.xValues[i];
+    if (!Number.isFinite(x) || x < region.x0 || x > region.x1) continue;
+    const v = values[i];
+    if (!Number.isFinite(v)) continue;
+    const dev = Math.abs(v - baseline);
+    if (dev > bestDev) { bestDev = dev; bestIdx = i; }
+  }
+  return bestIdx === -1 ? null : { value: values[bestIdx], time: ds.xValues[bestIdx] };
+}
+
+// 10%-90% transition time from baseline to the extreme (whichever direction).
+function riseFallTime(ds, values, region, baseline, extreme) {
+  const delta = extreme.value - baseline;
+  if (Math.abs(delta) < 1e-12) return null;
+  const rising = delta > 0;
+  const v10 = baseline + 0.1 * delta, v90 = baseline + 0.9 * delta;
+  let t10 = null, t90 = null;
+  for (let i = 0; i < ds.xValues.length; i++) {
+    const x = ds.xValues[i];
+    if (!Number.isFinite(x) || x < region.x0 || x > extreme.time) continue;
+    const v = values[i];
+    if (!Number.isFinite(v)) continue;
+    if (rising) {
+      if (t10 === null && v >= v10) t10 = x;
+      if (t90 === null && v >= v90) t90 = x;
+    } else {
+      if (t10 === null && v <= v10) t10 = x;
+      if (t90 === null && v <= v90) t90 = x;
+    }
+  }
+  if (t10 === null || t90 === null) return null;
+  return Math.abs(t90 - t10);
+}
+
+// Time from the extreme point until the signal first returns within
+// tolerancePct of baseline, searched up to the end of the marked region.
+// Returns null if it never recovers within the region.
+function recoveryTimeCalc(ds, values, region, baseline, extreme, tolerancePct) {
+  const tolBand = Math.abs(baseline) > 1e-9
+    ? Math.abs(baseline) * (tolerancePct / 100)
+    : Math.abs(extreme.value - baseline) * (tolerancePct / 100);
+  for (let i = 0; i < ds.xValues.length; i++) {
+    const x = ds.xValues[i];
+    if (!Number.isFinite(x) || x < extreme.time) continue;
+    if (x > region.x1) break;
+    const v = values[i];
+    if (!Number.isFinite(v)) continue;
+    if (Math.abs(v - baseline) <= tolBand) return x - extreme.time;
+  }
+  return null;
+}
+
+function dynamicsFor(region, ds, type, chan, tolerancePct) {
+  const baseline = baselineBeforeRegion(ds, chan.values, region);
+  if (baseline === null) return { ok: false, name: chan.name, reason: "no data before region" };
+  const extreme = regionExtreme(ds, chan.values, region, baseline);
+  if (extreme === null) return { ok: false, name: chan.name, reason: "no data in region" };
+  const rf = riseFallTime(ds, chan.values, region, baseline, extreme);
+  const rec = recoveryTimeCalc(ds, chan.values, region, baseline, extreme, tolerancePct);
+  return {
+    ok: true, type, name: chan.name, baseline, extreme: extreme.value,
+    delta: extreme.value - baseline, riseFall: rf, recovery: rec,
+  };
+}
+
+function dynRows() {
+  const tol = Math.max(0, parseFloat(document.getElementById("dynTolerance").value) || 5);
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  const rows = [];
+  regions.forEach((r) => {
+    datasets.forEach((ds) => {
+      TYPE_ORDER.forEach((type) => {
+        ds.channels[type].forEach((chan) => {
+          const d = dynamicsFor(r, ds, type, chan, tol);
+          rows.push({ region: r.label, dataset: ds.name, unit: SIGNAL_RULES[type].unit, isDatetime: globalIsDatetime, ...d });
+        });
+      });
+    });
+  });
+  return { rows, tol };
+}
+
+function fmtDur(seconds, isDatetime) {
+  if (seconds === null || !Number.isFinite(seconds)) return null;
+  // ds.xValues are in ms when isDatetime, plain units otherwise
+  const s = isDatetime ? seconds / 1000 : seconds;
+  return s;
+}
+
+function renderDynTable() {
+  const { rows, tol } = dynRows();
+  const box = document.getElementById("dynTable");
+  const btn = document.getElementById("dynExportBtn");
+  document.getElementById("dynEmptyState").style.display = (regions.length && rows.length) ? "none" : "block";
+  if (!rows.length) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  let html = '<table class="compare"><thead><tr><th>Region</th><th>Dataset</th><th>Channel</th><th>Baseline</th><th>Extreme</th><th>&Delta;</th><th>Fall/Rise time (10&ndash;90%)</th><th>Recovery time (&plusmn;' + tol + '%)</th></tr></thead><tbody>';
+  rows.forEach((row) => {
+    if (!row.ok) {
+      html += "<tr><td>" + escapeHtml(row.region) + "</td><td>" + escapeHtml(row.dataset) + "</td><td>" + escapeHtml(row.name) + "</td><td colspan='5' class='muted'>" + row.reason + "</td></tr>";
+      return;
+    }
+    const rf = fmtDur(row.riseFall, row.isDatetime);
+    const rec = fmtDur(row.recovery, row.isDatetime);
+    html += "<tr><td>" + escapeHtml(row.region) + "</td><td>" + escapeHtml(row.dataset) + "</td><td>" + escapeHtml(row.name) +
+      "</td><td>" + fmtNum(row.baseline, 3) + " " + row.unit +
+      "</td><td>" + fmtNum(row.extreme, 3) + " " + row.unit +
+      "</td><td>" + fmtNum(row.delta, 3) + " " + row.unit +
+      "</td><td>" + (rf === null ? "\u2013" : fmtNum(rf, 3) + " s") +
+      "</td><td>" + (rec === null ? "did not recover in region" : fmtNum(rec, 3) + " s") + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildDynCsv() {
+  const { rows } = dynRows();
+  const header = ["Region", "Dataset", "Channel", "Unit", "Baseline", "Extreme", "Delta", "FallRiseTime_s", "RecoveryTime_s", "Note"];
+  const lines = [header.join(";")];
+  rows.forEach((row) => {
+    if (!row.ok) { lines.push([row.region, row.dataset, row.name, "", "", "", "", "", "", row.reason].map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";")); return; }
+    const rf = fmtDur(row.riseFall, row.isDatetime);
+    const rec = fmtDur(row.recovery, row.isDatetime);
+    lines.push([row.region, row.dataset, row.name, row.unit, row.baseline, row.extreme, row.delta, rf === null ? "" : rf, rec === null ? "" : rec, rec === null ? "did not recover in region" : ""]
+      .map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+document.getElementById("dynExportBtn").addEventListener("click", async () => {
+  const csv = buildDynCsv();
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename: "dynamic_response.csv", data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "dynamic_response.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+});
+document.getElementById("dynTolerance").addEventListener("input", () => { if (activeView === "dyn") renderDynTable(); });
+
+// ===========================================================================
+// 12. Efficiency & fuel utilization
+// ===========================================================================
+const H2_ENERGY_WH_PER_NL = { lhv: 2.998, hhv: 3.542 };   // 33.33 / 39.39 kWh/kg at 0.08988 kg/NL
+
+function effBasis() {
+  return document.getElementById("effBasisSelect").value === "hhv" ? "hhv" : "lhv";
+}
+
+// Electrical power at each sample: prefer an actual Power channel, else V*I.
+function electricalPowerSeries(ds) {
+  if (ds.channels.power.length) return ds.channels.power[0].values;
+  if (ds.channels.voltage.length && ds.channels.current.length) {
+    const V = ds.channels.voltage[0].values, I = ds.channels.current[0].values;
+    return V.map((v, i) => (Number.isFinite(v) && Number.isFinite(I[i])) ? v * I[i] : NaN);
+  }
+  return null;
+}
+
+function xToSeconds(ds, x) { return ds.isDatetime ? x / 1000 : x; }
+
+// Trapezoidal integral of `values` over `xValues`, restricted to [x0,x1] if
+// given - segments that straddle the boundary are linearly clipped exactly
+// at x0/x1 rather than being included or excluded wholesale.
+function trapzIntegral(xValues, values, x0, x1) {
+  let sum = 0;
+  for (let i = 1; i < xValues.length; i++) {
+    const xa0 = xValues[i - 1], xb0 = xValues[i];
+    const ya0 = values[i - 1], yb0 = values[i];
+    if (!Number.isFinite(xa0) || !Number.isFinite(xb0) || !Number.isFinite(ya0) || !Number.isFinite(yb0)) continue;
+    let xa = xa0, xb = xb0, ya = ya0, yb = yb0;
+    if (x0 !== undefined) {
+      if (xb <= x0 || xa >= x1) continue; // fully outside the window
+      if (xa < x0) { ya = ya0 + (x0 - xa0) / (xb0 - xa0) * (yb0 - ya0); xa = x0; }
+      if (xb > x1) { yb = ya0 + (x1 - xa0) / (xb0 - xa0) * (yb0 - ya0); xb = x1; }
+    }
+    sum += (ya + yb) / 2 * (xb - xa);
+  }
+  return sum;
+}
+
+function effDatasets() {
+  return datasets
+    .map((ds) => ({ ds, elecP: electricalPowerSeries(ds), flow: ds.channels.flow.length ? ds.channels.flow[0] : null }))
+    .filter((x) => x.elecP && x.flow);
+}
+
+// Summary over a time window [x0,x1] (or the whole dataset if omitted).
+function effSummary(ds, elecP, flow, x0, x1, basis) {
+  const eps = H2_ENERGY_WH_PER_NL[basis];
+  const secX = ds.xValues.map((x) => xToSeconds(ds, x));
+  // total H2 volume [NL] = integral of flow[NL/min] dt[min] = integral(flow, t[s])/60
+  const h2NL = trapzIntegral(secX, flow.values, x0 !== undefined ? xToSeconds(ds, x0) : undefined, x1 !== undefined ? xToSeconds(ds, x1) : undefined) / 60;
+  // total electrical energy [Wh] = integral of power[W] dt[s] / 3600
+  const elecWh = trapzIntegral(secX, elecP, x0 !== undefined ? xToSeconds(ds, x0) : undefined, x1 !== undefined ? xToSeconds(ds, x1) : undefined) / 3600;
+  const h2Wh = h2NL * eps;
+  const avgEfficiencyPct = h2Wh > 0 ? (elecWh / h2Wh) * 100 : null;
+  const specificNLPerKWh = elecWh > 0 ? h2NL / (elecWh / 1000) : null;
+  return { h2NL, elecWh, avgEfficiencyPct, specificNLPerKWh };
+}
+
+function effRows() {
+  const basis = effBasis();
+  const items = effDatasets();
+  const rows = [];
+  items.forEach(({ ds, elecP, flow }) => {
+    if (regions.length) {
+      regions.forEach((r) => rows.push({ region: r.label, dataset: ds.name, ...effSummary(ds, elecP, flow, r.x0, r.x1, basis) }));
+    } else {
+      rows.push({ region: "(whole file)", dataset: ds.name, ...effSummary(ds, elecP, flow, undefined, undefined, basis) });
+    }
+  });
+  return { rows, items, basis };
+}
+
+function rebuildEffAll() {
+  rebuildEffPlot();
+  renderEffTable();
+}
+
+function rebuildEffPlot() {
+  const items = effDatasets();
+  const plotEl = document.getElementById("effPlot");
+  document.getElementById("effEmptyState").style.display = items.length ? "none" : "block";
+  if (!items.length) { Plotly.purge(plotEl); return; }
+
+  const basis = effBasis();
+  const eps = H2_ENERGY_WH_PER_NL[basis];
+  const traces = [];
+  items.forEach(({ ds, elecP, flow }) => {
+    if (!ds.channels.current.length) return; // efficiency-vs-current needs a Current channel too
+    const I = ds.channels.current[0].values;
+    const pts = [];
+    for (let i = 0; i < ds.xValues.length; i++) {
+      const p = elecP[i], f = flow.values[i], iv = I[i];
+      if (!Number.isFinite(p) || !Number.isFinite(f) || !Number.isFinite(iv) || f <= 0) continue;
+      const h2W = f * eps * 60;
+      const effPct = (p / h2W) * 100;
+      if (Number.isFinite(effPct) && effPct > 0 && effPct < 100) pts.push({ i: iv, e: effPct });
+    }
+    pts.sort((a, b) => a.i - b.i);
+    if (pts.length < 2) return;
+    traces.push({
+      type: "scattergl", mode: pts.length > 60 ? "lines" : "lines+markers",
+      x: pts.map((p) => p.i), y: pts.map((p) => p.e),
+      name: ds.name, line: { color: ds.color, width: 2 },
+    });
+  });
+
+  const layout = {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 420,
+    showlegend: true, legend: { orientation: "h", y: -0.15 }, hovermode: "closest",
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    xaxis: { domain: [0, 1], title: "Current (A)" },
+    yaxis: { title: "Electrical efficiency (%, " + basis.toUpperCase() + ")" },
+  };
+  Plotly.react(plotEl, traces, layout, { responsive: true, displaylogo: false });
+}
+
+function renderEffTable() {
+  const { rows, items, basis } = effRows();
+  const box = document.getElementById("effTable");
+  const btn = document.getElementById("effExportBtn");
+  if (!items.length) {
+    box.innerHTML = "";
+    btn.disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  let html = '<table class="compare"><thead><tr><th>Region</th><th>Dataset</th><th>H&#8322; used (NL)</th><th>Electrical energy (Wh)</th><th>Avg. efficiency (%, ' + basis.toUpperCase() + ')</th><th>Specific consumption (NL/kWh)</th></tr></thead><tbody>';
+  rows.forEach((row) => {
+    html += "<tr><td>" + escapeHtml(row.region) + "</td><td>" + escapeHtml(row.dataset) + "</td><td>" + fmtNum(row.h2NL, 2) +
+      "</td><td>" + fmtNum(row.elecWh, 2) +
+      "</td><td>" + (row.avgEfficiencyPct === null ? "\u2013" : fmtNum(row.avgEfficiencyPct, 2)) +
+      "</td><td>" + (row.specificNLPerKWh === null ? "\u2013" : fmtNum(row.specificNLPerKWh, 2)) + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildEffCsv() {
+  const { rows, basis } = effRows();
+  const header = ["Region", "Dataset", "H2_used_NL", "Electrical_energy_Wh", "Avg_efficiency_pct_" + basis.toUpperCase(), "Specific_consumption_NL_per_kWh"];
+  const lines = [header.join(";")];
+  rows.forEach((row) => {
+    lines.push([row.region, row.dataset, row.h2NL, row.elecWh, row.avgEfficiencyPct === null ? "" : row.avgEfficiencyPct, row.specificNLPerKWh === null ? "" : row.specificNLPerKWh]
+      .map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+document.getElementById("effExportBtn").addEventListener("click", async () => {
+  const csv = buildEffCsv();
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename: "efficiency.csv", data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "efficiency.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+});
+document.getElementById("effBasisSelect").addEventListener("change", () => { rebuildEffPlot(); renderEffTable(); });
+
+// ===========================================================================
+// 13. Start/Stop cycle analysis
+// ===========================================================================
+
+// Auto-detect on/off cycles: a cycle runs from the first sample with
+// |value| >= threshold to the last one before it drops back below it.
+function detectCycles(ds, values, thresholdFrac) {
+  const finite = values.filter(Number.isFinite).map(Math.abs);
+  if (!finite.length) return [];
+  const maxAbs = Math.max(...finite);
+  if (maxAbs <= 0) return [];
+  const threshold = maxAbs * thresholdFrac;
+  const cycles = [];
+  let inCycle = false, startIdx = null;
+  for (let i = 0; i < values.length; i++) {
+    const v = values[i];
+    const on = Number.isFinite(v) && Math.abs(v) >= threshold;
+    if (on && !inCycle) { inCycle = true; startIdx = i; }
+    if (!on && inCycle) { inCycle = false; cycles.push({ x0: ds.xValues[startIdx], x1: ds.xValues[i - 1] }); }
+  }
+  if (inCycle) cycles.push({ x0: ds.xValues[startIdx], x1: ds.xValues[values.length - 1] });
+  return cycles.filter((c) => Number.isFinite(c.x0) && Number.isFinite(c.x1) && c.x1 > c.x0);
+}
+
+function primaryChannelForCycles(ds) {
+  if (ds.channels.current.length) return { type: "current", chan: ds.channels.current[0] };
+  if (ds.channels.power.length) return { type: "power", chan: ds.channels.power[0] };
+  return null;
+}
+
+function startStopDatasets() {
+  return datasets.map((ds) => ({ ds, primary: primaryChannelForCycles(ds) })).filter((x) => x.primary);
+}
+
+// Average of the LAST few samples within (xLo, xHi] - used to estimate a
+// settled baseline from as late as possible within a bounded window, rather
+// than right at the window's start where a gradual transient may still be
+// mid-decay.
+function baselineInWindow(ds, values, xLo, xHi) {
+  const idx = [];
+  for (let i = 0; i < ds.xValues.length; i++) {
+    const x = ds.xValues[i];
+    if (Number.isFinite(x) && x > xLo && x < xHi) idx.push(i);
+  }
+  if (!idx.length) return null;
+  const n = Math.min(10, idx.length);
+  const lastIdx = idx.slice(-n);
+  const vals = lastIdx.map((i) => values[i]).filter(Number.isFinite);
+  return vals.length ? mean(vals) : null;
+}
+
+function cycleMetrics(ds, values, region, nextCycleX0) {
+  const preBaseline = baselineBeforeRegion(ds, values, region);
+  const extreme = regionExtreme(ds, values, region, preBaseline !== null ? preBaseline : 0);
+  const startupTime = (preBaseline !== null && extreme) ? riseFallTime(ds, values, region, preBaseline, extreme) : null;
+
+  // Shutdown is anchored to the LAST sample of the cycle (the value right
+  // before it drops below threshold) rather than the first occurrence of the
+  // peak - otherwise a long flat plateau would count as part of the
+  // shutdown transient itself. The post-baseline is sampled from late in
+  // the lookahead window so a still-decaying tail isn't mistaken for "off" -
+  // but that window is clipped at the next cycle's start, if there is one
+  // nearby, so it doesn't get contaminated by the next start-up.
+  const duration = region.x1 - region.x0;
+  let lookaheadEnd = region.x1 + Math.max(duration, 1e-9);
+  if (Number.isFinite(nextCycleX0)) lookaheadEnd = Math.min(lookaheadEnd, nextCycleX0);
+  const postBaseline = lookaheadEnd > region.x1 ? baselineInWindow(ds, values, region.x1, lookaheadEnd) : null;
+  let shutdownTime = null;
+  if (postBaseline !== null) {
+    let lastVal = null;
+    for (let i = ds.xValues.length - 1; i >= 0; i--) {
+      if (Number.isFinite(ds.xValues[i]) && ds.xValues[i] <= region.x1) { lastVal = values[i]; break; }
+    }
+    if (Number.isFinite(lastVal)) {
+      const lateExtreme = { value: lastVal, time: region.x1 };
+      shutdownTime = recoveryTimeCalc(ds, values, { x0: region.x1, x1: lookaheadEnd }, postBaseline, lateExtreme, 5);
+    }
+  }
+  return {
+    x0: region.x0, x1: region.x1, duration: region.x1 - region.x0,
+    preBaseline, postBaseline, peak: extreme ? extreme.value : null, peakTime: extreme ? extreme.time : null,
+    startupTime, shutdownTime,
+  };
+}
+
+function startRows() {
+  const threshold = Math.max(1, Math.min(99, parseFloat(document.getElementById("startThreshold").value) || 10)) / 100;
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  const items = startStopDatasets();
+  const rows = [];
+  items.forEach(({ ds, primary }) => {
+    const cycles = detectCycles(ds, primary.chan.values, threshold);
+    cycles.forEach((region, idx) => {
+      const nextCycleX0 = cycles[idx + 1] ? cycles[idx + 1].x0 : undefined;
+      const m = cycleMetrics(ds, primary.chan.values, region, nextCycleX0);
+      rows.push({ dataset: ds.name, cycle: idx + 1, channel: primary.chan.name, unit: SIGNAL_RULES[primary.type].unit, isDatetime: globalIsDatetime, ...m });
+    });
+  });
+  return { rows, items };
+}
+
+function renderStartTable() {
+  const { rows, items } = startRows();
+  const box = document.getElementById("startTable");
+  const btn = document.getElementById("startExportBtn");
+  document.getElementById("startEmptyState").style.display = (items.length && rows.length) ? "none" : "block";
+  if (!rows.length) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>Cycle</th><th>Channel</th><th>Start</th><th>Stop</th><th>Duration</th><th>Peak</th><th>Start-up time (10&ndash;90%)</th><th>Shutdown time</th></tr></thead><tbody>';
+  rows.forEach((row) => {
+    const dur = fmtDur(row.duration, row.isDatetime);
+    const su = fmtDur(row.startupTime, row.isDatetime);
+    const sd = fmtDur(row.shutdownTime, row.isDatetime);
+    html += "<tr><td>" + escapeHtml(row.dataset) + "</td><td>" + row.cycle + "</td><td>" + escapeHtml(row.channel) +
+      "</td><td>" + fmtX(row.x0, row.isDatetime) + "</td><td>" + fmtX(row.x1, row.isDatetime) +
+      "</td><td>" + (dur === null ? "\u2013" : fmtNum(dur, 2) + " s") +
+      "</td><td>" + (row.peak === null ? "\u2013" : fmtNum(row.peak, 3) + " " + row.unit) +
+      "</td><td>" + (su === null ? "\u2013" : fmtNum(su, 3) + " s") +
+      "</td><td>" + (sd === null ? "did not settle" : fmtNum(sd, 3) + " s") + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildStartCsv() {
+  const { rows } = startRows();
+  const header = ["Dataset", "Cycle", "Channel", "Unit", "Start", "Stop", "Duration_s", "Peak", "StartupTime_s", "ShutdownTime_s"];
+  const lines = [header.join(";")];
+  rows.forEach((row) => {
+    const dur = fmtDur(row.duration, row.isDatetime);
+    const su = fmtDur(row.startupTime, row.isDatetime);
+    const sd = fmtDur(row.shutdownTime, row.isDatetime);
+    lines.push([row.dataset, row.cycle, row.channel, row.unit, fmtX(row.x0, row.isDatetime), fmtX(row.x1, row.isDatetime), dur, row.peak, su, sd === null ? "did not settle" : sd]
+      .map((v) => '"' + String(v === null ? "" : v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+document.getElementById("startExportBtn").addEventListener("click", async () => {
+  const csv = buildStartCsv();
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename: "start_stop_cycles.csv", data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "start_stop_cycles.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+});
+document.getElementById("startThreshold").addEventListener("input", () => { if (activeView === "start") renderStartTable(); });
+
+// ===========================================================================
+// 14. Load profile analysis
+// ===========================================================================
+const LOAD_BIN_LABELS = ["0\u201310%", "10\u201325%", "25\u201350%", "50\u201375%", "75\u2013100%", ">100%"];
+
+function loadBinIndex(pct) {
+  if (pct < 10) return 0;
+  if (pct < 25) return 1;
+  if (pct < 50) return 2;
+  if (pct < 75) return 3;
+  if (pct <= 100) return 4;
+  return 5;
+}
+
+// Time-weighted bin occupancy (seconds per bin), left-Riemann: each sample's
+// value is held for the duration until the next sample.
+function loadBinTimes(ds, powerSeries, ratedPower) {
+  const bins = [0, 0, 0, 0, 0, 0];
+  const secX = ds.xValues.map((x) => xToSeconds(ds, x));
+  for (let i = 0; i < secX.length - 1; i++) {
+    const p = powerSeries[i];
+    if (!Number.isFinite(p) || !Number.isFinite(secX[i]) || !Number.isFinite(secX[i + 1])) continue;
+    const dt = secX[i + 1] - secX[i];
+    if (dt <= 0) continue;
+    const pct = ratedPower > 0 ? (p / ratedPower) * 100 : 0;
+    bins[loadBinIndex(pct)] += dt;
+  }
+  return bins;
+}
+
+function loadDatasets() {
+  return datasets.map((ds) => ({ ds, p: electricalPowerSeries(ds) })).filter((x) => x.p);
+}
+
+function loadSummary(ds, p, ratedPower, minStable, changeThreshPct) {
+  const finite = p.filter(Number.isFinite);
+  if (!finite.length) return null;
+  const secX = ds.xValues.map((x) => xToSeconds(ds, x));
+  const finiteSecX = secX.filter(Number.isFinite);
+  const duration = finiteSecX.length > 1 ? Math.max(...finiteSecX) - Math.min(...finiteSecX) : 0;
+  // Time-weighted average (energy / duration), consistent with the
+  // time-weighted bins below - not a plain sample mean, which would be
+  // biased by uneven sampling density.
+  const avg = duration > 0 ? trapzIntegral(secX, p, undefined, undefined) / duration : mean(finite);
+  const peak = Math.max(...finite);
+  const min = Math.min(...finite);
+  const bins = loadBinTimes(ds, p, ratedPower);
+  const totalTime = bins.reduce((a, b) => a + b, 0);
+  const binPct = bins.map((s) => (totalTime > 0 ? (s / totalTime) * 100 : 0));
+
+  let aboveRatedTime = 0, belowMinStableTime = 0;
+  for (let i = 0; i < secX.length - 1; i++) {
+    const v = p[i];
+    if (!Number.isFinite(v) || !Number.isFinite(secX[i]) || !Number.isFinite(secX[i + 1])) continue;
+    const dt = secX[i + 1] - secX[i];
+    if (dt <= 0) continue;
+    if (ratedPower > 0 && v > ratedPower) aboveRatedTime += dt;
+    if (Number.isFinite(minStable) && v < minStable) belowMinStableTime += dt;
+  }
+
+  const changeThresh = ratedPower > 0 ? ratedPower * (changeThreshPct / 100) : 0;
+  let numChanges = 0;
+  for (let i = 1; i < p.length; i++) {
+    if (Number.isFinite(p[i]) && Number.isFinite(p[i - 1]) && Math.abs(p[i] - p[i - 1]) > changeThresh) numChanges++;
+  }
+
+  return {
+    avg, peak, min, binPct, totalTime,
+    loadFactor: peak > 0 ? avg / peak : null,
+    capacityFactor: ratedPower > 0 ? avg / ratedPower : null,
+    aboveRatedPct: totalTime > 0 ? (aboveRatedTime / totalTime) * 100 : null,
+    belowMinStablePct: (totalTime > 0 && Number.isFinite(minStable)) ? (belowMinStableTime / totalTime) * 100 : null,
+    numChanges,
+  };
+}
+
+function loadInputs() {
+  const rated = parseFloat(document.getElementById("loadRated").value);
+  const minStable = parseFloat(document.getElementById("loadMinStable").value);
+  const changeThreshPct = Math.max(0, parseFloat(document.getElementById("loadChangeThresh").value) || 5);
+  return { rated: Number.isFinite(rated) && rated > 0 ? rated : null, minStable: Number.isFinite(minStable) ? minStable : null, changeThreshPct };
+}
+
+function rebuildLoadAll() {
+  rebuildLoadPlot();
+  renderLoadTable();
+}
+
+function rebuildLoadPlot() {
+  const { rated, changeThreshPct } = loadInputs();
+  const items = loadDatasets();
+  const plotEl = document.getElementById("loadPlot");
+  document.getElementById("loadEmptyState").style.display = (items.length && rated) ? "none" : "block";
+  if (!items.length || !rated) { Plotly.purge(plotEl); return; }
+
+  const traces = items.map(({ ds, p }) => {
+    const s = loadSummary(ds, p, rated, NaN, changeThreshPct);
+    return { type: "bar", name: ds.name, x: LOAD_BIN_LABELS, y: s.binPct, marker: { color: ds.color } };
+  });
+  const layout = {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 360,
+    showlegend: items.length > 1, legend: { orientation: "h", y: -0.15 },
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    xaxis: { title: "Load bin (% of rated power)" },
+    yaxis: { title: "Time share (%)" },
+    barmode: "group",
+  };
+  Plotly.react(plotEl, traces, layout, { responsive: true, displaylogo: false });
+}
+
+function renderLoadTable() {
+  const { rated, minStable, changeThreshPct } = loadInputs();
+  const items = loadDatasets();
+  const box = document.getElementById("loadTable");
+  const btn = document.getElementById("loadExportBtn");
+  if (!items.length || !rated) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>Avg load (W)</th><th>Peak (W)</th><th>Min (W)</th><th>Load factor</th><th>Capacity factor</th><th>Time &gt;rated (%)</th><th>Time &lt;min stable (%)</th><th>Load changes</th></tr></thead><tbody>';
+  items.forEach(({ ds, p }) => {
+    const s = loadSummary(ds, p, rated, minStable, changeThreshPct);
+    if (!s) return;
+    html += "<tr><td>" + escapeHtml(ds.name) + "</td><td>" + fmtNum(s.avg, 1) + "</td><td>" + fmtNum(s.peak, 1) + "</td><td>" + fmtNum(s.min, 1) +
+      "</td><td>" + (s.loadFactor === null ? "\u2013" : fmtNum(s.loadFactor, 3)) +
+      "</td><td>" + (s.capacityFactor === null ? "\u2013" : fmtNum(s.capacityFactor, 3)) +
+      "</td><td>" + (s.aboveRatedPct === null ? "\u2013" : fmtNum(s.aboveRatedPct, 2)) +
+      "</td><td>" + (s.belowMinStablePct === null ? "\u2013" : fmtNum(s.belowMinStablePct, 2)) +
+      "</td><td>" + s.numChanges + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildLoadCsv() {
+  const { rated, minStable, changeThreshPct } = loadInputs();
+  const items = loadDatasets();
+  const header = ["Dataset", "Avg_load_W", "Peak_W", "Min_W", "LoadFactor", "CapacityFactor", "TimeAboveRated_pct", "TimeBelowMinStable_pct", "NumLoadChanges"].concat(LOAD_BIN_LABELS.map((l) => "Bin_" + l.replace(/[^0-9]/g, "_") + "_pct"));
+  const lines = [header.join(";")];
+  items.forEach(({ ds, p }) => {
+    const s = loadSummary(ds, p, rated, minStable, changeThreshPct);
+    if (!s) return;
+    lines.push([ds.name, s.avg, s.peak, s.min, s.loadFactor, s.capacityFactor, s.aboveRatedPct, s.belowMinStablePct, s.numChanges, ...s.binPct]
+      .map((v) => '"' + String(v === null ? "" : v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+document.getElementById("loadExportBtn").addEventListener("click", async () => {
+  const csv = buildLoadCsv();
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename: "load_profile.csv", data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "load_profile.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+});
+["loadRated", "loadMinStable", "loadChangeThresh"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", () => { if (activeView === "load") rebuildLoadAll(); });
+});
+
+// ===========================================================================
+// 15. Stability & anomaly detection
+// ===========================================================================
+function stabilityMetrics(values) {
+  const v = values.filter(Number.isFinite);
+  if (v.length < 2) return null;
+  const m = mean(v);
+  const sd = stdDev(v);
+  const cv = m !== 0 ? (sd / Math.abs(m)) * 100 : null;
+  const ptp = Math.max(...v) - Math.min(...v);
+  const rms = Math.sqrt(v.reduce((s, x) => s + x * x, 0) / v.length);
+  return { mean: m, std: sd, cv, ptp, rms, n: v.length };
+}
+
+function rollingStd(values, window) {
+  const n = values.length;
+  const out = new Array(n).fill(NaN);
+  for (let i = 0; i < n; i++) {
+    const lo = Math.max(0, i - window + 1);
+    const seg = values.slice(lo, i + 1).filter(Number.isFinite);
+    out[i] = seg.length >= 2 ? stdDev(seg) : NaN;
+  }
+  return out;
+}
+
+// A point counts as "steady" once its local (rolling-window) std dev drops
+// to a small fraction of the channel's overall std dev.
+function steadyStateMetrics(ds, values, windowSize, steadyFrac) {
+  const overall = stabilityMetrics(values);
+  if (!overall || !Number.isFinite(overall.std) || overall.std <= 0) return { timeToSteady: null, pctSteady: null };
+  const rstd = rollingStd(values, windowSize);
+  const threshold = overall.std * steadyFrac;
+  let steadyCount = 0, totalCount = 0, firstSteadyIdx = null;
+  const t0 = xToSeconds(ds, ds.xValues[0]);
+  for (let i = 0; i < values.length; i++) {
+    if (!Number.isFinite(rstd[i])) continue;
+    totalCount++;
+    if (rstd[i] <= threshold) {
+      steadyCount++;
+      if (firstSteadyIdx === null) firstSteadyIdx = i;
+    }
+  }
+  const pctSteady = totalCount > 0 ? (steadyCount / totalCount) * 100 : null;
+  const timeToSteady = firstSteadyIdx !== null ? xToSeconds(ds, ds.xValues[firstSteadyIdx]) - t0 : null;
+  return { timeToSteady, pctSteady };
+}
+
+// Consecutive-sample jumps larger than thresholdSigma * (std dev of the
+// point-to-point change series itself) - flags sudden changes regardless of
+// the channel's absolute scale.
+function detectAnomalies(ds, values, thresholdSigma) {
+  const diffs = [];
+  for (let i = 1; i < values.length; i++) {
+    const a = values[i - 1], b = values[i];
+    if (Number.isFinite(a) && Number.isFinite(b)) diffs.push(b - a);
+  }
+  const sd = stdDev(diffs);
+  if (!sd || sd <= 0) return [];
+  const anomalies = [];
+  for (let i = 1; i < values.length; i++) {
+    const a = values[i - 1], b = values[i];
+    if (!Number.isFinite(a) || !Number.isFinite(b)) continue;
+    const delta = b - a;
+    if (Math.abs(delta) > thresholdSigma * sd) {
+      anomalies.push({ time: ds.xValues[i], before: a, after: b, delta });
+    }
+  }
+  return anomalies;
+}
+
+function stabInputs() {
+  const sigma = Math.max(0.5, parseFloat(document.getElementById("stabSigma").value) || 4);
+  const window = Math.max(3, parseInt(document.getElementById("stabWindow").value, 10) || 20);
+  return { sigma, window };
+}
+
+function stabChannelList() {
+  const items = [];
+  datasets.forEach((ds) => {
+    TYPE_ORDER.forEach((type) => {
+      ds.channels[type].forEach((chan) => items.push({ ds, type, chan }));
+    });
+  });
+  return items;
+}
+
+function rebuildStabAll() {
+  renderStabTable();
+  renderAnomalyTable();
+}
+
+function renderStabTable() {
+  const { window } = stabInputs();
+  const steadyFrac = 0.2;
+  const items = stabChannelList();
+  const box = document.getElementById("stabTable");
+  const btn = document.getElementById("stabExportBtn");
+  document.getElementById("stabEmptyState").style.display = items.length ? "none" : "block";
+  if (!items.length) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>Channel</th><th>Std dev</th><th>CV (%)</th><th>Peak-to-peak</th><th>RMS</th><th>Time to steady state (s)</th><th>Time steady (%)</th></tr></thead><tbody>';
+  items.forEach(({ ds, type, chan }) => {
+    const st = stabilityMetrics(chan.values);
+    if (!st) return;
+    const ss = steadyStateMetrics(ds, chan.values, window, steadyFrac);
+    html += "<tr><td>" + escapeHtml(ds.name) + "</td><td>" + escapeHtml(chan.name) +
+      "</td><td>" + fmtNum(st.std, 3) + " " + SIGNAL_RULES[type].unit +
+      "</td><td>" + (st.cv === null ? "\u2013" : fmtNum(st.cv, 2)) +
+      "</td><td>" + fmtNum(st.ptp, 3) + " " + SIGNAL_RULES[type].unit +
+      "</td><td>" + fmtNum(st.rms, 3) + " " + SIGNAL_RULES[type].unit +
+      "</td><td>" + (ss.timeToSteady === null ? "\u2013" : fmtNum(ss.timeToSteady, 2)) +
+      "</td><td>" + (ss.pctSteady === null ? "\u2013" : fmtNum(ss.pctSteady, 1)) + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function anomalyRows() {
+  const { sigma } = stabInputs();
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  const items = stabChannelList();
+  const rows = [];
+  items.forEach(({ ds, type, chan }) => {
+    detectAnomalies(ds, chan.values, sigma).forEach((a) => {
+      rows.push({ dataset: ds.name, channel: chan.name, unit: SIGNAL_RULES[type].unit, isDatetime: globalIsDatetime, ...a });
+    });
+  });
+  return rows;
+}
+
+function renderAnomalyTable() {
+  const rows = anomalyRows();
+  const box = document.getElementById("anomalyTable");
+  const btn = document.getElementById("anomalyExportBtn");
+  if (!rows.length) { box.innerHTML = '<p class="muted">No anomalies detected at the current threshold.</p>'; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>Channel</th><th>Time</th><th>Before</th><th>After</th><th>&Delta;</th></tr></thead><tbody>';
+  rows.forEach((row) => {
+    html += "<tr><td>" + escapeHtml(row.dataset) + "</td><td>" + escapeHtml(row.channel) + "</td><td>" + fmtX(row.time, row.isDatetime) +
+      "</td><td>" + fmtNum(row.before, 3) + " " + row.unit + "</td><td>" + fmtNum(row.after, 3) + " " + row.unit +
+      "</td><td>" + fmtNum(row.delta, 3) + " " + row.unit + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildStabCsv() {
+  const { window } = stabInputs();
+  const steadyFrac = 0.2;
+  const items = stabChannelList();
+  const header = ["Dataset", "Channel", "Unit", "StdDev", "CV_pct", "PeakToPeak", "RMS", "TimeToSteady_s", "TimeSteady_pct"];
+  const lines = [header.join(";")];
+  items.forEach(({ ds, type, chan }) => {
+    const st = stabilityMetrics(chan.values);
+    if (!st) return;
+    const ss = steadyStateMetrics(ds, chan.values, window, steadyFrac);
+    lines.push([ds.name, chan.name, SIGNAL_RULES[type].unit, st.std, st.cv, st.ptp, st.rms, ss.timeToSteady, ss.pctSteady]
+      .map((v) => '"' + String(v === null ? "" : v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+function buildAnomalyCsv() {
+  const rows = anomalyRows();
+  const header = ["Dataset", "Channel", "Unit", "Time", "Before", "After", "Delta"];
+  const lines = [header.join(";")];
+  rows.forEach((row) => {
+    lines.push([row.dataset, row.channel, row.unit, fmtX(row.time, row.isDatetime), row.before, row.after, row.delta]
+      .map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+async function exportCsvViaCapOrBlob(csv, filename) {
+  if (downloadsCap) {
+    try { await downloadsCap.save({ filename, data: csv }); }
+    catch (e) { alert("Export was declined or failed."); }
+  } else {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  }
+}
+document.getElementById("stabExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildStabCsv(), "stability.csv"));
+document.getElementById("anomalyExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildAnomalyCsv(), "anomalies.csv"));
+["stabSigma", "stabWindow"].forEach((id) => {
+  document.getElementById(id).addEventListener("input", () => { if (activeView === "stab") rebuildStabAll(); });
+});
+
+// ===========================================================================
+// 16. Cross-plot (any channel type vs. any channel type)
+// ===========================================================================
+function crossTypeOptions() {
+  return TYPE_ORDER.filter((t) => datasets.some((d) => d.channels[t].length));
+}
+
+function populateCrossSelects() {
+  const opts = crossTypeOptions();
+  const xSel = document.getElementById("crossXSelect");
+  const ySel = document.getElementById("crossYSelect");
+  const prevX = xSel.value, prevY = ySel.value;
+  const optHtml = opts.map((t) => '<option value="' + t + '">' + SIGNAL_RULES[t].label + "</option>").join("");
+  xSel.innerHTML = optHtml;
+  ySel.innerHTML = optHtml;
+  if (opts.includes(prevX)) xSel.value = prevX;
+  if (opts.includes(prevY)) ySel.value = prevY;
+  else if (opts.length > 1) ySel.value = opts[1];
+}
+
+function pearsonR(xs, ys) {
+  const n = xs.length;
+  if (n < 2) return null;
+  const mx = mean(xs), my = mean(ys);
+  let num = 0, dxx = 0, dyy = 0;
+  for (let i = 0; i < n; i++) { const dx = xs[i] - mx, dy = ys[i] - my; num += dx * dy; dxx += dx * dx; dyy += dy * dy; }
+  if (dxx <= 0 || dyy <= 0) return null;
+  return num / Math.sqrt(dxx * dyy);
+}
+
+function crossPairs(xType, yType) {
+  const items = [];
+  if (!TYPE_ORDER.includes(xType) || !TYPE_ORDER.includes(yType)) return items;
+  datasets.forEach((ds) => {
+    if (!ds.channels[xType].length || !ds.channels[yType].length) return;
+    const X = ds.channels[xType][0].values, Y = ds.channels[yType][0].values;
+    const xs = [], ys = [];
+    for (let i = 0; i < X.length; i++) {
+      if (Number.isFinite(X[i]) && Number.isFinite(Y[i])) { xs.push(X[i]); ys.push(Y[i]); }
+    }
+    if (xs.length >= 2) items.push({ ds, xs, ys, r: pearsonR(xs, ys) });
+  });
+  return items;
+}
+
+function rebuildCrossAll() {
+  populateCrossSelects();
+  rebuildCrossPlot();
+}
+
+function rebuildCrossPlot() {
+  const xType = document.getElementById("crossXSelect").value;
+  const yType = document.getElementById("crossYSelect").value;
+  const plotEl = document.getElementById("crossPlot");
+  const items = crossPairs(xType, yType);
+  document.getElementById("crossEmptyState").style.display = items.length ? "none" : "block";
+  if (!items.length) { Plotly.purge(plotEl); document.getElementById("crossCorr").textContent = ""; return; }
+
+  const traces = items.map(({ ds, xs, ys }) => ({
+    type: "scattergl", mode: "markers", x: xs, y: ys, name: ds.name,
+    marker: { color: ds.color, size: 4, opacity: 0.6 },
+  }));
+  const layout = {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 480, showlegend: items.length > 1,
+    legend: { orientation: "h", y: -0.15 }, hovermode: "closest",
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    xaxis: { title: SIGNAL_RULES[xType].label + " (" + SIGNAL_RULES[xType].unit + ")" },
+    yaxis: { title: SIGNAL_RULES[yType].label + " (" + SIGNAL_RULES[yType].unit + ")" },
+  };
+  Plotly.react(plotEl, traces, layout, { responsive: true, displaylogo: false });
+
+  document.getElementById("crossCorr").innerHTML = items.map(({ ds, r }) =>
+    escapeHtml(ds.name) + ": r = " + (r === null ? "\u2013" : fmtNum(r, 3))
+  ).join(" &nbsp;|&nbsp; ");
+}
+
+document.getElementById("crossXSelect").addEventListener("change", rebuildCrossPlot);
+document.getElementById("crossYSelect").addEventListener("change", rebuildCrossPlot);
+
+// ===========================================================================
+// 17. Cell balance
+// ===========================================================================
+function cellDatasets() {
+  return datasets.filter((d) => d.cellVoltages && d.cellVoltages.length);
+}
+
+function cellSummary(ds) {
+  const cells = ds.cellVoltages;
+  const n = ds.xValues.length;
+  let overallMin = Infinity, overallMinCell = null, overallMinTime = null;
+  let overallMax = -Infinity, overallMaxCell = null, overallMaxTime = null;
+  let spreadSum = 0, spreadCount = 0;
+  const cellMeans = cells.map((c) => mean(c.values.filter(Number.isFinite)));
+
+  for (let i = 0; i < n; i++) {
+    let lo = Infinity, hi = -Infinity;
+    cells.forEach((c) => {
+      const v = c.values[i];
+      if (!Number.isFinite(v)) return;
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+      if (v < overallMin) { overallMin = v; overallMinCell = c.cellNum; overallMinTime = ds.xValues[i]; }
+      if (v > overallMax) { overallMax = v; overallMaxCell = c.cellNum; overallMaxTime = ds.xValues[i]; }
+    });
+    if (Number.isFinite(lo) && Number.isFinite(hi)) { spreadSum += (hi - lo); spreadCount++; }
+  }
+
+  let worstIdx = 0;
+  cellMeans.forEach((m, i) => { if (Number.isFinite(m) && (!Number.isFinite(cellMeans[worstIdx]) || m < cellMeans[worstIdx])) worstIdx = i; });
+
+  return {
+    nCells: cells.length,
+    overallMin: Number.isFinite(overallMin) ? overallMin : null, overallMinCell, overallMinTime,
+    overallMax: Number.isFinite(overallMax) ? overallMax : null, overallMaxCell, overallMaxTime,
+    avgSpread: spreadCount ? spreadSum / spreadCount : null,
+    worstCell: cells[worstIdx] ? cells[worstIdx].cellNum : null,
+    worstCellAvg: cellMeans[worstIdx] !== undefined ? cellMeans[worstIdx] : null,
+    cellMeans,
+  };
+}
+
+function rebuildCellAll() {
+  rebuildCellPlots();
+  renderCellTable();
+}
+
+function rebuildCellPlots() {
+  const items = cellDatasets();
+  const barEl = document.getElementById("cellBarPlot"), spreadEl = document.getElementById("cellSpreadPlot");
+  document.getElementById("cellEmptyState").style.display = items.length ? "none" : "block";
+  if (!items.length) { Plotly.purge(barEl); Plotly.purge(spreadEl); return; }
+
+  const fontColor = getComputedStyle(document.body).getPropertyValue("--text") || "#333";
+  const barTraces = items.map((ds) => {
+    const s = cellSummary(ds);
+    return { type: "bar", name: ds.name, x: ds.cellVoltages.map((c) => "Cell " + c.cellNum), y: s.cellMeans, marker: { color: ds.color } };
+  });
+  Plotly.react(barEl, barTraces, {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 320, showlegend: items.length > 1,
+    legend: { orientation: "h", y: -0.2 }, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: fontColor }, xaxis: { title: "Cell" }, yaxis: { title: "Average voltage (V)" }, barmode: "group",
+  }, { responsive: true, displaylogo: false });
+
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  const spreadTraces = items.map((ds) => {
+    const spread = [];
+    for (let i = 0; i < ds.xValues.length; i++) {
+      let lo = Infinity, hi = -Infinity;
+      ds.cellVoltages.forEach((c) => { const v = c.values[i]; if (Number.isFinite(v)) { if (v < lo) lo = v; if (v > hi) hi = v; } });
+      spread.push(Number.isFinite(lo) && Number.isFinite(hi) ? hi - lo : NaN);
+    }
+    return { type: "scattergl", mode: "lines", x: ds.xValues, y: spread, name: ds.name, line: { color: ds.color, width: 1.4 } };
+  });
+  const xaxis = { title: "Time" };
+  if (globalIsDatetime) xaxis.type = "date";
+  Plotly.react(spreadEl, spreadTraces, {
+    margin: { t: 10, r: 20, l: 60, b: 40 }, height: 260, showlegend: items.length > 1,
+    legend: { orientation: "h", y: -0.25 }, paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: fontColor }, xaxis, yaxis: { title: "Spread (V)" }, dragmode: "pan",
+  }, { responsive: true, scrollZoom: true, displaylogo: false });
+}
+
+function renderCellTable() {
+  const items = cellDatasets();
+  const box = document.getElementById("cellTable");
+  const btn = document.getElementById("cellExportBtn");
+  if (!items.length) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>Cells</th><th>Min V (cell, time)</th><th>Max V (cell, time)</th><th>Avg spread (V)</th><th>Worst cell (avg V)</th></tr></thead><tbody>';
+  items.forEach((ds) => {
+    const s = cellSummary(ds);
+    html += "<tr><td>" + escapeHtml(ds.name) + "</td><td>" + s.nCells + "</td>" +
+      "<td>" + (s.overallMin === null ? "\u2013" : fmtNum(s.overallMin, 3) + " (Cell " + s.overallMinCell + ", " + fmtX(s.overallMinTime, globalIsDatetime) + ")") + "</td>" +
+      "<td>" + (s.overallMax === null ? "\u2013" : fmtNum(s.overallMax, 3) + " (Cell " + s.overallMaxCell + ", " + fmtX(s.overallMaxTime, globalIsDatetime) + ")") + "</td>" +
+      "<td>" + (s.avgSpread === null ? "\u2013" : fmtNum(s.avgSpread, 3)) + "</td>" +
+      "<td>" + (s.worstCell === null ? "\u2013" : "Cell " + s.worstCell + " (" + fmtNum(s.worstCellAvg, 3) + ")") + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function buildCellCsv() {
+  const items = cellDatasets();
+  const globalIsDatetime = datasets.length ? datasets[0].isDatetime : false;
+  const header = ["Dataset", "NumCells", "OverallMinV", "MinCell", "MinTime", "OverallMaxV", "MaxCell", "MaxTime", "AvgSpreadV", "WorstCell", "WorstCellAvgV"];
+  const lines = [header.join(";")];
+  items.forEach((ds) => {
+    const s = cellSummary(ds);
+    lines.push([ds.name, s.nCells, s.overallMin, s.overallMinCell, fmtX(s.overallMinTime, globalIsDatetime), s.overallMax, s.overallMaxCell, fmtX(s.overallMaxTime, globalIsDatetime), s.avgSpread, s.worstCell, s.worstCellAvg]
+      .map((v) => '"' + String(v === null ? "" : v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+
+document.getElementById("cellExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildCellCsv(), "cell_balance.csv"));
+
+// ===========================================================================
+// 18. Degradation / long-term trend
+// ===========================================================================
+function degDatasets() {
+  return datasets.map((ds) => ({ ds, pts: ivPointsForDataset(ds) })).filter((x) => x.pts);
+}
+
+// Simple linear regression y = a + b*x; returns slope b and intercept a.
+function linreg(xs, ys) {
+  const n = xs.length;
+  if (n < 2) return null;
+  const mx = mean(xs), my = mean(ys);
+  let num = 0, den = 0;
+  for (let i = 0; i < n; i++) { num += (xs[i] - mx) * (ys[i] - my); den += (xs[i] - mx) ** 2; }
+  if (den === 0) return null;
+  const b = num / den;
+  const a = my - b * mx;
+  return { slope: b, intercept: a };
+}
+
+function renderDegHoursList() {
+  const box = document.getElementById("degHoursList");
+  const items = degDatasets();
+  box.innerHTML = "";
+  if (!items.length) { box.innerHTML = '<p class="muted">No dataset with both Voltage and Current yet.</p>'; return; }
+  items.forEach(({ ds }) => {
+    if (ds.operatingHours === undefined) ds.operatingHours = 0;
+    const row = document.createElement("div");
+    row.style.marginBottom = "8px";
+    row.innerHTML =
+      '<div class="row" style="margin-bottom:2px;"><span class="swatch" style="width:9px;height:9px;border-radius:50%;background:' + ds.color + '"></span>' +
+      '<span style="font-size:12.5px;">' + escapeHtml(ds.name) + '</span></div>' +
+      '<input type="number" min="0" step="any" class="degHoursInput" data-id="' + ds.id + '" value="' + ds.operatingHours + '" placeholder="operating hours">';
+    box.appendChild(row);
+  });
+  box.querySelectorAll(".degHoursInput").forEach((inp) => {
+    inp.addEventListener("input", (e) => {
+      const ds = datasets.find((d) => d.id === Number(e.target.getAttribute("data-id")));
+      const v = parseFloat(e.target.value);
+      if (ds) ds.operatingHours = Number.isFinite(v) ? v : 0;
+      rebuildDegPlot(); renderDegTable();
+    });
+  });
+}
+
+function degSeries() {
+  const targetI = parseFloat(document.getElementById("degTargetI").value);
+  if (!Number.isFinite(targetI)) return { points: [], targetI: null };
+  const items = degDatasets();
+  const points = [];
+  items.forEach(({ ds, pts }) => {
+    if (ds.operatingHours === undefined) ds.operatingHours = 0;
+    const v = interp1(pts.I, pts.V, targetI);
+    if (v !== null) points.push({ ds, hours: ds.operatingHours, v });
+  });
+  points.sort((a, b) => a.hours - b.hours);
+  return { points, targetI };
+}
+
+function rebuildDegAll() {
+  renderDegHoursList();
+  rebuildDegPlot();
+  renderDegTable();
+}
+
+function rebuildDegPlot() {
+  const { points, targetI } = degSeries();
+  const plotEl = document.getElementById("degPlot");
+  document.getElementById("degEmptyState").style.display = points.length ? "none" : "block";
+  if (!points.length) { Plotly.purge(plotEl); return; }
+
+  const reg = linreg(points.map((p) => p.hours), points.map((p) => p.v));
+  const traces = [{
+    type: "scatter", mode: "markers", x: points.map((p) => p.hours), y: points.map((p) => p.v),
+    text: points.map((p) => p.ds.name), name: "V at I=" + targetI + "A",
+    marker: { color: points.map((p) => p.ds.color), size: 9 },
+  }];
+  if (reg) {
+    const xs = points.map((p) => p.hours);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs);
+    traces.push({ type: "scatter", mode: "lines", x: [x0, x1], y: [reg.intercept + reg.slope * x0, reg.intercept + reg.slope * x1], name: "Trend", line: { color: "#888", dash: "dot" } });
+  }
+  Plotly.react(plotEl, traces, {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 420, showlegend: true, legend: { orientation: "h", y: -0.15 },
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    xaxis: { title: "Operating hours" }, yaxis: { title: "Voltage at I=" + targetI + "A (V)" },
+  }, { responsive: true, displaylogo: false });
+}
+
+function renderDegTable() {
+  const { points, targetI } = degSeries();
+  const box = document.getElementById("degTable");
+  const btn = document.getElementById("degExportBtn");
+  if (!points.length) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  const reg = linreg(points.map((p) => p.hours), points.map((p) => p.v));
+  const v0 = points[0].v;
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>Operating hours</th><th>V at I=' + targetI + 'A</th><th>&Delta; vs. first (%)</th></tr></thead><tbody>';
+  points.forEach((p) => {
+    const pct = v0 !== 0 ? ((p.v - v0) / v0) * 100 : null;
+    html += "<tr><td>" + escapeHtml(p.ds.name) + "</td><td>" + fmtNum(p.hours, 2) + "</td><td>" + fmtNum(p.v, 4) + "</td><td>" + (pct === null ? "\u2013" : fmtNum(pct, 3)) + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  if (reg) {
+    const mvPerH = reg.slope * 1000;
+    const pctPerH = v0 !== 0 ? (reg.slope / v0) * 100 : null;
+    html += '<p class="muted" style="margin-top:10px;">Degradation rate (linear fit): ' + fmtNum(mvPerH, 3) + " mV/h" + (pctPerH === null ? "" : " (" + fmtNum(pctPerH, 4) + " %/h)") + "</p>";
+  }
+  box.innerHTML = html;
+}
+
+function buildDegCsv() {
+  const { points, targetI } = degSeries();
+  const reg = linreg(points.map((p) => p.hours), points.map((p) => p.v));
+  const v0 = points.length ? points[0].v : null;
+  const header = ["Dataset", "OperatingHours", "V_at_I" + targetI + "A", "PctChangeVsFirst"];
+  const lines = [header.join(";")];
+  points.forEach((p) => {
+    const pct = v0 !== null && v0 !== 0 ? ((p.v - v0) / v0) * 100 : "";
+    lines.push([p.ds.name, p.hours, p.v, pct].map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";"));
+  });
+  if (reg) lines.push('"Degradation rate (mV/h)";"' + fmtNum(reg.slope * 1000, 4) + '";;');
+  return lines.join("\n");
+}
+
+document.getElementById("degExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildDegCsv(), "degradation.csv"));
+document.getElementById("degTargetI").addEventListener("input", () => { if (activeView === "deg") { rebuildDegPlot(); renderDegTable(); } });
+
+// ===========================================================================
+// 19. Auto Events - robust (median/MAD) event detection + steady segments
+// ===========================================================================
+// Ported from a user-supplied pandas module: same idea (rolling median/MAD
+// deviation score, merge/filter runs, plateau-relative depth & overshoot,
+// settle-and-hold recovery, event-free steady segments), reimplemented
+// natively in JS against this tool's existing dataset/channel structures.
+let evtLastResult = null; // {ds, channelName, values, events, steady}
+
+function evtConfig() {
+  return {
+    winSec: Math.max(1, parseFloat(document.getElementById("evtWin").value) || 60),
+    madThresh: Math.max(0.1, parseFloat(document.getElementById("evtMadThresh").value) || 4),
+    minEventSec: Math.max(0, parseFloat(document.getElementById("evtMinEvent").value) || 2),
+    minGapSec: Math.max(0, parseFloat(document.getElementById("evtMinGap").value) || 10),
+    settleTolPct: Math.max(0, parseFloat(document.getElementById("evtTolPct").value) || 1),
+    settleHoldSec: Math.max(0, parseFloat(document.getElementById("evtHold").value) || 30),
+    plateauWinSec: 60,
+    minSteadySec: Math.max(0, parseFloat(document.getElementById("evtMinSteady").value) || 60),
+  };
+}
+
+// Rolling median and MAD (median absolute deviation, scaled by 1.4826 so it
+// estimates std dev for normal data) over a TIME window, not a sample count -
+// two pointers exploit that xSec is sorted, so each index enters/exits the
+// window a bounded number of times.
+function rollingMedianMAD(xSec, values, windowSec) {
+  const n = values.length;
+  const med = new Array(n).fill(NaN);
+  const mad = new Array(n).fill(NaN);
+  const half = windowSec / 2;
+  let loPtr = 0, hiPtr = 0;
+  for (let i = 0; i < n; i++) {
+    const t = xSec[i];
+    while (loPtr < n && xSec[loPtr] < t - half) loPtr++;
+    while (hiPtr < n && xSec[hiPtr] <= t + half) hiPtr++;
+    const win = [];
+    for (let j = loPtr; j < hiPtr; j++) { const v = values[j]; if (Number.isFinite(v)) win.push(v); }
+    if (!win.length) continue;
+    const m = median(win);
+    med[i] = m;
+    mad[i] = median(win.map((v) => Math.abs(v - m))) * 1.4826;
+  }
+  return { med, mad };
+}
+
+function deviationScore(xSec, values, windowSec) {
+  const n = values.length;
+  const { med, mad } = rollingMedianMAD(xSec, values, windowSec);
+  // forward/backward-fill zero or missing MAD so a locally flat window
+  // doesn't produce a divide-by-zero score explosion.
+  const filled = mad.slice();
+  let last = null;
+  for (let i = 0; i < n; i++) { if (Number.isFinite(filled[i]) && filled[i] > 0) last = filled[i]; else if (last !== null) filled[i] = last; }
+  last = null;
+  for (let i = n - 1; i >= 0; i--) { if (Number.isFinite(filled[i]) && filled[i] > 0) last = filled[i]; else if (last !== null) filled[i] = last; }
+  const score = new Array(n).fill(NaN);
+  for (let i = 0; i < n; i++) {
+    const m = (Number.isFinite(filled[i]) && filled[i] > 0) ? filled[i] : 1e-9;
+    score[i] = (Number.isFinite(values[i]) && Number.isFinite(med[i])) ? Math.abs(values[i] - med[i]) / m : NaN;
+  }
+  return score;
+}
+
+function runsFromMask(xSec, mask, minLenSec) {
+  const runs = [];
+  let start = null;
+  for (let i = 0; i < mask.length; i++) {
+    if (mask[i] && start === null) start = i;
+    else if (!mask[i] && start !== null) {
+      if (xSec[i - 1] - xSec[start] >= minLenSec) runs.push([start, i - 1]);
+      start = null;
+    }
+  }
+  if (start !== null && xSec[xSec.length - 1] - xSec[start] >= minLenSec) runs.push([start, xSec.length - 1]);
+  return runs;
+}
+
+function mergeRuns(runs, xSec, minGapSec) {
+  const merged = [];
+  runs.forEach(([s, e]) => {
+    if (merged.length && xSec[s] - xSec[merged[merged.length - 1][1]] <= minGapSec) {
+      merged[merged.length - 1][1] = e;
+    } else {
+      merged.push([s, e]);
+    }
+  });
+  return merged;
+}
+
+// First time T such that every sample from T to T+holdSec (inclusive) stays
+// within tolerance of the plateau - "settled and stays settled", not just a
+// single touch.
+function findSettleTime(xSec, values, fromIdx, plateau, tolAbs, holdSec) {
+  let runStart = null;
+  for (let i = fromIdx; i < values.length; i++) {
+    const v = values[i];
+    const within = Number.isFinite(v) && Math.abs(v - plateau) <= tolAbs;
+    if (within) {
+      if (runStart === null) runStart = xSec[i];
+      if (xSec[i] - runStart >= holdSec) return runStart;
+    } else {
+      runStart = null;
+    }
+  }
+  return null;
+}
+
+function detectEventsForChannel(ds, channelName, values, cfg) {
+  const xSec = ds.xValues.map((x) => xToSeconds(ds, x));
+  const score = deviationScore(xSec, values, cfg.winSec);
+  const mask = score.map((s) => Number.isFinite(s) && s > cfg.madThresh);
+  const runs = mergeRuns(runsFromMask(xSec, mask, cfg.minEventSec), xSec, cfg.minGapSec);
+  const allFinite = values.filter(Number.isFinite);
+
+  return runs.map(([s, e]) => {
+    const plateauVals = [];
+    for (let i = s - 1; i >= 0 && xSec[s] - xSec[i] <= cfg.plateauWinSec; i--) {
+      if (Number.isFinite(values[i])) plateauVals.push(values[i]);
+    }
+    const plateau = plateauVals.length ? median(plateauVals) : median(allFinite);
+    const segVals = values.slice(s, e + 1).filter(Number.isFinite);
+    const depth = segVals.length ? Math.min(...segVals) - plateau : null;
+    const overshoot = segVals.length ? Math.max(...segVals) - plateau : null;
+    const tolAbs = (cfg.settleTolPct / 100) * Math.abs(plateau);
+    const settledAt = findSettleTime(xSec, values, e + 1, plateau, tolAbs, cfg.settleHoldSec);
+    return {
+      channel: channelName, x0: ds.xValues[s], x1: ds.xValues[e],
+      xSec0: xSec[s], xSec1: xSec[e], sIdx: s, eIdx: e,
+      depth, overshoot, plateau,
+      recoverySec: settledAt !== null ? settledAt - xSec[e] : null,
+    };
+  });
+}
+
+function steadySegmentsForChannel(ds, channelName, values, events, cfg) {
+  const xSec = ds.xValues.map((x) => xToSeconds(ds, x));
+  const n = values.length;
+  const covered = new Array(n).fill(false);
+  events.forEach((ev) => { for (let i = ev.sIdx; i <= ev.eIdx; i++) covered[i] = true; });
+
+  const segments = [];
+  let start = null;
+  const flush = (s, e) => {
+    if (s === null || xSec[e] - xSec[s] < cfg.minSteadySec) return;
+    const segVals = values.slice(s, e + 1).filter(Number.isFinite);
+    if (!segVals.length) return;
+    segments.push({ channel: channelName, x0: ds.xValues[s], x1: ds.xValues[e], mean: mean(segVals), std: stdDev(segVals), durationSec: xSec[e] - xSec[s] });
+  };
+  for (let i = 0; i < n; i++) {
+    if (!covered[i] && Number.isFinite(values[i])) { if (start === null) start = i; }
+    else { if (start !== null) flush(start, i - 1); start = null; }
+  }
+  if (start !== null) flush(start, n - 1);
+  return segments;
+}
+
+function evtSelectedDataset() {
+  const id = Number(document.getElementById("evtDatasetSelect").value);
+  return datasets.find((d) => d.id === id) || null;
+}
+
+function populateEvtSelectors() {
+  const dsSel = document.getElementById("evtDatasetSelect");
+  const prevDs = dsSel.value;
+  dsSel.innerHTML = datasets.map((d) => '<option value="' + d.id + '">' + escapeHtml(d.name) + "</option>").join("");
+  if (datasets.some((d) => String(d.id) === prevDs)) dsSel.value = prevDs;
+
+  const chSel = document.getElementById("evtChannelSelect");
+  const prevCh = chSel.value;
+  const ds = evtSelectedDataset();
+  const opts = [];
+  if (ds) {
+    TYPE_ORDER.forEach((t) => ds.channels[t].forEach((c) => opts.push({ value: t + "::" + c.name, label: SIGNAL_RULES[t].label + ": " + c.name })));
+    (ds.cellVoltages || []).forEach((c) => opts.push({ value: "cell::" + c.name, label: "Cell " + c.cellNum + " (" + c.name + ")" }));
+  }
+  chSel.innerHTML = opts.map((o) => '<option value="' + o.value + '">' + escapeHtml(o.label) + "</option>").join("");
+  if (opts.some((o) => o.value === prevCh)) chSel.value = prevCh;
+}
+document.getElementById("evtDatasetSelect").addEventListener("change", () => {
+  const chSel = document.getElementById("evtChannelSelect");
+  chSel.value = ""; // force channel list to repopulate fresh for the newly chosen dataset
+  populateEvtSelectors();
+});
+
+function evtChannelValues(ds, key) {
+  if (!key || !key.includes("::")) return null;
+  const [kind, name] = key.split("::");
+  const list = kind === "cell" ? (ds.cellVoltages || []) : (ds.channels[kind] || []);
+  const found = list.find((c) => c.name === name);
+  return found ? { name: found.name, values: found.values, unit: kind === "cell" ? "V" : SIGNAL_RULES[kind].unit } : null;
+}
+
+document.getElementById("evtAnalyzeBtn").addEventListener("click", () => {
+  const ds = evtSelectedDataset();
+  const chKey = document.getElementById("evtChannelSelect").value;
+  const chan = ds ? evtChannelValues(ds, chKey) : null;
+  if (!ds || !chan) { alert("Pick a dataset and a channel first."); return; }
+  const cfg = evtConfig();
+  const events = detectEventsForChannel(ds, chan.name, chan.values, cfg);
+  const steady = steadySegmentsForChannel(ds, chan.name, chan.values, events, cfg);
+  evtLastResult = { ds, channelName: chan.name, unit: chan.unit, values: chan.values, events, steady };
+  rebuildEvtPlot();
+  renderEvtTable();
+  renderEvtSteadyTable();
+});
+
+function rebuildEvtPlot() {
+  const plotEl = document.getElementById("evtPlot");
+  document.getElementById("evtEmptyState").style.display = evtLastResult ? "none" : "block";
+  if (!evtLastResult) { Plotly.purge(plotEl); return; }
+  const { ds, channelName, values, events, steady } = evtLastResult;
+
+  const shapes = [];
+  events.forEach((ev) => shapes.push({ type: "rect", xref: "x", yref: "paper", x0: ev.x0, x1: ev.x1, y0: 0, y1: 1, fillcolor: "#e53935", opacity: 0.15, line: { width: 0 }, layer: "below" }));
+  steady.forEach((sg) => shapes.push({ type: "rect", xref: "x", yref: "paper", x0: sg.x0, x1: sg.x1, y0: 0, y1: 1, fillcolor: "#43a047", opacity: 0.08, line: { width: 0 }, layer: "below" }));
+
+  const layout = {
+    margin: { t: 20, r: 20, l: 60, b: 40 }, height: 380, showlegend: false,
+    paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
+    font: { color: getComputedStyle(document.body).getPropertyValue("--text") || "#333" },
+    xaxis: { title: "Time", type: ds.isDatetime ? "date" : undefined },
+    yaxis: { title: channelName }, shapes, dragmode: "pan",
+  };
+  Plotly.react(plotEl, [{ type: "scattergl", mode: "lines", x: ds.xValues, y: values, line: { color: "#1f77b4", width: 1.2 }, name: channelName }],
+    layout, { responsive: true, scrollZoom: true, displaylogo: false });
+}
+
+function addEvtRegion(x0, x1, label) {
+  const id = nextRegionId++;
+  const color = REGION_COLORS[(id - 1) % REGION_COLORS.length];
+  regions.push({ id, label, x0, x1, color, compare: false });
+  Plotly.relayout(plotDiv, { shapes: regionShapes(), annotations: regionAnnotations() });
+  renderRegionList();
+  ivDirty = true; dynDirty = true; effDirty = true; startDirty = true;
+  loadDirty = true; stabDirty = true; crossDirty = true; cellDirty = true; degDirty = true;
+}
+
+function renderEvtTable() {
+  const box = document.getElementById("evtTable");
+  const btn = document.getElementById("evtExportBtn");
+  if (!evtLastResult || !evtLastResult.events.length) { box.innerHTML = '<p class="muted">No events detected at the current settings.</p>'; btn.disabled = true; return; }
+  btn.disabled = false;
+  const isDt = evtLastResult.ds.isDatetime;
+  let html = '<table class="compare"><thead><tr><th>Start</th><th>End</th><th>Depth</th><th>Overshoot</th><th>Plateau</th><th>Recovery (s)</th><th></th></tr></thead><tbody>';
+  evtLastResult.events.forEach((ev, i) => {
+    html += "<tr><td>" + fmtX(ev.x0, isDt) + "</td><td>" + fmtX(ev.x1, isDt) + "</td>" +
+      "<td>" + (ev.depth === null ? "\u2013" : fmtNum(ev.depth, 3)) + "</td><td>" + (ev.overshoot === null ? "\u2013" : fmtNum(ev.overshoot, 3)) + "</td>" +
+      "<td>" + fmtNum(ev.plateau, 3) + "</td><td>" + (ev.recoverySec === null ? "did not settle" : fmtNum(ev.recoverySec, 2)) + "</td>" +
+      '<td><button data-evt-idx="' + i + '" class="evtAddRegionBtn">+ Region</button></td></tr>';
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+  box.querySelectorAll(".evtAddRegionBtn").forEach((b) => b.addEventListener("click", () => {
+    const ev = evtLastResult.events[Number(b.getAttribute("data-evt-idx"))];
+    addEvtRegion(ev.x0, ev.x1, "Event " + (Number(b.getAttribute("data-evt-idx")) + 1));
+  }));
+}
+
+function renderEvtSteadyTable() {
+  const box = document.getElementById("evtSteadyTable");
+  const btn = document.getElementById("evtSteadyExportBtn");
+  if (!evtLastResult || !evtLastResult.steady.length) { box.innerHTML = '<p class="muted">No steady segments at the current settings.</p>'; btn.disabled = true; return; }
+  btn.disabled = false;
+  const isDt = evtLastResult.ds.isDatetime;
+  let html = '<table class="compare"><thead><tr><th>Start</th><th>End</th><th>Duration (s)</th><th>Mean</th><th>Std dev</th><th></th></tr></thead><tbody>';
+  evtLastResult.steady.forEach((sg, i) => {
+    html += "<tr><td>" + fmtX(sg.x0, isDt) + "</td><td>" + fmtX(sg.x1, isDt) + "</td><td>" + fmtNum(sg.durationSec, 1) +
+      "</td><td>" + fmtNum(sg.mean, 3) + "</td><td>" + fmtNum(sg.std, 3) + "</td>" +
+      '<td><button data-steady-idx="' + i + '" class="evtAddSteadyRegionBtn">+ Region</button></td></tr>';
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+  box.querySelectorAll(".evtAddSteadyRegionBtn").forEach((b) => b.addEventListener("click", () => {
+    const sg = evtLastResult.steady[Number(b.getAttribute("data-steady-idx"))];
+    addEvtRegion(sg.x0, sg.x1, "Steady " + (Number(b.getAttribute("data-steady-idx")) + 1));
+  }));
+}
+
+function buildEvtCsv() {
+  if (!evtLastResult) return "";
+  const isDt = evtLastResult.ds.isDatetime;
+  const header = ["Channel", "Start", "End", "Depth", "Overshoot", "Plateau", "RecoverySec"];
+  const lines = [header.join(";")];
+  evtLastResult.events.forEach((ev) => {
+    lines.push([ev.channel, fmtX(ev.x0, isDt), fmtX(ev.x1, isDt), ev.depth, ev.overshoot, ev.plateau, ev.recoverySec === null ? "did not settle" : ev.recoverySec]
+      .map((v) => '"' + String(v === null ? "" : v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+function buildEvtSteadyCsv() {
+  if (!evtLastResult) return "";
+  const isDt = evtLastResult.ds.isDatetime;
+  const header = ["Channel", "Start", "End", "DurationSec", "Mean", "Std"];
+  const lines = [header.join(";")];
+  evtLastResult.steady.forEach((sg) => {
+    lines.push([sg.channel, fmtX(sg.x0, isDt), fmtX(sg.x1, isDt), sg.durationSec, sg.mean, sg.std]
+      .map((v) => '"' + String(v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+document.getElementById("evtExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildEvtCsv(), "events.csv"));
+document.getElementById("evtSteadyExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildEvtSteadyCsv(), "steady_segments.csv"));
+
+// ===========================================================================
+// 21. Summary / overview dashboard
+// ===========================================================================
+// Pulls one headline number from each other tab's existing (already-tested)
+// computation, per dataset - no new math, just aggregation.
+function summaryRowFor(ds) {
+  const row = { name: ds.name, ocv: null, pMax: null, avgEff: null, cycles: null, cvPct: null, cellSpread: null, operatingHours: ds.operatingHours !== undefined ? ds.operatingHours : null };
+
+  const ivPts = ivPointsForDataset(ds);
+  if (ivPts) {
+    const c = ivCharacteristics(ivPts);
+    row.ocv = c.ocvV;
+    row.pMax = c.pMax;
+  }
+
+  const elecP = electricalPowerSeries(ds);
+  const flow = ds.channels.flow.length ? ds.channels.flow[0] : null;
+  if (elecP && flow) {
+    const basis = "lhv";
+    const s = effSummary(ds, elecP, flow, undefined, undefined, basis);
+    row.avgEff = s.avgEfficiencyPct;
+  }
+
+  const primary = primaryChannelForCycles(ds);
+  if (primary) row.cycles = detectCycles(ds, primary.chan.values, 0.10).length;
+
+  if (ds.channels.voltage.length) {
+    const st = stabilityMetrics(ds.channels.voltage[0].values);
+    if (st) row.cvPct = st.cv;
+  }
+
+  if (ds.cellVoltages && ds.cellVoltages.length) {
+    const cs = cellSummary(ds);
+    row.cellSpread = cs.avgSpread;
+  }
+
+  return row;
+}
+
+function relDiffPct(a, b) { return (a !== null && b !== null && Number.isFinite(a) && Number.isFinite(b) && a !== 0) ? ((b - a) / Math.abs(a)) * 100 : null; }
+
+function summaryRelPair() {
+  const a = document.getElementById("summaryRelA").value;
+  const b = document.getElementById("summaryRelB").value;
+  if (!a || !b || a === b) return null;
+  const ra = datasets.map(summaryRowFor).find((r) => r.name === a);
+  const rb = datasets.map(summaryRowFor).find((r) => r.name === b);
+  if (!ra || !rb) return null;
+  return { a: ra, b: rb };
+}
+
+function renderSummaryTable() {
+  const box = document.getElementById("summaryTable");
+  const btn = document.getElementById("summaryExportBtn");
+  document.getElementById("summaryEmptyState").style.display = datasets.length ? "none" : "block";
+  if (!datasets.length) { box.innerHTML = ""; btn.disabled = true; return; }
+  btn.disabled = false;
+
+  // keep the compare-pair dropdowns populated
+  const selA = document.getElementById("summaryRelA"), selB = document.getElementById("summaryRelB");
+  const curA = selA.value, curB = selB.value;
+  if (selA.options.length !== datasets.length + 1) {
+    selA.innerHTML = '<option value="">(none)</option>' + datasets.map((d) => '<option value="' + escapeHtml(d.name) + '">' + escapeHtml(d.name) + '</option>').join("");
+    selB.innerHTML = selA.innerHTML;
+    selA.value = curA; selB.value = curB;
+  }
+
+  const rows = datasets.map(summaryRowFor);
+  const dash = (v, dec) => (v === null || v === undefined ? "\u2013" : fmtNum(v, dec !== undefined ? dec : 2));
+  const rel = summaryRelPair();
+  let html = '<table class="compare"><thead><tr><th>Dataset</th><th>OCV (V)</th><th>P<sub>max</sub> (W)</th><th>Avg. efficiency (%)</th><th>Cycles</th><th>Voltage CV (%)</th><th>Cell spread (V)</th><th>Operating hours</th>';
+  if (rel) {
+    html += '<th colspan="2">Relative difference: ' + escapeHtml(rel.b.name) + ' vs ' + escapeHtml(rel.a.name) + ' (%)</th>';
+  }
+  html += "</tr></thead><tbody>";
+  rows.forEach((r) => {
+    html += "<tr><td>" + escapeHtml(r.name) + "</td><td>" + dash(r.ocv, 3) + "</td><td>" + dash(r.pMax, 1) + "</td><td>" + dash(r.avgEff, 2) +
+      "</td><td>" + (r.cycles === null ? "\u2013" : r.cycles) + "</td><td>" + dash(r.cvPct, 2) + "</td><td>" + dash(r.cellSpread, 3) + "</td><td>" + dash(r.operatingHours, 1) + "</td>";
+    if (rel) {
+      const isA = r.name === rel.a.name, isB = r.name === rel.b.name;
+      const d = relDiffPct(rel.a.pMax, rel.b.pMax);
+      const dEff = relDiffPct(rel.a.avgEff, rel.b.avgEff);
+      html += "<td>" + (isA || isB ? (isA ? "reference" : dash(d, 2) + " (Pmax)") : "") + "</td><td>" + (isA ? "reference" : (isB ? dash(dEff, 2) + " (eff.)" : "")) + "</td>";
+    }
+    html += "</tr>";
+  });
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+document.getElementById("summaryRelA").addEventListener("change", () => { renderSummaryTable(); });
+document.getElementById("summaryRelB").addEventListener("change", () => { renderSummaryTable(); });
+
+function buildSummaryCsv() {
+  const rows = datasets.map(summaryRowFor);
+  const header = ["Dataset", "OCV_V", "Pmax_W", "AvgEfficiency_pct", "Cycles", "VoltageCV_pct", "CellSpread_V", "OperatingHours"];
+  const lines = [header.join(";")];
+  rows.forEach((r) => {
+    lines.push([r.name, r.ocv, r.pMax, r.avgEff, r.cycles, r.cvPct, r.cellSpread, r.operatingHours]
+      .map((v) => '"' + String(v === null || v === undefined ? "" : v).replace(/"/g, '""') + '"').join(";"));
+  });
+  return lines.join("\n");
+}
+document.getElementById("summaryExportBtn").addEventListener("click", () => exportCsvViaCapOrBlob(buildSummaryCsv(), "summary.csv"));
+
+// ===========================================================================
+// 22. Live data feed (WebSocket) - prepared, not auto-connected
+// ===========================================================================
+// Compatible with the companion FastAPI server (server.py): connects to its
+// /ws endpoint and expects {type:"init", devices, history} once on connect,
+// then {type:"telemetry_update", data:{device_id, telemetry:{key:value,...},
+// timestamp}} per sample. Every device becomes its own dataset, built with
+// exactly the same shape as a CSV upload (channels/unrecognised/
+// cellVoltages), so every tab in this tool works on live data automatically -
+// no separate code path. This never connects on its own; the panel starts
+// hidden and Connect must be clicked explicitly.
+let liveSocket = null;
+let liveLastUrl = null;
+let liveRenderTimer = null;
+const LIVE_MAX_POINTS = 5000; // cap per-device history so memory doesn't grow unbounded
+
+document.getElementById("liveToggleBtn").addEventListener("click", () => {
+  const panel = document.getElementById("livePanel");
+  panel.style.display = panel.style.display === "none" ? "flex" : "none";
+});
+
+function setLiveStatus(text) { document.getElementById("liveStatus").textContent = text; }
+
+function ensureLiveDataset(deviceId, deviceName) {
+  let ds = liveDatasetsByDeviceId[deviceId];
+  if (ds) return ds;
+  const id = nextDatasetId++;
+  const color = DATASET_COLORS[(id - 1) % DATASET_COLORS.length];
+  const channels = {};
+  TYPE_ORDER.forEach((t) => { channels[t] = []; });
+  ds = {
+    id, name: "live: " + (deviceName || deviceId), color,
+    xCol: "timestamp", xValues: [], isDatetime: true,
+    channels, unrecognised: [], cellVoltages: [],
+    isLive: true, liveDeviceId: deviceId, liveKeyMap: {},
+  };
+  liveDatasetsByDeviceId[deviceId] = ds;
+  datasets.push(ds);
+  return ds;
+}
+
+// Classify a telemetry key the first time it's seen for this dataset, then
+// remember the mapping so later samples just append.
+function liveTargetFor(ds, key) {
+  let target = ds.liveKeyMap[key];
+  if (target) return target;
+  const cellMatch = key.match(CELL_VOLTAGE_PATTERN);
+  if (cellMatch) {
+    const entry = { cellNum: parseInt(cellMatch[1], 10), name: key, values: [] };
+    ds.cellVoltages.push(entry);
+    ds.cellVoltages.sort((a, b) => a.cellNum - b.cellNum);
+    target = { entry };
+  } else {
+    const sig = detectSignal(key);
+    const entry = { name: key, values: [] };
+    if (sig) ds.channels[sig].push(entry); else ds.unrecognised.push(entry);
+    target = { entry };
+  }
+  ds.liveKeyMap[key] = target;
+  return target;
+}
+
+function ingestTelemetrySample(payload) {
+  if (!payload || !payload.device_id || !payload.telemetry) return;
+  const ds = ensureLiveDataset(payload.device_id, payload.device_name);
+  const tMs = payload.timestamp ? Date.parse(payload.timestamp) : Date.now();
+  if (!Number.isFinite(tMs)) return;
+  ds.xValues.push(tMs);
+  const n = ds.xValues.length;
+
+  Object.entries(payload.telemetry).forEach(([key, val]) => {
+    if (typeof val !== "number" || !Number.isFinite(val)) return; // skip status strings etc.
+    const target = liveTargetFor(ds, key);
+    while (target.entry.values.length < n - 1) target.entry.values.push(NaN); // keep aligned if a key is intermittent
+    target.entry.values.push(val);
+  });
+  // any channel that didn't get a value this sample still needs padding to stay aligned
+  Object.values(ds.liveKeyMap).forEach((t) => { while (t.entry.values.length < n) t.entry.values.push(NaN); });
+
+  if (n > LIVE_MAX_POINTS) {
+    const trim = n - LIVE_MAX_POINTS;
+    ds.xValues.splice(0, trim);
+    Object.values(ds.liveKeyMap).forEach((t) => t.entry.values.splice(0, trim));
+  }
+}
+
+// Refreshing every tab on every single incoming sample would be wasteful;
+// batch updates to at most once a second.
+function scheduleLiveRender() {
+  if (liveRenderTimer) return;
+  liveRenderTimer = setTimeout(() => {
+    liveRenderTimer = null;
+    renderDatasetChips();
+    rebuildPlot();
+    renderRegionList();
+    ivDirty = true; dynDirty = true; effDirty = true; startDirty = true;
+    loadDirty = true; stabDirty = true; crossDirty = true; cellDirty = true; degDirty = true; evtDirty = true; summaryDirty = true;
+    const refreshers = { iv: () => { rebuildIvAll(); ivDirty = false; }, dyn: () => { renderDynTable(); dynDirty = false; },
+      eff: () => { rebuildEffAll(); effDirty = false; }, start: () => { renderStartTable(); startDirty = false; },
+      load: () => { rebuildLoadAll(); loadDirty = false; }, stab: () => { rebuildStabAll(); stabDirty = false; },
+      cross: () => { rebuildCrossAll(); crossDirty = false; }, cell: () => { rebuildCellAll(); cellDirty = false; },
+      deg: () => { rebuildDegAll(); degDirty = false; },
+      summary: () => { renderSummaryTable(); summaryDirty = false; } };
+    if (refreshers[activeView]) refreshers[activeView]();
+  }, 1000);
+}
+
+let liveReconnectAttempts = 0;
+let liveReconnectTimer = null;
+let liveRecording = false;
+function liveBackoffMs() { return Math.min(30000, 1000 * Math.pow(2, Math.min(liveReconnectAttempts, 5))); }
+function scheduleLiveReconnect(url) {
+  if (liveReconnectTimer) return;
+  liveReconnectAttempts++;
+  const wait = liveBackoffMs();
+  setLiveStatus("Reconnecting in " + Math.round(wait / 1000) + " s (attempt " + liveReconnectAttempts + ")");
+  liveReconnectTimer = setTimeout(() => { liveReconnectTimer = null; connectLiveFeed(url); }, wait);
+}
+function connectLiveFeed(url) {
+  if (liveReconnectTimer) { clearTimeout(liveReconnectTimer); liveReconnectTimer = null; }
+  if (liveSocket) { try { liveSocket.close(); } catch (e) {} }
+  let ws;
+  try { ws = new WebSocket(url); }
+  catch (e) { setLiveStatus("Invalid URL"); return; }
+  liveSocket = ws;
+  liveLastUrl = url;
+  setLiveStatus("Connecting\u2026");
+  ws.onopen = () => { liveReconnectAttempts = 0; setLiveStatus("Connected to " + url); document.getElementById("liveConnectBtn").style.display = "none"; document.getElementById("liveDisconnectBtn").style.display = ""; };
+  ws.onclose = () => { setLiveStatus("Disconnected"); document.getElementById("liveConnectBtn").style.display = ""; document.getElementById("liveDisconnectBtn").style.display = "none"; if (liveSocket === ws) liveSocket = null; scheduleLiveReconnect(url); };
+  ws.onerror = () => { setLiveStatus("Connection error"); };
+  ws.onmessage = (evt) => {
+    let msg;
+    try { msg = JSON.parse(evt.data); } catch (e) { return; }
+    if (msg.type === "init") {
+      Object.values(msg.history || {}).forEach((samples) => samples.forEach(ingestTelemetrySample));
+      if (!msg.history && msg.states) Object.values(msg.states).forEach(ingestTelemetrySample); // older server without /history
+      scheduleLiveRender();
+    } else if (msg.type === "telemetry_update" && msg.data) {
+      ingestTelemetrySample(msg.data);
+      scheduleLiveRender();
+    }
+  };
+}
+
+document.getElementById("liveConnectBtn").addEventListener("click", () => {
+  const url = document.getElementById("liveUrl").value.trim() || document.getElementById("liveUrl").placeholder;
+  connectLiveFeed(url);
+});
+document.getElementById("liveDisconnectBtn").addEventListener("click", () => {
+  if (liveSocket) liveSocket.close();
+});
+
+renderDatasetChips();
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+quantity,value,unit
+mode,preliminary,
+STC potential,29427.2,kWh/month
+DC after site losses,27418.7,kWh/month
+AC to bus,26468.6,kWh/month
+capture ratio,0.932,
+eta DC-to-AC,0.965,
