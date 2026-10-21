@@ -5,7 +5,7 @@ from verlustmappe import registry as R
 from verlustmappe.hydrogen import h2_from_tank_pressure as _tank, compare_routes, h2_from_stack_current
 from verlustmappe.hydrogen.z_realgas import z_h2
 from verlustmappe.hydrogen.temperature_model import (isothermal_work_mol_integral,
-    isothermal_adiabatic_bracket, temperature_corrected_mass)
+    hot_end_fill_bracket, temperature_corrected_mass)
 from verlustmappe.devices import AirDrivenBooster
 import inspect as _inspect
 def h2_from_tank_pressure(*a, **k):
@@ -73,11 +73,11 @@ for a, b in ((21.01325, 201.01325), (101.01325, 201.01325), (151.01325, 201.0132
     for dT in (15, 40, 64):
         true = temperature_corrected_mass(b, 800, 20+dT) - temperature_corrected_mass(a, 800, 20)
         assumed = temperature_corrected_mass(b, 800, 20) - temperature_corrected_mass(a, 800, 20)
-        br = isothermal_adiabatic_bracket(a, b, 800, 20, dT)["relative_spread"]
+        br = hot_end_fill_bracket(a, b, 800, 20, dT)["relative_spread"]
         rows.append((a, b, dT, assumed/true-1, br))
 check("The temperature 'bracket' (both endpoints +dT) understates a hot-end fill",
       all(bias > br for *_, bias, br in rows),
-      "temperature_model.isothermal_adiabatic_bracket: model a hot END with an AMBIENT start (dT only at the end of a fill) and rename it",
+      "temperature_model.hot_end_fill_bracket: model a hot END with an AMBIENT start (dT only at the end of a fill) and rename it (done: hot_end_fill_bracket)",
       "\n    " + "\n    ".join(f"{a-1.01325:.0f}->{b-1.01325:.0f} barg dT={dT} K: real bias {bias*100:5.1f}%  bracket {br*100:4.1f}%"
                                for a, b, dT, bias, br in rows))
 

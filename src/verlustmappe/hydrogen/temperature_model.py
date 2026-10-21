@@ -158,16 +158,18 @@ def isothermal_work_mol_integral(mol, p1_abs_bar, p2_abs_bar, T_K, p_suction_abs
     return float(mol * w_per_mol / C.J_PER_KWH)
 
 
-def isothermal_adiabatic_bracket(p1_abs_bar, p2_abs_bar, V_L, T_ambient_C=20.0, delta_T_K=15.0):
-    """The Nexo-style bracket for Tier-1 honesty: mass change computed at
-    ambient T vs at ambient+delta_T (fast fill heat-up). The bracket width is
-    the systematic temperature uncertainty of the ambient assumption."""
+def hot_end_fill_bracket(p1_abs_bar, p2_abs_bar, V_L, T_ambient_C=20.0, delta_T_K=15.0):
+    """Tier-1 honesty bracket for a fast fill: the gas starts at ambient and is
+    hot (ambient + delta_T) only at the END of the fill. The mass change
+    assumed at ambient throughout (m_cold) is compared with the real one
+    (start ambient, end hot). relative_spread = bias of the ambient assumption
+    relative to the real mass change."""
     m_cold = (temperature_corrected_mass(p2_abs_bar, V_L, T_ambient_C)
               - temperature_corrected_mass(p1_abs_bar, V_L, T_ambient_C))
-    m_hot = (temperature_corrected_mass(p2_abs_bar, V_L, T_ambient_C + delta_T_K)
-             - temperature_corrected_mass(p1_abs_bar, V_L, T_ambient_C + delta_T_K))
-    return dict(mass_cold_assumption_kg=m_cold, mass_hot_assumption_kg=m_hot,
-                relative_spread=abs(m_hot - m_cold) / m_cold if m_cold else None,
-                note=("bracket width = systematic bias of the ambient-T assumption for "
-                      "a fast fill; delta_T_K should reflect the fill rate (papers: "
+    m_hot_end = (temperature_corrected_mass(p2_abs_bar, V_L, T_ambient_C + delta_T_K)
+                 - temperature_corrected_mass(p1_abs_bar, V_L, T_ambient_C))
+    return dict(mass_cold_assumption_kg=m_cold, mass_hot_end_kg=m_hot_end,
+                relative_spread=(m_cold - m_hot_end) / m_hot_end if m_hot_end else None,
+                note=("bias of the ambient-T assumption for a fast fill (start ambient, "
+                      "hot only at the end); delta_T_K should reflect the fill rate (papers: "
                       "64-96 K for fast fills, ~0 for slow ones)"))

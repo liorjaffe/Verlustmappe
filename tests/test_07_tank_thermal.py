@@ -2,7 +2,7 @@
 import _path
 import numpy as np
 from verlustmappe.hydrogen.temperature_model import (gs_fit_from_pressure_decay,
-    isothermal_adiabatic_bracket, tier1_temperature, tier2_temperature,
+    hot_end_fill_bracket, tier1_temperature, tier2_temperature,
     temperature_corrected_mass)
 from verlustmappe.hydrogen import h2_from_tank_pressure
 
@@ -20,7 +20,7 @@ def main():
     t1, u1 = tier1_temperature(); assert u1 == 3.0
     t2, u2 = tier2_temperature(35.0, 30.0); assert t2 == 32.5 and u2 == 2.0
     # bracket: hot fill stores LESS mass -> spread positive, ~4% for 15 K
-    b = isothermal_adiabatic_bracket(21.0, 200.0, 800.0, delta_T_K=15.0)
+    b = hot_end_fill_bracket(21.0, 200.0, 800.0, delta_T_K=15.0)
     assert 0.02 < b["relative_spread"] < 0.08, b["relative_spread"]
     # temperature sensitivity: mass ~ 1/(Z(T) T) - the 1/T law holds only at
     # fixed Z; with the 1/T Z-correction the ratio shifts slightly (correct)

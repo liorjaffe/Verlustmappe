@@ -21,7 +21,7 @@ from ..conversions import mol_from_pVT, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
 from .. import constants as C
 from .. import registry as R
 from .z_realgas import z_h2, Z_TABLE_UNCERTAINTY_REL
-from .temperature_model import isothermal_adiabatic_bracket, tier1_temperature, tier2_temperature
+from .temperature_model import hot_end_fill_bracket, tier1_temperature, tier2_temperature
 
 def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None,
                           tier=1, T_top_C=None, T_bottom_C=None, return_bracket=False):
@@ -78,6 +78,6 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
                note=("pressure uncertainty from DCT 541 (0.5%% FSO), amplification %.1f; "
                      "temperature tier %d" % (amp, tier)))
     if return_bracket and tier == 1:
-        out["fast_fill_bracket"] = isothermal_adiabatic_bracket(
+        out["fast_fill_bracket"] = hot_end_fill_bracket(
             p1, p2, R.get("stor.volume_L"), T_ambient_C=T_start_C, delta_T_K=15.0)
     return out

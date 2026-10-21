@@ -97,7 +97,7 @@ bias for the Tier-1 ambient assumption.
   naive linearisation fails on non-converged decays and is only a fallback).
   Our 800 L steel tank should come out well above the Nexo's 70 W/K
   (larger surface area).
-- `isothermal_adiabatic_bracket()`: the honesty bracket for Tier 1. For a
+- `hot_end_fill_bracket()`: the honesty bracket for Tier 1 (start ambient, hot only at the end of the fill). For a
   50->200 bar swing with delta_T = 15 K: ~4% spread on the mass change.
   delta_T should be scaled to the fill rate (papers: 64-96 K on FAST fills,
   ~0 on slow ones).
