@@ -146,9 +146,15 @@ def isothermal_work_mol_integral(mol, p1_abs_bar, p2_abs_bar, T_K, p_suction_abs
         return 0.0   # no fill, no compression work
     if ps <= 0:
         raise ValueError("suction pressure must be positive")
+    if p2 <= ps:
+        return 0.0   # tank stays below suction: no compression needed
+
     def G(p):
         return p * np.log(p / ps) - p
-    w_per_mol = C.R_J_PER_MOL_K * T_K * (G(p2) - G(p1)) / (p2 - p1)
+
+    p_work_start = max(p1, ps)
+    w_per_mol = C.R_J_PER_MOL_K * T_K * (G(p2) - G(p_work_start)) / (p2 - p1)
+
     return float(mol * w_per_mol / C.J_PER_KWH)
 
 

@@ -43,17 +43,30 @@ check("Route 2 uncertainty explodes when the tank EMPTIES (p2 < p1)",
       "route2_tank_pv.py: use dp = abs(p2 - p1) in the pressure term (max(p2-p1, 1e-9) breaks discharging)",
       f"fill u = {up['uncertainty_rel']:.4f}, empty u = {dn['uncertainty_rel']:.3g}")
 
-t3 = h2_from_tank_pressure(50, 150, tier=3)
+try:
+    t3 = h2_from_tank_pressure(50, 150, tier=3)
+    t3_silent = t3["kg"] == up["kg"] and t3["temperature_tier"] == 3
+except NotImplementedError:
+    t3_silent = False
 check("tier=3 silently runs tier 1 but reports temperature_tier=3",
-      t3["kg"] == up["kg"] and t3["temperature_tier"] == 3,
+      t3_silent,
       "route2_tank_pv.py: raise NotImplementedError for tier 3 until the GS model is wired in (never return tier-1 numbers labelled 3)")
 
-k = up["kg"]; reset_volume(800*1.005); k2 = h2_from_tank_pressure(50, 150)["kg"]; reset_volume(800.0)
-p1_, p2_ = 51.01325, 151.01325
+def _u_vol_contribution(p_start, p_end):
+    uV = R.entry("stor.volume_L")["uncertainty"]
+    full = h2_from_tank_pressure(p_start, p_end)["uncertainty_rel"]
+    R.REGISTRY["stor.volume_L"]["uncertainty"] = 0.0
+    try:
+        base = h2_from_tank_pressure(p_start, p_end)["uncertainty_rel"]
+    finally:
+        R.REGISTRY["stor.volume_L"]["uncertainty"] = uV
+    return float(np.sqrt(max(full**2 - base**2, 0.0))), uV
+
+contrib, uV = _u_vol_contribution(50, 150)
 check("Errors COMMON to both readings (volume, common temperature offset) are wrongly amplified by p/dp",
-      abs((k2/k-1) - 0.005) < 1e-6,
+      abs(contrib - uV) > 1e-6,
       "route2_tank_pv.py: a common factor enters the mass difference 1:1; only independent per-reading errors get the p/dp factor",
-      f"true effect of +0.5% volume: {k2/k-1:.4f}; code term: {0.005*p2_/(p2_-p1_):.4f}")
+      f"volume contribution to u: {contrib:.4f}; physically correct (1:1): {uV:.4f}")
 
 rows = []
 for a, b in ((21.01325, 201.01325), (101.01325, 201.01325), (151.01325, 201.01325)):

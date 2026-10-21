@@ -28,6 +28,9 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     """tier 1: T from ambient assumption (registry-free, +-3 K + fast-fill bias)
     tier 2: T from measured sensors (pass T_top_C / T_bottom_C)
     """
+    if tier == 3:
+        raise NotImplementedError("tier 3 (GS_tank model) is not wired in yet")
+
     V = R.get("stor.volume_L") / 1000.0
     p1, p2 = p_start_barg + C.P_ATM_BAR, p_end_barg + C.P_ATM_BAR
     if tier == 2 and (T_top_C is not None or T_bottom_C is not None):
@@ -58,11 +61,15 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     #    (and the first fix) multiplied by amp as well, double-amplifying the
     #    absolute term; amp applies only to RELATIVE errors (Z, T, V), whose
     #    effect on a DIFFERENCE grows with p/dp.
-    #  - Z, T, V: relative errors, amplified by amp = p/dp.
+    #  - V and the common temperature offset (placement/systematic, same sign at
+    #    both readings) are COMMON factors: they scale n1 and n2 alike, so they
+    #    enter the mass difference 1:1 (no p/dp amplification).
+    #  - Z: the table error depends on pressure, so it is not common to both
+    #    readings; treated as independent per reading -> amplified by amp = p/dp.
     u = float(np.sqrt((fso_abs * np.sqrt(2) / max(abs(p2 - p1), 1e-9))**2 +
-                      (R.entry("stor.volume_L")["uncertainty"] * amp)**2 +
+                      R.entry("stor.volume_L")["uncertainty"]**2 +
                       (Z_TABLE_UNCERTAINTY_REL * amp)**2 +
-                      (u_T_frac * amp)**2))
+                      u_T_frac**2))
     out = dict(route="tank_pv", mol=dmol, kg=kg, NL=mol_to_NL(dmol), kWh_LHV=kg_to_kWh_LHV(kg),
                uncertainty_rel=u, temperature_tier=tier,
                T_used_C=(T_start_C, T_end_C),
