@@ -28,12 +28,13 @@ def partition_modes(df, power_col, p_standby_W=None, startup_s=None, events=None
     df["mode"] = mode
     return df
 
-def energy_by_mode(df, power_col, mode_col="mode"):
-    """kWh per mode (rectangular sum with local dt; fine for uniform sampling)."""
-    t = np.arange(len(df)) if len(df) < 2 else None
+def energy_by_mode(df, power_col, mode_col="mode", max_gap_s=30.0):
+    """kWh per mode, integrated with the same gap policy as the devices
+    (electrolyzer._sample_gaps): gaps are excluded, never bridged."""
+    from ..devices.electrolyzer import _sample_gaps
     idx = df.index
     try: ts = idx.values.astype("datetime64[ns]").astype(np.int64) / 1e9
     except Exception: ts = idx.values.astype("timedelta64[ns]").astype(np.int64) / 1e9
-    dt = np.gradient(ts) if len(ts) > 1 else np.array([1.0])
-    e = df[power_col].values * dt / 3.6e6
+    w, _ = _sample_gaps(ts, max_gap_s)
+    e = df[power_col].values * w / 3.6e6
     return {m: float(np.nansum(e[df[mode_col].values == m])) for m in np.unique(df[mode_col].values)}
