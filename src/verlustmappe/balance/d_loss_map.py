@@ -21,11 +21,11 @@ from .. import constants as C
 from .e_rte import storage_chain_rte, island_rte
 
 def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=None,
-             p_in_barg=None, p_out_barg=None, eta_fc=None, E_pv_ac_kWh=None,
+             p_in_barg=None, p_out_barg=None, eta_inverter=None, E_pv_ac_kWh=None,
              air_compressor_kWh=None, dryer_kWh=None, **kw_e):
     """kw_e accepts optional PV-channel inputs: E_pv_dc_kWh, E_pv_ac_kWh,
     pv_status, pv_inverter_measured (from devices.pv_prelim_channel.pv_account)."""
-    eta_fc = R.get("inv_fc.eta") if eta_fc is None else eta_fc
+    eta_inverter = R.get("inv_fc.eta") if eta_inverter is None else eta_inverter
     el = ElectrolyzerUnit().account(df_charge)
     hours = max((df_charge.index[-1] - df_charge.index[0]).total_seconds() / 3600.0, 1e-9)
     dry = Dryer().account(hours, el["h2"]["NL"], measured_kWh=dryer_kWh)
@@ -60,7 +60,7 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
     closure = compare_routes(routes)
 
     rte = storage_chain_rte(el["energy_in_kWh"], dry["energy_kWh"], comp["energy_kWh"],
-                            fc["energy_out_kWh"], fc["control_energy_kWh_envelope"], eta_fc,
+                            fc["energy_out_kWh"], fc["control_energy_kWh_envelope"], eta_inverter,
                             E_standby_kWh=el.get("standby_kWh", 0.0) + kw_e.get("E_standby_kWh_extra", 0.0))
     # closure check: H2 balance across the cycle
     h2_in = el["h2"]["kWh_LHV"] if el["h2"]["route"] != "none" else None
@@ -80,7 +80,7 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
     # converted at the FC efficiency observed on the discharge side
     rte_closed = None
     if h2_stored and el["h2"]["kWh_LHV"] > 0 and fc["efficiency_LHV"]:
-        e_out_fair = h2_stored * fc["efficiency_LHV"] * eta_fc
+        e_out_fair = h2_stored * fc["efficiency_LHV"] * eta_inverter
         e_in_fair = el["energy_in_kWh"] + dry["energy_kWh"] + comp["energy_kWh"]
         rte_closed = e_out_fair / e_in_fair if e_in_fair > 0 else None
     balance["rte_closed"] = rte_closed
@@ -120,7 +120,7 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
         dict(stage="FC conversion (H2->DC)", kWh=fc["h2"]["kWh_LHV"] - fc["energy_out_kWh"],
              status="MEASURED" if fc["efficiency_is_measured"] else "NAMEPLATE"),
         dict(stage="FC control (aux)", kWh=fc["control_energy_kWh_envelope"], status="ENVELOPE"),
-        dict(stage="FC inverter (48V DC->AC out)", kWh=(fc["energy_out_kWh"] - fc["control_energy_kWh_envelope"]) * (1 - eta_fc),
+        dict(stage="FC inverter (48V DC->AC out)", kWh=(fc["energy_out_kWh"] - fc["control_energy_kWh_envelope"]) * (1 - eta_inverter),
              status="MEASURED" if kw_e.get("inv_fc_eta_is_measured") else "PRELIM"),
     ]
     out = dict(devices=dict(EL=el, DRY=dry, CSU=comp, FC=fc), h2_closure=closure,
