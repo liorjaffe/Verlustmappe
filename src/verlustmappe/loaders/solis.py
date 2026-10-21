@@ -28,6 +28,9 @@ SOLIS_MAP = [
     (("ac output power", "load power", "output power", "ac power"), "ac_out_W"),
     (("battery voltage", "bus voltage", "battery volt"), "bus_voltage_V"),
     (("battery current", "bms current"), "batt_current_A"),
+    (("fc1 current", "fc 1 current", "fuel cell 1 current"), "fc1_current_A"),
+    (("fc2 current", "fc 2 current", "fuel cell 2 current"), "fc2_current_A"),
+    (("inverter dc current", "dc input current"), "dc_input_A"),
     (("ac voltage", "output voltage"), "ac_V"),
     (("ac energy", "total energy", "load energy", "ac yield"), "e_ac_cum_Wh"),
 ]
@@ -63,16 +66,32 @@ def load_solis(path, time_col_candidates=("timestamp", "time", "date", "datetime
 
 def inverter_eta_measured(df):
     """Energy-weighted measured efficiency over the loaded window:
-    eta = sum(AC out) / sum(battery-side DC in). Needs batt_current_A and
-    bus_voltage_V to reconstruct the DC side (no direct DC power column in
-    Solis exports): E_in = sum(V * I dt) with I>0 = discharge."""
-    if not {"ac_out_W", "bus_voltage_V", "batt_current_A"}.issubset(df.columns):
-        raise ValueError("need ac_out_W, bus_voltage_V, batt_current_A")
-    d = df[["ac_out_W", "bus_voltage_V", "batt_current_A"]].dropna()
-    d = d[d["batt_current_A"] > 0]           # only discharge periods
+    eta = sum(AC out) / sum(inverter DC input).
+
+    The inverter DC input is the WHOLE bus draw, not the battery current alone
+    (the fuel cells feed the same bus):
+        E_in = sum(bus_V * (I_FC1 + I_FC2 + I_battery) dt)   [I_battery > 0 = discharge]
+    or bus_V * dc_input_A if a measured inverter DC current column exists.
+    Without FC currents or a measured DC current the DC side is incomplete:
+    eta is None (never a battery-only value)."""
+    need = {"ac_out_W", "bus_voltage_V"}
+    if not need.issubset(df.columns):
+        raise ValueError("need ac_out_W, bus_voltage_V")
+    if "dc_input_A" in df.columns:
+        i_cols = ["dc_input_A"]
+    else:
+        fc = [c for c in ("fc1_current_A", "fc2_current_A") if c in df.columns]
+        if "batt_current_A" not in df.columns or not fc:
+            return dict(e_dc_in_kWh=None, e_ac_kWh=None, eta=None, n_samples=0,
+                        reason="DC input incomplete: need dc_input_A or fc1/fc2_current_A + batt_current_A")
+        i_cols = fc + ["batt_current_A"]
+    d = df[["ac_out_W", "bus_voltage_V"] + i_cols].dropna()
+    i_bus = d[i_cols].sum(axis=1)
+    d = d[i_bus > 0]                          # only periods where the inverter draws
+    i_bus = i_bus[d.index]
     t = (d.index.values.astype("datetime64[ns]").astype(np.int64)) / 1e9
     dt = np.gradient(t) if len(t) > 1 else np.array([1.0])
-    e_in = float(np.sum(d["bus_voltage_V"].values * d["batt_current_A"].values * dt) / 3.6e6)
+    e_in = float(np.sum(d["bus_voltage_V"].values * i_bus.values * dt) / 3.6e6)
     e_out = float(np.sum(d["ac_out_W"].values * dt) / 3.6e6)
     return dict(e_dc_in_kWh=e_in, e_ac_kWh=e_out,
                 eta=e_out / e_in if e_in > 0 else None,

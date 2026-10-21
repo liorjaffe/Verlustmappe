@@ -40,9 +40,9 @@ s = pd.DataFrame({"ac_out_W": 2000.0, "bus_voltage_V": 52.0,
                   "batt_current_A": np.r_[np.full(1800, 41.0), np.full(1800, 2.0)]}, index=idx)
 e = inverter_eta_measured(s)
 check("Solis 'measured' efficiency uses battery current only - but the FC feeds the same bus",
-      e["eta"] > 1,
+      e["eta"] is not None and e["eta"] > 1,
       "loaders/solis.py: DC input = bus_V x (I_FC1 + I_FC2 + I_battery), or read a real inverter DC current",
-      f"eta = {e['eta']:.2f}")
+      f"eta = {e['eta']}")
 
 i2 = pd.DatetimeIndex(list(pd.date_range("2026-01-01", periods=60, freq="1s")) +
                       list(pd.date_range("2026-01-01 05:00", periods=60, freq="1s")))

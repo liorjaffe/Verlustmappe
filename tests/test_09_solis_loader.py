@@ -6,11 +6,11 @@ from verlustmappe.devices.inverter import FCInverter
 
 def main():
     t0 = pd.Timestamp("2026-10-07 10:00:00+00:00")
-    hdr = "Timestamp,AC output power (W),Battery voltage (V),Battery current (A),AC voltage (V)"
+    hdr = "Timestamp,AC output power (W),Battery voltage (V),Battery current (A),AC voltage (V),FC1 current (A),FC2 current (A)"
     rows = []
     for k in range(60):
         rows.append(",".join([(t0 + pd.Timedelta(seconds=k)).isoformat(),
-                              f"{2000.0:.0f}", "52.0", f"{40.0:.1f}", "230.0"]))
+                              f"{2000.0:.0f}", "52.0", f"{40.0:.1f}", "230.0", "10.0", "5.0"]))
     p = os.path.join(_path.ROOT, "data", "raw", "_test_solis.csv")
     open(p, "w").write("\n".join([hdr] + rows) + "\n")
     df = load_solis(p)
@@ -18,8 +18,8 @@ def main():
     assert abs(df["ac_out_W"].iloc[0] - 2000.0) < 1e-6
     assert df["batt_current_A"].iloc[0] == 40.0        # + = discharge into bus
     eta = inverter_eta_measured(df)
-    # expected: E_in = 52*40*60s, E_out = 2000*60s -> eta = 2000/(52*40)
-    assert abs(eta["eta"] - 2000.0/(52.0*40.0)) < 1e-6, eta
+    # expected: E_in = 52*(10+5+40)*60s, E_out = 2000*60s -> eta = 2000/(52*40)
+    assert abs(eta["eta"] - 2000.0/(52.0*55.0)) < 1e-6, eta
     # measured mode flips the inverter
     acc = FCInverter().account(e_dc_in_kWh=eta["e_dc_in_kWh"], e_ac_measured_kWh=eta["e_ac_kWh"])
     assert acc["eta_is_measured"] and abs(acc["eta"] - eta["eta"]) < 1e-6
