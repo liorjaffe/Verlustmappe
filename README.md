@@ -29,6 +29,7 @@ Yet every loss between the electrolyser and the fuel cell is a hydrogen loss.
 | 2 Tank pressure | pressure change · tank volume · real-gas law | **yes** | tank 800 L (nameplate), DCT 541 sensor; temperature via 3-tier model |
 | 3 Telemetry | device-reported H₂ flow | no (same source as 1) | available, correlated with Route 1 |
 | 4 Water | water consumed / 8.94 | **yes** | needs a scale or water meter |
+(The water SYSTEM feeding the EL - BWT bestaqua 14ROC COFFEE RO unit + Popular Filtros cartridge train - is now an energy bar in the loss map; see docs/07_water_system.md.)
 | N Nameplate | energy × datasheet specific consumption | n/a | always available, **constant efficiency by construction** |
 
 When independent routes agree, the hydrogen number is trustworthy. When they disagree, the

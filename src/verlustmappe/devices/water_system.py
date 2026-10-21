@@ -51,7 +51,6 @@ class WaterSystem:
         """
         if duration_h <= 0:
             raise ValueError("duration_h must be > 0")
-        w = R.entry("water.ro_perm_Lh")
         perm_Lh = R.get("water.ro_perm_Lh")
         p_op_W = R.get("water.ro_power_op_W")
         p_stb_W = R.get("water.ro_power_standby_W")
