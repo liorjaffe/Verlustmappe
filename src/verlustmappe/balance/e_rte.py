@@ -13,12 +13,13 @@ charged electrical energy over one full cycle), e.g. IEC 62933-2-1.
 """
 
 def storage_chain_rte(E_el_kWh, E_dryer_kWh, E_comp_kWh, E_fc_out_kWh, E_ctrl_kWh, eta_inverter=1.0,
-                      E_standby_kWh=0.0):
-    e_in = E_el_kWh + E_dryer_kWh + E_comp_kWh
+                      E_standby_kWh=0.0, E_water_kWh=0.0):
+    e_in = E_el_kWh + E_dryer_kWh + E_comp_kWh + E_water_kWh
     e_out = (E_fc_out_kWh - E_ctrl_kWh) * eta_inverter
     return dict(boundary="storage_chain", E_in_kWh=e_in, E_out_kWh=e_out,
                 rte=e_out / e_in if e_in > 0 else None,
-                breakdown=dict(EL=E_el_kWh, DRY=E_dryer_kWh, CSU=E_comp_kWh, standby=E_standby_kWh,
+                breakdown=dict(EL=E_el_kWh, DRY=E_dryer_kWh, CSU=E_comp_kWh, WATER=E_water_kWh,
+                               standby=E_standby_kWh,
                                FC_out=E_fc_out_kWh, control=E_ctrl_kWh, inverter_eta=eta_inverter))
 
 def island_rte(E_pv_ac_kWh, storage_result):

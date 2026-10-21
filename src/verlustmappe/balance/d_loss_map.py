@@ -14,7 +14,7 @@ New in this version (external review 2026-10):
     ratio (not the top pressure) is the honest reference.
 """
 import numpy as np
-from ..devices import ElectrolyzerUnit, Dryer, AirDrivenBooster, FuelCellSystem, Tank, FCInverter, PVInverter
+from ..devices import ElectrolyzerUnit, Dryer, WaterSystem, AirDrivenBooster, FuelCellSystem, Tank, FCInverter, PVInverter
 from ..hydrogen import h2_from_tank_pressure, compare_routes
 from .. import registry as R
 from .. import constants as C
@@ -41,13 +41,21 @@ def _plausibility_warnings(rte_open, rte_closed, closure, h2_in_kWh, tank_kWh,
 
 def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=None,
              p_in_barg=None, p_out_barg=None, eta_inverter=None, E_pv_ac_kWh=None,
-             air_compressor_kWh=None, dryer_kWh=None, bundle_isolated=None, **kw_e):
+             air_compressor_kWh=None, dryer_kWh=None, water_consumed_L=None,
+             water_meter_L=None, water_system_kWh=None, ro_standby_always_on=True,
+             bundle_isolated=None, **kw_e):
     """kw_e accepts optional PV-channel inputs: E_pv_dc_kWh, E_pv_ac_kWh,
     pv_status, pv_inverter_measured (from devices.pv_prelim_channel.pv_account)."""
     eta_inverter = R.get("inv_fc.eta") if eta_inverter is None else eta_inverter
     el = ElectrolyzerUnit().account(df_charge)
     hours = max((df_charge.index[-1] - df_charge.index[0]).total_seconds() / 3600.0, 1e-9)
     dry = Dryer().account(hours, el["h2"]["NL"], measured_kWh=dryer_kWh)
+    # water demand follows actual H2 production (stoichiometric minimum); replace by
+    # BWT app litre counters when available
+    wat = WaterSystem().account(duration_h=hours, h2_produced_NL=el["h2"]["NL"],
+                                water_consumed_L=water_consumed_L,
+                                measured_kWh=water_system_kWh, measured_water_L=water_meter_L,
+                                ro_standby_always_on=ro_standby_always_on)
     NL_to_tank = el["h2"]["NL"] - dry["gas_loss_NL"]
 
     # compressor: suction = EL output pressure; the ideal work integrates over
@@ -80,7 +88,8 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
 
     rte = storage_chain_rte(el["energy_in_kWh"], dry["energy_kWh"], comp["energy_kWh"],
                             fc["energy_out_kWh"], fc["control_energy_kWh_envelope"], eta_inverter,
-                            E_standby_kWh=el.get("standby_kWh", 0.0) + kw_e.get("E_standby_kWh_extra", 0.0))
+                            E_standby_kWh=el.get("standby_kWh", 0.0) + kw_e.get("E_standby_kWh_extra", 0.0),
+                            E_water_kWh=wat["energy_kWh"])
     # closure check: H2 balance across the cycle
     h2_in = el["h2"]["kWh_LHV"] if el["h2"]["route"] != "none" else None
     h2_out_fuel = fc["h2"]["kWh_LHV"]
@@ -100,13 +109,13 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
     rte_closed = None
     if h2_stored and el["h2"]["kWh_LHV"] > 0 and fc["efficiency_LHV"]:
         e_out_fair = h2_stored * fc["efficiency_LHV"] * eta_inverter
-        e_in_fair = el["energy_in_kWh"] + dry["energy_kWh"] + comp["energy_kWh"]
+        e_in_fair = el["energy_in_kWh"] + dry["energy_kWh"] + comp["energy_kWh"] + wat["energy_kWh"]
         rte_closed = e_out_fair / e_in_fair if e_in_fair > 0 else None
     balance["rte_closed"] = rte_closed
     balance["rte_open"] = rte["rte"]
 
     # bars in ENERGY-FLOW ORDER, from the PV array to the island load:
-    #   PV capture -> PV inverter -> [AC bus] -> EL conversion -> dryer
+    #   PV capture -> PV inverter -> [AC bus] -> EL conversion -> dryer -> water
     #   (electrical + gas) -> compression -> [tank] -> FC conversion
     #   -> FC control -> AC inverter -> AC out
     # E_pv_ac_kWh is a NAMED parameter of this function (used for island RTE),
@@ -142,6 +151,10 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
         dict(stage="Dryer electrical", kWh=dry["energy_kWh"],
              status="MEASURED" if dry["energy_is_measured"] else "ENVELOPE"),
         dict(stage="Dryer vent (H2)", kWh=vent_kWh, status=vent_status),
+        dict(stage="Water system (RO unit)", kWh=wat["energy_kWh"],
+             status="MEASURED" if wat["energy_is_measured"] else "DATASHEET model"),
+        dict(stage="Water filter train (resin/carbon/micron)", kWh=wat["filter_train_energy_kWh"],
+             status=R.entry("water.filter_train_power_W")["status"]),
         dict(stage="Compression (air-driven)", kWh=comp["energy_kWh"],
              status="MEASURED" if comp["energy_is_measured"] else "GUESS"),
         dict(stage="FC conversion (H2->DC)", kWh=fc["h2"]["kWh_LHV"] - fc["energy_out_kWh"],
@@ -158,7 +171,9 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
     bars.append(dict(stage="H2 storage change (open cycle: +stored / -drawn)", kWh=residual,
                      status="DERIVED"))
     warnings = _plausibility_warnings(rte["rte"], rte_closed, closure, h2_in, tank_kWh)
-    out = dict(devices=dict(EL=el, DRY=dry, CSU=comp, FC=fc), h2_closure=closure,
+    if wat["warnings"]:
+        warnings += wat["warnings"]
+    out = dict(devices=dict(EL=el, DRY=dry, WATER=wat, CSU=comp, FC=fc), h2_closure=closure,
                h2_balance=balance, rte=rte, bars=bars,
                plausible=not warnings, warnings=warnings)
     if E_pv_ac_kWh is not None:

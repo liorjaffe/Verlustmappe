@@ -63,6 +63,8 @@ class ElectrolyzerUnit:
                                        R.get("el.faradaic_efficiency"), device="el")
             eff_is_measured = True
         else:
+            # nameplate fallback is proportional to energy, hence to production,
+            # so h2["NL"] follows part load here too (water system relies on it)
             h2 = h2_from_energy_nameplate(e_in, "el")
             eff_is_measured = False
         eta = h2["kWh_LHV"] / e_in if e_in > 0 else None

@@ -29,6 +29,7 @@ from .pv_inverter import PVInverter
 from .electrolyzer import ElectrolyzerUnit
 from .booster import AirDrivenBooster
 from .dryer import Dryer
+from .water_system import WaterSystem
 from .tank import Tank
 from .fuel_cell import FuelCellSystem
 from .inverter import FCInverter

@@ -67,6 +67,27 @@ REGISTRY = {
                                 "hold-up; unmeasured", "GUESS", 0.5,
                                 "gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual"),
 
+    # ===================== WATER SYSTEM (RO + filter train) =====================
+    "water.ro_perm_Lh":        P(120.0, "L/h", "BWT bestaqua 14ROC COFFEE EBA sec. 2.2 (2 L/min at 15 C)", "DATASHEET", 0.05,
+                                "RO production capacity; sets RO duty for the EL water demand"),
+    "water.ro_power_op_W":     P(200.0, "W", "14ROC COFFEE nameplate 'Leistung 200 W' + EBA sec. 2", "DATASHEET", 0.02,
+                                "water-system energy bar, production share"),
+    "water.ro_power_standby_W": P(3.0, "W", "BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load", "DATASHEET", 0.33,
+                                "water-system energy bar, standby share"),
+    "water.wcf":               P(0.5, "-", "BWT EBA sec. 2.2: Water Conversion Factor, factory setting approx. 50%", "DATASHEET", 0.0,
+                                "raw feed = permeate / WCF; concentrate = feed - permeate"),
+    "water.spec_water_L_per_NL": P(0.0008037, "L/NL",
+                                "EL 2.1 datasheet '~400 mL/h' at 500 NL/h nominal, rounded to 0.4 L/h; "
+                                "exact value = stoichiometric minimum 9.0 g H2O / g H2 "
+                                "(same ratio as hydrogen/route4_water.py: 0.4019 L/h at 500 NL/h)",
+                                "DATASHEET", 0.10,
+                                "scales the water demand with the ACTUAL H2 production (part load)"),
+    "water.spec_water_L_per_NL_stoich": P(0.0008037, "L/NL", "DERIVED from M_H2O/M_H2 x molar volume (18.015/2.016/22.414); cross-check for the datasheet value", "DERIVED", 0.001,
+                                "stoichiometric water demand per NL H2 (route4_water.py ratio)"),
+    "water.filter_train_power_W": P(0.0, "W", "ASSUMPTION: Popular Filtros cartridge train is purely hydraulic; "
+                                    "BUT a pump control panel (bomba) was photographed in the water path - verify on site", "GUESS", 0.0,
+                                "pre-treatment energy bar; NOT 0 if the pump feeds the RO"),
+
     # ============ COMPRESSOR: Maximator DLE 30-2 air-driven gas booster ============
     "comp.pressure_ratio":    P(60, "-", "Maximator DLE 30-2 TDS", "DATASHEET", 0.0, "stall pressure check"),
     "comp.stroke_volume_cm3": P(120, "cm3/double stroke", "Maximator DLE 30-2 TDS", "DATASHEET", 0.0, "flow capacity check"),
