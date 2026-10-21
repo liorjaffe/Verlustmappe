@@ -20,13 +20,13 @@ def main():
     for st, k, v in rows:
         L.append(f"| {st} | `{k}` | {v['value']} | {v['unit']} | {v['uncertainty']} | {v['source']} | {v['effect']} |")
     L += ["", "## The five weakest numbers and how to fix each", "",
-          "1. `comp.overall_efficiency` (GUESS +-30%). Energy meter on the Kaeser air compressor during booster runs.",
+          "1. `comp.overall_efficiency` (GUESS +-40%). Energy meter on the Kaeser air compressor during booster runs.",
           "2. `dry.vent_fraction` (GUESS +-50%). Bound with a long charge window: Faraday - tank-pV - known leaks.",
           "3. `el.n_cells` / `fc.n_cells` (GUESS). Ask the manufacturers; Faraday routes scale linearly with them.",
-          "4. `meas.p_sensor_fso_bar` (ASSUMPTION 250-bar range). Confirm the ordered DCT 541 range; the Route-2 "
-          "pressure term scales linearly with it.",
+          "4. `meas.p_sensor_fso_bar` (DERIVED from the 0-400 bar range). Confirm the delivered DCT 541 label; the "
+          "Route-2 pressure term scales linearly with it.",
           "5. `stor.volume_L` (DATASHEET, was wrongly labelled MEASURED). Hydrostatic or geometric confirmation "
-          "of the 800 L nameplate value.",
+          "of the 800 L nameplate value; valid only with `bundle_isolated`.",
           "", "## Constants by construction (never present as measurements)", "",
           "- EL efficiency via the nameplate route = 62.4% LHV for any data.",
           "- FC efficiency via the nameplate route = 42.9% LHV for any data (a lower bound: nameplate says '<70 g/kWh')."]

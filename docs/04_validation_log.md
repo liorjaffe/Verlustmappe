@@ -199,3 +199,50 @@ Still needs hardware/data (unchanged):
 - Solis channel physically connected (CAN/BMS or datalogger) -> first CSV
 - Kaeser energy meter -> compression MEASURED
 - Tank temperature sensors -> Route 2 tier 2
+
+## Fix-list round (2026-10-21): 21 items, probes p1-p3 at 0 open
+
+Each item was fixed, run through `tools/probes/run_probes.py` and
+`tests/run_all.py`, and committed separately.
+
+1. **Loss map.** `eta_fc` -> `eta_inverter`; plausibility guards (`warnings`,
+   `plausible`); the dryer vent is booked only against gas that actually left the
+   system; the open cycle closes through an explicit "H2 storage change" bar
+   (E_in == sum(bars) + E_out), always present so Monte-Carlo bar shapes stay
+   stable. Guarded by `test_03`.
+2. **FC control energy** counts modules also for `*_stack_current_A` columns.
+3. **PV channel.** `pv.p_dc_stc_W` (BACKLOG); site-loss bars plus a negative
+   "Bifacial gain" bar so the bars sum exactly to STC -> AC; measured mode uses one
+   MEASURED inverter bar (E_dc - E_ac) and no cable bars.
+4. **Monte Carlo.** Negative entries (e.g. `pv.p_tc_pmax_per_K`) keep their sign;
+   capped fractions use a truncated normal, so eta_F = 1.00 +- 2% is no longer
+   one-sided.
+5. **Loaders.** Grafana: duplicate timestamps averaged, thousand-separator dots
+   handled, warning per dropped row. Solis: DC input = whole bus draw or `None`.
+   Regatron: index from `epoch_s`, ISO only as fallback.
+6. **Time bases.** `energy_by_mode` uses the gap-aware weights (no bridging); the
+   live feed computes the H2 rate from the elapsed index time.
+7. **Hydrogen.** Route 2 tier 3 raises `NotImplementedError`; volume and a common
+   temperature offset enter 1:1, Z stays amplified by p/dp; booster work uses
+   `G(p) = p ln(p/ps) - p`. The fast-fill bracket is now `hot_end_fill_bracket`.
+   `compare_routes`: only same-quantity routes enter the mean and spread;
+   production vs tank belongs to the gas-loss estimate only (`test_02`/`test_03`
+   adjusted).
+8. **Registry decisions.** `meas.p_sensor_fso_bar` = 2.0 bar (0-400 bar gauge,
+   DERIVED), thermal 0.8 bar/10 K recorded but not yet in the Route-2 budget;
+   `comp.overall_efficiency` = 0.03 +- 40% (Bovo Tab. 3) with
+   `comp.specific_energy_kWh_per_Nm3` = 2.3 +- 40% as cross-check;
+   `stor.steel_mass_kg` = 1430 kg per bundle (upper bound); `bundle_isolated` is
+   required by Route 2 and `loss_map`.
+9. **Docs.** `run_hours` corrected to seconds; `total_run_energy` marked
+   unconfirmed (~20 J/count inferred); data dictionary extended (Solis, Regatron
+   time base, tank).
+
+Still open (needs data, not code):
+- `data/processed/pv_retro/pv_merged.csv`: first rows have a counter-like value in
+  `grid_Hz` (498728.95); regenerate from the raw export. The meter total
+  (5190.3 kWh) starts only on 9 Sept 14:40, so the morning of day 1 is missing.
+- Confirm the delivered DCT 541 label and the `bundle_isolated` practice.
+- Rest windows after a fill (GS fit); Kaeser energy meter; EL stack current
+  export; Solis export with FC currents or a DC current.
+

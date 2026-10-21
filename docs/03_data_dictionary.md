@@ -18,7 +18,8 @@ carry `-03:00` (Brazil); the loader converts to UTC.
 | `t_in_C`, `t_out_C` | °C | Inlet/Outlet Temperature | coolant/air temperatures |
 | `fan_duty`, `louver_pos` | %, - | Fan SP duty, Louver Position Open | thermal management state |
 | `dcdc_i_limit`, `dcdc_v_sp` | A, V | DC/DC Current Limit, DC/DC Voltage Set Point | converter set points (proves the DC/DC exists) |
-| `run_hours`, `total_run_energy` | h, ? | Run Hours, Total Run Energy | counters; energy unit not confirmed, do not use for efficiency |
+| `run_hours` | s | Run Hours | counter; the name is misleading: it advances 1.0 per SECOND of operation (median d/dt = 1.000). Divide by 3600 for hours |
+| `total_run_energy` | ? (~20 J/count, inferred) | Total Run Energy | counter; unit UNCONFIRMED. Terminal energy tracks it at ~19.96 J/count (2026 run). Needs a comparison with a known meter reading; do not use for efficiency |
 | `fault_a..d` | bitmask | Fault Flags A-D | decode against the FCM-802 manual |
 | `load_current_A` | A | (Regatron, future) | needed for the battery residual |
 
@@ -41,6 +42,19 @@ carry `-03:00` (Brazil); the loader converts to UTC.
 | `ac_energy_Wh_cum` | Wh | Total Yield (Wh) | cumulative; preferred for daily energies (no integration noise) |
 | `inv_T_C`, `grid_Hz` | °C, Hz | Inverter Temperature, Grid Frequency | |
 
+## Solis inverter (loaders/solis.py)
+| Column | Unit | Meaning / caveat |
+|---|---|---|
+| `ac_out_W` | W | inverter AC output to the island load |
+| `bus_voltage_V` | V | battery-side bus voltage |
+| `batt_current_A` | A | + = battery discharging into the bus |
+| `fc1_current_A`, `fc2_current_A` | A | FC terminal currents feeding the same bus (optional) |
+| `dc_input_A` | A | measured inverter DC input current (optional, preferred) |
+
+`inverter_eta_measured` uses the WHOLE bus draw: `bus_V * (I_FC1 + I_FC2 + I_batt)`,
+or `bus_V * dc_input_A`. Without FC currents or a DC current it returns `eta = None`
+(a battery-only DC side would give eta > 1 whenever the FC feeds the bus).
+
 ## Regatron G5.BT fast log (bridge fast_sample_loop, 20 Hz, tools/regatron/)
 The bridge measures the BUS/LOAD side. Never present `load_current_A` as fuel
 cell output: on the hybrid bus the battery also sources/sinks the same bus.
@@ -56,6 +70,9 @@ loader flips it so `load_current_A > 0` = current drawn by the load.
 | `mode` | - | mode | cc / cv / cp / idle |
 | `output_on`, `estop_latched` | bool | | test state |
 
+Time base: the loader builds the index from `epoch_s` (exact UTC). `timestamp_iso`
+is naive local time written by the bridge and is used only as a fallback.
+
 Merge rule: join Enapter (~1 Hz) and fastlog (20 Hz) on the UTC clock
 (`loaders/regatron.align_with_enapter`); never merge fast events on the
 Enapter clock. `analyze_fastlog.py` (tools/regatron) produces plateau means
@@ -64,9 +81,13 @@ per commanded setpoint, the measured terminal V-I characteristic.
 ## Tank instrumentation (DCT 541 + planned temperature sensors)
 | Column | Unit | Source | Meaning |
 |---|---|---|---|
-| `tank_pressure_barg` | barg | DCT 541 via Modbus RTU | storage pressure, 0.5% FSO, 500 Hz capable |
+| `tank_pressure_barg` | barg | DCT 541 via Modbus RTU | storage pressure, range 0-400 bar gauge, 0.5% FSO = 2.0 bar, 500 Hz capable |
 | `tank_T_top_C`, `tank_T_bottom_C` | degC | planned surface PT100s | stratification pair (de Miguel) |
 | `tank_T_gaswell_C` | degC | planned bottom-pipe PT100 | best single estimate of mean gas T (Nexo T3) |
+
+Store: 2 bundles x 16 x 50 L steel cylinders; the sensors sit on bundle 1. The
+800 L volume holds only while that bundle is valved off from the second one; Route 2
+requires the flag `bundle_isolated`.
 
 ## Manual readings (no telemetry)
 | Quantity | How | Used by |

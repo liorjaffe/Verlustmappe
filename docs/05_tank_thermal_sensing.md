@@ -98,16 +98,21 @@ bias for the Tier-1 ambient assumption.
   Our 800 L steel tank should come out well above the Nexo's 70 W/K
   (larger surface area).
 - `hot_end_fill_bracket()`: the honesty bracket for Tier 1 (start ambient, hot only at the end of the fill). For a
-  50->200 bar swing with delta_T = 15 K: ~4% spread on the mass change.
+  50->200 bar swing with delta_T = 15 K: ~5% spread on the mass change.
   delta_T should be scaled to the fill rate (papers: 64-96 K on FAST fills,
   ~0 on slow ones).
-- `h2_from_tank_pressure(..., tier=1/2)`: Route 2 now takes the tier, mixes
-  the DCT 541 uncertainty (0.5% FSO, amplified) with the temperature tier.
+- `h2_from_tank_pressure(..., tier=1/2, bundle_isolated=...)`: Route 2 takes the
+  tier, mixes the DCT 541 uncertainty (0.5% FSO of 400 bar = 2.0 bar, absolute
+  per reading) with the temperature tier. `bundle_isolated` is mandatory.
+- `gs_fit_from_pressure_decay(..., steel_mass_kg=1430)`: adds the steel heat
+  capacity (c ~ 0.47 kJ/kgK) to the gas heat capacity and reports gas-only and
+  combined GS (`return_detail=True`). The gas-only value is too low by a large
+  factor, because the steel stores far more heat than the gas.
 
 ## 6. What to buy / do next (decision list)
 
-1. Enter the real ordered DCT 541 range into `meas.p_sensor_fso_bar`
-   (ASSUMPTION currently 250 bar FSO).
+1. Confirm the delivered DCT 541 label against the registered range (0-400 bar
+   gauge, `meas.p_sensor_fso_bar` = 2.0 bar, DERIVED).
 2. Mount the DCT 541 close to the tank (short dead volume), read via Modbus
    RTU at >= 1 Hz into the fast log.
 3. For the temperature option: bottom-pipe thermowell PT100 A + top/bottom
