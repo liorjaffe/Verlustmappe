@@ -27,10 +27,19 @@ def load_fastlog(path):
     """One fast-log CSV -> UTC-indexed DataFrame in pipeline vocabulary."""
     df = pd.read_csv(path)
     df.columns = [c.strip() for c in df.columns]
-    missing = {"timestamp_iso", "voltage_v", "current_signed_a", "power_w"} - set(df.columns)
+    missing = {"voltage_v", "current_signed_a", "power_w"} - set(df.columns)
+    if "timestamp_iso" not in df.columns and "epoch_s" not in df.columns:
+        missing |= {"timestamp_iso"}
     if missing:
         raise ValueError(f"{path}: missing columns {sorted(missing)}")
-    idx = pd.to_datetime(df["timestamp_iso"], format="ISO8601", utc=True)
+    # epoch_s is exact UTC; timestamp_iso is naive LOCAL time written by the
+    # bridge, so it is only a fallback for rows without a usable epoch.
+    idx = (pd.to_datetime(df["timestamp_iso"], format="ISO8601", utc=True)
+           if "timestamp_iso" in df.columns else pd.Series(pd.NaT, index=df.index, dtype="datetime64[ns, UTC]"))
+    if "epoch_s" in df.columns:
+        epoch = pd.to_numeric(df["epoch_s"], errors="coerce")
+        idx_epoch = pd.to_datetime(epoch, unit="s", utc=True)
+        idx = pd.DatetimeIndex(idx_epoch.where(epoch.notna(), idx))
     out = pd.DataFrame(index=idx)
     out["bus_voltage_V"] = pd.to_numeric(df["voltage_v"], errors="coerce").to_numpy()
     signed = pd.to_numeric(df["current_signed_a"], errors="coerce")
