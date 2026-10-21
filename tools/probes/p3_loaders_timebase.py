@@ -10,12 +10,17 @@ from verlustmappe.live_feed import LivePipeline
 
 keys = [k for k, v in R.REGISTRY.items() if isinstance(v["value"], (int, float)) and not isinstance(v["value"], bool)
         and v["uncertainty"] > 0 and v["status"] != "MEASURED"]
+from verlustmappe.uncertainty.montecarlo import _draw_value
+rng = np.random.default_rng(0)
 neg = [k for k in keys if R.REGISTRY[k]["value"] < 0]
-check("Monte Carlo forces negative-valued entries positive (sign flip instead of relative draw)", bool(neg),
-      "uncertainty/montecarlo.py: draw v*(1 + N(0,u)) for negative-valued entries; only clip fractions into (0,1]", str(neg))
+flipped = [k for k in neg if any(_draw_value(rng, k, R.REGISTRY[k], R.REGISTRY[k]["value"]) > 0 for _ in range(2000))]
+check("Monte Carlo forces negative-valued entries positive (sign flip instead of relative draw)", bool(flipped),
+      "uncertainty/montecarlo.py: draw v*(1 + N(0,u)) for negative-valued entries; only clip fractions into (0,1]", str(flipped))
+draws = np.array([_draw_value(rng, "fc.faradaic_efficiency", dict(unit="-", uncertainty=0.02), 1.0) for _ in range(20000)])
 check("MC clipping of eta_F = 1.00 +- 2% at 1.0 gives a one-sided distribution",
-      np.mean(np.clip(np.random.default_rng(0).normal(1, 0.02, 100000), 1e-3, 1)) < 0.995,
-      "uncertainty/montecarlo.py: use a truncated normal or beta draw for efficiencies capped at 1")
+      np.mean(draws == 1.0) > 0.05,
+      "uncertainty/montecarlo.py: use a truncated normal or beta draw for efficiencies capped at 1",
+      f"share of draws exactly 1.0: {np.mean(draws == 1.0):.3f}, max {draws.max():.4f}")
 
 d = tempfile.mkdtemp()
 open(d+"/a.csv", "w").write('"Series";"Time";"Value"\n"Power";"2026-09-22 10:00:05";"1200,0"\n"Power";"2026-09-22 10:00:05";"1201,0"\n'

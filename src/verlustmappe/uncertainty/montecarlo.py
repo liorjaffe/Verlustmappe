@@ -6,8 +6,10 @@ percentiles of the outputs are reported.
 
 Sampling discipline (external review 2026-10):
   - quantities bounded on (0,1] (efficiencies) are drawn then CLIPPED into
-    [1e-3, 1] so eta_F > 1 draws cannot happen;
-  - energy-like quantities are clipped positive;
+    (1e-3, 1] by a TRUNCATED normal so eta_F > 1 draws cannot happen without
+    a point mass at 1.0;
+  - positive quantities stay positive; negative-valued entries are drawn
+    relatively (nominal*(1+N(0,u))) and keep their sign;
   - draws that make the loss map return no RTE are COUNTED and reported as
     failed_draws, not silently dropped;
   - meas.power_rel_unc is applied to the electrical energies of the result
@@ -27,6 +29,27 @@ def _is_fraction(key, entry):
     return unit in ("-", "mol fraction", "fraction of throughput") or \
            any(k in key for k in ("efficiency", "faradaic", "vent", "purity", "uncertainty_rel"))
 
+def _draw_value(rng, key, entry, nominal):
+    """One relative draw nominal*(1 + N(0,u)).
+    Fractions with a nominal value in (0,1] are drawn from a normal TRUNCATED to
+    (1e-3, 1] by rejection (clipping would pile ~50% of the draws of an
+    efficiency of 1.00 +- 2% onto exactly 1.0). Negative nominals (e.g. a
+    temperature coefficient) keep their sign; only positive nominals are
+    protected against non-positive draws.
+    (Note: the check for a fraction uses the NOMINAL value; n_cells = 120 is not
+    a fraction and must never be clipped to 1.)"""
+    u = entry["uncertainty"]
+    if _is_fraction(key, entry) and 0 < nominal <= 1.0:
+        for _ in range(1000):
+            v = nominal * float(rng.normal(1.0, u))
+            if 1e-3 < v <= 1.0:
+                return v
+        return float(np.clip(nominal, 1e-3, 1.0))
+    v = nominal * float(rng.normal(1.0, u))
+    if nominal > 0 and v <= 0:
+        v = nominal * 1e-6
+    return v
+
 def loss_map_band(df_charge, df_discharge, n=500, seed=0, ci=(5, 95), **kw):
     rng = np.random.default_rng(seed)
     keys = [k for k, v in R.REGISTRY.items() if isinstance(v["value"], (int, float))
@@ -37,17 +60,7 @@ def loss_map_band(df_charge, df_discharge, n=500, seed=0, ci=(5, 95), **kw):
     try:
         for _ in range(n):
             for k in keys:
-                v = saved[k] * float(rng.normal(1.0, R.REGISTRY[k]["uncertainty"]))
-                # clip ONLY entries whose NOMINAL value is a fraction <= 1.
-                # The first draft clipped every dimensionless entry (unit "-"),
-                # which included el.n_cells / fc.n_cells (120): every MC draw silently
-    # ran the plant with 1 cell, the compression bar collapsed, and the
-    # published band [26.8, 29.9]% was an artifact that merely sat near the
-    # point estimate (found 2026-10 by the non-bracketing point estimate).
-                if _is_fraction(k, R.REGISTRY[k]) and saved[k] <= 1.0:
-                    v = float(np.clip(v, 1e-3, 1.0))
-                elif v <= 0:
-                    v = abs(saved[k]) * 1e-6
+                v = _draw_value(rng, k, R.REGISTRY[k], saved[k])
                 R.REGISTRY[k]["value"] = v
             # power-measurement uncertainty on the electrical energies
             s_in = float(rng.normal(1.0, u_power)); s_out = float(rng.normal(1.0, u_power))

@@ -155,9 +155,8 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
     # its own bar so that E_in == sum(bars) + E_out holds for the storage chain.
     chain_sum = sum(b["kWh"] for b in bars if not b["stage"].startswith("PV"))
     residual = rte["E_in_kWh"] - chain_sum - rte["E_out_kWh"]
-    if abs(residual) > 1e-9:
-        bars.append(dict(stage="H2 storage change (open cycle: +stored / -drawn)", kWh=residual,
-                         status="DERIVED"))
+    bars.append(dict(stage="H2 storage change (open cycle: +stored / -drawn)", kWh=residual,
+                     status="DERIVED"))
     warnings = _plausibility_warnings(rte["rte"], rte_closed, closure, h2_in, tank_kWh)
     out = dict(devices=dict(EL=el, DRY=dry, CSU=comp, FC=fc), h2_closure=closure,
                h2_balance=balance, rte=rte, bars=bars,
