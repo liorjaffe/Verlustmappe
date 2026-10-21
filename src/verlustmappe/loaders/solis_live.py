@@ -15,6 +15,12 @@ covered separately by loaders/solis.py (S5-EO1P5K-48: ac_out_W,
 bus_voltage_V, batt_current_A, fc1/fc2_current_A). Do NOT feed this
 loader's output into FCInverter.account().
 
+F8 facade (Fachada Leste, BYD 28 x 455 Wp = 12.74 kWp): both units are
+S5-EO1P5K-48 serving the 28-module array (STATION_F8_A / STATION_F8_B below).
+Their PV-path vocabulary feeds the F8 profile of the preliminary channel
+(devices/pv_prelim_channel.PLANT_PROFILES["F8_12.74kWp"], measured mode) just
+like the SMA telemetry does for the big array, but via the SolisCloud API.
+
 Credentials: never hard-code them. Export before running:
     export SOLISCLOUD_KEY_ID="..."
     export SOLISCLOUD_KEY_SECRET="..."
@@ -35,6 +41,12 @@ __all__ = ["solis_live_df", "poll_solis_live", "SolisCloudError"]
 API_URL = "https://www.soliscloud.com:13333"
 
 DEFAULT_STATION_ID = "1298491919449567877"   # PV plant (Inverter 1 strings F1-F8)
+
+# F8 Fachada Leste: two stations with the same name, one inverter each
+# (Solis cloud metadata CSV 2026-10-08, model code 0206). Neither is the default.
+# The station id is the one given in the F8 workbook for both entries.
+STATION_F8_A = dict(station_id="1298491919449568000", inverter_sn="1802060225250007")
+STATION_F8_B = dict(station_id="1298491919449568000", inverter_sn="1802060225250009")
 
 
 class SolisCloudError(RuntimeError):

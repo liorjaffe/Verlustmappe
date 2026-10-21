@@ -97,6 +97,32 @@ def pv_prelim_report():
             (r["e_stc_kWh"], r["e_ac_kWh"], r["capture_ratio"]),
             "bars -> pv_prelim_losses.csv, summary -> pv_prelim_summary.csv"]
 
+def pv_f8_report():
+    """F8 facade (BYD 28 x 455 Wp) channel with the REAL module data. The POA input
+    is the same PRELIM placeholder as the reference run and is NOT valid for an
+    east-vertical facade; the output carries that warning."""
+    from verlustmappe.devices import pv_account
+    r = pv_account(H_poa_kWh_m2=160.0, months=1.0, profile="F8_12.74kWp")
+    pd.DataFrame(r["bars"]).to_csv(os.path.join(TBL, "pv_f8_losses.csv"), index=False)
+    n = {}
+    for b in r["bars"]:
+        n[b["status"]] = n.get(b["status"], 0) + 1
+    comp = ", ".join("%d %s" % (v, k) for k, v in n.items())
+    with open(os.path.join(TBL, "pv_f8_summary.csv"), "w") as f:
+        f.write("quantity,value,unit\n")
+        f.write("profile,%s,\n" % r["profile"])
+        f.write("bars,\"%s\",\n" % comp)
+        f.write("STC potential,%.1f,kWh/month\n" % r["e_stc_kWh"])
+        f.write("DC after site losses,%.1f,kWh/month\n" % r["e_dc_kWh"])
+        f.write("AC to bus,%.1f,kWh/month\n" % r["e_ac_kWh"])
+        f.write("capture ratio,%.3f,\n" % r["capture_ratio"])
+        f.write("eta DC-to-AC,%.3f,\n" % r["eta_dc_to_ac"])
+        f.write("warning,\"%s\",\n" % r["warning"])
+    return ["F8 PV channel (bars: %s): STC %.0f -> AC %.0f kWh/month, capture %.3f"
+            % (comp, r["e_stc_kWh"], r["e_ac_kWh"], r["capture_ratio"]),
+            "WARNING: POA placeholder not valid for east-vertical facade",
+            "bars -> pv_f8_losses.csv, summary -> pv_f8_summary.csv"]
+
 def pv_report(path):
     df = pd.read_csv(path, index_col=0, parse_dates=True)
     cum = df["ac_energy_Wh_cum"].dropna()
@@ -187,8 +213,10 @@ if __name__ == "__main__":
     path = sys.argv[2] if len(sys.argv) > 2 else None
     if kind == "pvprelim":
         rows = pv_prelim_report()
+    elif kind == "pvf8":
+        rows = pv_f8_report()
     elif path:
         rows = fc_report(path) if kind == "fc" else pv_report(path)
     else:
-        rows = ["usage: report_cli.py fc|pv|pvprelim <path> (pvprelim needs no path)"]
+        rows = ["usage: report_cli.py fc|pv|pvprelim|pvf8 <path> (pvprelim/pvf8 need no path)"]
     print("\n".join("PASS  " + r for r in rows))

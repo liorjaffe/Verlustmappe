@@ -1,0 +1,9 @@
+quantity,value,unit
+profile,F8_12.74kWp,
+bars,"7 PRELIM, 1 DERIVED",
+STC potential,2035.2,kWh/month
+DC after site losses,1751.2,kWh/month
+AC to bus,1690.5,kWh/month
+capture ratio,0.860,
+eta DC-to-AC,0.965,
+warning,"PRELIMINARY PV channel: all site losses are typical-market guesses; replace registry PRELIM entries when hardware and layout exist; POA placeholder not valid for east-vertical facade",

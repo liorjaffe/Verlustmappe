@@ -182,17 +182,28 @@ REGISTRY = {
     # (market anchors: Trina Vertex N series, 21.0-23.3% module efficiency,
     #  temp coefficient of Pmax -0.29%/K, NOCT ~43 C - datasheets in web search
     #  2025; NOT a commitment to Trina)
-    "pv.module_efficiency_STC":   P(0.220, "-", "PRELIMINARY: typical N-type TOPCon mono module, 21.0-23.3% market range 2025/26 (Trina Vertex N datasheets as anchors)", "PRELIM", 0.03,
+    # F8 integration 2026-10-21: the entries below were flipped from PRELIM to
+    # DATASHEET with the real BYD455MGEK-36 data (PV_F8_System_Specs_Master.xlsx).
+    # The superseded PRELIM values stay reproducible as PLANT_PROFILES
+    # "reference_184kWp" in devices/pv_prelim_channel.py (eta 0.220, gamma -0.0029,
+    # NOCT 43, bifacial 0.05, degradation 0.004) and are listed in docs/06.
+    "pv.module_model":            P("BYD455MGEK-36", "-", "Nameplate photos; technical basis BYD MGK-36 series datasheet DS.PD.E.003 Rev.06 (2024) until the official MGEK-36 datasheet is obtained from BYD Energy do Brasil (proxy)", "DATASHEET", 0.0,
+                                "identifies the F8 module; all pv.* values below follow it"),
+    "pv.n_modules":               P(28, "-", "user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm", "DATASHEET", 0.0,
+                                "array power = n_modules x 455 Wp"),
+    "pv.string_config":           P("2 strings x 7 modules per inverter (assumed; verify at the DC junction boxes)", "-", "ASSUMPTION from array design 2026-10-21", "GUESS", 0.0,
+                                "string design checks only (Voc cold, Vmp window)"),
+    "pv.module_efficiency_STC":   P(0.209, "-", "BYD MGK-36 datasheet Rev.06 (2024), 455 W class; Inmetro 006667/2021 class A 20.90 %. Superseded PRELIM: 0.220 (typical TOPCon)", "DATASHEET", 0.01,
                                 "nominal DC power per m2 of array"),
-    "pv.p_dc_stc_W":              P(None, "W", "UNKNOWN - installed DC peak power (nameplate sum of modules) to be entered", "BACKLOG", 0.0,
-                                "capture ratio in PVSystem.account; skipped while None"),
-    "pv.p_tc_pmax_per_K":         P(-0.0029, "1/K", "PRELIMINARY: typical TOPCon temp coefficient of Pmax (-0.29%/K, Trina class)", "PRELIM", 0.05,
+    "pv.p_dc_stc_W":              P(12740, "W", "28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None", "DATASHEET", 0.0,
+                                "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the legacy ~184 kWp SMA array)"),
+    "pv.p_tc_pmax_per_K":         P(-0.0038, "1/K", "BYD MGK-36 datasheet Rev.06: -0.380 %/degC (2021 brochure lists -0.352; Rev.06 is the newer official document). Superseded PRELIM: -0.0029", "DATASHEET", 0.03,
                                 "cell-temperature derating"),
-    "pv.noct_C":                  P(43, "degC", "PRELIMINARY: typical NOCT 43+-2 C (TOPCon dual glass)", "PRELIM", 0.05,
+    "pv.noct_C":                  P(45, "degC", "BYD MGK-36 datasheet Rev.06: 45 +-2 degC. Superseded PRELIM: 43", "DATASHEET", 0.05,
                                 "cell temperature model: T_cell = T_amb + (NOCT-20)/800 * G"),
-    "pv.bifacial_gain_frac":      P(0.05, "-", "PRELIMINARY: conservative rear-side gain 5-20% market range; small tilts/low albedo -> low end", "PRELIM", 0.5,
-                                "DC energy bonus; set to 0 for monofacial assumption"),
-    "pv.degradation_per_year":    P(0.004, "1/year", "PRELIMINARY: typical first-year + linear degradation ~0.4%/yr (30-year power guarantees)", "PRELIM", 0.25,
+    "pv.bifacial_gain_frac":      P(0.0, "-", "MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05", "DATASHEET", 0.0,
+                                "DC energy bonus; 0 while monofacial (pending confirmation)"),
+    "pv.degradation_per_year":    P(0.0071, "1/year", "BYD MGK-36 datasheet Rev.06 linear power warranty -0.71 %/yr. Superseded PRELIM: 0.004", "DATASHEET", 0.10,
                                 "multi-year studies only"),
     "pv.soi_uncertainty_rel":     P(0.03, "-", "PRELIMINARY: irradiance-sensor uncertainty on capture-ratio (thermopile/pyranometer class)", "PRELIM", 0.5,
                                 "capture-ratio bar once a pyranometer exists"),
@@ -200,9 +211,19 @@ REGISTRY = {
     # --- TWO SEPARATE INVERTERS (kept apart, they are different devices and
     #     must stay separately analysable: PV-side vs FC-side) ---
 
+    # NOTE F8: inv_pv.eta_euro below is still the PRELIM typical string-inverter
+    # value. The F8 units are off-grid Solis inverters with NO published Euro
+    # efficiency (96.6 % datasheet peak vs 93-95 % manual), see inv_pv.eta_pv_ac_peak.
     # PV-side inverter: string inverter, PV DC -> AC bus. The SMA Sunny
     # Tripower telemetry already exists; when its measured data is used these
     # PRELIM entries become cross-checks only.
+    # F8 PV-side inverters: SAME model as the FC-side Solis (see inv_fc.*).
+    "inv_pv.model":               P("Solis S5-EO1P5K-48 off-grid, PV-side units of the F8 facade (2 units, SN 1802060225250007 / 1802060225250009)", "-", "Solis cloud metadata CSV 2026-10-08; Solis S5-EO1P5K-48 datasheet + S5 EO manual (Inverter 1 folder)", "DATASHEET", 0.0,
+                                "identifies the F8 inverters"),
+    "inv_pv.eta_pv_ac_peak":      P(0.966, "-", "Solis S5-EO1P5K-48 datasheet: PV-AC peak 96.6 %", "DATASHEET", 0.0,
+                                "peak reference; discrepancy with manual range kept, see inv_pv.eta_manual_range"),
+    "inv_pv.eta_manual_range":    P("0.93-0.95", "-", "Solis S5 EO manual (quoted, not averaged)", "DATASHEET", 0.0,
+                                "energy accounting may need the DERIVED midpoint as on the FC side (decision open, docs/06)"),
     "inv_pv.eta_euro":            P(0.980, "-", "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). MEASURED cross-check from own 22-day SMA telemetry: 0.9719 energy-weighted", "PRELIM", 0.01,
                                 "PV DC->AC conversion bar"),
     "inv_pv.eta_peak":            P(0.985, "-", "PRELIMINARY: typical max efficiency 98-98.5%", "PRELIM", 0.005,

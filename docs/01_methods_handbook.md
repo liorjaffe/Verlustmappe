@@ -230,3 +230,42 @@ PV-side context.
 chain uses inv_fc.eta for the discharge bar and inv_pv.eta_euro for the PV bar.
 **Verified by.** `test_03` (FC inverter bar at 94% assumption);
 `test_08b` (PV Euro assumption vs measured SMA telemetry, 0.8% deviation).
+
+## T. F8 PV array: module data, string check, capture ratio, plant profiles
+
+**What.** The real F8 facade array (Fachada Leste, BYD455MGEK-36, 28 modules, 2 Solis
+S5-EO1P5K-48 inverters) replaces the PRELIM PV placeholders. Four cards:
+
+**T1. Array power.** `P_STC = n_modules x P_module = 28 x 455 W = 12 740 W`;
+area `28 x 2.094 m x 1.038 m = 60.86 m2`.
+*Source.* PV_F8_System_Specs_Master.xlsx (tabs Module, PV Array); BYD MGK-36 datasheet
+DS.PD.E.003 Rev.06 (2024); user specification 2026-10-21 (module count, confirm on site).
+*Assumptions.* Nameplate 455 W (tolerance 0..+5 W); dimensions from the datasheet, not from
+the OCR of the angled nameplate photo (2004 x 1098 mm there).
+*Error if wrong.* Capture ratio and the STC bar scale 1:1 with P_STC.
+*Code.* registry `pv.p_dc_stc_W`, `pv.n_modules`. *Test.* `test_10`.
+
+**T2. String Voc cold check.** `Voc_string(T) = n_s x Voc x (1 + gamma_Voc x (T - 25))`,
+gamma_Voc = -0.360 %/K. 7 x 49.81 V = 348.67 V at 25 degC; 367.5 V at 10 degC; Vmp string
+292.53 V. All inside the Solis window (max 500 V, MPPT 90-480 V); Isc 11.72 A < 32 A, Imp
+10.50 A < 13 A per input.
+*Assumption.* 2 strings x 7 modules per inverter (GUESS, verify at the junction boxes).
+*Flag kept open.* DC/AC = 12 740 / 10 000 = 1.274; 6.37 kWp per inverter EXCEEDS the Solis
+recommended 5.5 kW maximum PV power (design review, not hidden).
+*Error if wrong.* Only string design/fusing, not the energy bookkeeping.
+*Code.* arithmetic only. *Test.* `test_10`.
+
+**T3. Capture ratio with a real P_STC.** `CR = E_DC / (H_POA x P_STC)` (IEC 61724 family);
+`PVSystem.account` now computes it for the F8 channel once POA irradiation exists. For the
+legacy ~184 kWp SMA array 12 740 W is NOT the right P_STC: the two plants stay separate.
+*Error if wrong.* A wrong P_STC shifts CR 1:1. *Code.* `devices/pv_measured.py`. *Test.* `test_10`.
+
+**T4. Plant profiles.** `PLANT_PROFILES` in `devices/pv_prelim_channel.py` holds the module
+values per plant; `pv_account(profile=...)`. Default `reference_184kWp` keeps the former
+PRELIM values (eta 0.220, gamma -0.0029, NOCT 43, bifacial 0.05), so the `pvprelim` report
+is unchanged bit-for-bit. `F8_12.74kWp` uses the DATASHEET values and its cell-temperature
+bar is labelled DERIVED (DATASHEET coefficients, PRELIM irradiance); site losses stay PRELIM.
+The F8 output carries the warning "POA placeholder not valid for east-vertical facade".
+*Error if wrong.* Wrong profile -> wrong module values; the profile name is in the output.
+*Code.* `pv_account`, `report_cli.py pvf8`. *Test.* `test_10` (default unchanged, F8 bars sum).
+

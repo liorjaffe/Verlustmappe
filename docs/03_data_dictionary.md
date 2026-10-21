@@ -98,6 +98,19 @@ requires the flag `bundle_isolated`.
 | feed-water mass | scale on the feed tank | Route 4 |
 | battery SoC before/after test | BMS display | battery bookkeeping |
 
+## F8 plant profile and `pv_f8_*` tables
+`pv_account(profile=...)` returns `profile` (`reference_184kWp` default or `F8_12.74kWp`).
+Profile fields: `eta_module`, `gamma_pmax` (1/K), `noct_C`, `bifacial_gain`, `p_dc_stc_W`,
+`A_array_m2`, `module_status`, `warning`.
+
+| File | Columns |
+|---|---|
+| `results/tables/pv_f8_losses.csv` | `stage`, `kWh`, `status` (PRELIM/DERIVED/MEASURED), `note` (DERIVED label of the temperature bar) |
+| `results/tables/pv_f8_summary.csv` | `quantity`, `value`, `unit`: profile, bars (status composition), STC potential, DC, AC, capture ratio, eta DC-to-AC, warning |
+
+SolisCloud: `loaders/solis_live.STATION_F8_A` / `STATION_F8_B` (SN ...0007 / ...0009, same
+station id); not the default.
+
 ## Unit conventions
 NL = normal litre at 0 °C, 101 325 Pa (European convention; Enapter uses it, verified from
 their 500 NL/h = 1.0785 kg/day). barg = gauge pressure; the code adds 1.01325 bar for

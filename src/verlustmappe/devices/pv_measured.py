@@ -3,6 +3,10 @@ so the inverter loss is a measured bar, not an assumption.
    eta_inv = E_AC / E_DC ;  loss = E_DC - E_AC
 Capture ratio (optional, needs plane-of-array irradiation and STC power):
    CR = E_DC / (H_POA * P_STC)   (IEC 61724 performance-ratio family)
+With pv.p_dc_stc_W = 12740 W (F8 array, 28 x 455 Wp) the capture-ratio branch is
+ACTIVE for the F8 channel as soon as plane-of-array irradiation exists. For the
+legacy SMA telemetry (~184 kWp) 12740 W is NOT the right P_STC: keep the two plants
+separate.
 """
 from .. import registry as R
 

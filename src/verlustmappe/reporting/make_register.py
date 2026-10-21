@@ -27,6 +27,17 @@ def main():
           "Route-2 pressure term scales linearly with it.",
           "5. `stor.volume_L` (DATASHEET, was wrongly labelled MEASURED). Hydrostatic or geometric confirmation "
           "of the 800 L nameplate value; valid only with `bundle_isolated`.",
+          "", "## F8 PV array: open uncertainties (weakest first)", "",
+          "1. Facade POA placeholder (dominant). The reference POA (160 kWh/m2/month) assumes near-optimal tilt; "
+          "an east-vertical facade is morning-weighted with lower annual yield. Needs PVGIS, the Solis irradiance "
+          "channel or a pyranometer.",
+          "2. East-vertical shading (`pv.shading_rel`, PRELIM): unknown until the layout is surveyed.",
+          "3. Soiling (`pv.soiling_rel`, PRELIM): vertical facade soils less than a tilted array; unmeasured.",
+          "4. Solis PV-AC efficiency: 0.966 datasheet peak vs 0.93-0.95 manual, no Euro efficiency published "
+          "(`inv_pv.eta_pv_ac_peak`, `inv_pv.eta_manual_range`; `inv_pv.eta_euro` is still PRELIM).",
+          "5. String layout (`pv.string_config`, GUESS): 2 x 7 per inverter assumed; verify at the junction boxes.",
+          "6. Imp discrepancy: nameplate 10.50 A vs MGK-36 datasheet 10.90 A (does not affect RTE, matters for fusing).",
+          "7. Bifacial status (`pv.bifacial_gain_frac` = 0): 'MGEK' suffix on the nameplate vs monofacial MGK series.",
           "", "## Constants by construction (never present as measurements)", "",
           "- EL efficiency via the nameplate route = 62.4% LHV for any data.",
           "- FC efficiency via the nameplate route = 42.9% LHV for any data (a lower bound: nameplate says '<70 g/kWh')."]

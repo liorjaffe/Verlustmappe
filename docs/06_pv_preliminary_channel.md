@@ -71,3 +71,45 @@ them today.
   placeholder, not a site measurement).
 - Any comparison with the measured SMA telemetry (5.19 MWh over 22 days is
   the measured truth; the preliminary channel is a design aid until then).
+
+## F8 integration 2026-10-21 (BYD 28 x 455 Wp = 12.74 kWp)
+
+Real module and array data replace PRELIM values (source: PV_F8_System_Specs_Master.xlsx,
+BYD MGK-36 datasheet Rev.06, Inmetro 006667/2021). Run: `report_cli.py pvf8`.
+The preliminary channel and the 184 kWp reference (`pvprelim`) stay as the paper anchor.
+
+| Registry entry | Superseded | New | Status |
+|---|---|---|---|
+| pv.module_efficiency_STC | 0.220 PRELIM | 0.209 (Inmetro class A 20.90 %) | DATASHEET |
+| pv.p_tc_pmax_per_K | -0.0029 PRELIM | -0.0038 (Rev.06; 2021 brochure: -0.352) | DATASHEET |
+| pv.noct_C | 43 PRELIM | 45 +-2 | DATASHEET |
+| pv.bifacial_gain_frac | 0.05 PRELIM | 0.0 (MGK monofacial; 'MGEK' suffix to confirm) | DATASHEET (pending) |
+| pv.degradation_per_year | 0.004 PRELIM | 0.0071 (linear warranty) | DATASHEET |
+| pv.p_dc_stc_W | None BACKLOG | 12 740 W | DATASHEET |
+| pv.module_model, pv.n_modules | new | BYD455MGEK-36 (MGK-36 proxy), 28 | DATASHEET |
+| pv.string_config | new | 2 x 7 per inverter | GUESS |
+| inv_pv.model, eta_pv_ac_peak, eta_manual_range | new | Solis S5-EO1P5K-48; 0.966; 0.93-0.95 | DATASHEET |
+
+Unchanged (still PRELIM/GUESS): `cable.*`, `pv.soiling_rel`, `pv.mismatch_rel`,
+`pv.shading_rel`, `pv.soi_uncertainty_rel`, `inv_pv.eta_euro`.
+The former PRELIM module values remain reproducible as profile `reference_184kWp`.
+
+Discrepancies kept, not resolved:
+1. Nameplate BYD455MGEK-36 vs datasheets MGK-36/MIK-36: STC voltages match; Imp 10.50 A
+   (nameplate) vs 10.90 A (datasheet). Request the MGEK-36 datasheet from BYD Energy do Brasil.
+2. OCR dimensions/weight 2004 x 1098 x 35 mm / 27.6 kg vs datasheet 2094 x 1038 x 35 mm / 24.1 kg:
+   verify on the frame; datasheet used.
+3. Temperature coefficients Rev.06 (-0.380/-0.360/+0.070) vs 2021 brochure (-0.352/-0.285/+0.051): Rev.06 used.
+4. Junction box IP68 (Rev.06) vs IP67 (2021); cable 450 mm vs +320/-260 mm: Rev.06 used.
+5. Cell count wording 72 (Rev.06) vs 144 (2021): same module (72 wafers, 144 half-cells).
+6. Bifacial hint in the nameplate OCR vs monofacial MGK series: open, registry carries the caveat.
+
+Warning: the POA placeholder (160 kWh/m2/month) is NOT valid for an east-vertical facade.
+
+Pending decisions (not implemented):
+1. Island boundary: is F8 THE PV source for `island_rte`, or parallel to the big SMA array?
+2. POA source for the facade: PVGIS, Solis irradiance channel or a pyranometer?
+3. Bifacial vs monofacial from the module frame.
+4. F8 telemetry already flowing (measured mode via SolisCloud) or design stage only?
+5. MGEK-36 datasheet request to BYD Energy do Brasil.
+
