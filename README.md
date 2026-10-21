@@ -69,6 +69,12 @@ option, not yet purchased; the pipeline is ready for it the day it exists.
 ```
 verlustmappe/
 ├── README.md                      you are here
+├── AGENTS.md                      binding agent rules; CLAUDE.md and Copilot point here
+├── SPEC.md, SOURCES.md             project scope and cited numeric evidence
+├── DECISIONS.md, RULES_LOG.md      approved plant choices and rule rationale
+├── HANDOFF.md                      current session handoff
+├── tasks/                          scoped assignments (read the active task first)
+├── .github/                        CODEOWNERS and CI test/guard workflow
 ├── docs/                          LIVING DOCUMENTS (reading order)        | HISTORY (90+)
 │   ├── 01_methods_handbook.md     one card per formula                    | 90 roadmap original
 │   ├── 02_uncertainty_register.md every assumption, weakest first         | 91 roadmap decisions
@@ -101,6 +107,8 @@ verlustmappe/
 ├── tools/                         INTERACTIVE helpers (display & control, no paper numbers)
 │   ├── regatron/                  tested G5.BT blueprint + bridge + analyzer
 │   ├── fuelcell_analyzer.html     interactive CSV inspection
+│   ├── make_readme_demo.py        generate/check README demo values from test_03
+│   ├── ci_guard.py                enforce test, registry, and source rules
 │   └── server.py, simulate_data.py  live feed server
 ├── tests/                         run_all.py; each test states its ground truth
 ├── data/raw/                      untouched exports (evidence; never edited)
@@ -143,33 +151,29 @@ energy in, energy/hydrogen out, what was lost and with what status. The loss map
 
 **Where the energy goes in the synthetic demo** (`tests/test_03_full_chain.py`).
 Charge: 14.4 kWh AC into the electrolyser. Discharge: 5.0 kWh at the FC
-terminals. The discharge consumes MORE hydrogen than the charge produced (the
-demo is deliberately an open cycle), so the map now reports both RTE variants
-and the H₂ balance:
+terminals. The test is the source of the values below; regenerate them with
+`python3 tools/make_readme_demo.py`. CI checks that the table remains in sync.
 
-Bars are listed in ENERGY-FLOW ORDER (PV → AC bus → EL → dryer → compressor → tank → FC → inverter → load). The synthetic demo has no PV section; with PV inputs, "PV capture" and "PV inverter (DC->AC)" lead the table:
+The synthetic demo has no PV section. Bars are listed in energy-flow order.
+The code also reports open-cycle and hydrogen-limited RTEs with an H₂ balance; the
+generated summary below reports the test's open-cycle RTE and sensitivity band.
 
-| Stage | kWh | Status | Why that status |
-|---|---|---|---|
-| EL conversion (AC->H₂) | 5.56 | MEASURED* | Route 1 from stack current (*synthetic) |
-| Dryer electrical | 1.20 | ENVELOPE | 200 W datasheet upper value |
-| Dryer vent (H₂) | 0.35 | GUESS | 4% of throughput, unmeasured |
-| Compression (air-driven) | 8.79 | GUESS | fill-integral ideal work / 1.4% η (Bovo IJHE 2023 anchor, Tab. 3) |
-| FC conversion (H₂->DC) | 6.66 | MEASURED* | reverse Faraday, η_F in the denominator (*synthetic) |
-| FC control (aux) | 0.30 | ENVELOPE | 150 W nameplate max |
-| FC inverter (48 V DC->AC out) | 0.28 | PRELIM | 94% standard for 48 V input class (I2R ~4x vs PV string inverter) |
+<!-- BEGIN GENERATED DEMO TABLE -->
+| Stage | kWh | Status |
+|---|---:|---|
+| EL conversion (AC->H2) | 5.557 | MEASURED |
+| Dryer electrical | 1.200 | ENVELOPE |
+| Dryer vent (H2) | 0.000 | NOT OBSERVED |
+| Water system (RO unit) | 0.022 | DATASHEET model |
+| Water filter train (resin/carbon/micron) | 0.000 | GUESS |
+| Compression (air-driven) | 1.086 | GUESS |
+| FC conversion (H2->DC) | 6.664 | MEASURED |
+| FC control (aux) | 0.600 | ENVELOPE |
+| FC inverter (48V DC->AC out) | 0.176 | PRELIM |
+| H2 storage change (open cycle: +stored / -drawn) | -2.821 | DERIVED |
 
-- H₂ balance: produced ~8.8 kWh vs consumed ~11.7 kWh → the map flags
-  `consumed_matches_production = False` and states the excess explicitly.
-  (Compression bar: 8.8 kWh at the corrected 1.4% anchor with the correct
-  fill-integral ideal work; the earlier 4%/10% guesses and the
-  average-pressure shortcut all flattered this stage.)
-- RTE_open ≈ 24.6% (E_out/E_in as measured; overstates a closed cycle here).
-- RTE_closed ≈ 19.9% for this demo (discharge limited to the hydrogen that
-  actually left storage).
-- Monte-Carlo band 5–95%: 21.9–26.6% around RTE_open, no η_F > 1 draws, no
-  silently dropped samples. (The earlier 27.6–30.2% band was an artifact of a
-  Monte-Carlo bug that clipped n_cells to 1 in every draw.)
+**Demo summary:** PASS 03 full chain: EL eta 61.4%, FC eta 42.9%, RTE 25.3% [MC 22.4-26.6], H2 spread 0.0%
+<!-- END GENERATED DEMO TABLE -->
 
 Read the status column first, the kWh column second. That is the discipline.
 

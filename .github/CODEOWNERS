@@ -1,0 +1,10 @@
+# Human review required for protected model inputs, evidence, tests, and agent rules.
+/src/verlustmappe/registry.py @liorjaffe
+/tests/ @liorjaffe
+/SOURCES.md @liorjaffe
+/DECISIONS.md @liorjaffe
+/AGENTS.md @liorjaffe
+/CLAUDE.md @liorjaffe
+/.github/ @liorjaffe
+/pyproject.toml @liorjaffe
+/conftest.py @liorjaffe
