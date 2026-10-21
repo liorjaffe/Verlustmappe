@@ -41,7 +41,10 @@ def main():
     assert abs(r4["kg"] - r1["kg"]) / r1["kg"] < 1e-9
     # closure over independent routes -> spread ~0
     c = compare_routes([r1, r2, r4])
-    assert c["n_independent"] == 3 and c["max_spread_independent"] < 1e-5
+    # production routes (faraday, water) agree; the tank route is the delivered
+    # quantity and only enters the gas-loss estimate, not the spread
+    assert c["n_independent"] == 2 and c["max_spread_independent"] < 1e-5
+    assert abs(c["gas_loss_estimate"]["fraction_of_production"]) < 1e-5
     # nameplate route is a constant-efficiency bound
     rn = h2_from_energy_nameplate(14.4, "el")
     assert abs(rn["kWh_LHV"] / 14.4 - 0.624) < 0.01

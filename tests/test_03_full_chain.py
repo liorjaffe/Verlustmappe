@@ -59,7 +59,10 @@ def main():
     assert 0.35 < fc["efficiency_LHV"] < 0.50, fc["efficiency_LHV"]
     rte = out["rte"]["rte"]
     assert 0.20 < rte < 0.35, rte
-    assert out["h2_closure"]["n_independent"] == 2
+    # only the production route (Faraday) is in the spread; the tank route is the
+    # delivered quantity and enters the gas-loss estimate
+    assert out["h2_closure"]["n_independent"] == 1
+    assert "gas_loss_estimate" in out["h2_closure"]
     band = loss_map_band(dfc, dfd, n=150, tank_p_start_barg=50.0, tank_p_end_barg=p_end, eta_inverter=0.96)
     assert band["rte_lo"] <= band["rte_mean"] <= band["rte_hi"]
     assert band["rte_lo"] <= rte <= band["rte_hi"] or abs(band["rte_mean"] - rte) < 0.02, \

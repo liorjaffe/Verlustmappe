@@ -26,7 +26,12 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
     no longer sneak into the independent vote (external review 2026-10)."""
     def base(r):
         return r["route"].replace("_minus_vent", "").replace("_minus_losses", "")
-    used = [r for r in routes if base(r) not in exclude and np.isfinite(r["kg"])]
+    # Same-quantity groups: PRODUCTION (faraday_el, water) vs DELIVERED (tank_pv).
+    # Only one group enters the weighted mean/spread (production if present,
+    # otherwise delivered); production vs delivered is the gas loss, never spread.
+    PRODUCTION, DELIVERED = ("faraday_el", "water"), ("tank_pv",)
+    cand = [r for r in routes if base(r) not in exclude and np.isfinite(r["kg"])]
+    used = [r for r in cand if base(r) in PRODUCTION] or [r for r in cand if base(r) in DELIVERED] or cand
     if not used:
         return dict(mean_kg=None, note="no independent routes available")
     vals = np.array([r["kg"] for r in used])
@@ -34,7 +39,7 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
     w = 1.0 / sig**2
     mean = float(np.sum(w * vals) / np.sum(w))
     u_mean = float(1.0 / np.sqrt(np.sum(w)) / abs(mean)) if mean else None
-    devs = {r["route"]: float((r["kg"] - mean) / mean) for r in routes if mean}
+    devs = {r["route"]: float((r["kg"] - mean) / mean) for r in used if mean}
     spread = float((vals.max() - vals.min()) / abs(mean)) if mean else None  # used routes only
     # Handbook card G promises "reported uncertainty = max(statistical, spread)".
     # The first draft RETURNED both separately but never combined them, so every
@@ -46,7 +51,8 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
     out = dict(mean_kg=mean, weighted_uncertainty_rel=u_mean,
                uncertainty_rel=u_reported,
                max_spread_independent=spread, n_independent=len(used),
-               note=("agreement analysis over same-quantity routes only; "
+               note=("agreement analysis over routes measuring the SAME quantity "
+                     "(production: faraday_el/water; delivered: tank_pv); "
                      "uncertainty_rel = max(statistical, spread) per handbook card G"))
     # gas-loss estimate: a production-side route vs the tank route
     tank = next((r for r in routes if r["route"] == "tank_pv"), None)
