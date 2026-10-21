@@ -40,8 +40,10 @@ class LivePipeline:
             out["modes"] = counts
             if "el_current_A" in df.columns or "el_stack_current_A" in df.columns:
                 acc = self.el.account(df)
+                span_s = float((df.index[-1] - df.index[0]) / np.timedelta64(1, "s")) if len(df) > 1 else 0.0
+                covered_s = span_s * (acc.get("data_coverage") or 0.0)
                 out["el"] = {"power_kW": df["power_W"].mean()/1000,
-                             "h2_NLh": acc["h2"]["NL"] / (len(df)*self.dt_s/3600.0),
+                             "h2_NLh": (acc["h2"]["NL"] / (covered_s/3600.0)) if covered_s > 0 else None,
                              "eta_LHV": acc["efficiency_LHV"],
                              "route": acc["h2"]["route"]}
             if "fc_power_W" in df.columns:
