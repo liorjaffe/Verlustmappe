@@ -47,6 +47,26 @@ def main():
     assert abs(sum(b["kWh"] for b in r["bars"]) - (r["e_stc_kWh"] - r["e_ac_kWh"])) < 1e-6
     assert [b["status"] for b in r["bars"] if b["stage"] == "Cell temperature"] == ["DERIVED"]
 
+    # review fix 4: monofacial F8 has no bifacial bar, the reference profile keeps it
+    assert not any(b["stage"] == "Bifacial gain" for b in r["bars"])
+    rr = pv_account(H_poa_kWh_m2=160.0, A_array_m2=836.0)
+    assert any(b["stage"] == "Bifacial gain" for b in rr["bars"])
+
+    # review fix 1: P_STC source is explicit
+    legacy = PVSystem().account(e_dc_kWh=0.8 * 5.0 * 184.0, e_ac_kWh=700.0, H_poa_kWh_m2=5.0, p_stc_W=184000)
+    assert abs(legacy["capture_ratio"] - 0.8) < 1e-12 and legacy["p_stc_source"] == "explicit p_stc_W argument"
+    assert "F8 array" in res["p_stc_source"]
+
+    # review fix 2: F8 isolated per serial number; station shared with F7
+    try:
+        from verlustmappe.loaders import solis_live as SL
+    except ImportError:  # optional 'requests' dependency not installed
+        SL = None
+    if SL is not None:
+        f8 = SL.f8_inverters()
+        assert [e["inverter_sn"] for e in f8] == ["1802060225250007", "1802060225250009"]
+        assert SL.F7_INVERTER_SN not in [e["inverter_sn"] for e in f8]
+
     # regression guard: default profile = former PRELIM values, no F8 warning
     d = pv_account(H_poa_kWh_m2=160.0, A_array_m2=836.0)
     ref = pv_account(H_poa_kWh_m2=160.0, A_array_m2=836.0, profile="reference_184kWp")

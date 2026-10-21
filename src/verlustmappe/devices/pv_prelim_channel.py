@@ -107,8 +107,10 @@ def pv_account(H_poa_kWh_m2=None, A_array_m2=None, E_dc_measured_kWh=None, E_ac_
             dict(stage="Mismatch", kWh=e1 - e2, status="PRELIM"),
             dict(stage="Shading", kWh=e2 - e3, status="PRELIM"),
             temp_bar,
-            dict(stage="Bifacial gain", kWh=-e4 * bif, status="PRELIM"),
         ]
+        # review fix 4: monofacial profiles (bif == 0) get no bar, no fake uncertainty
+        if bif > 0:
+            bars.append(dict(stage="Bifacial gain", kWh=-e4 * bif, status="PRELIM"))
     if at_terminals:
         bars.append(dict(stage="Inverter conversion", kWh=E_dc_measured_kWh - E_ac_measured_kWh, status="MEASURED"))
     else:

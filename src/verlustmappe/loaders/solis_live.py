@@ -36,17 +36,25 @@ from typing import Optional
 import pandas as pd
 import requests
 
-__all__ = ["solis_live_df", "poll_solis_live", "SolisCloudError"]
+__all__ = ["solis_live_df", "poll_solis_live", "SolisCloudError", "f8_inverters", "f8_live_dfs"]
 
 API_URL = "https://www.soliscloud.com:13333"
 
 DEFAULT_STATION_ID = "1298491919449567877"   # PV plant (Inverter 1 strings F1-F8)
 
-# F8 Fachada Leste: two stations with the same name, one inverter each
-# (Solis cloud metadata CSV 2026-10-08, model code 0206). Neither is the default.
-# The station id is the one given in the F8 workbook for both entries.
+# F8 Fachada Leste (Solis cloud metadata CSV 2026-10-08, model code 0206). Neither is
+# the default. Review fix 2: station 1298491919449568000 is SHARED with F7 (F7_Brise
+# Leste Inferior, SN 1802060225250011) - three inverters in one station, so F8 is
+# isolated ONLY by inverter serial number, never by station id.
 STATION_F8_A = dict(station_id="1298491919449568000", inverter_sn="1802060225250007")
 STATION_F8_B = dict(station_id="1298491919449568000", inverter_sn="1802060225250009")
+F7_INVERTER_SN = "1802060225250011"   # same station, NOT part of the F8 channel
+
+
+def f8_inverters() -> list:
+    """The two F8 inverter entries. Any station-level API call must be filtered by
+    `inverter_sn` before its data enters the F8 profile (the station also hosts F7)."""
+    return [dict(STATION_F8_A), dict(STATION_F8_B)]
 
 
 class SolisCloudError(RuntimeError):
@@ -206,3 +214,10 @@ def poll_solis_live(interval_s: int = 300, **kwargs):
         rest = interval_s - (time.time() - t0)
         if rest > 0:
             time.sleep(rest)
+
+
+def f8_live_dfs() -> dict:
+    """One live snapshot per F8 inverter, keyed by serial number. Always queries
+    per inverter SN (review fix 2), so F7 data cannot enter the F8 channel."""
+    return {e["inverter_sn"]: solis_live_df(station_id=e["station_id"], inverter_sn=e["inverter_sn"])
+            for e in f8_inverters()}

@@ -108,8 +108,12 @@ Profile fields: `eta_module`, `gamma_pmax` (1/K), `noct_C`, `bifacial_gain`, `p_
 | `results/tables/pv_f8_losses.csv` | `stage`, `kWh`, `status` (PRELIM/DERIVED/MEASURED), `note` (DERIVED label of the temperature bar) |
 | `results/tables/pv_f8_summary.csv` | `quantity`, `value`, `unit`: profile, bars (status composition), STC potential, DC, AC, capture ratio, eta DC-to-AC, warning |
 
+`PVSystem.account(..., p_stc_W=None)` adds `p_stc_source` whenever `H_poa_kWh_m2` is given:
+"explicit p_stc_W argument" or "registry default (12740 W, F8 array) - override p_stc_W for other plants".
+
 SolisCloud: `loaders/solis_live.STATION_F8_A` / `STATION_F8_B` (SN ...0007 / ...0009, same
-station id); not the default.
+station id, which is SHARED with F7, SN ...0011): filter per inverter SN (`f8_inverters()`,
+`f8_live_dfs()`); not the default.
 
 ## Unit conventions
 NL = normal litre at 0 °C, 101 325 Pa (European convention; Enapter uses it, verified from

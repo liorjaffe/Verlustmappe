@@ -104,6 +104,10 @@ Discrepancies kept, not resolved:
 5. Cell count wording 72 (Rev.06) vs 144 (2021): same module (72 wafers, 144 half-cells).
 6. Bifacial hint in the nameplate OCR vs monofacial MGK series: open, registry carries the caveat.
 
+`pv_prelim_losses.csv` was regenerated with the profile refactor; the previously committed CSV
+was stale (missing bifacial bar, parallel instead of sequential mismatch/shading). Values now
+match the code; the reference totals are unchanged. Monofacial profiles (F8) emit no bifacial bar.
+
 Warning: the POA placeholder (160 kWh/m2/month) is NOT valid for an east-vertical facade.
 
 Pending decisions (not implemented):

@@ -35,6 +35,8 @@ def main():
           "3. Soiling (`pv.soiling_rel`, PRELIM): vertical facade soils less than a tilted array; unmeasured.",
           "4. Solis PV-AC efficiency: 0.966 datasheet peak vs 0.93-0.95 manual, no Euro efficiency published "
           "(`inv_pv.eta_pv_ac_peak`, `inv_pv.eta_manual_range`; `inv_pv.eta_euro` is still PRELIM).",
+          "4b. F8 station id 1298491919449568000 also hosts F7 (SN ...0011); per-inverter-SN filtering is "
+          "mandatory before the measured channel goes live.",
           "5. String layout (`pv.string_config`, GUESS): 2 x 7 per inverter assumed; verify at the junction boxes.",
           "6. Imp discrepancy: nameplate 10.50 A vs MGK-36 datasheet 10.90 A (does not affect RTE, matters for fusing).",
           "7. Bifacial status (`pv.bifacial_gain_frac` = 0): 'MGEK' suffix on the nameplate vs monofacial MGK series.",
