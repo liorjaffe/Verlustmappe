@@ -1,6 +1,15 @@
 """Load Grafana long-format exports ("Series";"Time";"Value") into one wide DataFrame."""
 import csv, glob, os
+import logging
 import pandas as pd
+
+_log = logging.getLogger("verlustmappe.loaders")
+
+def _parse_number(raw):
+    """'1.234,5' -> 1234.5 (dots are thousand separators when a decimal comma exists)."""
+    if "," in raw:
+        raw = raw.replace(".", "").replace(",", ".")
+    return float(raw)
 
 def load_grafana(paths, encoding="utf-8-sig"):
     """paths: list of files OR a folder glob string. Returns wide df, index=UTC."""
@@ -16,8 +25,10 @@ def load_grafana(paths, encoding="utf-8-sig"):
             for row in r:
                 if len(row) >= 3 and row[0].strip('"') != "Series":
                     raw = row[2].strip('"')
-                    try: val = float(raw.replace(",", "."))
-                    except (ValueError, IndexError): continue
+                    try: val = _parse_number(raw)
+                    except (ValueError, IndexError):
+                        _log.warning("%s: dropped unparseable value %r (series %s)", f, raw, row[0].strip('"'))
+                        continue
                     rows.append((row[0].strip('"'), row[1].strip('"'), val))
         if not rows:
             import logging
@@ -27,7 +38,14 @@ def load_grafana(paths, encoding="utf-8-sig"):
         df = pd.DataFrame(rows, columns=["series", "time", "value"])
         for s, g in df.groupby("series"):
             if s == "Series": continue
-            frames[s] = pd.Series(g["value"].values, index=pd.to_datetime(g["time"], utc=True), name=s)
+            ser = pd.Series(g["value"].values, index=pd.to_datetime(g["time"], utc=True), name=s)
+            if ser.index.has_duplicates:
+                _log.warning("%s: series %s has duplicate timestamps; averaged", f, s)
+                ser = ser.groupby(level=0).mean()
+            if s in frames:
+                ser = pd.concat([frames[s], ser])
+                ser = ser.groupby(level=0).mean()
+            frames[s] = ser
     return pd.DataFrame(frames).sort_index()
 
 # Grafana series name -> pipeline column name
