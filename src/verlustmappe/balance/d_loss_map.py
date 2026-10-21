@@ -41,7 +41,7 @@ def _plausibility_warnings(rte_open, rte_closed, closure, h2_in_kWh, tank_kWh,
 
 def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=None,
              p_in_barg=None, p_out_barg=None, eta_inverter=None, E_pv_ac_kWh=None,
-             air_compressor_kWh=None, dryer_kWh=None, **kw_e):
+             air_compressor_kWh=None, dryer_kWh=None, bundle_isolated=None, **kw_e):
     """kw_e accepts optional PV-channel inputs: E_pv_dc_kWh, E_pv_ac_kWh,
     pv_status, pv_inverter_measured (from devices.pv_prelim_channel.pv_account)."""
     eta_inverter = R.get("inv_fc.eta") if eta_inverter is None else eta_inverter
@@ -73,7 +73,7 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
         routes[-1]["route"] = "nameplate_el_minus_vent"
     tank_kWh = None
     if tank_p_start_barg is not None and tank_p_end_barg is not None:
-        tk = h2_from_tank_pressure(tank_p_start_barg, tank_p_end_barg)
+        tk = h2_from_tank_pressure(tank_p_start_barg, tank_p_end_barg, bundle_isolated=bundle_isolated)
         routes.append(tk)
         tank_kWh = tk["kWh_LHV"]
     closure = compare_routes(routes)

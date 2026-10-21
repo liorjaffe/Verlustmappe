@@ -32,9 +32,9 @@ def main():
     lo, hi = p1, 300.0
     for _ in range(60):
         mid = 0.5 * (lo + hi)
-        m = h2_from_tank_pressure(p1, mid)["kg"]
+        m = h2_from_tank_pressure(p1, mid, bundle_isolated=True)["kg"]
         lo, hi = (mid, hi) if m < r1["kg"] else (lo, mid)
-    r2 = h2_from_tank_pressure(p1, 0.5 * (lo + hi))
+    r2 = h2_from_tank_pressure(p1, 0.5 * (lo + hi), bundle_isolated=True)
     assert abs(r2["kg"] - r1["kg"]) / r1["kg"] < 1e-6
     # Route 4: water 9x mass
     r4 = h2_from_water(r1["kg"] * 18.015 / 2.016)

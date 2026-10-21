@@ -47,8 +47,10 @@ check("comp.overall_efficiency is inconsistent with its own cited source (Bovo I
 
 m_gas = temperature_corrected_mass(201.01325, 800, 20)
 ratio = (1430*0.47 + m_gas*10.3) / (m_gas*10.3)
+import inspect as _insp
+from verlustmappe.hydrogen.temperature_model import gs_fit_from_pressure_decay as _gs
 check("GS fit uses the gas heat capacity only; the steel of the tank(s) stores far more heat",
-      ratio > 3,
+      ratio > 3 and "steel_mass_kg" not in _insp.signature(_gs).parameters,
       "temperature_model.gs_fit_from_pressure_decay: add m_steel*c_steel (parameter steel_mass_kg, c ~ 0.46-0.48 kJ/kgK) "
       "to the heat capacity; report the gas-only and combined tau",
       f"gas {m_gas:.1f} kg -> {m_gas*10.3:.0f} kJ/K; steel up to ~{1430*0.47:.0f} kJ/K incl. frame -> GS low by UP TO x{ratio:.1f}")

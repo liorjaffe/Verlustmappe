@@ -65,14 +65,20 @@ def tier2_temperature(T_top_C, T_bottom_C=None, method="mean"):
         T = T_top_C
     return T, 2.0   # placement bias (boss/pipe vs gas mean), papers Fig. 4/6
 
-def gs_fit_from_pressure_decay(t_s, p_abs_bar, T_amb_C=20.0, V_L=None, Z_at=None):
+def gs_fit_from_pressure_decay(t_s, p_abs_bar, T_amb_C=20.0, V_L=None, Z_at=None,
+                               steel_mass_kg=None, c_steel_kJ_per_kgK=0.47, return_detail=False):
     """Tier 3 calibration: fit GS_tank from pressure decay at rest (mdot = 0).
     Model: m cv dT/dt = GS (T_amb - T)  with  p V = Z m R T.
     The pressure decay follows p(t) = p_eq + (p0 - p_eq) exp(-t/tau) with
     tau = m cv / GS. Three-parameter fit (p0, p_eq, tau) by least squares on
     the ORIGINAL series - the naive linearisation with p_eq = last value fails
     whenever the exponential has not converged (found by test on synthetic data).
-    Returns (GS_tank_W_per_K, tau_s, fit_quality_r2).
+    steel_mass_kg: thermal mass of the steel (c ~ 0.46-0.48 kJ/kgK) that
+    exchanges heat with the gas. It adds to the heat capacity, so the combined
+    GS = (m_gas cv + m_steel c_steel) / tau is larger than the gas-only value.
+    Returns (GS_tank_W_per_K, tau_s, fit_quality_r2); GS is the combined value
+    when steel_mass_kg is given, otherwise gas-only. return_detail=True returns
+    a dict with gas-only and combined GS.
     Method: Nexo paper - same idea, they fitted GS = 70 W/K on a vehicle tank
     from resting-period pressure data.
     """
@@ -103,9 +109,16 @@ def gs_fit_from_pressure_decay(t_s, p_abs_bar, T_amb_C=20.0, V_L=None, Z_at=None
     Z = z_h2(p_mean, T_amb_C) if Z_at is None else Z_at
     m = p_mean * 1e5 * V_m3 / (Z * C.R_J_PER_MOL_K * (T_amb_C + 273.15)) * C.M_H2_KG_PER_MOL
     cv = 10.2e3      # H2 cv ~ 10.2 kJ/(kg K) near ambient (CoolProp/standard tables)
-    GS = m * cv / tau
+    GS_gas = m * cv / tau
+    GS = GS_gas
+    GS_combined = None
+    if steel_mass_kg:
+        GS_combined = (m * cv + steel_mass_kg * c_steel_kJ_per_kgK * 1e3) / tau
+        GS = GS_combined
     ss_res = float(np.sum((p - model_fit)**2)); ss_tot = float(np.sum((p - p.mean())**2))
     r2 = 1 - ss_res / ss_tot if ss_tot > 0 else None
+    if return_detail:
+        return dict(GS=GS, tau_s=tau, r2=r2, GS_gas_only=GS_gas, GS_combined=GS_combined)
     return GS, tau, r2
 
 def temperature_corrected_mass(p_abs_bar, V_L, T_gas_C):

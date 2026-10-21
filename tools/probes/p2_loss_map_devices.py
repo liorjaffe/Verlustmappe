@@ -16,8 +16,8 @@ dfd = pd.DataFrame({"fc_power_W": np.full(121, 2500.0), "fc1_stack_current_A": n
                     "fc2_stack_current_A": np.full(121, 19.39)}, index=idx2)
 target = loss_map(dfc, dfd)["devices"]["EL"]["h2"]["kg"]; lo, hi = 50.0, 300.0
 for _ in range(60):
-    mid = (lo+hi)/2; lo, hi = (mid, hi) if h2_from_tank_pressure(50.0, mid)["kg"] < target else (lo, mid)
-demo = loss_map(dfc, dfd, tank_p_start_barg=50.0, tank_p_end_barg=(lo+hi)/2, eta_inverter=0.96)
+    mid = (lo+hi)/2; lo, hi = (mid, hi) if h2_from_tank_pressure(50.0, mid, bundle_isolated=True)["kg"] < target else (lo, mid)
+demo = loss_map(dfc, dfd, tank_p_start_barg=50.0, tank_p_end_barg=(lo+hi)/2, eta_inverter=0.96, bundle_isolated=True)
 
 check("eta_inverter, which test_03 passes, is silently swallowed and 0.94 is used",
       demo["rte"]["breakdown"]["inverter_eta"] == 0.94,
@@ -45,7 +45,7 @@ check("Standby energy is counted twice in E_in (it is already inside E_EL)",
       "e_rte.storage_chain_rte: do not add E_standby again - it is a subset of E_el",
       f"standby {el['standby_kWh']:.3f} kWh inside E_EL {el['energy_in_kWh']:.3f}")
 
-bad = loss_map(dfc, dfd, tank_p_start_barg=50, tank_p_end_barg=120)
+bad = loss_map(dfc, dfd, tank_p_start_barg=50, tank_p_end_barg=120, bundle_isolated=True)
 check("No plausibility guards: a mismatched tank window gives RTE > 1 and a negative gas loss",
       bad["h2_balance"]["rte_closed"] > 1 and bad.get("plausible", True) and not bad.get("warnings"),
       "d_loss_map.py: raise or flag when rte_open/rte_closed > 1, gas loss < -uncertainty, or the tank window holds far more than production",

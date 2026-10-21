@@ -16,14 +16,14 @@ def main():
                         "fc1_stack_current_A": np.full(n2, 19.39), "fc2_stack_current_A": np.full(n2, 19.39)}, index=idx2)
     # tank end pressure consistent with produced H2 minus vent (bisection on the same physics)
     from verlustmappe.hydrogen import h2_from_tank_pressure
-    el0 = loss_map(dfc, dfd, eta_inverter=0.96)["devices"]["EL"]
+    el0 = loss_map(dfc, dfd, eta_inverter=0.96, bundle_isolated=True)["devices"]["EL"]
     target_kg = el0["h2"]["kg"]   # tank must hold what the stack PRODUCED; vent is a loss estimate, not a storage correction
     lo, hi = 50.0, 300.0
     for _ in range(60):
         mid = 0.5 * (lo + hi)
-        lo, hi = (mid, hi) if h2_from_tank_pressure(50.0, mid)["kg"] < target_kg else (lo, mid)
+        lo, hi = (mid, hi) if h2_from_tank_pressure(50.0, mid, bundle_isolated=True)["kg"] < target_kg else (lo, mid)
     p_end = 0.5 * (lo + hi)
-    out = loss_map(dfc, dfd, tank_p_start_barg=50.0, tank_p_end_barg=p_end, eta_inverter=0.96)
+    out = loss_map(dfc, dfd, tank_p_start_barg=50.0, tank_p_end_barg=p_end, eta_inverter=0.96, bundle_isolated=True)
     assert out["h2_closure"]["max_spread_independent"] < 0.001, out["h2_closure"]
     # the demo discharges MORE hydrogen than it produces (open cycle by design:
     # 2.5 kW x 2 h draws 132% of the 6 h charge production). The old line
@@ -41,7 +41,7 @@ def main():
     pv_out = loss_map(dfc, dfd, eta_inverter=0.96,
                       tank_p_start_barg=50.0, tank_p_end_barg=p_end,
                       E_pv_dc_kWh=90.0, E_pv_ac_kWh=87.0,
-                      E_pv_stc_kWh=100.0, pv_status="PRELIM")
+                      E_pv_stc_kWh=100.0, pv_status="PRELIM", bundle_isolated=True)
     pv_bars = {b["stage"]: b["kWh"] for b in pv_out["bars"]}
     assert abs(pv_bars["PV capture (soiling/mismatch/shading/temp)"] - 10.0) < 1e-6, pv_bars
     assert abs(pv_bars["PV inverter (DC->AC)"] - 3.0) < 1e-6, pv_bars
@@ -63,7 +63,7 @@ def main():
     # delivered quantity and enters the gas-loss estimate
     assert out["h2_closure"]["n_independent"] == 1
     assert "gas_loss_estimate" in out["h2_closure"]
-    band = loss_map_band(dfc, dfd, n=150, tank_p_start_barg=50.0, tank_p_end_barg=p_end, eta_inverter=0.96)
+    band = loss_map_band(dfc, dfd, n=150, tank_p_start_barg=50.0, tank_p_end_barg=p_end, eta_inverter=0.96, bundle_isolated=True)
     assert band["rte_lo"] <= band["rte_mean"] <= band["rte_hi"]
     assert band["rte_lo"] <= rte <= band["rte_hi"] or abs(band["rte_mean"] - rte) < 0.02, \
         "MC band must bracket the point estimate (reviewer 2026-10)"

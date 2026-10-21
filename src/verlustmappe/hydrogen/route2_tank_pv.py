@@ -24,10 +24,16 @@ from .z_realgas import z_h2, Z_TABLE_UNCERTAINTY_REL
 from .temperature_model import hot_end_fill_bracket, tier1_temperature, tier2_temperature
 
 def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None,
-                          tier=1, T_top_C=None, T_bottom_C=None, return_bracket=False):
+                          tier=1, T_top_C=None, T_bottom_C=None, return_bracket=False,
+                          bundle_isolated=None):
     """tier 1: T from ambient assumption (registry-free, +-3 K + fast-fill bias)
     tier 2: T from measured sensors (pass T_top_C / T_bottom_C)
     """
+    if bundle_isolated is None:
+        raise ValueError("bundle_isolated is required: stor.volume_L = 800 L holds only while the "
+                         "instrumented 16 x 50 L bundle is valved off from the second bundle. Pass True "
+                         "in that case; if the bundles are connected, set stor.volume_L to the connected "
+                         "volume and pass False.")
     if tier == 3:
         raise NotImplementedError("tier 3 (GS_tank model) is not wired in yet")
 
@@ -47,7 +53,7 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     dmol = n2 - n1
     kg = mol_to_kg(dmol)
     # DCT 541 uncertainty: the absolute error per READING is fso_bar (0.5% of the
-    # 250-bar full scale = 1.25 bar). It is NOT multiplied by the relative FSO
+    # 400-bar full scale = 2.0 bar). It is NOT multiplied by the relative FSO
     # again (the first draft computed 0.5% x 1.25 bar = 0.006 bar, a unit error
     # that understated the pressure term by ~200x; fix validated against
     # delta-mass propagation in test_07).
@@ -55,7 +61,7 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     amp = max(p1, p2) / max(abs(p2 - p1), 1e-9)
     u_T_frac = u_T_start / max(T_start_C + 273.15, 1.0)
     # Propagation (GUM, independent contributions):
-    #  - pressure: the sensor error is ABSOLUTE (FSO-based, +-1.25 bar per
+    #  - pressure: the sensor error is ABSOLUTE (FSO-based, +-2.0 bar per
     #    reading, independent) -> sigma(dp) = fso_abs*sqrt(2), relative to the
     #    swing only: fso_abs*sqrt(2)/dp. NO extra p/dp factor: the first draft
     #    (and the first fix) multiplied by amp as well, double-amplifying the

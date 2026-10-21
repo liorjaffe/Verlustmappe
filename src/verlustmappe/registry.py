@@ -88,14 +88,16 @@ REGISTRY = {
     # NOTE on the paper's own eta_CSU = 54.5%: that is H2 energy / (H2 energy +
     # compression electricity), a DIFFERENT quantity, not a contradiction.
     # The paper's booster (Hydraulics Int.) is rated for up to 220 bar like ours.
-    "comp.overall_efficiency": P(0.014, "-", "ANCHORED on Bovo et al. IJHE 48 (2023) part 1, DOI "
-                                "10.1016/j.ijhydene.2022.11.346, Tab. 3: 78.4 kWh compression + "
-                                "4.6 kWh auxiliaries for 33.22 Nm3, tank 40->200 bar; correct "
-                                "fill-integral ideal work 1.0-1.3 kWh -> overall 1.2-1.6% for an "
-                                "air-driven booster (Hydraulics International, same class as our "
-                                "Maximator). Our Kaeser+Maximator chain may differ. MEASURE it.",
-                                "GUESS", 0.3,
+    "comp.overall_efficiency": P(0.03, "-", "Bovo IJHE 48 (2023) part 1, Tab. 3: 56.36 / 100.2 kWh compression for "
+                                "33.22 Nm3 (full / half load), 10-bar booster inlet, fill-integral ideal work "
+                                "-> overall 1.9-4.3%; decision 2026-10-21: 0.03 +-40%. Our Kaeser+Maximator "
+                                "chain may differ. MEASURE it.",
+                                "GUESS", 0.4,
                                 "compression loss bar; MUST be replaced by Kaeser energy measurement"),
+    "comp.specific_energy_kWh_per_Nm3": P(2.3, "kWh/Nm3", "Bovo IJHE 2023 Tab. 3: 60.28/56.36/100.2 kWh per 33.22 Nm3 "
+                                "-> 1.81/1.70/3.02; midpoint of full/half power. Cross-check only; the model "
+                                "uses comp.overall_efficiency", "GUESS", 0.4,
+                                "pressure-independent sanity check of the compression bar"),
 
     # ===================== STORAGE =====================
     # Tank identity from the nameplate photo (VITKOVICE CYLINDERS S-16-50-22-27):
@@ -107,8 +109,10 @@ REGISTRY = {
                                 "per this project's own status definitions. Hydrostatic or "
                                 "geometric confirmation still open", "DATASHEET", 0.005,
                                 "Route 2 (tank pV) mass scales linearly with this"),
-    "stor.type":              P("steel cylinder (Type I equivalent)", "-", "nameplate + visual inspection", "DATASHEET", 0.0,
+    "stor.type":              P("2 bundles x 16 x 50 L steel cylinders (Type I equivalent); sensors on bundle 1", "-", "nameplate + visual inspection", "DATASHEET", 0.0,
                                 "thermal behaviour: steel = high wall conductivity, less gas stratification than Type III/IV (de Miguel IJHE 2015)"),
+    "stor.steel_mass_kg":     P(1430, "kg", "nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature", "DATASHEET", 0.2,
+                                "thermal mass of the tank in the GS fit"),
     "stor.p_max_barg":        P(300, "barg", "VITKOVICE nameplate: maximum allowable pressure PS 300 bar at 65 C; safety valve 330 bar", "DATASHEET", 0.0,
                                 "range check; working pressure set by the process (see stor.p_work_barg)"),
     "stor.p_work_barg":       P(200, "barg", "installer H2 Core Systems: stored at 200 bar (UFSC paper confirms operation at 200 bar, DoD 80% analogon)", "DATASHEET", 0.0,
@@ -122,8 +126,12 @@ REGISTRY = {
                                 "Route 2 pressure input"),
     "meas.p_sensor_fso_rel":  P(0.005, "-", "DCT 541 datasheet: accuracy per IEC 61298-2 (limit point adjustment: non-linearity, hysteresis, repeatability)", "DATASHEET", 0.0,
                                 "Route 2 pressure uncertainty: 0.5% of FULL SCALE (FSO), not of reading"),
-    "meas.p_sensor_fso_bar":  P(1.25, "bar", "ASSUMPTION: 0.5% FSO on a 250-bar nominal range = +-1.25 bar. CONFIRM the ordered range", "GUESS", 0.0,
+    "meas.p_sensor_range_bar": P(400, "bar gauge", "DCT 541, 0...400 bar gauge, ordered per plan 2026-10-08", "DATASHEET", 0.0,
+                                "Route 2 pressure input; confirm against the delivered sensor label"),
+    "meas.p_sensor_fso_bar":  P(2.0, "bar", "0.5% FSO x 400 bar (IEC 61298-2), derived from range and accuracy", "DERIVED", 0.0,
                                 "absolute pressure error per reading"),
+    "meas.p_sensor_thermal_bar_per_10K": P(0.8, "bar/10K", "0.2% FSO / 10 K x 400 bar, derived", "DERIVED", 0.0,
+                                "pressure error during fast fills (not yet in the Route 2 budget)"),
     "meas.p_sensor_thermal_rel": P(0.002, "-", "DCT 541 datasheet: thermal error +-0.2% FSO / 10 K in compensated range -20..80 C", "DATASHEET", 0.0,
                                 "extra pressure error during fast fills (gas temperature swing)"),
     "meas.p_sensor_drift_rel": P(0.001, "-", "DCT 541 datasheet: long-term stability <= +-0.1% FSO / year", "DATASHEET", 0.0,

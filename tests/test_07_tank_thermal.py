@@ -16,6 +16,9 @@ def main():
     # Nexo anchor: their vehicle tank gave 70 W/K; our 800 L steel must give MORE
     # (scale ~ surface): check GS > 50 W/K as a physicality bound
     assert GS > 50.0, GS
+    # steel mass adds heat capacity: combined GS > gas-only GS
+    d = gs_fit_from_pressure_decay(t, p, steel_mass_kg=1430.0, return_detail=True)
+    assert d["GS_combined"] > 3 * d["GS_gas_only"], d
     # tiers
     t1, u1 = tier1_temperature(); assert u1 == 3.0
     t2, u2 = tier2_temperature(35.0, 30.0); assert t2 == 32.5 and u2 == 2.0
@@ -31,10 +34,10 @@ def main():
     expected = (z30 * 303.15) / (z20 * 293.15)
     assert abs(m20 / m30 - expected) < 1e-9, (m20 / m30, expected)
     # Route 2 with the DCT 541 uncertainty: a 100-bar swing must be a few percent
-    r = h2_from_tank_pressure(50.0, 150.0)
+    r = h2_from_tank_pressure(50.0, 150.0, bundle_isolated=True)
     assert 0.01 < r["uncertainty_rel"] < 0.06, r["uncertainty_rel"]
     # tier 2 shifts the mass (32.5 C mean vs 20 C ambient): fewer kg
-    r2t = h2_from_tank_pressure(50.0, 150.0, tier=2, T_top_C=35.0, T_bottom_C=30.0)
+    r2t = h2_from_tank_pressure(50.0, 150.0, tier=2, T_top_C=35.0, T_bottom_C=30.0, bundle_isolated=True)
     assert r2t["kg"] < r["kg"], (r["kg"], r2t["kg"])
     assert 0.01 < r2t["uncertainty_rel"] < 0.06
     print("PASS 07 tank thermal: GS fit (tau %.0f s, r2 %.3f), tiers, bracket %.1f%%, DCT 541 Route 2 u %.1f%%"
