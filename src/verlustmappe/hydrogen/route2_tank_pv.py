@@ -59,7 +59,7 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     #    absolute term; amp applies only to RELATIVE errors (Z, T, V), whose
     #    effect on a DIFFERENCE grows with p/dp.
     #  - Z, T, V: relative errors, amplified by amp = p/dp.
-    u = float(np.sqrt((fso_abs * np.sqrt(2) / max(p2 - p1, 1e-9))**2 +
+    u = float(np.sqrt((fso_abs * np.sqrt(2) / max(abs(p2 - p1), 1e-9))**2 +
                       (R.entry("stor.volume_L")["uncertainty"] * amp)**2 +
                       (Z_TABLE_UNCERTAINTY_REL * amp)**2 +
                       (u_T_frac * amp)**2))
