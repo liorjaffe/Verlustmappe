@@ -49,7 +49,8 @@ class FuelCellSystem:
         observed_s = float(np.sum(dt[~np.isnan(dt)])) if len(dt) else 0.0
         e_ctrl = R.get("fc.control_input_W_max") / 1000.0 * observed_s / 3600.0
         # control energy scales with the number of modules actually present in the frame
-        e_ctrl = e_ctrl * max(1, len(term_cols)) if term_cols else e_ctrl
+        n_modules = len(stack_cols) if stack_cols else len(term_cols)
+        e_ctrl = e_ctrl * max(1, n_modules)
         I_bat = None
         if "load_current_A" in df.columns and term_cols:
             I_bat = df["load_current_A"].fillna(0).values - sum(df[c].fillna(0).values for c in term_cols)
