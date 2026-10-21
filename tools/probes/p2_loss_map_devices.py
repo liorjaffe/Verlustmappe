@@ -47,7 +47,7 @@ check("Standby energy is counted twice in E_in (it is already inside E_EL)",
 
 bad = loss_map(dfc, dfd, tank_p_start_barg=50, tank_p_end_barg=120)
 check("No plausibility guards: a mismatched tank window gives RTE > 1 and a negative gas loss",
-      bad["h2_balance"]["rte_closed"] > 1,
+      bad["h2_balance"]["rte_closed"] > 1 and bad.get("plausible", True) and not bad.get("warnings"),
       "d_loss_map.py: raise or flag when rte_open/rte_closed > 1, gas loss < -uncertainty, or the tank window holds far more than production",
       f"rte_closed {bad['h2_balance']['rte_closed']:.2f}, gas loss {bad['h2_closure']['gas_loss_estimate']['fraction_of_production']*100:.0f}%")
 

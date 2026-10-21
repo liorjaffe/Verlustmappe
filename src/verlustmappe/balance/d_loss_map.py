@@ -20,6 +20,24 @@ from .. import registry as R
 from .. import constants as C
 from .e_rte import storage_chain_rte, island_rte
 
+def _plausibility_warnings(rte_open, rte_closed, closure, h2_in_kWh, tank_kWh,
+                           loss_sigma=2.0, tank_excess_factor=1.25):
+    """Flags for physically implausible results (never silently pass them on)."""
+    w = []
+    if rte_open is not None and rte_open > 1:
+        w.append("rte_open = %.2f > 1: more energy out than in" % rte_open)
+    if rte_closed is not None and rte_closed > 1:
+        w.append("rte_closed = %.2f > 1: more energy out than in" % rte_closed)
+    gl = closure.get("gas_loss_estimate")
+    if gl and gl["kg"] < -loss_sigma * gl["uncertainty_kg"]:
+        w.append("gas loss estimate is negative beyond its uncertainty (%.1f%% of production): "
+                 "the tank holds more hydrogen than was produced; check the tank window"
+                 % (100 * gl["fraction_of_production"]))
+    if h2_in_kWh and tank_kWh is not None and tank_kWh > tank_excess_factor * h2_in_kWh:
+        w.append("tank window holds %.0f%% of the produced hydrogen" % (100 * tank_kWh / h2_in_kWh))
+    return w
+
+
 def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=None,
              p_in_barg=None, p_out_barg=None, eta_inverter=None, E_pv_ac_kWh=None,
              air_compressor_kWh=None, dryer_kWh=None, **kw_e):
@@ -123,8 +141,10 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
         dict(stage="FC inverter (48V DC->AC out)", kWh=(fc["energy_out_kWh"] - fc["control_energy_kWh_envelope"]) * (1 - eta_inverter),
              status="MEASURED" if kw_e.get("inv_fc_eta_is_measured") else "PRELIM"),
     ]
+    warnings = _plausibility_warnings(rte["rte"], rte_closed, closure, h2_in, tank_kWh)
     out = dict(devices=dict(EL=el, DRY=dry, CSU=comp, FC=fc), h2_closure=closure,
-               h2_balance=balance, rte=rte, bars=bars)
+               h2_balance=balance, rte=rte, bars=bars,
+               plausible=not warnings, warnings=warnings)
     if E_pv_ac_kWh is not None:
         out["island"] = island_rte(E_pv_ac_kWh, rte)
     return out
