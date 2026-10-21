@@ -18,6 +18,7 @@ from ..devices import ElectrolyzerUnit, Dryer, AirDrivenBooster, FuelCellSystem,
 from ..hydrogen import h2_from_tank_pressure, compare_routes
 from .. import registry as R
 from .. import constants as C
+from ..conversions import kg_to_kWh_LHV
 from .e_rte import storage_chain_rte, island_rte
 
 def _plausibility_warnings(rte_open, rte_closed, closure, h2_in_kWh, tank_kWh,
@@ -112,6 +113,14 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
     # so kw_e.get("E_pv_ac_kWh") was always None and the PV bars were dead code
     # in the first draft. Use the named parameter directly (fixed 2026-10).
     e_pv_dc = kw_e.get("E_pv_dc_kWh"); e_pv_ac_pv = E_pv_ac_kWh
+    # the vent is a loss of THIS window only if hydrogen actually went missing
+    # between production and tank; otherwise the envelope value is not booked
+    vent_kWh, vent_status = dry["gas_loss_kWh_LHV"], "GUESS"
+    gl = closure.get("gas_loss_estimate")
+    if gl is not None:
+        missing_kWh = max(kg_to_kWh_LHV(gl["kg"]), 0.0)
+        vent_kWh = min(vent_kWh, missing_kWh)
+        vent_status = "GUESS" if vent_kWh > 0 else "NOT OBSERVED"
     bars = []
     if e_pv_dc is not None and e_pv_ac_pv is not None:
         # PV capture bar: everything between the STC potential and the measured
@@ -132,7 +141,7 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
              status="MEASURED" if el["efficiency_is_measured"] else "NAMEPLATE"),
         dict(stage="Dryer electrical", kWh=dry["energy_kWh"],
              status="MEASURED" if dry["energy_is_measured"] else "ENVELOPE"),
-        dict(stage="Dryer vent (H2)", kWh=dry["gas_loss_kWh_LHV"], status="GUESS"),
+        dict(stage="Dryer vent (H2)", kWh=vent_kWh, status=vent_status),
         dict(stage="Compression (air-driven)", kWh=comp["energy_kWh"],
              status="MEASURED" if comp["energy_is_measured"] else "GUESS"),
         dict(stage="FC conversion (H2->DC)", kWh=fc["h2"]["kWh_LHV"] - fc["energy_out_kWh"],

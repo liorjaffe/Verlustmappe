@@ -45,6 +45,9 @@ def main():
     pv_bars = {b["stage"]: b["kWh"] for b in pv_out["bars"]}
     assert abs(pv_bars["PV capture (soiling/mismatch/shading/temp)"] - 10.0) < 1e-6, pv_bars
     assert abs(pv_bars["PV inverter (DC->AC)"] - 3.0) < 1e-6, pv_bars
+    # tank holds 100% of production -> no gas left the system -> no vent loss booked
+    vent = [b for b in out["bars"] if "vent" in b["stage"]]
+    assert vent and abs(vent[0]["kWh"]) < 1e-9, vent
     el, fc = out["devices"]["EL"], out["devices"]["FC"]
     assert abs(el["energy_in_kWh"] - 14.4) < 1e-6
     assert el["efficiency_is_measured"] and fc["efficiency_is_measured"]

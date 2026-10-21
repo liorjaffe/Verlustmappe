@@ -34,7 +34,7 @@ check("Loss map does not close: E_in != sum(bars) + E_out",
       f"gap {gap:.3f} kWh")
 check("A dryer-vent loss is booked although the tank holds 100% of production (no gas was lost)",
       abs(demo["h2_closure"]["gas_loss_estimate"]["fraction_of_production"]) < 1e-6
-      and [b for b in demo["bars"] if "vent" in b["stage"]][0]["kWh"] > 0.3,
+      and sum(b["kWh"] for b in demo["bars"] if "vent" in b["stage"]) > 0.3,
       "d_loss_map.py + test_03: book the vent only against the gas that actually left, or label the bar as an upper envelope not tied to this window")
 
 c = dfc.copy(); c.iloc[:120, 0] = 20.0; c.iloc[:120, 1] = 0.0
