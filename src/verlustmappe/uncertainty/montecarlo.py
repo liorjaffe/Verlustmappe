@@ -5,8 +5,8 @@ N(value, value*uncertainty); the loss map is recomputed; the 5th/95th
 percentiles of the outputs are reported.
 
 Sampling discipline (external review 2026-10):
-  - quantities bounded on (0,1] (efficiencies) are drawn then CLIPPED into
-    (1e-3, 1] by a TRUNCATED normal so eta_F > 1 draws cannot happen without
+  - quantities bounded on (0,1] (efficiencies) are drawn from a normal
+    TRUNCATED to (1e-3, 1] so eta_F > 1 draws cannot happen without
     a point mass at 1.0;
   - positive quantities stay positive; negative-valued entries are drawn
     relatively (nominal*(1+N(0,u))) and keep their sign;
