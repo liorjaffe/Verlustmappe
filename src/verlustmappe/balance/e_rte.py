@@ -14,7 +14,7 @@ charged electrical energy over one full cycle), e.g. IEC 62933-2-1.
 
 def storage_chain_rte(E_el_kWh, E_dryer_kWh, E_comp_kWh, E_fc_out_kWh, E_ctrl_kWh, eta_inverter=1.0,
                       E_standby_kWh=0.0):
-    e_in = E_el_kWh + E_dryer_kWh + E_comp_kWh + E_standby_kWh
+    e_in = E_el_kWh + E_dryer_kWh + E_comp_kWh
     e_out = (E_fc_out_kWh - E_ctrl_kWh) * eta_inverter
     return dict(boundary="storage_chain", E_in_kWh=e_in, E_out_kWh=e_out,
                 rte=e_out / e_in if e_in > 0 else None,
