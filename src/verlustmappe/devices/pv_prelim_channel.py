@@ -66,18 +66,32 @@ def pv_account(H_poa_kWh_m2=None, A_array_m2=None, E_dc_measured_kWh=None, E_ac_
     if status_mode == "measured" and E_ac_measured_kWh is not None:
         e_ac = E_ac_measured_kWh   # the inverter sees its own AC; bars below stay preliminary
 
-    bars = [
-        dict(stage="Soiling", kWh=e_stc * soiling if e_stc else None, status="PRELIM"),
-        dict(stage="Mismatch", kWh=e_stc * mismatch if e_stc else None, status="PRELIM"),
-        dict(stage="Shading", kWh=e_stc * shading if e_stc else None, status="PRELIM"),
-        dict(stage="Cell temperature", kWh=(e_stc * (1-soiling)*(1-mismatch)*(1-shading) * (1-temp_factor)) if e_stc else None,
-             status="PRELIM"),
-        dict(stage="DC cable", kWh=(e_dc * R.get("cable.dc_loss_rel")), status="PRELIM"),
-        dict(stage="Inverter conversion", kWh=(e_after_dc_cable * (1 - R.get("inv_pv.eta_euro"))), status="MEASURED" if status_mode=="measured" else "PRELIM"),
-        dict(stage="AC cable", kWh=(e_ac_conv * R.get("cable.ac_loss_rel")), status="PRELIM"),
-    ]
+    # measured DC and AC are both taken AT the inverter terminals: the inverter
+    # bar is then the measured difference and no cable loss exists in between
+    at_terminals = (status_mode == "measured" and E_dc_measured_kWh is not None
+                    and E_ac_measured_kWh is not None)
+    bars = []
+    if e_stc:
+        # sequential site losses so that the bars sum exactly to E_stc - E_dc
+        e1 = e_stc * (1 - soiling); e2 = e1 * (1 - mismatch); e3 = e2 * (1 - shading)
+        e4 = e3 * temp_factor
+        bars += [
+            dict(stage="Soiling", kWh=e_stc - e1, status="PRELIM"),
+            dict(stage="Mismatch", kWh=e1 - e2, status="PRELIM"),
+            dict(stage="Shading", kWh=e2 - e3, status="PRELIM"),
+            dict(stage="Cell temperature", kWh=e3 - e4, status="PRELIM"),
+            dict(stage="Bifacial gain", kWh=-e4 * R.get("pv.bifacial_gain_frac"), status="PRELIM"),
+        ]
+    if at_terminals:
+        bars.append(dict(stage="Inverter conversion", kWh=E_dc_measured_kWh - E_ac_measured_kWh, status="MEASURED"))
+    else:
+        bars += [
+            dict(stage="DC cable", kWh=e_dc * R.get("cable.dc_loss_rel"), status="PRELIM"),
+            dict(stage="Inverter conversion", kWh=e_after_dc_cable * (1 - R.get("inv_pv.eta_euro")), status="PRELIM"),
+            dict(stage="AC cable", kWh=e_ac_conv * R.get("cable.ac_loss_rel"), status="PRELIM"),
+        ]
     out = dict(unit="PV", mode=status_mode, e_dc_kWh=e_dc, e_ac_kWh=e_ac, e_stc_kWh=e_stc,
-               T_cell_C=T_cell, bars=[b for b in bars if b["kWh"] is not None],
+               T_cell_C=T_cell, bars=bars,
                eta_dc_to_ac=(e_ac / e_dc) if e_dc > 0 else None,
                capture_ratio=(e_dc / e_stc) if (e_stc and e_stc > 0) else None,
                warning="PRELIMINARY PV channel: all site losses are typical-market guesses; "
