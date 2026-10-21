@@ -176,6 +176,8 @@ REGISTRY = {
     #  2025; NOT a commitment to Trina)
     "pv.module_efficiency_STC":   P(0.220, "-", "PRELIMINARY: typical N-type TOPCon mono module, 21.0-23.3% market range 2025/26 (Trina Vertex N datasheets as anchors)", "PRELIM", 0.03,
                                 "nominal DC power per m2 of array"),
+    "pv.p_dc_stc_W":              P(None, "W", "UNKNOWN - installed DC peak power (nameplate sum of modules) to be entered", "BACKLOG", 0.0,
+                                "capture ratio in PVSystem.account; skipped while None"),
     "pv.p_tc_pmax_per_K":         P(-0.0029, "1/K", "PRELIMINARY: typical TOPCon temp coefficient of Pmax (-0.29%/K, Trina class)", "PRELIM", 0.05,
                                 "cell-temperature derating"),
     "pv.noct_C":                  P(43, "degC", "PRELIMINARY: typical NOCT 43+-2 C (TOPCon dual glass)", "PRELIM", 0.05,
