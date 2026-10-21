@@ -45,6 +45,10 @@ def main():
     pv_bars = {b["stage"]: b["kWh"] for b in pv_out["bars"]}
     assert abs(pv_bars["PV capture (soiling/mismatch/shading/temp)"] - 10.0) < 1e-6, pv_bars
     assert abs(pv_bars["PV inverter (DC->AC)"] - 3.0) < 1e-6, pv_bars
+    # the loss map closes: E_in == sum(chain bars) + E_out (open cycle gets its own bar)
+    chain = sum(b["kWh"] for b in out["bars"])
+    assert abs(out["rte"]["E_in_kWh"] - chain - out["rte"]["E_out_kWh"]) < 1e-9
+    assert any("storage change" in b["stage"] for b in out["bars"])
     # tank holds 100% of production -> no gas left the system -> no vent loss booked
     vent = [b for b in out["bars"] if "vent" in b["stage"]]
     assert vent and abs(vent[0]["kWh"]) < 1e-9, vent

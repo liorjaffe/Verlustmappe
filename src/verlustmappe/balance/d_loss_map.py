@@ -150,6 +150,14 @@ def loss_map(df_charge, df_discharge, tank_p_start_barg=None, tank_p_end_barg=No
         dict(stage="FC inverter (48V DC->AC out)", kWh=(fc["energy_out_kWh"] - fc["control_energy_kWh_envelope"]) * (1 - eta_inverter),
              status="MEASURED" if kw_e.get("inv_fc_eta_is_measured") else "PRELIM"),
     ]
+    # open cycle: hydrogen consumed != hydrogen delivered to the tank. The
+    # difference is stored (or drawn) hydrogen, not an efficiency loss, and gets
+    # its own bar so that E_in == sum(bars) + E_out holds for the storage chain.
+    chain_sum = sum(b["kWh"] for b in bars if not b["stage"].startswith("PV"))
+    residual = rte["E_in_kWh"] - chain_sum - rte["E_out_kWh"]
+    if abs(residual) > 1e-9:
+        bars.append(dict(stage="H2 storage change (open cycle: +stored / -drawn)", kWh=residual,
+                         status="DERIVED"))
     warnings = _plausibility_warnings(rte["rte"], rte_closed, closure, h2_in, tank_kWh)
     out = dict(devices=dict(EL=el, DRY=dry, CSU=comp, FC=fc), h2_closure=closure,
                h2_balance=balance, rte=rte, bars=bars,
