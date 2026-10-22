@@ -232,20 +232,23 @@ REGISTRY = {
     # --- TWO SEPARATE INVERTERS (kept apart, they are different devices and
     #     must stay separately analysable: PV-side vs FC-side) ---
 
-    # NOTE F8: inv_pv.eta_euro below is still the PRELIM typical string-inverter
-    # value. The F8 units are off-grid Solis inverters with NO published Euro
-    # efficiency (96.6 % datasheet peak vs 93-95 % manual), see inv_pv.eta_pv_ac_peak.
+    # NOTE F8: inv_pv.eta_euro below remains PRELIM; no S6-GR1P6K efficiency
+    # datasheet is registered. The previous S5-EO1P5K-48 values belong to the
+    # FC-side inverter and are not valid for this PV boundary.
     # PV-side inverter: string inverter, PV DC -> AC bus. The SMA Sunny
     # Tripower telemetry already exists; when its measured data is used these
     # PRELIM entries become cross-checks only.
-    # F8 PV-side inverters: SAME model as the FC-side Solis (see inv_fc.*).
-    "inv_pv.model":               P("Solis S5-EO1P5K-48 off-grid, PV-side units of the F8 facade (2 units, SN 1802060225250007 / 1802060225250009)", "-", "Solis cloud metadata CSV 2026-10-08; Solis S5-EO1P5K-48 datasheet + S5 EO manual (Inverter 1 folder)", "DATASHEET", 0.0,
+    # F8 PV-side inverters are S6-GR1P6K string inverters, distinct from inv_fc.
+    # TODO(owner): record device-identity correction in 00 CURRENT STATE.
+    "inv_pv.model":               P("2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009)", "-", "SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206", "DATASHEET", 0.0,
                                 "identifies the F8 inverters"),
-    "inv_pv.eta_pv_ac_peak":      P(0.966, "-", "Solis S5-EO1P5K-48 datasheet: PV-AC peak 96.6 %", "DATASHEET", 0.0,
-                                "peak reference; discrepancy with manual range kept, see inv_pv.eta_manual_range"),
-    "inv_pv.eta_manual_range":    P("0.93-0.95", "-", "Solis S5 EO manual (quoted, not averaged)", "DATASHEET", 0.0,
-                                "energy accounting may need the DERIVED midpoint as on the FC side (decision open, docs/06)"),
-    "inv_pv.eta_euro":            P(0.980, "-", "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). MEASURED cross-check from own 22-day SMA telemetry: 0.9719 energy-weighted", "PRELIM", 0.01,
+    "inv_pv.eta_pv_ac_peak":      P(0.966, "-", "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter", "BACKLOG", 0.0,
+                                "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"),
+    "inv_pv.eta_manual_range":    P("0.93-0.95", "-", "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter", "BACKLOG", 0.0,
+                                "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"),
+    # F8 full-production-day cross-check: after removing the +3-4% DC-channel
+    # bias, eta_dc_ac ~1.00 is consistent with true eta ~0.97-0.98.
+    "inv_pv.eta_euro":            P(0.980, "-", "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). MEASURED cross-check from own 22-day SMA telemetry: 0.9719 energy-weighted. SMA 22-day cross-check 0.9719 belongs to the ALT building array, not the F8 boundary (Rev D, section 16); F8 cross-checks must come from Solis data (f8_day_balance)", "PRELIM", 0.01,
                                 "PV DC->AC conversion bar"),
     "inv_pv.eta_peak":            P(0.985, "-", "PRELIMINARY: typical max efficiency 98-98.5%", "PRELIM", 0.005,
                                 "peak reference only, NOT for energy accounting"),

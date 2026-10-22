@@ -19,7 +19,9 @@ class LivePipeline:
       EL        : Enapter cloud telemetry (~1 Hz) or local Modbus TCP;
                   stack_amperage -> el_stack_current_A enables Route 1 live
       Regatron  : bridge fast log (20 Hz) via loaders/regatron.load_fastlog
-      Solis     : cloud/datalogger export via loaders/solis.load_solis
+      Solis (Inverter 2, FC side): cloud/datalogger export via loaders/solis.load_solis
+      Solis (Inverter 1, F8 PV side): LIVE via loaders/solis_live.poll_solis_live /
+                  history via f8_range_dfs + f8_day_balance (E_AC from the eToday counter)
       SMA PV    : SunSpec export via loaders/grafana (PV_MAP)
     """
 

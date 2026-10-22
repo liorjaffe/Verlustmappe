@@ -30,7 +30,7 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | PRELIM | `cable.ac_loss_rel` | 0.005 | - | 0.5 | PRELIMINARY: typical AC-side loss 0.5-1% for short runs | AC cable bar |
 | PRELIM | `pv.soiling_rel` | 0.02 | - | 0.5 | PRELIMINARY: typical soiling 1-4% (rainy coastal climate, no cleaning contract); Florianopolis is coastal+rains, low end plausible | soiling bar |
 | PRELIM | `pv.mismatch_rel` | 0.01 | - | 0.5 | PRELIMINARY: module mismatch 0.5-2% | mismatch bar |
-| PRELIM | `inv_pv.eta_euro` | 0.98 | - | 0.01 | PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). MEASURED cross-check from own 22-day SMA telemetry: 0.9719 energy-weighted | PV DC->AC conversion bar |
+| PRELIM | `inv_pv.eta_euro` | 0.98 | - | 0.01 | PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). SMA 22-day cross-check 0.9719 belongs to the ALT building array, not the F8 boundary (Rev D, section 16); F8 cross-checks must come from Solis data (`f8_day_balance`) | PV DC->AC conversion bar |
 | PRELIM | `inv_pv.eta_peak` | 0.985 | - | 0.005 | PRELIMINARY: typical max efficiency 98-98.5% | peak reference only, NOT for energy accounting |
 | PRELIM | `inv_pv.mppt_efficiency` | 0.995 | - | 0.005 | PRELIMINARY: typical MPPT efficiency >99% | folded into conversion bar unless measured separately |
 | DERIVED | `el.startup_duration_s` | 990 | s | 0.15 | UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s | operating-mode partition: startup window length |
@@ -81,9 +81,9 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | DATASHEET | `pv.n_modules` | 28 | - | 0.0 | user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm | array power = n_modules x 455 Wp |
 | DATASHEET | `pv.p_dc_stc_W` | 12740 | W | 0.0 | 28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None | capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the legacy ~184 kWp SMA array) |
 | DATASHEET | `pv.bifacial_gain_frac` | 0.0 | - | 0.0 | MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05 | DC energy bonus; 0 while monofacial (pending confirmation) |
-| DATASHEET | `inv_pv.model` | Solis S5-EO1P5K-48 off-grid, PV-side units of the F8 facade (2 units, SN 1802060225250007 / 1802060225250009) | - | 0.0 | Solis cloud metadata CSV 2026-10-08; Solis S5-EO1P5K-48 datasheet + S5 EO manual (Inverter 1 folder) | identifies the F8 inverters |
-| DATASHEET | `inv_pv.eta_pv_ac_peak` | 0.966 | - | 0.0 | Solis S5-EO1P5K-48 datasheet: PV-AC peak 96.6 % | peak reference; discrepancy with manual range kept, see inv_pv.eta_manual_range |
-| DATASHEET | `inv_pv.eta_manual_range` | 0.93-0.95 | - | 0.0 | Solis S5 EO manual (quoted, not averaged) | energy accounting may need the DERIVED midpoint as on the FC side (decision open, docs/06) |
+| DATASHEET | `inv_pv.model` | 2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009) | - | 0.0 | SolisCloud API `inveterList` 2026-10-22 (`inverterSeries` S6-GR1P(2.5-6)K, `machine` S6-GR1P6K); metadata CSV model code 0206 | identifies the F8 inverters |
+| BACKLOG | `inv_pv.eta_pv_ac_peak` | 0.966 | - | 0.0 | S6-GR1P6K datasheet pending; registered value belongs to the S5-EO1P5K-48 FC-side inverter and must not be used for F8 PV | not valid for the F8 PV inverter |
+| BACKLOG | `inv_pv.eta_manual_range` | 0.93-0.95 | - | 0.0 | S6-GR1P6K datasheet pending; registered range belongs to the S5-EO1P5K-48 FC-side inverter and must not be used for F8 PV | not valid for the F8 PV inverter |
 | DATASHEET | `inv_fc.model` | Solis S5-EO1P5K-48 off-grid, 230 V, pure sine, CAN/BMS comm | - | 0.0 | Solis datasheet + nameplate photo (S/N 2051010224220020) | the real FC-side inverter |
 | DATASHEET | `inv_fc.nominal_power_W` | 5000 | W | 0.0 | Solis datasheet: rated output 5 kVA / 5 kW (+-1%) | matches the 2x 2.5 kW FC bank; load-bin normalisation |
 | DATASHEET | `inv_fc.battery_V_range` | 40-60 | V | 0.0 | Solis datasheet + nameplate (battery voltage range) | bus compatibility: FCM-regulated 52 V bus sits inside |
@@ -103,8 +103,8 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 1. Facade POA placeholder (dominant). The reference POA (160 kWh/m2/month) assumes near-optimal tilt; an east-vertical facade is morning-weighted with lower annual yield. Needs PVGIS, the Solis irradiance channel or a pyranometer.
 2. East-vertical shading (`pv.shading_rel`, PRELIM): unknown until the layout is surveyed.
 3. Soiling (`pv.soiling_rel`, PRELIM): vertical facade soils less than a tilted array; unmeasured.
-4. Solis PV-AC efficiency: 0.966 datasheet peak vs 0.93-0.95 manual, no Euro efficiency published (`inv_pv.eta_pv_ac_peak`, `inv_pv.eta_manual_range`; `inv_pv.eta_euro` is still PRELIM).
-4b. F8 station id 1298491919449568000 also hosts F7 (SN ...0011); per-inverter-SN filtering is mandatory before the measured channel goes live.
+4. Solis PV-AC efficiency: S6-GR1P6K datasheet pending. The registered 0.966 / 0.93-0.95 values belong to the FC-side S5-EO1P5K-48 and are BACKLOG at the F8 PV boundary; `inv_pv.eta_euro` remains PRELIM.
+4b. F8 station id 1298491919449567877 and serial numbers are API-verified (2026-10-22); the metadata CSV rounds 17-digit ids. Per-inverter-SN filtering remains mandatory because station-level calls mix inverters.
 5. String layout (`pv.string_config`, GUESS): 2 x 7 per inverter assumed; verify at the junction boxes.
 6. Imp discrepancy: nameplate 10.50 A vs MGK-36 datasheet 10.90 A (does not affect RTE, matters for fusing).
 7. Bifacial status (`pv.bifacial_gain_frac` = 0): 'MGEK' suffix on the nameplate vs monofacial MGK series.

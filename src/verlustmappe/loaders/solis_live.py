@@ -18,6 +18,9 @@ Their PV-path vocabulary feeds the F8 profile of the preliminary channel
 just like the SMA telemetry does for the big array, but via the
 SolisCloud API.
 
+The inverterDay DC channels run ~+3-4% above the eToday counter; eta_dc_ac
+is diagnostic only, not an efficiency. Use eToday as the F8 E_AC reference.
+
 Inverter 2 (battery/FC side, the LAST conversion loss in the chain) is
 covered separately by loaders/solis.py (S5-EO1P5K-48: ac_out_W,
 bus_voltage_V, batt_current_A, fc1/fc2_current_A). Do NOT feed this
@@ -26,11 +29,8 @@ loader's output into FCInverter.account().
 UNITS (verified against live data 2026-10-22):
   inveterDetail:  pac in kW, eTotal assumed MWh (verify eTotalStr when the
                   inverter reports again)
-  inverterDay:    pac/eToday come with per-record unit strings (pacStr /
-                  eTodayStr) that MIX UNITS WITHIN ONE DAY (Wh in the
-                  morning curve, kWh in the closing record); every value is
-                  therefore normalised via its unit string, never via a
-                  fixed factor.
+  inverterDay:    pac in W and eToday in kWh; pacStr/eTodayStr are EMPTY,
+                  so fixed factors are used.
 A stale live value (no report for > 15 min) triggers a printed WARNING;
 the last reported value is still returned.
 
@@ -50,7 +50,8 @@ import pandas as pd
 import requests
 
 __all__ = ["solis_live_df", "poll_solis_live", "solis_day_df",
-           "SolisCloudError", "f8_inverters", "f8_live_dfs", "f8_day_dfs"]
+           "SolisCloudError", "f8_inverters", "f8_live_dfs", "f8_day_dfs",
+           "f8_range_dfs", "f8_day_balance", "energy_kWh"]
 
 API_URL = "https://www.soliscloud.com:13333"
 
@@ -162,8 +163,21 @@ def _detail_to_row(detail: dict, ts: pd.Timestamp) -> dict:
     for api_key, col, factor in _DETAIL_MAP:
         v = _num(detail.get(api_key))
         if v is not None:
-            row[col] = v * factor
+            row[col] = round(v * factor, 6)
     return {"ts": ts, **row}
+
+
+def _is_stale(dataTimestamp_ms, now_utc=None) -> bool:
+    """Whether an API timestamp is more than 15 minutes behind UTC now."""
+    data_ts = _num(dataTimestamp_ms)
+    if not data_ts:
+        return False
+    now = pd.Timestamp.now(tz="UTC") if now_utc is None else pd.Timestamp(now_utc)
+    if now.tzinfo is None:
+        now = now.tz_localize("UTC")
+    else:
+        now = now.tz_convert("UTC")
+    return (now - pd.to_datetime(data_ts, unit="ms", utc=True)) > pd.Timedelta(minutes=15)
 
 
 # ---------------------------------------------------------------------------
@@ -205,8 +219,7 @@ def solis_live_df(station_id: str = None,
     # an offline inverter, so make that visible instead of passing it off
     # as live data.
     data_ts = _num(detail.get("dataTimestamp"))
-    if data_ts and (pd.Timestamp.now(tz="UTC")
-                    - pd.to_datetime(data_ts, unit="ms", utc=True)) > pd.Timedelta(minutes=15):
+    if _is_stale(data_ts):
         print("WARNING: inverter data is STALE (last report "
               f"{pd.to_datetime(data_ts, unit='ms', utc=True)}); value is not live")
 
@@ -239,8 +252,7 @@ def poll_solis_live(interval_s: int = 300, **kwargs):
 # ---------------------------------------------------------------------------
 # History: daily 5-min curve of one inverter (/v1/api/inverterDay).
 # money is required by the endpoint but irrelevant for us; timeZone -3 = UTC-03.
-# pac and eToday arrive with per-record unit strings that can mix units
-# within one day, so every value is normalised via pacStr / eTodayStr.
+# Verified inverterDay units: pac is W, eToday is kWh, unit strings are empty.
 # ---------------------------------------------------------------------------
 def solis_day_df(inverter_sn: str, date: str,
                  station_id: str = None,
@@ -275,7 +287,7 @@ def solis_day_df(inverter_sn: str, date: str,
             row["ac_power_W"] = pac                 # inverterDay: W (verified)
         et = _num(rec.get("eToday"))
         if et is not None:
-            row["e_today_Wh"] = et * 1000.0         # inverterDay: kWh (verified)
+            row["e_today_Wh"] = round(et * 1000.0, 6)  # inverterDay: kWh (verified)
         for i in range(1, 5):
             u_v, u_c = _num(rec.get(f"uPv{i}")), _num(rec.get(f"iPv{i}"))
             if u_v is not None:
@@ -286,7 +298,7 @@ def solis_day_df(inverter_sn: str, date: str,
         terms = [row[f"dc_V_mppt{i}"] * row[f"dc_A_mppt{i}"]
                  for i in range(1, 5)
                  if f"dc_V_mppt{i}" in row and f"dc_A_mppt{i}" in row]
-        if terms:
+        if terms and any(term != 0.0 for term in terms):
             row["dc_power_W"] = sum(terms)
         rows.append(row)                            # <- bleibt die letzte Zeile der Schleife
     df = pd.DataFrame(rows).set_index("ts").sort_index()

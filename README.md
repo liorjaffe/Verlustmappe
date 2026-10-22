@@ -226,7 +226,8 @@ python3 src/verlustmappe/reporting/report_cli.py pvprelim   # no path needed
 | Regatron G5.BT | Enapter blueprint -> bridge, 20 Hz fast log | **running** (tools/regatron, loaders/regatron) |
 | EL 2.1 | Enapter cloud ~1 Hz + local Modbus TCP | loader + live layer ready; stack-current export still missing |
 | SMA PV | SunSpec/Enapter telemetry | loader ready, measured data integrated |
-| Solis S5-EO1P5K-48 | CAN/BMS built-in, datalogger optional | loader `loaders/solis.py` ready; waiting for the channel + first CSV |
+| Solis S6-GR1P6K (F8 PV, 2 units) | SolisCloud API (live + daily history) | loader `loaders/solis_live.py` live; measured E_AC counter verified 2026-10-22 |
+| Solis S5-EO1P5K-48 (FC-side) | CAN/BMS built-in, datalogger optional | loader `loaders/solis.py` ready; waiting for the channel + first CSV |
 
 `live_feed.py` consumes any of these once they are in pipeline columns and
 feeds a plotter at rolling-window cadence.

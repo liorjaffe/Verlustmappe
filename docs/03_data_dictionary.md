@@ -111,9 +111,32 @@ Profile fields: `eta_module`, `gamma_pmax` (1/K), `noct_C`, `bifacial_gain`, `p_
 `PVSystem.account(..., p_stc_W=None)` adds `p_stc_source` whenever `H_poa_kWh_m2` is given:
 "explicit p_stc_W argument" or "registry default (12740 W, F8 array) - override p_stc_W for other plants".
 
-SolisCloud: `loaders/solis_live.STATION_F8_A` / `STATION_F8_B` (SN ...0007 / ...0009, same
-station id, which is SHARED with F7, SN ...0011): filter per inverter SN (`f8_inverters()`,
-`f8_live_dfs()`); not the default.
+SolisCloud: `loaders/solis_live.STATION_F8_A` / `STATION_F8_B` (SN ...0007 / ...0009,
+station id 1298491919449567877, API-verified 2026-10-22; the metadata CSV rounds 17-digit ids
+and must not be used for station ids). Always filter per inverter SN (`f8_inverters()`,
+`f8_live_dfs()`); station-level calls mix all inverters.
+
+### SolisCloud live + history (`loaders/solis_live.py`)
+
+| Function | Returns | Notes |
+|---|---|---|
+| `solis_live_df` | Single-row UTC DataFrame, `ac_power_W` | Prints STALE WARNING when `dataTimestamp` is older than 15 min; the endpoint returns the LAST value for offline inverters, so a stale row is not live data. |
+| `solis_day_df(sn, date)` | 5-min day curve: `ac_power_W`, `e_today_Wh`, `dc_V_mppt1..4`, `dc_A_mppt1..4`, `dc_power_W` | `dc_power_W` is the sum of `uPv*iPv` channels. |
+| `f8_day_dfs(date)` / `f8_range_dfs(start, end)` | Curves for both F8 inverters | Each inverter is requested by serial number. |
+| `f8_day_balance(start, end)` | Per-day table: `e_ac_counter_kWh`, `e_dc_channel_kWh`, `eta_dc_ac` | E_AC is MEASURED from the `eToday` counter; E_DC is PRELIM from DC channels; `eta_dc_ac` is diagnostic only. |
+| `energy_kWh(series, dt_s=300)` | Integrated series energy in kWh | Uses the nominal sample interval. |
+
+Verified unit conventions: `inveterDetail` reports `pac` in kW and `eTotal` is
+assumed MWh (verify `eTotalStr` when the device reports again); `inverterDay`
+reports `pac` in W and `eToday` in kWh. Unit strings are EMPTY in inverterDay
+records, so fixed factors are used with no unit-string normalisation.
+
+E_DC from the `uPv`/`iPv` channels runs ~+3-4% above the `eToday` counter
+(verified 2026-09-10..15, both inverters). `eta` derived as
+`e_dc_channel/e_ac_counter` is NOT a valid efficiency; the F8 inverter
+efficiency stays DERIVED from the registry until an S6-GR1P6K datasheet or a
+dedicated measurement exists. `eToday` (counter) is the E_AC reference at the
+F8 boundary.
 
 ## Unit conventions
 NL = normal litre at 0 °C, 101 325 Pa (European convention; Enapter uses it, verified from

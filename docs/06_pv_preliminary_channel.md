@@ -88,7 +88,8 @@ The preliminary channel and the 184 kWp reference (`pvprelim`) stay as the paper
 | pv.p_dc_stc_W | None BACKLOG | 12 740 W | DATASHEET |
 | pv.module_model, pv.n_modules | new | BYD455MGEK-36 (MGK-36 proxy), 28 | DATASHEET |
 | pv.string_config | new | 2 x 7 per inverter | GUESS |
-| inv_pv.model, eta_pv_ac_peak, eta_manual_range | new | Solis S5-EO1P5K-48; 0.966; 0.93-0.95 | DATASHEET |
+| inv_pv.model | new | 2 x Solis S6-GR1P6K (API-verified 2026-10-22) | DATASHEET |
+| inv_pv.eta_pv_ac_peak, eta_manual_range | S5 values invalid at F8 PV boundary | BACKLOG pending the S6-GR1P6K datasheet | BACKLOG |
 
 Unchanged (still PRELIM/GUESS): `cable.*`, `pv.soiling_rel`, `pv.mismatch_rel`,
 `pv.shading_rel`, `pv.soi_uncertainty_rel`, `inv_pv.eta_euro`.
@@ -114,6 +115,5 @@ Pending decisions (not implemented):
 1. Island boundary: is F8 THE PV source for `island_rte`, or parallel to the big SMA array?
 2. POA source for the facade: PVGIS, Solis irradiance channel or a pyranometer?
 3. Bifacial vs monofacial from the module frame.
-4. F8 telemetry already flowing (measured mode via SolisCloud) or design stage only?
+4. RESOLVED 2026-10-22: F8 telemetry flows via SolisCloud (loaders/solis_live.py): live snapshots and 5-min daily history, both inverters, counter-verified. Measured-mode accounting: E_AC from the eToday counter (f8_day_balance.e_ac_counter_kWh); E_DC channels carry ~+3-4% bias, PRELIM.
 5. MGEK-36 datasheet request to BYD Energy do Brasil.
-

@@ -4,9 +4,13 @@
 Usage:
   python3 src/report_cli.py fc ../data/processed/fc_retro/fc_merged.csv
   python3 src/report_cli.py pv ../data/processed/pv_retro/pv_merged.csv
+  python3 src/report_cli.py pvprelim
+  python3 src/report_cli.py pvf8
+  python3 src/report_cli.py pvf8measured
 
 fc: steady segments ( Kennwerte ), purge events, polarization fit, energy
 pv: daily yields, inverter efficiency by load bin, inverter loss
+pvprelim/pvf8/pvf8measured: no input path required
 Outputs: CSV tables into results/tables/ and PNGs into results/plots/.
 """
 import sys, os
@@ -123,6 +127,51 @@ def pv_f8_report():
             "WARNING: POA placeholder not valid for east-vertical facade",
             "bars -> pv_f8_losses.csv, summary -> pv_f8_summary.csv"]
 
+def pv_f8_measured_report(start=None, end=None):
+    """Write measured F8 Solis counter/channel balances without hiding API failures."""
+    try:
+        from verlustmappe.loaders.solis_live import f8_day_balance, SolisCloudError
+    except ImportError:
+        return ["pvf8measured: skipped (no SolisCloud access: set SOLISCLOUD_KEY_ID/SOLISCLOUD_KEY_SECRET)"]
+
+    start = start or "2026-08-15"
+    end = end or "2026-09-15"
+    try:
+        b = f8_day_balance(start, end)
+    except SolisCloudError:
+        return ["pvf8measured: skipped (no SolisCloud access: set SOLISCLOUD_KEY_ID/SOLISCLOUD_KEY_SECRET)"]
+
+    detail_path = os.path.join(TBL, "pv_f8_measured.csv")
+    detail_columns = ["date", "sn", "e_ac_counter_kWh", "e_dc_channel_kWh", "eta_dc_ac"]
+    b.reindex(columns=detail_columns).to_csv(
+        detail_path, index=False)
+
+    full_production = b[b["e_ac_counter_kWh"] >= 5.0]
+    median_eta = full_production["eta_dc_ac"].median()
+    rows = []
+
+    def add_summary(metric, inverter, value, unit, status):
+        rows.append({"window": f"{start}..{end}", "metric": metric,
+                     "inverter": inverter, "value": value,
+                     "unit": unit, "status": status})
+
+    for sn, group in b.groupby("sn"):
+        add_summary("e_ac_counter_kWh", sn, group["e_ac_counter_kWh"].sum(),
+                    "kWh", "e_ac_counter_kWh: MEASURED")
+        add_summary("e_dc_channel_kWh", sn, group["e_dc_channel_kWh"].sum(),
+                    "kWh", "e_dc_channel_kWh: PRELIM (+3-4% bias vs counter, verified 2026-09-10..15)")
+    add_summary("plant_e_ac_counter_kWh", "plant",
+                b["e_ac_counter_kWh"].sum(), "kWh",
+                "e_ac_counter_kWh: MEASURED")
+    add_summary("full_production_days", "all", len(full_production),
+                "inverter-days", "e_ac_counter_kWh >= 5 kWh")
+    add_summary("median_eta_dc_ac_full_production", "all", median_eta,
+                "-", "eta_dc_ac: DIAGNOSTIC ONLY, not an efficiency")
+    pd.DataFrame(rows, columns=["window", "metric", "inverter", "value", "unit", "status"]).to_csv(
+        os.path.join(TBL, "pv_f8_measured_summary.csv"), index=False)
+    return [f"F8 measured Solis balance: {start}..{end}, {len(b)} inverter-day rows",
+            "tables -> pv_f8_measured.csv, pv_f8_measured_summary.csv"]
+
 def pv_report(path):
     df = pd.read_csv(path, index_col=0, parse_dates=True)
     cum = df["ac_energy_Wh_cum"].dropna()
@@ -215,8 +264,10 @@ if __name__ == "__main__":
         rows = pv_prelim_report()
     elif kind == "pvf8":
         rows = pv_f8_report()
+    elif kind == "pvf8measured":
+        rows = pv_f8_measured_report()
     elif path:
         rows = fc_report(path) if kind == "fc" else pv_report(path)
     else:
-        rows = ["usage: report_cli.py fc|pv|pvprelim|pvf8 <path> (pvprelim/pvf8 need no path)"]
+        rows = ["usage: report_cli.py fc|pv <path> | pvprelim|pvf8|pvf8measured (no path needed)"]
     print("\n".join("PASS  " + r for r in rows))

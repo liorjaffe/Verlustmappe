@@ -57,7 +57,7 @@ def main():
     assert abs(legacy["capture_ratio"] - 0.8) < 1e-12 and legacy["p_stc_source"] == "explicit p_stc_W argument"
     assert "F8 array" in res["p_stc_source"]
 
-    # review fix 2: F8 isolated per serial number; station shared with F7
+    # review fix 2: F8 isolated per serial number (station ids are distinct in the API; the CSV rounds them)
     try:
         from verlustmappe.loaders import solis_live as SL
     except ImportError:  # optional 'requests' dependency not installed
@@ -65,7 +65,10 @@ def main():
     if SL is not None:
         f8 = SL.f8_inverters()
         assert [e["inverter_sn"] for e in f8] == ["1802060225250007", "1802060225250009"]
-        assert SL.F7_INVERTER_SN not in [e["inverter_sn"] for e in f8]
+        assert SL.STATION_F8_A["inverter_sn"] == "1802060225250007"
+        assert SL.STATION_F8_B["inverter_sn"] == "1802060225250009"
+        assert SL.STATION_F8_A["station_id"] == SL.STATION_F8_B["station_id"] == SL.DEFAULT_STATION_ID == "1298491919449567877"
+        assert "f8_day_balance" in SL.__all__
 
     # regression guard: default profile = former PRELIM values, no F8 warning
     d = pv_account(H_poa_kWh_m2=160.0, A_array_m2=836.0)
