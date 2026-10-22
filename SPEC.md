@@ -2,9 +2,7 @@
 
 ## Purpose
 
-Verlustmappe estimates the energy losses and round-trip efficiency of the UFSC
-photovoltaic-to-hydrogen-to-fuel-cell island system. Its results must expose their
-source, uncertainty, and status rather than present assumptions as measurements.
+Verlustmappe estimates the energy losses and round-trip efficiency of the UFSC photovoltaic-to-hydrogen-to-fuel-cell island system. Its results must expose their source, uncertainty, and status rather than present assumptions as measurements.
 
 ## Scope and sources of truth
 
