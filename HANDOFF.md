@@ -34,7 +34,7 @@ starting work.
 
 ## Next step
 
-P02 is complete (implementation commit: `1f0a0e7`).
+P02 is complete (implementation commits: `1f0a0e7`, `7047101`).
 - P03: C9 registry-leak fix in tests, in an owner-approved tests commit.
 - P04: first upgrade `tools/ci_guard.py` to compare parsed registry entries
   (value, uncertainty, status); then perform D1-authorized text cleanup,
