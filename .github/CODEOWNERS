@@ -1,5 +1,7 @@
-# Human review required for protected model inputs, evidence, tests, and agent rules.
+# Human review required for protected paths. Must match "Protected paths" in AGENTS.md.
 /src/verlustmappe/registry.py @liorjaffe
+/SPEC.md @liorjaffe
+/ROADMAP.md @liorjaffe
 /tests/ @liorjaffe
 /SOURCES.md @liorjaffe
 /DECISIONS.md @liorjaffe
@@ -8,3 +10,5 @@
 /.github/ @liorjaffe
 /pyproject.toml @liorjaffe
 /conftest.py @liorjaffe
+/tools/ci_guard.py @liorjaffe
+/calibration/overlays/ @liorjaffe
