@@ -79,6 +79,14 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   so a pytest-style file without `main()` would pass silently. `ci.yml` calls run_all, not
   pytest. This is the factual basis for the open test-runner decision for the new tests
   (test_20 to test_26), recorded as D9 in DECISIONS.md.
+- **C13 - Stale SMA terminology.** [read: repo-wide grep at 7a81918]
+  The PV source of the storage chain is the F8 array with two Solis S6-GR1P6K inverters.
+  SMA references throughout the legacy docs, README, device docstrings/comments and one
+  test name describe the removed legacy building array (~184 kWp) or are plain leftovers.
+  No physics impact. Text-only fix: README and docs/06 in task P02; remaining src/ text
+  (pv_measured.py, pv_inverter.py, live_feed.py, loaders/grafana.py docstrings, registry
+  comments) in task P04 under the D2 text exception. AC8 treatment: none.
+  C13 is terminology-only and does not affect AC8 physics.
 
 ## AC8 treatment per defect (makes the SPEC exclusion rule operational)
 
@@ -96,6 +104,7 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
 | C10 README boundary | none for AC8; fixed by the README task |
 | C11 eta doc conflict | none for AC8 numerics; cleanup task under D1 |
 | C12 test architecture | none for AC8; decision D9 covers the new tests |
+| C13 SMA terminology | none: documentation only |
 
 ## Legacy-bar to ledger-item mapping (for AC8, Layer 1 = milestone M1)
 
