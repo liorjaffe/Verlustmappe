@@ -1,6 +1,6 @@
 # P02 - M0 documentation and hygiene
 
-**Status:** Open
+**Status:** Complete (implementation commits: `1f0a0e7`, `7047101`)
 **Reference:** ROADMAP.md, M0 (fulfils no AC directly).
 **Preconditions:** D2 (legacy freeze; README, docs, HANDOFF are outside the
 frozen code; docs/94 edit is a documentation addition), D7 (governance

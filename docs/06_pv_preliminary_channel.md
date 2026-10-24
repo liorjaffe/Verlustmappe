@@ -19,17 +19,19 @@ in the uncertainty register, replaced one-for-one later.
   coefficient of Pmax -0.29%/K, NOCT ~43 C, bifacial gain 10-20% (we take 5%
   conservative). We did NOT commit to Trina; these are class anchors.
 - Inverter: modern string inverters: peak 98-98.5%, Euro efficiency 97-98%
-  (Deye SUN-18/20K: 98.0% Euro / 98.5% peak; SMA core class similar). MPPT
+  (Deye SUN-18/20K: 98.0% Euro / 98.5% peak, as a market anchor). F8 uses
+  Solis S6-GR1P6K inverters; no legacy-array telemetry is used as F8 efficiency
+  evidence. MPPT
   efficiency >99%. Euro efficiency weights partial load (3% at 5% load, 48%
   at 50%, 20% at 100%) - the right single number for energy accounting.
 - Cables: DC 1-2%, AC 0.5-1% for short well-sized runs. DISTANCES UNKNOWN ->
   these bars stay PRELIM with +-50% until the real layout exists.
-- Site losses: soiling 1-4% (coastal, rains regularly -> low end), mismatch
+- Site losses: soiling 1-4% (coastal, rains regularly -> low end), module variation
   0.5-2%, shading site-specific (UNKNOWN, placeholder 2%).
 
 ## The loss chain (standard PV decomposition, IEC 61724 / PVsyst family)
 
-    POA irradiation -> soiling/mismatch/shading -> DC at cell temperature
+    POA irradiation -> soiling/module variation/shading -> DC at cell temperature
     -> DC cable -> inverter (Euro eta) -> AC cable -> AC to the bus
 
 Cell temperature: T_cell = T_amb + (NOCT-20)/800 * G (Sandia/NOCT model).
@@ -60,17 +62,20 @@ AC ~26.5 MWh/month, capture ratio 0.93.
 | pv.shading_rel | shading study / layout | DERIVED |
 | pv.p_dc_stc_W (was BACKLOG) | real array size | DATASHEET |
 
-The measured SMA telemetry channel (devices/pv_measured.py) stays as is: when it
-exists, DC and AC are measured and the bars for soiling/mismatch/shading/
+The measured telemetry channel for the removed legacy building array (~184 kWp;
+outside the F8 boundary; devices/pv_measured.py) stays as is: when that legacy
+data exists, DC and AC are measured and the bars for soiling/module variation/shading/
 temperature become the only modelled items - exactly as the loss map treats
-them today.
+them today. It is not telemetry from the F8 storage-chain PV source.
 
 ## What the preliminary channel must NOT be used for
 
 - Any absolute yield claim for the plant (the reference irradiation is a
   placeholder, not a site measurement).
-- Any comparison with the measured SMA telemetry (5.19 MWh over 22 days is
-  the measured truth; the preliminary channel is a design aid until then).
+- Any comparison with telemetry from the removed legacy building array
+  (~184 kWp; outside the F8 boundary; 5.19 MWh over 22 days). Those values
+  belong to that legacy array, not to the storage-chain PV source; the
+  preliminary channel is a design aid until F8 data is used.
 
 ## F8 integration 2026-10-21 (BYD 28 x 455 Wp = 12.74 kWp)
 
@@ -91,8 +96,8 @@ The preliminary channel and the 184 kWp reference (`pvprelim`) stay as the paper
 | inv_pv.model | new | 2 x Solis S6-GR1P6K (API-verified 2026-10-22) | DATASHEET |
 | inv_pv.eta_pv_ac_peak, eta_manual_range | S5 values invalid at F8 PV boundary | BACKLOG pending the S6-GR1P6K datasheet | BACKLOG |
 
-Unchanged (still PRELIM/GUESS): `cable.*`, `pv.soiling_rel`, `pv.mismatch_rel`,
-`pv.shading_rel`, `pv.soi_uncertainty_rel`, `inv_pv.eta_euro`.
+Unchanged (still PRELIM/GUESS): `cable.*`, `pv.soiling_rel`, module-variation
+loss, `pv.shading_rel`, `pv.soi_uncertainty_rel`, `inv_pv.eta_euro`.
 The former PRELIM module values remain reproducible as profile `reference_184kWp`.
 
 Discrepancies kept, not resolved:
@@ -106,13 +111,13 @@ Discrepancies kept, not resolved:
 6. Bifacial hint in the nameplate OCR vs monofacial MGK series: open, registry carries the caveat.
 
 `pv_prelim_losses.csv` was regenerated with the profile refactor; the previously committed CSV
-was stale (missing bifacial bar, parallel instead of sequential mismatch/shading). Values now
+was stale (missing bifacial bar, parallel instead of sequential module-variation/shading). Values now
 match the code; the reference totals are unchanged. Monofacial profiles (F8) emit no bifacial bar.
 
 Warning: the POA placeholder (160 kWh/m2/month) is NOT valid for an east-vertical facade.
 
 Pending decisions (not implemented):
-1. Island boundary: is F8 THE PV source for `island_rte`, or parallel to the big SMA array?
+1. DECIDED (SPEC.md): F8 is THE PV source for `island_rte`; the removed legacy building array is outside the storage-chain boundary.
 2. POA source for the facade: PVGIS, Solis irradiance channel or a pyranometer?
 3. Bifacial vs monofacial from the module frame.
 4. RESOLVED 2026-10-22: F8 telemetry flows via SolisCloud (loaders/solis_live.py): live snapshots and 5-min daily history, both inverters, counter-verified. Measured-mode accounting: E_AC from the eToday counter (f8_day_balance.e_ac_counter_kWh); E_DC channels carry ~+3-4% bias, PRELIM.
