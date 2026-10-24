@@ -226,7 +226,7 @@ No PV modules, inverter, cables or distances are chosen yet. The pipeline
 therefore has a PRELIM channel (`devices/pv_prelim_channel.py`, registry status
 PRELIM): typical-market values anchored on 2025/26 datasheet ranges (TOPCon
 modules ~22% efficiency, -0.29%/K; string inverter ~98% Euro efficiency;
-DC cable 1%, AC 0.5%; site losses soiling/mismatch/shading as placeholders).
+DC cable 1%, AC 0.5%; site losses soiling/module variation/shading as placeholders).
 It computes the same loss bars the real system will have, with every bar
 labelled PRELIM, and it must never be used for absolute yield claims.
 Details and the replacement table: `docs/06_pv_preliminary_channel.md`.

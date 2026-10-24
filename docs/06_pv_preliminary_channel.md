@@ -26,12 +26,12 @@ in the uncertainty register, replaced one-for-one later.
   at 50%, 20% at 100%) - the right single number for energy accounting.
 - Cables: DC 1-2%, AC 0.5-1% for short well-sized runs. DISTANCES UNKNOWN ->
   these bars stay PRELIM with +-50% until the real layout exists.
-- Site losses: soiling 1-4% (coastal, rains regularly -> low end), mismatch
+- Site losses: soiling 1-4% (coastal, rains regularly -> low end), module variation
   0.5-2%, shading site-specific (UNKNOWN, placeholder 2%).
 
 ## The loss chain (standard PV decomposition, IEC 61724 / PVsyst family)
 
-    POA irradiation -> soiling/mismatch/shading -> DC at cell temperature
+    POA irradiation -> soiling/module variation/shading -> DC at cell temperature
     -> DC cable -> inverter (Euro eta) -> AC cable -> AC to the bus
 
 Cell temperature: T_cell = T_amb + (NOCT-20)/800 * G (Sandia/NOCT model).
@@ -64,7 +64,7 @@ AC ~26.5 MWh/month, capture ratio 0.93.
 
 The measured telemetry channel for the removed legacy building array (~184 kWp;
 outside the F8 boundary; devices/pv_measured.py) stays as is: when that legacy
-data exists, DC and AC are measured and the bars for soiling/mismatch/shading/
+data exists, DC and AC are measured and the bars for soiling/module variation/shading/
 temperature become the only modelled items - exactly as the loss map treats
 them today. It is not telemetry from the F8 storage-chain PV source.
 
@@ -96,8 +96,8 @@ The preliminary channel and the 184 kWp reference (`pvprelim`) stay as the paper
 | inv_pv.model | new | 2 x Solis S6-GR1P6K (API-verified 2026-10-22) | DATASHEET |
 | inv_pv.eta_pv_ac_peak, eta_manual_range | S5 values invalid at F8 PV boundary | BACKLOG pending the S6-GR1P6K datasheet | BACKLOG |
 
-Unchanged (still PRELIM/GUESS): `cable.*`, `pv.soiling_rel`, `pv.mismatch_rel`,
-`pv.shading_rel`, `pv.soi_uncertainty_rel`, `inv_pv.eta_euro`.
+Unchanged (still PRELIM/GUESS): `cable.*`, `pv.soiling_rel`, module-variation
+loss, `pv.shading_rel`, `pv.soi_uncertainty_rel`, `inv_pv.eta_euro`.
 The former PRELIM module values remain reproducible as profile `reference_184kWp`.
 
 Discrepancies kept, not resolved:
@@ -111,7 +111,7 @@ Discrepancies kept, not resolved:
 6. Bifacial hint in the nameplate OCR vs monofacial MGK series: open, registry carries the caveat.
 
 `pv_prelim_losses.csv` was regenerated with the profile refactor; the previously committed CSV
-was stale (missing bifacial bar, parallel instead of sequential mismatch/shading). Values now
+was stale (missing bifacial bar, parallel instead of sequential module-variation/shading). Values now
 match the code; the reference totals are unchanged. Monofacial profiles (F8) emit no bifacial bar.
 
 Warning: the POA placeholder (160 kWh/m2/month) is NOT valid for an east-vertical facade.
