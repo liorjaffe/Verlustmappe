@@ -7,7 +7,7 @@ from verlustmappe.hydrogen import (h2_from_stack_current, h2_from_tank_pressure,
 from verlustmappe.hydrogen.z_realgas import z_h2
 from verlustmappe.devices import Tank
 
-def main():
+def _body():
     # Z table checkpoints (NIST/Leachman EOS)
     assert abs(z_h2(350.0, 20.0) - 1.227) < 0.002   # CoolProp/Leachman check point (at 20 C)
     assert abs(z_h2(200.0, 20.0) - 1.125) < 0.002   # CoolProp/Leachman check point
@@ -72,5 +72,12 @@ def main():
     assert c2["uncertainty_rel"] >= c2["weighted_uncertainty_rel"]
     print("PASS 02 hydrogen routes: Z table, Faraday, tank-pV, water, closure(+max), "
           "nameplate bound, fill-integral work, Bovo anchor")
+
+def main():
+    _orig = R.REGISTRY["stor.volume_L"]["value"]
+    try:
+        _body()
+    finally:
+        R.REGISTRY["stor.volume_L"]["value"] = _orig
 
 if __name__ == "__main__": main()
