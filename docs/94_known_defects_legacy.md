@@ -1,11 +1,13 @@
 # Known defects of the frozen legacy state
 
 Baseline: commit d060c9b, tagged `legacy-1.0` (unmodified legacy, tests ALL PASS).
-These defects are documented here; inside the frozen legacy they are NOT fixed, with TWO
-exceptions, each requiring its own owner-approved commit: C11 (text-only cleanup under D1)
-and C9 (registry-leak fix in a protected tests commit). This file is the intended-deviations
-list referenced by SPEC.md (AC8) and must be read before any work on legacy code (AGENTS.md).
-New-core tests must cover the relevant invariants independently.
+These entries describe the defects of the tagged baseline. The tag remains unchanged.
+D2 freezes src/ model behavior; C11 text-only cleanup under D1 remains planned.
+C9 is fixed in the P03 working version by a separate, owner-reviewed tests-only change
+under AGENTS.md rule 4, not by an exception to D2. See its entry for acceptance.
+This file is the intended-deviations list referenced by SPEC.md (AC8) and must be read
+before any work on legacy code (AGENTS.md). New-core tests must cover the relevant
+invariants independently.
 
 The status labels emitted by `balance/d_loss_map.py` (NAMEPLATE, ENVELOPE, NOT OBSERVED) are
 part of the pending vocabulary decision in DECISIONS.md (D5).
@@ -54,12 +56,16 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   pv.* (46 keys, 8 of them pv.*) with independent draws; compressor eta is drawn
   symmetric-normal instead of log-normal; the result field is named `ci` where it is a
   sensitivity band, not a confidence interval.
-- **C9 – Registry leak in tests.** [read]
-  `tests/test_02_hydrogen_routes.py` and `tests/test_03_full_chain.py` set `stor.volume_L`
-  to 1000 without resetting it. Harmless under `run_all.py` (separate processes), a real
-  leak under pytest. Fixing this requires an owner-approved tests commit (fixture /
-  try-finally), because `tests/` is protected. EXCEPTION to the freeze: this is one of the
-  two defects with a planned fix (see header).
+- **C9 - Registry leak in tests.** [read: baseline; executed: P03 acceptance]
+  At the tagged baseline, `tests/test_02_hydrogen_routes.py` and
+  `tests/test_03_full_chain.py` set `stor.volume_L` to 1000 without restoring it.
+  Separate-process execution in `run_all.py` hides the leak; calling main functions
+  in one process exposes it. Fixed in P03: the original bodies are renamed `_body`
+  without edits; `main()` restores the entry value in a finally block, also on failure.
+  Tests are outside D2's src/ freeze but protected by AGENTS.md rule 4: use a dedicated
+  tests-only commit with owner approval. Acceptance is in
+  `tasks/P03_c9_registry_leak_fix.md` (both modules, normal and exceptional paths).
+  The tagged baseline and C4 remain unchanged.
 - **C10 – README boundary.** [read]
   The PV system boundary is missing (F8 is the storage-chain PV source); the SMA dataset
   (5.19 MWh / 22 days) is presented as "genuinely measured" without a boundary note;
@@ -100,7 +106,7 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
 | C6 Route-2 guard | none: affects Route 2, not the Layer 1 map |
 | C7 temperature terms | none: affects Route 2 |
 | C8 Monte-Carlo scope | none: affects the uncertainty layer |
-| C9 registry leak | none for AC8; open fix, owner-approved tests commit required |
+| C9 registry leak | none for AC8; fixed in P03; tagged baseline unchanged |
 | C10 README boundary | none for AC8; fixed by the README task |
 | C11 eta doc conflict | none for AC8 numerics; cleanup task under D1 |
 | C12 test architecture | none for AC8; decision D9 covers the new tests |
