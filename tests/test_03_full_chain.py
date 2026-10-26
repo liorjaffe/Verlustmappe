@@ -5,7 +5,7 @@ from verlustmappe import registry as R
 from verlustmappe.balance.d_loss_map import loss_map
 from verlustmappe.uncertainty import loss_map_band
 
-def main():
+def _body():
     R.REGISTRY["stor.volume_L"]["value"] = 1000.0
     n = 361
     idx = pd.date_range("2026-01-01", periods=n, freq="60s")
@@ -73,5 +73,12 @@ def main():
              out["h2_closure"]["max_spread_independent"]*100))
     for b in out["bars"]:
         print("      %-18s %7.3f kWh  [%s]" % (b["stage"], b["kWh"], b["status"]))
+
+def main():
+    _orig = R.REGISTRY["stor.volume_L"]["value"]
+    try:
+        _body()
+    finally:
+        R.REGISTRY["stor.volume_L"]["value"] = _orig
 
 if __name__ == "__main__": main()
