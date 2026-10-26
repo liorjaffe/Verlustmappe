@@ -1,6 +1,6 @@
 # P03 - Restore the tank-volume override in two legacy tests
 
-**Status:** In review; local owner acceptance and merge are pending.
+**Status:** Complete (tests commit `1afd616`, docs commit `b705ae3`, merge `8bd06ef`; owner acceptance executed locally on the branch before merge)
 **Reference:** ROADMAP.md, M0; docs/94_known_defects_legacy.md, C9;
 AGENTS.md, rules 4 and 6.
 **Patch base:** `d3a16bab51875d0d77f274d835958f01d23cde72`.

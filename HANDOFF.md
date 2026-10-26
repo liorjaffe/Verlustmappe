@@ -34,11 +34,15 @@ starting work.
 
 ## Next step
 
-P02 is complete (implementation commits: `1f0a0e7`, `7047101`).
-- P03: C9 registry-leak fix in tests, in an owner-approved tests commit.
-- P04: first upgrade `tools/ci_guard.py` to compare parsed registry entries
-  (value, uncertainty, status); then perform D1-authorized text cleanup,
-  including the remaining `src/` SMA wording, and add the SOURCES stage-1 entry.
+- P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
+- P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
+  Both tests restore `stor.volume_L` in a finally wrapper; owner acceptance
+  (same-process leak check, both-modules failure path) executed before merge.
+- Next: P02b (`tasks/P02b_docs_evidence_attribution.md`), then P04 (first
+  upgrade `tools/ci_guard.py` to compare parsed registry entries, then the
+  D1-authorized text cleanup incl. remaining `src/` SMA wording, and the
+  SOURCES stage-1 entry).
+  
 
 Later:
 - D9 (a)-(d) in one commit together with the first new test file
