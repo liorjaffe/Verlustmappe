@@ -12,7 +12,8 @@ live in `docs/` and the SPEC; this file only points to them.
   `python3 tools/make_readme_demo.py --check`
   - Locally set `BASE_REF=origin/main`, otherwise ci_guard silently skips all diff-based
     guards (registry-to-SOURCES, test-file protection).
-- `pytest -q` is mandatory as soon as pytest-style tests (test_20 onward) exist (D9).
+- `pytest -q` is mandatory; pytest-style tests start at test_30 (test_20-26 are reserved
+  by the SPEC). `tests/run_all.py` runs only the legacy scripts test_01 to test_12 (D9).
 - Known CI limits, stated honestly:
   - ci_guard does NOT detect weakened tolerances or removed assertions.
   - The legacy freeze is NOT machine-checked today: no guard rejects a change to a frozen
