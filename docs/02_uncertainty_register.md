@@ -11,6 +11,8 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 |---|---|---|---|---|---|---|
 | BACKLOG | `bat.capacity_Ah` | 100 | Ah | 0.05 | PLACEHOLDER - enter the real battery capacity | SoC bookkeeping route for the battery branch |
 | BACKLOG | `stor.temp_sensor_planned` | multi-point (top + bottom) PT100 class A or type-K, surface + gas-well; papers recommend bottom-pipe region as closest to mean gas temp (Nexo study: T3) and top/bottom pair for stratification (de Miguel IJHE 2015) | - | 0.0 | see handbook card C and docs/05_tank_thermal_sensing.md | Route 2 temperature input; replaces the ambient-T assumption |
+| BACKLOG | `inv_pv.eta_pv_ac_peak` | 0.966 | - | 0.0 | S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter | not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data |
+| BACKLOG | `inv_pv.eta_manual_range` | 0.93-0.95 | - | 0.0 | S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter | not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data |
 | BACKLOG | `cable.distance_pv_inverter_m` | None | m | 0.0 | UNKNOWN - to be measured once layout exists | drives cable losses |
 | BACKLOG | `cable.distance_inverter_EL_m` | None | m | 0.0 | UNKNOWN - to be measured once layout exists | drives cable losses |
 | GUESS | `dry.vent_fraction` | 0.04 | fraction of throughput | 0.5 | ASSUMPTION: TSA/PSA regeneration vents the cartridge hold-up; unmeasured | gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual |
@@ -22,6 +24,7 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | GUESS | `fc.n_cells` | 120 | - | 0.05 | ASSUMPTION (IE-LIFT stack spec not public); CONFIRM | reverse-Faraday route |
 | GUESS | `el.faradaic_efficiency` | 0.98 | - | 0.03 | ASSUMPTION: PEM literature current efficiency >96% (Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792). CAVEAT: the paper is PEM; our device is AEM with 35 bar output pressure, where crossover raises faradaic losses; 0.98 is carried as an extrapolation and must be validated from the stack-current route | Faraday route H2 mass; blind to shunt current and crossover |
 | GUESS | `fc.faradaic_efficiency` | 1.0 | - | 0.02 | ASSUMPTION: all stack current from H2 oxidation (no crossover) | reverse-Faraday route |
+| GUESS | `water.filter_train_power_W` | 0.0 | W | 0.0 | ASSUMPTION: Popular Filtros cartridge train is purely hydraulic; BUT a pump control panel (bomba) was photographed in the water path - verify on site | pre-treatment energy bar; NOT 0 if the pump feeds the RO |
 | GUESS | `pv.string_config` | 2 strings x 7 modules per inverter (assumed; verify at the DC junction boxes) | - | 0.0 | ASSUMPTION from array design 2026-10-21 | string design checks only (Voc cold, Vmp window) |
 | PRELIM | `pv.shading_rel` | 0.02 | - | 0.8 | PRELIMINARY: shading/snow/edge 0-5%, site-specific, UNKNOWN until layout exists | shading bar |
 | PRELIM | `pv.soi_uncertainty_rel` | 0.03 | - | 0.5 | PRELIMINARY: irradiance-sensor uncertainty on capture-ratio (thermopile/pyranometer class) | capture-ratio bar once a pyranometer exists |
@@ -30,20 +33,24 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | PRELIM | `cable.ac_loss_rel` | 0.005 | - | 0.5 | PRELIMINARY: typical AC-side loss 0.5-1% for short runs | AC cable bar |
 | PRELIM | `pv.soiling_rel` | 0.02 | - | 0.5 | PRELIMINARY: typical soiling 1-4% (rainy coastal climate, no cleaning contract); Florianopolis is coastal+rains, low end plausible | soiling bar |
 | PRELIM | `pv.mismatch_rel` | 0.01 | - | 0.5 | PRELIMINARY: module mismatch 0.5-2% | mismatch bar |
-| PRELIM | `inv_pv.eta_euro` | 0.98 | - | 0.01 | PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). SMA 22-day cross-check 0.9719 belongs to the ALT building array, not the F8 boundary (Rev D, section 16); F8 cross-checks must come from Solis data (`f8_day_balance`) | PV DC->AC conversion bar |
+| PRELIM | `inv_pv.eta_euro` | 0.98 | - | 0.01 | PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). MEASURED cross-check from own 22-day SMA telemetry: 0.9719 energy-weighted. SMA 22-day cross-check 0.9719 belongs to the ALT building array, not the F8 boundary (Rev D, section 16); F8 cross-checks must come from Solis data (f8_day_balance) | PV DC->AC conversion bar |
 | PRELIM | `inv_pv.eta_peak` | 0.985 | - | 0.005 | PRELIMINARY: typical max efficiency 98-98.5% | peak reference only, NOT for energy accounting |
 | PRELIM | `inv_pv.mppt_efficiency` | 0.995 | - | 0.005 | PRELIMINARY: typical MPPT efficiency >99% | folded into conversion bar unless measured separately |
 | DERIVED | `el.startup_duration_s` | 990 | s | 0.15 | UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s | operating-mode partition: startup window length |
 | DERIVED | `bat.nominal_V` | 52 | V | 0.02 | Regatron README (tested): FCM-802 regulates the bus to 52 V; 48 V is only the factory default. CONFLICTS with the earlier 48 V assumption - CONFIRM at the plant | battery SoC energy conversion; P=V*I bookkeeping |
 | DERIVED | `inv_fc.eta` | 0.94 | - | 0.02 | DERIVED: midpoint of the instruction-manual range (93-95%) as the battery->AC discharge efficiency; the datasheet 96.6% refers to the PV-AC path which we do NOT use for the FC discharge. MEASURE on the installed unit | FC DC->AC conversion bar (discharge side) |
+| DERIVED | `water.spec_water_L_per_NL_stoich` | 0.0008037 | L/NL | 0.001 | DERIVED from M_H2O/M_H2 x molar volume (18.015/2.016/22.414); cross-check for the datasheet value | stoichiometric water demand per NL H2 (route4_water.py ratio) |
 | DERIVED | `meas.p_sensor_fso_bar` | 2.0 | bar | 0.0 | 0.5% FSO x 400 bar (IEC 61298-2), derived from range and accuracy | absolute pressure error per reading |
 | DERIVED | `meas.p_sensor_thermal_bar_per_10K` | 0.8 | bar/10K | 0.0 | 0.2% FSO / 10 K x 400 bar, derived | pressure error during fast fills (not yet in the Route 2 budget) |
 | DERIVED | `fc.poc_max_duration_s` | 12 | s | 0.0 | FCM802_Test research plan / user manual | POC event window |
+| DATASHEET | `water.ro_power_standby_W` | 3.0 | W | 0.33 | BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load | water-system energy bar, standby share |
 | DATASHEET | `stor.steel_mass_kg` | 1430 | kg | 0.2 | nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature | thermal mass of the tank in the GS fit |
 | DATASHEET | `el.water_consumption_mLh` | 400 | mL/h | 0.1 | Enapter EL 2.1 datasheet | Route 4 (water balance) expectation |
+| DATASHEET | `water.spec_water_L_per_NL` | 0.0008037 | L/NL | 0.1 | EL 2.1 datasheet '~400 mL/h' at 500 NL/h nominal, rounded to 0.4 L/h; exact value = stoichiometric minimum 9.0 g H2O / g H2 (same ratio as hydrogen/route4_water.py: 0.4019 L/h at 500 NL/h) | scales the water demand with the ACTUAL H2 production (part load) |
 | DATASHEET | `pv.degradation_per_year` | 0.0071 | 1/year | 0.1 | BYD MGK-36 datasheet Rev.06 linear power warranty -0.71 %/yr. Superseded PRELIM: 0.004 | multi-year studies only |
 | DATASHEET | `el.power_standby_W` | 15 | W | 0.05 | Enapter EL 2.1 datasheet | standby loss bar in the loss map |
 | DATASHEET | `dry.power_standby_W` | 10 | W | 0.05 | DRY 2.1 datasheet | standby loss |
+| DATASHEET | `water.ro_perm_Lh` | 120.0 | L/h | 0.05 | BWT bestaqua 14ROC COFFEE EBA sec. 2.2 (2 L/min at 15 C) | RO production capacity; sets RO duty for the EL water demand |
 | DATASHEET | `fc.h2_consumption_g_per_kWh` | 70 | g/kWh | 0.05 | IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life | nameplate H2 route. NOTE: it is an UPPER BOUND on consumption, hence a LOWER BOUND on efficiency (42.9% LHV), and makes FC efficiency a constant by construction. Load dependence needs the stack-current route. |
 | DATASHEET | `fc.control_input_W_max` | 150 | W | 0.05 | IE-LIFT 802 nameplate 'Rated Input 150 W max' | auxiliary/control energy on discharge; nameplate MAX, so an upper envelope |
 | DATASHEET | `pv.noct_C` | 45 | degC | 0.05 | BYD MGK-36 datasheet Rev.06: 45 +-2 degC. Superseded PRELIM: 43 | cell temperature model: T_cell = T_amb + (NOCT-20)/800 * G |
@@ -53,6 +60,7 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | DATASHEET | `el.production_rate_NLh` | 500 | NL/h | 0.02 | Enapter EL 2.1 datasheet (ELE21-DTS-COM02) | nominal H2 output; cross-check for Faraday route |
 | DATASHEET | `el.power_operative_W` | 2400 | W | 0.02 | Enapter EL 2.1 datasheet | nominal AC input; steady-state expectation |
 | DATASHEET | `dry.power_operative_W` | 200 | W | 0.02 | DRY 2.1 datasheet | dryer electrical loss bar; NOTE datasheet also states 0.045 kWh/Nm3 at 2.5 Nm3/h = 112 W average, so 200 W is an UPPER envelope |
+| DATASHEET | `water.ro_power_op_W` | 200.0 | W | 0.02 | 14ROC COFFEE nameplate 'Leistung 200 W' + EBA sec. 2 | water-system energy bar, production share |
 | DATASHEET | `pv.module_efficiency_STC` | 0.209 | - | 0.01 | BYD MGK-36 datasheet Rev.06 (2024), 455 W class; Inmetro 006667/2021 class A 20.90 %. Superseded PRELIM: 0.220 (typical TOPCon) | nominal DC power per m2 of array |
 | DATASHEET | `inv_fc.eta_peak_pv_ac` | 0.966 | - | 0.01 | Solis datasheet: peak efficiency PV-AC path (MPPT + inverter) | PV-AC peak reference; NOT the battery-discharge path |
 | DATASHEET | `stor.volume_L` | 800 | L | 0.005 | VITKOVICE cylinder nameplate (photo 20261001_083001): water volume 800 L. Status DATASHEET, not MEASURED: a nameplate is a manufacturer claim per this project's own status definitions. Hydrostatic or geometric confirmation still open | Route 2 (tank pV) mass scales linearly with this |
@@ -60,6 +68,7 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | DATASHEET | `el.output_pressure_barg` | 35 | barg | 0.0 | Enapter EL 2.1 datasheet | compressor inlet pressure |
 | DATASHEET | `dry.rate_Nm3h` | 2.5 | Nm3/h | 0.0 | DRY 2.1 datasheet (35 bar version) | capacity check |
 | DATASHEET | `dry.max_h2_content_NL` | 47 | NL | 0.0 | DRY 2.1 datasheet (safety: max H2 in device) | upper bound of H2 lost per regeneration blow-down |
+| DATASHEET | `water.wcf` | 0.5 | - | 0.0 | BWT EBA sec. 2.2: Water Conversion Factor, factory setting approx. 50% | raw feed = permeate / WCF; concentrate = feed - permeate |
 | DATASHEET | `comp.pressure_ratio` | 60 | - | 0.0 | Maximator DLE 30-2 TDS | stall pressure check |
 | DATASHEET | `comp.stroke_volume_cm3` | 120 | cm3/double stroke | 0.0 | Maximator DLE 30-2 TDS | flow capacity check |
 | DATASHEET | `comp.max_cycles_per_min` | 100 | 1/min | 0.0 | Maximator DLE 30-2 TDS | flow capacity check |
@@ -81,9 +90,7 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | DATASHEET | `pv.n_modules` | 28 | - | 0.0 | user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm | array power = n_modules x 455 Wp |
 | DATASHEET | `pv.p_dc_stc_W` | 12740 | W | 0.0 | 28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None | capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the legacy ~184 kWp SMA array) |
 | DATASHEET | `pv.bifacial_gain_frac` | 0.0 | - | 0.0 | MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05 | DC energy bonus; 0 while monofacial (pending confirmation) |
-| DATASHEET | `inv_pv.model` | 2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009) | - | 0.0 | SolisCloud API `inveterList` 2026-10-22 (`inverterSeries` S6-GR1P(2.5-6)K, `machine` S6-GR1P6K); metadata CSV model code 0206 | identifies the F8 inverters |
-| BACKLOG | `inv_pv.eta_pv_ac_peak` | 0.966 | - | 0.0 | S6-GR1P6K datasheet pending; registered value belongs to the S5-EO1P5K-48 FC-side inverter and must not be used for F8 PV | not valid for the F8 PV inverter |
-| BACKLOG | `inv_pv.eta_manual_range` | 0.93-0.95 | - | 0.0 | S6-GR1P6K datasheet pending; registered range belongs to the S5-EO1P5K-48 FC-side inverter and must not be used for F8 PV | not valid for the F8 PV inverter |
+| DATASHEET | `inv_pv.model` | 2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009) | - | 0.0 | SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206 | identifies the F8 inverters |
 | DATASHEET | `inv_fc.model` | Solis S5-EO1P5K-48 off-grid, 230 V, pure sine, CAN/BMS comm | - | 0.0 | Solis datasheet + nameplate photo (S/N 2051010224220020) | the real FC-side inverter |
 | DATASHEET | `inv_fc.nominal_power_W` | 5000 | W | 0.0 | Solis datasheet: rated output 5 kVA / 5 kW (+-1%) | matches the 2x 2.5 kW FC bank; load-bin normalisation |
 | DATASHEET | `inv_fc.battery_V_range` | 40-60 | V | 0.0 | Solis datasheet + nameplate (battery voltage range) | bus compatibility: FCM-regulated 52 V bus sits inside |
@@ -103,8 +110,8 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 1. Facade POA placeholder (dominant). The reference POA (160 kWh/m2/month) assumes near-optimal tilt; an east-vertical facade is morning-weighted with lower annual yield. Needs PVGIS, the Solis irradiance channel or a pyranometer.
 2. East-vertical shading (`pv.shading_rel`, PRELIM): unknown until the layout is surveyed.
 3. Soiling (`pv.soiling_rel`, PRELIM): vertical facade soils less than a tilted array; unmeasured.
-4. Solis PV-AC efficiency: S6-GR1P6K datasheet pending. The registered 0.966 / 0.93-0.95 values belong to the FC-side S5-EO1P5K-48 and are BACKLOG at the F8 PV boundary; `inv_pv.eta_euro` remains PRELIM.
-4b. F8 station id 1298491919449567877 and serial numbers are API-verified (2026-10-22); the metadata CSV rounds 17-digit ids. Per-inverter-SN filtering remains mandatory because station-level calls mix inverters.
+4. Solis PV-AC efficiency: 0.966 datasheet peak vs 0.93-0.95 manual, no Euro efficiency published (`inv_pv.eta_pv_ac_peak`, `inv_pv.eta_manual_range`; `inv_pv.eta_euro` is still PRELIM).
+4b. F8 station id 1298491919449568000 also hosts F7 (SN ...0011); per-inverter-SN filtering is mandatory before the measured channel goes live.
 5. String layout (`pv.string_config`, GUESS): 2 x 7 per inverter assumed; verify at the junction boxes.
 6. Imp discrepancy: nameplate 10.50 A vs MGK-36 datasheet 10.90 A (does not affect RTE, matters for fusing).
 7. Bifacial status (`pv.bifacial_gain_frac` = 0): 'MGEK' suffix on the nameplate vs monofacial MGK series.
