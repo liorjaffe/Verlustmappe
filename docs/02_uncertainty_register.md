@@ -6,9 +6,17 @@ All assumptions in the model, sorted from weakest to strongest. Generated from
 Status: BACKLOG = placeholder, MUST be replaced. GUESS = assumption bounded only by literature/physics.
 PRELIM = typical-market value, real hardware not yet chosen. DERIVED = computed from
 other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
+OWNER_DECISION = project decision by the owner. DATASHEET_SECONDARY = secondary source with a known conflict.
+REJECTED = legacy-only, device basis wrong; never an input of the new core (DECISIONS D11).
 
 | Status | Key | Value | Unit | Rel. unc. | Source | What it drives |
 |---|---|---|---|---|---|---|
+| REJECTED | `comp.overall_efficiency` | 0.03 | - | 0.4 | Bovo IJHE 48 (2023) part 1, Tab. 3: 56.36 / 100.2 kWh compression for 33.22 Nm3 (full / half load), 10-bar booster inlet, fill-integral ideal work -> overall 1.9-4.3%; decision 2026-10-21: 0.03 +-40%. Our Kaeser+Maximator chain may differ. MEASURE it. | compression loss bar; MUST be replaced by Kaeser energy measurement |
+| REJECTED | `comp.specific_energy_kWh_per_Nm3` | 2.3 | kWh/Nm3 | 0.4 | Bovo IJHE 2023 Tab. 3: 60.28/56.36/100.2 kWh per 33.22 Nm3 -> 1.81/1.70/3.02; midpoint of full/half power. Cross-check only; the model uses comp.overall_efficiency | pressure-independent sanity check of the compression bar |
+| REJECTED | `comp.pressure_ratio` | 60 | - | 0.0 | Maximator DLE 30-2 TDS | stall pressure check |
+| REJECTED | `comp.stroke_volume_cm3` | 120 | cm3/double stroke | 0.0 | Maximator DLE 30-2 TDS | flow capacity check |
+| REJECTED | `comp.max_cycles_per_min` | 100 | 1/min | 0.0 | Maximator DLE 30-2 TDS | flow capacity check |
+| REJECTED | `comp.min_suction_bar` | 20 | bar | 0.0 | Maximator DLE 30-2 TDS | storage lower pressure limit |
 | BACKLOG | `bat.capacity_Ah` | 100 | Ah | 0.05 | PLACEHOLDER - enter the real battery capacity | SoC bookkeeping route for the battery branch |
 | BACKLOG | `stor.temp_sensor_planned` | multi-point (top + bottom) PT100 class A or type-K, surface + gas-well; papers recommend bottom-pipe region as closest to mean gas temp (Nexo study: T3) and top/bottom pair for stratification (de Miguel IJHE 2015) | - | 0.0 | see handbook card C and docs/05_tank_thermal_sensing.md | Route 2 temperature input; replaces the ambient-T assumption |
 | BACKLOG | `inv_pv.eta_pv_ac_peak` | 0.966 | - | 0.0 | S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter | not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data |
@@ -18,8 +26,6 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | GUESS | `dry.vent_fraction` | 0.04 | fraction of throughput | 0.5 | ASSUMPTION: TSA/PSA regeneration vents the cartridge hold-up; unmeasured | gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual |
 | GUESS | `inv_fc.standby_W` | 20 | W | 0.5 | ASSUMPTION: datasheet/manual do not publish idle consumption; 20-50 W typical for 48 V off-grid class | FC inverter standby bar |
 | GUESS | `meas.power_rel_unc` | 0.02 | - | 0.5 | ASSUMPTION: device-reported power (Enapter/SMA telemetry), no independent power analyser yet | floor of every efficiency's uncertainty |
-| GUESS | `comp.overall_efficiency` | 0.03 | - | 0.4 | Bovo IJHE 48 (2023) part 1, Tab. 3: 56.36 / 100.2 kWh compression for 33.22 Nm3 (full / half load), 10-bar booster inlet, fill-integral ideal work -> overall 1.9-4.3%; decision 2026-10-21: 0.03 +-40%. Our Kaeser+Maximator chain may differ. MEASURE it. | compression loss bar; MUST be replaced by Kaeser energy measurement |
-| GUESS | `comp.specific_energy_kWh_per_Nm3` | 2.3 | kWh/Nm3 | 0.4 | Bovo IJHE 2023 Tab. 3: 60.28/56.36/100.2 kWh per 33.22 Nm3 -> 1.81/1.70/3.02; midpoint of full/half power. Cross-check only; the model uses comp.overall_efficiency | pressure-independent sanity check of the compression bar |
 | GUESS | `el.n_cells` | 120 | - | 0.05 | ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public) | Faraday route scales linearly with this number |
 | GUESS | `fc.n_cells` | 120 | - | 0.05 | ASSUMPTION (IE-LIFT stack spec not public); CONFIRM | reverse-Faraday route |
 | GUESS | `el.faradaic_efficiency` | 0.98 | - | 0.03 | ASSUMPTION: PEM literature current efficiency >96% (Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792). CAVEAT: the paper is PEM; our device is AEM with 35 bar output pressure, where crossover raises faradaic losses; 0.98 is carried as an extrapolation and must be validated from the stack-current route | Faraday route H2 mass; blind to shunt current and crossover |
@@ -43,6 +49,9 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | DERIVED | `meas.p_sensor_fso_bar` | 2.0 | bar | 0.0 | 0.5% FSO x 400 bar (IEC 61298-2), derived from range and accuracy | absolute pressure error per reading |
 | DERIVED | `meas.p_sensor_thermal_bar_per_10K` | 0.8 | bar/10K | 0.0 | 0.2% FSO / 10 K x 400 bar, derived | pressure error during fast fills (not yet in the Route 2 budget) |
 | DERIVED | `fc.poc_max_duration_s` | 12 | s | 0.0 | FCM802_Test research plan / user manual | POC event window |
+| OWNER_DECISION | `sys.n_rotex` | 4 | - | 0.0 | owner decision 2026-10-27, SOURCES.md | none yet |
+| OWNER_DECISION | `sys.p_h2_out_project_barg` | 300 | barg | 0.0 | owner decision 2026-10-27 (D12), SOURCES.md | none yet |
+| DATASHEET_SECONDARY | `kaeser.p_package_dealer_kw` | 6.2 | kW | 0.0 | dealer listing, conflicting pressure basis, SOURCES.md | none yet; uncertainty NOT assessed (owner to set) |
 | DATASHEET | `water.ro_power_standby_W` | 3.0 | W | 0.33 | BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load | water-system energy bar, standby share |
 | DATASHEET | `stor.steel_mass_kg` | 1430 | kg | 0.2 | nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature | thermal mass of the tank in the GS fit |
 | DATASHEET | `el.water_consumption_mLh` | 400 | mL/h | 0.1 | Enapter EL 2.1 datasheet | Route 4 (water balance) expectation |
@@ -69,10 +78,25 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 | DATASHEET | `dry.rate_Nm3h` | 2.5 | Nm3/h | 0.0 | DRY 2.1 datasheet (35 bar version) | capacity check |
 | DATASHEET | `dry.max_h2_content_NL` | 47 | NL | 0.0 | DRY 2.1 datasheet (safety: max H2 in device) | upper bound of H2 lost per regeneration blow-down |
 | DATASHEET | `water.wcf` | 0.5 | - | 0.0 | BWT EBA sec. 2.2: Water Conversion Factor, factory setting approx. 50% | raw feed = permeate / WCF; concentrate = feed - permeate |
-| DATASHEET | `comp.pressure_ratio` | 60 | - | 0.0 | Maximator DLE 30-2 TDS | stall pressure check |
-| DATASHEET | `comp.stroke_volume_cm3` | 120 | cm3/double stroke | 0.0 | Maximator DLE 30-2 TDS | flow capacity check |
-| DATASHEET | `comp.max_cycles_per_min` | 100 | 1/min | 0.0 | Maximator DLE 30-2 TDS | flow capacity check |
-| DATASHEET | `comp.min_suction_bar` | 20 | bar | 0.0 | Maximator DLE 30-2 TDS | storage lower pressure limit |
+| DATASHEET | `sys.p_h2_out_nameplate_barg` | 400 | barg | 0.0 | HULC system nameplate, SOURCES.md | none yet |
+| DATASHEET | `sys.p_h2_in_barg` | 35 | barg | 0.0 | HydroHulc TDS p.2, SOURCES.md | none yet |
+| DATASHEET | `hulc.mod.q_h2_max_nm3h` | 5 | Nm3/h | 0.0 | HydroHulc TDS p.2 ('up to'), SOURCES.md | none yet |
+| DATASHEET | `hulc.m140.limits` | 140 | barg | 0.0 | HydroHulc TDS p.2, SOURCES.md | none yet |
+| DATASHEET | `hulc.m400.limits` | 400 | barg | 0.0 | HydroHulc TDS p.2, SOURCES.md | none yet |
+| DATASHEET | `hulc.pl_max_barg` | 10 | barg | 0.0 | Maximator catalog, upper end of range 1-10, SOURCES.md | none yet |
+| DATASHEET | `hulc.s1.i` | 15 | - | 0.0 | DLE 15 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s1.v_disp_cm3` | 244 | cm3 | 0.0 | DLE 15 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s1.f_max_min` | 120 | 1/min | 0.0 | DLE 15 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s1.pa_min_barg` | 7 | barg | 0.0 | DLE 15 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s1.pb_max_barg` | 300 | barg | 0.0 | DLE 15 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s2.i` | 30 | - | 0.0 | DLE 30 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s2.v_disp_cm3` | 120 | cm3 | 0.0 | DLE 30 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s2.f_max_min` | 120 | 1/min | 0.0 | DLE 30 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s2.pa_min_barg` | 15 | barg | 0.0 | DLE 30 base type, SOURCES.md | none yet |
+| DATASHEET | `hulc.s2.pb_max_barg` | 600 | barg | 0.0 | DLE 30 base type, SOURCES.md | none yet |
+| DATASHEET | `kaeser.p_rated_nameplate_kw` | 5.85 | kW | 0.0 | Kaeser SXC 8 nameplate 5.5 + 0.35 kW (sum, assignment open), SOURCES.md | none yet |
+| DATASHEET | `kaeser.ps_barg` | 11 | barg | 0.0 | Kaeser SXC 8 nameplate, SOURCES.md | none yet |
+| DATASHEET | `kaeser.q_fad_m3min` | 0.67 | m3/min FAD | 0.0 | Kaeser brochure P-651/26D, 10 bar working pressure, SOURCES.md | none yet |
 | DATASHEET | `stor.type` | 2 bundles x 16 x 50 L steel cylinders (Type I equivalent); sensors on bundle 1 | - | 0.0 | nameplate + visual inspection | thermal behaviour: steel = high wall conductivity, less gas stratification than Type III/IV (de Miguel IJHE 2015) |
 | DATASHEET | `stor.p_max_barg` | 300 | barg | 0.0 | VITKOVICE nameplate: maximum allowable pressure PS 300 bar at 65 C; safety valve 330 bar | range check; working pressure set by the process (see stor.p_work_barg) |
 | DATASHEET | `stor.p_work_barg` | 200 | barg | 0.0 | installer H2 Core Systems: stored at 200 bar (UFSC paper confirms operation at 200 bar, DoD 80% analogon) | working upper pressure for cycles |
@@ -99,7 +123,7 @@ other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.
 
 ## The five weakest numbers and how to fix each
 
-1. `comp.overall_efficiency` (GUESS +-40%). Energy meter on the Kaeser air compressor during booster runs.
+1. `comp.overall_efficiency` (REJECTED, legacy-only, wrong device basis). The Kaeser air-compressor energy needs a meter (SIGMA CONTROL 2 kWh counter) during booster runs; no registry value replaces it until measured.
 2. `dry.vent_fraction` (GUESS +-50%). Bound with a long charge window: Faraday - tank-pV - known leaks.
 3. `el.n_cells` / `fc.n_cells` (GUESS). Ask the manufacturers; Faraday routes scale linearly with them.
 4. `meas.p_sensor_fso_bar` (DERIVED from the 0-400 bar range). Confirm the delivered DCT 541 label; the Route-2 pressure term scales linearly with it.
