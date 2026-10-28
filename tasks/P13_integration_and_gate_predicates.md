@@ -1,6 +1,6 @@
 # P13 - integration function (D24) and gate predicates (D25/D31) (DRAFT)
 
-**Status:** Owner decisions recorded; hand references next (own commit), then code and test_38.
+**Status:** Hand references merged (PR #17). Code written (this PR, commit 1); test_38 awaits owner approval (commit 2, own commit, rule 4). Draft: session folder `files/draft_tests/test_38_integration_gates.py`, 19 tests pass.
 **Reference:** ROADMAP M1, D24, D25, D31, SPEC "Data integration and validity", AGENTS rules 1, 4, 8.
 **Patch base:** `main` after PR #15.
 
@@ -87,3 +87,15 @@ conflicting values; zero coverage; the two constants (factor 3, 30 s) as pinned 
 ## Acceptance
 `run_all`, `pytest -q`, `BASE_REF=origin/main ci_guard`, `make_readme_demo --check` green after
 the last edit; final report in the rule 9 format.
+
+## Implementation notes
+- `models/integration.py` mirrors the branch order of `p13_hand_calc.py` (monotonicity over finite
+  timestamps before the value drop); stdlib only. Result `Integral` is a frozen dataclass with the
+  same six keys in every branch.
+- Addition not in the owner decisions: `nominal_dt_s` that is not finite or not > 0 raises
+  ValueError (caller error; a zero or NaN nominal interval would silently make the gap limit the
+  30 s constant). Reported for review.
+- `models/validity.py`: `check_nonnegative` three-way contract (False for negative, ValueError for
+  non-finite or non-number, bool excluded) and `time_is_monotonic` (agrees with the integrator).
+- test_38 asserts the error messages, includes a seeded parity run (300 series) against the
+  independent reference procedure, and mutation checks (strict gap boundary, factor 3) fail it.
