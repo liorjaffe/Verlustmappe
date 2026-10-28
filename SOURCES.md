@@ -73,7 +73,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `400` barg (workbook unit "bar", gauge assumed, P-2)
 - **Source:** HULC system nameplate photos [S1]
 - **Location:** workbook Master row 6
-- **Verbatim quote:** BACKLOG (nameplate text: "HULC Compressor system for compression of hydrogen from 35bar to 400bar")
+- **Verbatim quote:** "HULC Compressor system for compression of hydrogen from 35bar to 400bar" (nameplate field "Benennung/ Designation"; original spelling without space before "bar"; owner transcription 2026-10-28 from two photos, identical)
 - **Source conditions:** system nameplate, not a storage fill permission
 - **Transferability:** same plant
 - **Registry status and uncertainty:** DATASHEET (nameplate), 0.0
@@ -84,7 +84,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `35` barg
 - **Source:** HydroHulc TDS [S5] and owner statement [S26]
 - **Location:** TDS p.2; workbook Master row 7
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** TDS `HydroHulc_TDS_0012_9A-2` p.2, table row "Inlet pressure", column "Hulc 140": "<=35 bar"; nameplate: "from 35bar to 400bar" (owner transcription 2026-10-28)
 - **Source conditions:** dryer DRY 2.1 output up to 35 barg; equal to the Hulc 140 inlet limit (workbook statement)
 - **Transferability:** same plant; gauge convention assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -95,7 +95,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `5` Nm3/h (= 83.3 NL/min)
 - **Source:** HydroHulc TDS [S5]
 - **Location:** TDS p.2 module table; workbook Master row 75
-- **Verbatim quote:** BACKLOG (workbook text: "up to 5 Nm3/h")
+- **Verbatim quote:** TDS p.2 table row "Mass flow H2": "up to 5 Nm³/h" (identical in all four columns); body text: "This configuration will provide a gas outlet flow of 5Nm³/h Hydrogen per hour." (owner transcription 2026-10-28)
 - **Source conditions:** "up to"; conditions not stated
 - **Transferability:** same product, conditions open; maximum, not an operating point
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -106,7 +106,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `140` barg (outlet limit only; inlet limit is `sys.p_h2_in_barg`)
 - **Source:** HydroHulc TDS [S5]
 - **Location:** TDS p.2; workbook Master row 77
-- **Verbatim quote:** BACKLOG (workbook text: "up to 140 bar / <=35 bar")
+- **Verbatim quote:** TDS p.2, column "Hulc 140": row "Pressure class" "up to 140 bar"; row "Inlet pressure" "<=35 bar" (columns are positional in the extracted table; owner transcription 2026-10-28)
 - **Source conditions:** module limit
 - **Transferability:** same product; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -117,7 +117,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `400` barg (outlet limit only)
 - **Source:** HydroHulc TDS [S5]
 - **Location:** TDS p.2; workbook Master row 78
-- **Verbatim quote:** BACKLOG (workbook text: "up to 400 bar / <=140 bar")
+- **Verbatim quote:** TDS p.2, column "Hulc 400": row "Pressure class" "up to 400 bar"; row "Inlet pressure" "<=140 bar" (columns are positional in the extracted table; owner transcription 2026-10-28)
 - **Source conditions:** module limit
 - **Transferability:** same product; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
