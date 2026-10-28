@@ -128,9 +128,9 @@ of the affected keys changes by decision.
 - **Value and unit:** `10` barg (upper end of "1 - 10 bar", a range, not a setpoint)
 - **Source:** Maximator gas boosters catalog [S7]
 - **Location:** workbook Master row 108; catalog pages per Sources sheet (p.7-8, 16-19, 28-29)
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog p.16 (also p.18, "DLE...-2" section), list item above the base-type table: "Suitable for air drive pressures (pL) from 1 to 10 bar (14.5 to 145 psi)"; DLE 15 datasheet DB 01.02.02.02 p.1: "Air drive pressure pL: 1-10 bar / 14,5 - 145psi"; DLE 30 datasheet DB-01.02.02.26 p.1: "Air drive pressure pL: 1 - 10 bar / 14.5 - 145 psi" (owner transcription 2026-10-28)
 - **Source conditions:** drive air pressure range
-- **Transferability:** catalog value of the base type; gauge assumed (P-2); lower end (1 bar) not registered
+- **Transferability:** catalog value of the base type; gauge assumed (P-2); lower end (1 bar) not registered. Type-related permitted range, not a setpoint: DLE manual Tab. 3-4 leaves "Drive pressure pL" empty with footnote "a. Dependent on the gas booster design. Refer to the general drawing provided or rating plate."
 - **Registry status and uncertainty:** DATASHEET, 0.0
 - **Used by:** none yet
 - **Reviewer/date:** owner, pending
