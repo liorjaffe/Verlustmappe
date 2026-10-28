@@ -50,7 +50,7 @@ starting work.
 - Workbook hash `0aa9f8ed...` should replace the original in "Master RTE sheets".
 - README note about the rejected assumption is not added (generated block); decide where.
 - ci_guard registry false alarm (registry change without tests change) not reproduced
-  with the P05 diff; P04 upgrade still planned.
+  with the P05 diff; P04 (branch task/p04-ci-guard) upgrades ci_guard to parsed entries, pending merge.
 - Test guard for `comp.*` is a weak text scan until `models/params.py` exists.
 
 ## Next step
@@ -59,7 +59,7 @@ starting work.
   (pytest test extra in pyproject.toml, explicit legacy list plus stray-file guard in
   run_all.py) are done there.
 - Then, in this order: P04 (ci_guard parsed entries, C11/C13 src text cleanup, DECISIONS
-  D16, one PR), then the extended P02b task (attribution docs/01-04, docs/94, README legacy
+  D16/D17/D18, one PR; executed, awaiting merge), then the extended P02b task (attribution docs/01-04, docs/94, README legacy
   note, docs/04 markers, make_register items 4/4b with regenerated docs/02 and an extended
   D11 exception, stale texts), then the Z-value check (docs/04, README FAQ), then the gates
   into DECISIONS before M1.

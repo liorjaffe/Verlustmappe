@@ -22,7 +22,7 @@ class LivePipeline:
       Solis (Inverter 2, FC side): cloud/datalogger export via loaders/solis.load_solis
       Solis (Inverter 1, F8 PV side): LIVE via loaders/solis_live.poll_solis_live /
                   history via f8_range_dfs + f8_day_balance (E_AC from the eToday counter)
-      SMA PV    : SunSpec export via loaders/grafana (PV_MAP)
+      legacy PV: SunSpec export via loaders/grafana (PV_MAP)
     """
 
     def __init__(self, dt_s=1.0, window_s=600):

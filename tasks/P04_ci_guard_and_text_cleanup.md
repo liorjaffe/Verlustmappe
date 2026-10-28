@@ -1,6 +1,6 @@
 # P04 - ci_guard compares parsed registry entries; C11/C13 text cleanup
 
-**Status:** Open
+**Status:** Complete (pending review)
 **Reference:** DECISIONS D16 and D17 (2026-10-28; D17 = registry fully SMA-free), D1 text cleanup re-authorized; ROADMAP M0;
 docs/94 C11 and C13; AGENTS.md "Known CI limits".
 **Patch base:** `main` after PR #2 (`fe90a9f`).

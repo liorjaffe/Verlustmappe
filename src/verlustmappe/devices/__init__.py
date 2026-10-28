@@ -4,7 +4,7 @@ Read the filenames top to bottom and you are reading the energy path of the
 island system. The deep explanation (what is measured vs assumed, which
 formula, which uncertainty) lives in each file's docstring.
 
-    pv_measured.py         PV array, DC side (SMA SunSpec telemetry)      measured
+    pv_measured.py         PV array, DC side (legacy array telemetry)        measured
     pv_prelim_channel.py   preliminary PV loss channel ("vorerst")        PRELIM
     pv_inverter.py         PV-side inverter, PV DC -> AC bus              measured / PRELIM
     electrolyzer.py        electrolyser unit (Enapter EL 2.1 + PSU)       AC -> H2

@@ -217,3 +217,12 @@ D10 stays reserved for the battery conflict (HANDOFF).
   no SMA text. NOT part of this decision: deleting `test_08b`, `pv_retro`, `results/pv_*`
   (frozen legacy regression, D2, rule 4); they fall with the legacy teardown in M6.
   Text-only, no behavior change; executed in P04.
+
+- **D18 - C11 remainder: booster.py docstring and warning text. Status: DECIDED (owner, 2026-10-28).**
+  The `devices/booster.py` module docstring drops the paragraph arguing 0.014 from
+  "78.4 + 4.6 kWh" and the eta_CSU = 54.5 % remark; it states instead that the registered
+  value is REJECTED (D11, wrong device basis DLE 30-2) and is used ONLY so the frozen
+  legacy-1.0 chain reproduces; see docs/94 C11. The real-gas note stays unchanged. The
+  warning string becomes "compression energy = ideal work / REJECTED legacy efficiency
+  (D11); meter the Kaeser (D14)". Text-only, no behavior change; covered by the D2 text
+  exception. Executed in task P04, same PR as D16/D17.
