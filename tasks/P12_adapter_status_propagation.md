@@ -1,6 +1,6 @@
 # P12 - status ranking, u class and weakest-wins in the new core (DRAFT)
 
-**Status:** Draft for owner review; nothing implemented yet.
+**Status:** Code written (commit 1); test_37 awaits owner approval (commit 2, own commit, rule 4). Draft: session folder `files/draft_tests/test_37_status_propagation.py`, 9 tests pass.
 **Reference:** ROADMAP M1 ("evidence status per bar"), D26 (b)/(c), D28 (adapter propagates
 status, weakest-wins), SPEC AC1/AC7, AGENTS Legacy freeze.
 **Patch base:** `main` after PR #12.
@@ -52,12 +52,25 @@ Legacy modules (incl. `reporting/make_register.py`), `registry.py`, existing tes
 3. **`weakest(statuses)`**: returns the weakest evidence status of a list.
 4. `get_param` stays the only registry reader; blocked statuses as before (D28).
 
-## Questions for the owner (shortened version)
-1. OWNER_DECISION is not in the evidence ranking. Proposal: `weakest` skips it (a decision is
-   no evidence); it counts as `exact` in the u class. Alternative: error.
-2. Proposal: copy the u-class rule plus parity test. Alternative: move the rule into `models/`
-   and let the register import it (edits legacy, own task).
-3. Unknown status string: ValueError, no silent default (rule 8).
+## Owner decisions (2026-10-28)
+1. OWNER_DECISION is skipped by `weakest` (D26: weakest-wins within evidence_status only; it is
+   a registry source status). If no evidence status remains (empty list or only OWNER_DECISION),
+   `weakest` raises ValueError referencing D26: no default; a purely owner-based result is
+   classified by a DECISIONS entry, not by code. In the u class it stays `exact` (D26(b)(i)).
+2. The u-class rule is copied into `models/status.py`, parity with `make_register.u_class` is
+   pinned in test_37. Consolidation to one implementation is a candidate for the M6 teardown.
+3. Unknown status strings raise ValueError (value named, pointer to DECISIONS) in `weakest` and
+   `u_class`. REJECTED/SUPERSEDED reaching `weakest` is a program error (the adapter blocks
+   them) and raises the same way. `u_class` is total over the registry incl. REJECTED/SUPERSEDED
+   (D26(c) classifies all numeric entries; the register column does too), so it is one truth
+   for register and core. Correction by the owner: the block belongs to `weakest`/adapter.
+
+## Notes
+- The registry spells the sixth evidence level "PRELIM"; D26 writes "PRELIM/ENVELOPE". The code
+  ranks "PRELIM" and accepts "PRELIM/ENVELOPE" as an alias (no registry change). A bare
+  "ENVELOPE" is not accepted and raises ValueError; if it ever appears, a DECISIONS entry
+  decides, not the code.
+- `Param.u_class` is computed in `get_param`; blocked entries still raise before.
 
 ## Tests (draft, expected values from the D26 text, not from the model)
 Ranking order pinned; weakest of mixed lists (DATASHEET + GUESS gives GUESS, with BACKLOG gives
