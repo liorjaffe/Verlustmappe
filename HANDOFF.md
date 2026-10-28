@@ -58,9 +58,11 @@ starting work.
 - Follow-up after P05 (`chore/p05-followup`): stale texts and the D9(a)/(c) remainder
   (pytest test extra in pyproject.toml, explicit legacy list plus stray-file guard in
   run_all.py) are done there.
-- Then, in this order: P04 (ci_guard compares parsed registry entries), owner decision on
-  the 0.014 comment block and SMA wording in registry.py (a registry.py edit, needs
-  DECISIONS and P04 first), then P02b (attribution in docs/01-04, docs/94, README note).
+- Then, in this order: P04 (ci_guard parsed entries, C11/C13 src text cleanup, DECISIONS
+  D16, one PR), then the extended P02b task (attribution docs/01-04, docs/94, README legacy
+  note, docs/04 markers, make_register items 4/4b with regenerated docs/02 and an extended
+  D11 exception, stale texts), then the Z-value check (docs/04, README FAQ), then the gates
+  into DECISIONS before M1.
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
