@@ -77,7 +77,13 @@ starting work.
   Open: Z source (C25) before z_realgas can be ported.
 - docs/94 candidates (own task, pattern of P07): booster.account() docstring vs behavior;
   isothermal_work_kWh without active consumer.
-- Next: P12 ledger and gates (u class weakest-wins in the adapter), Z source clarification.
+- M1 split (tasks/P12): P12 status ranking/u_class/weakest; P13 integration (D24) + gate
+  predicates (D25/D31); P14 ledger, balances, ParamSet, test_20; P15 netting/RTE; P16 fault
+  injection. Dependencies: real-gas items wait for the Z source (C25); compression-air items
+  are BACKLOG until the Kaeser measurement (E3); D22 measurement point is carried as a
+  documented assumption, not a blocker. Hand references go into the task that introduces the
+  function. Test count now: pytest 77 passed.
+- Next: P12 (draft awaits owner answers), Z source clarification.
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
