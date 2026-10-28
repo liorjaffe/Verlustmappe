@@ -1,4 +1,4 @@
-"""LAYER 3 - physical plausibility bounds, independent of vendor numbers. DRAFT.
+"""LAYER 3 - physical plausibility bounds, independent of vendor numbers.
 
 These can FAIL for a physically impossible dataset even when every number was
 transcribed correctly. They encode inequalities (2nd law, eta_vol <= 1,

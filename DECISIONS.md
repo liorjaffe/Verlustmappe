@@ -188,4 +188,16 @@ D10 stays reserved for the battery conflict (HANDOFF).
 - **Tests.** The first new test file is `test_30` instead of the planned `test_20`,
   because the SPEC reserves test_20–26 for AC1–AC8. New suites are pytest style; D9 (a)–(d)
   land in the same owner commit. The workbook is a hash-pinned fixture; editing it
-  triggers the full re-review. The manual mutation check is not named `test_*`.
+  triggers the full re-review. The manual mutation check is not named `test_*`.- **D16 – ci_guard upgrade and C11/C13 text cleanup. Status: DECIDED (owner, 2026-10-28).**
+  The D1 authorization for the registry text cleanup lapsed with D11; it is re-authorized
+  here under D11. (a) `tools/ci_guard.py` compares parsed registry entries (key, value,
+  unit, uncertainty, status) instead of file text, removing the false alarm for text-only
+  registry edits. (b) The superseded comment block arguing 0.014 from "78.4 + 4.6 kWh" is
+  DELETED (the value is REJECTED per D11; history lives in D11 and docs/94). (c) The
+  remaining src/ SMA wording (registry comment `inv_pv.eta_euro`, `pv_measured.py`,
+  `pv_inverter.py`, `live_feed.py`, `loaders/grafana.py`) is aligned with the P02b
+  attribution wording. Text-only, no behavior change. Execution in task P04, one PR
+  containing the ci_guard change and the registry text change together, so the upgraded
+  guard applies within the same diff. The hard-coded items 4 and 4b in `make_register.py`
+  ("weakest numbers" text) are NOT part of D16; they belong to the extended P02b task and
+  need their own extension of the D11 exception.

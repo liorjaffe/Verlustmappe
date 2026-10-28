@@ -17,8 +17,8 @@ starting work.
   `docs/94_known_defects_legacy.md` (C1-C12), `.github/CODEOWNERS` extended to
   all 13 protected paths, matching AGENTS.md.
 
-- P05 (branch `feat/p05-compressor-xlsx-v2`, not merged): D11-D15, 22 SOURCES entries
-  (quotes BACKLOG), registry `comp.*` REJECTED + 22 workbook entries, `make_register.py`
+- P05 is complete (PR #1, merge `3ceb62e`): D11-D15, 22 SOURCES entries
+  (20 with verbatim quotes), registry `comp.*` REJECTED + 22 workbook entries, `make_register.py`
   (D11 exception), docs/01 note, tests `test_30`-`test_34` (pytest), D9 (a)-(d).
   `python3 tests/run_all.py` covers test_01-12 only; `pytest -q` covers test_30+.
 
@@ -55,7 +55,14 @@ starting work.
 
 ## Next step
 
-- P05: owner review and merge; then P02b, then P04.
+- Follow-up after P05 (`chore/p05-followup`): stale texts and the D9(a)/(c) remainder
+  (pytest test extra in pyproject.toml, explicit legacy list plus stray-file guard in
+  run_all.py) are done there.
+- Then, in this order: P04 (ci_guard parsed entries, C11/C13 src text cleanup, DECISIONS
+  D16, one PR), then the extended P02b task (attribution docs/01-04, docs/94, README legacy
+  note, docs/04 markers, make_register items 4/4b with regenerated docs/02 and an extended
+  D11 exception, stale texts), then the Z-value check (docs/04, README FAQ), then the gates
+  into DECISIONS before M1.
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
