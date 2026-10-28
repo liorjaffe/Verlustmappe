@@ -88,7 +88,8 @@ starting work.
 - P13 draft (tasks/P13): integration D24 + sign/time predicates; findings: docs/03 lacks nominal
   intervals and the mandatory-channel list, registry has no REQUIRED flag, Route-2 has no new-core
   consumer. Open owner questions in the task file.
-- Next: P13 (hand references first), Z source clarification.
+- P13 runs as three PRs (task draft #16 merged; hand references; code + test_38), one task.
+- Next: P13 hand references, code, test_38; docs task for nominal cadence per source; Z source clarification.
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
