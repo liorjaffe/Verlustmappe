@@ -8,6 +8,7 @@ readable: the status is passed on (D26), computation is never blocked by u = 0.0
 from dataclasses import dataclass
 
 from .. import registry as _registry
+from .status import u_class as _u_class
 
 BLOCKED_STATUSES = ("REJECTED", "SUPERSEDED")
 
@@ -23,6 +24,7 @@ class Param:
     unit: str
     status: str
     uncertainty: float
+    u_class: str
 
 
 def get_param(key):
@@ -32,5 +34,6 @@ def get_param(key):
     if e["status"] in BLOCKED_STATUSES:
         raise BlockedParameterError(f"{key} is {e['status']} and must not feed the new core")
     return Param(key=key, value=e["value"], unit=e["unit"], status=e["status"],
-                 uncertainty=e["uncertainty"])
+                 uncertainty=e["uncertainty"],
+                 u_class=_u_class(key, e["status"], e["uncertainty"]))
 
