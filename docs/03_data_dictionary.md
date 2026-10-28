@@ -34,7 +34,7 @@ carry `-03:00` (Brazil); the loader converts to UTC.
 | `stack_p_bar`, `outlet_p_bar` | bar | H2 Stack / Outlet Pressure | |
 | `el_T_C`, `down_T_C` | °C | Electrolyte Tank / Downstream Temperature | |
 
-## PV (SMA Sunny Tripower CORE2 via SunSpec/Enapter blueprint)
+## PV (legacy building array mapping, kept for reference, outside the F8 boundary; SunSpec/Enapter blueprint)
 | Column | Unit | Raw name | Meaning |
 |---|---|---|---|
 | `dc_power_W`, `dc_V`, `dc_A` | W, V, A | DC Power/Voltage/Current | array side (SunSpec model 103, both MPPTs summed) |

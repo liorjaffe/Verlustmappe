@@ -226,3 +226,12 @@ D10 stays reserved for the battery conflict (HANDOFF).
   warning string becomes "compression energy = ideal work / REJECTED legacy efficiency
   (D11); meter the Kaeser (D14)". Text-only, no behavior change; covered by the D2 text
   exception. Executed in task P04, same PR as D16/D17.
+
+- **D19 - make_register.py weakest-numbers list, items 4 and 4b. Status: DECIDED (owner, 2026-10-28).**
+  The D11 text exception for `reporting/make_register.py` (ORDER and the "weakest number 1"
+  line) is extended by the two further hard-coded lines of the "weakest numbers" section:
+  item 4 (Solis PV-AC 0.966 datasheet vs 0.93-0.95 manual, no Euro efficiency published,
+  D6 open) and item 4b (the F8 station id must be the API-verified value from the SolisCloud
+  export; the digits are verified against that export before committing). No other
+  generator text is touched. docs/02 is regenerated in the same commit and the diff is
+  reviewed. Text-only. Executed in task P02b.

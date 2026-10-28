@@ -97,7 +97,7 @@ The direction matters: lower Faradaic efficiency means MORE hydrogen consumed pe
 **What.** Minimum work to move gas from p₁ to p₂ and the electrical energy it cost.
 **Formula.** $$W_{ideal} = nRT\ln(p_2/p_1)$$ (isothermal, reversible). $$E_{el} = W_{ideal}/\eta_{overall}$$.
 **Source.** Cengel & Boles, *Thermodynamics*, ch. 7.
-**Assumptions.** The booster is AIR-driven; the electricity is consumed by the air compressor (Kaeser). `comp.overall_efficiency` GUESS 0.014 ± 30%.
+**Assumptions.** The booster is AIR-driven; the electricity is consumed by the air compressor (Kaeser). `comp.overall_efficiency` GUESS 0.014 ± 30% (superseded, see status note).
 **Status note (2026-10-27, DECISIONS D11).** `comp.overall_efficiency` and the other `comp.*` keys are REJECTED (wrong device basis, DLE 30-2): legacy-only, never an input of the new core. The value 0.014 above is superseded. The installed system is HULC with DLE15-H2 + DLE 30-H2; its air demand is open (DECISIONS D13).
 **Anchor (2026-10, verified against the full text).** Bovo, Poli, Trovò, Marini, Guarnieri, IJHE 48 (2023) part 1, DOI 10.1016/j.ijhydene.2022.11.346, Tab. 3: compression 78.4 kWh + auxiliaries 4.6 kWh for 33.22 Nm³, tank 40→200 bar. Correct fill-integral ideal work: 1.0–1.3 kWh (suction 40 vs 35 bar) → overall 1.2–1.6%. The earlier "56–100 kWh consumed" reading mixed up the purifier energy (the number never appears in the paper); the intermediate 2.4% used the single-shot ideal work, which overstates a fill. The paper's eta_CSU = 54.5% is H2 energy/(H2 + compression electricity), a different quantity, not a contradiction.
 **Formula note (2026-10).** The ideal work for FILLING a vessel is NOT nRT·ln(p2/p1) evaluated at an average pressure. Per mole: W = RT·[G(p2)−G(p1)]/(p2−p1) with G(p) = p·ln(p/p_suction) − p, implemented in `temperature_model.isothermal_work_mol_integral`. The single-shot form stays correct only when all gas is compressed at once to the top pressure. The arithmetic-mean shortcut overstated a 20→200 bar fill by ~21% and understated 100→200 bar by ~16%.
@@ -116,7 +116,7 @@ The direction matters: lower Faradaic efficiency means MORE hydrogen consumed pe
 **Storage chain.** $$RTE = \frac{(E_{FC,out} - E_{ctrl})\,\eta_{inv}}{E_{EL} + E_{dry} + E_{comp} + E_{standby}}$$
 **Island.** $$RTE_{island} = \frac{E_{AC,out}}{E_{PV,AC}}$$
 **Source.** Energy-storage convention (discharged/charged electrical energy per cycle), IEC 62933-2-1 family; Veritas paper (IJHE 2023) for the storage-chain form.
-**Assumptions.** Inverter efficiency (0.96 assumed until the SMA discharge inverter is metered), FC control energy at nameplate max (envelope).
+**Assumptions.** Inverter efficiency (0.96 assumed until the Solis F8 discharge inverter channel is metered), FC control energy at nameplate max (envelope).
 **Code.** `balance/rte.py`. **Verified by.** `test_03` (synthetic cycle ~26%).
 
 ## L. Operating modes and steady segments
@@ -205,8 +205,8 @@ channel is a placeholder - add one when the real design lands.
 
 **What.** Two DIFFERENT devices at two positions of the energy path:
 - PV-side inverter (pv_inverter.py): PV DC (high voltage string) -> AC bus.
-  Standard Euro efficiency 97-98%; measured on our own SMA telemetry at
-  0.9719 energy-weighted over 22 days.
+  Standard Euro efficiency 97-98%; the removed legacy building array (~184 kWp,
+  not F8 evidence, D4) showed 0.9719 energy-weighted over 22 days.
 - FC-side inverter (inverter.py): 48-52 V DC bus -> 230 V AC island load.
   CHOSEN DEVICE: Solis S5-EO1P5K-48 off-grid (datasheet + manual + nameplate
   photo in the Inverter 2 folder; S/N on site). Rated 5 kVA/5 kW matches the
@@ -230,7 +230,7 @@ PV-side context.
 **Code.** `devices/pv_inverter.py`, `devices/inverter.py`;
 chain uses inv_fc.eta for the discharge bar and inv_pv.eta_euro for the PV bar.
 **Verified by.** `test_03` (FC inverter bar at 94% assumption);
-`test_08b` (PV Euro assumption vs measured SMA telemetry, 0.8% deviation).
+`test_08b` (PV Euro assumption vs measured telemetry of the removed legacy building array, 0.8% deviation; not F8 evidence).
 
 ## T. F8 PV array: module data, string check, capture ratio, plant profiles
 
