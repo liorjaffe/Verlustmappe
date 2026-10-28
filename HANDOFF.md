@@ -69,9 +69,15 @@ starting work.
 - P09 is merged (PR #8: SPEC matches D20-D31, D31 sign rule added).
 - P09b is merged (PR #9: register column "u class" per D26 in docs/02, tests/test_35_u_class.py;
   59 NOT ASSESSED, 4 exact, 46 assessed).
-- Next: P10 (hand references for constants, isothermal work, Z; draft in
-  tasks/P10_hand_references.md, scope approval pending), then P11 port with the params
-  adapter, P12 ledger and gates.
+- P10 is merged (PR #10: hand references constants.md, isothermal_work.md, p10_hand_calc.py;
+  two work definitions A/B documented, A has no active consumer).
+- P11 (branch task/p11-port-constants-work): new core started in src/verlustmappe/models/
+  (constants, fill-integral work, minimal params adapter). Tests (test_36) await owner
+  approval as the second commit. Open: Z source (C25) before z_realgas can be ported; rule 8
+  flag on the 0.0/max semantics of the fill work (task file).
+- docs/94 candidates (own task, pattern of P07): booster.account() docstring vs behavior;
+  isothermal_work_kWh without active consumer.
+- Next: P11 tests, P12 ledger and gates, Z source clarification.
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
