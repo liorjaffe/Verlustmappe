@@ -67,11 +67,11 @@ starting work.
 - P08 is merged (PR #7: D20-D30 pre-M1 definition gates, D5 closed by D26, AGENTS status
   vocabulary and freeze amendment; text only).
 - P09 is merged (PR #8: SPEC matches D20-D31, D31 sign rule added).
-- P09b (branch task/p09b-u-not-assessed): register column "u class" per D26 is in docs/02
-  (59 NOT ASSESSED, 4 exact, 46 assessed); enforcement test tests/test_35_u_class.py is the
-  second commit and needs owner approval.
-- Next: merge P09b, then M1 (P10 hand references, P11 port with the params
-  adapter, P12 ledger and gates).
+- P09b is merged (PR #9: register column "u class" per D26 in docs/02, tests/test_35_u_class.py;
+  59 NOT ASSESSED, 4 exact, 46 assessed).
+- Next: P10 (hand references for constants, isothermal work, Z; draft in
+  tasks/P10_hand_references.md, scope approval pending), then P11 port with the params
+  adapter, P12 ledger and gates.
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
@@ -83,7 +83,7 @@ starting work.
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
   Both tests restore `stor.volume_L` in a finally wrapper; owner acceptance
   (same-process leak check, both-modules failure path) executed before merge.
-- Next: see the order above (P09, P09b, M1).
+- Next: see the order above (P10, P11, P12).
   
 
 Later:
