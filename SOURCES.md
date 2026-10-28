@@ -44,7 +44,7 @@ see open point P-2.
 
 Open points: (P-1) Maximator / H2 Core Systems: conditions of the TDS air-consumption chart
 (gas pressures, booster version, purge/control air, volume basis, continuous vs intermittent).
-(P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status
+(P-3) Same inquiry: an older Maximator repair manual (drawings dated 1985/1996) lists lower maximum pressures for the base types (DLE 15: 150 bar, DLE 30: 300 bar, instead of 300/600 in the current catalog); which limits apply to part numbers 3630.3019 / 3630.2374 (installed 2021)? (P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status
 of the affected keys changes by decision.
 
 ### `sys.n_rotex`
@@ -139,7 +139,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `15` (ratio 1:15)
 - **Source:** Maximator catalog [S7], datasheet DLE 15 [S8]
 - **Location:** workbook Master row 86
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 15", column "Pressure ratio i": "1:15"; DLE 15 datasheet: "Pressure ratio i: 1:15" (owner transcription 2026-10-28)
 - **Source conditions:** DLE 15 base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -150,7 +150,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `244` cm3
 - **Source:** [S7], [S8]
 - **Location:** workbook Master row 87
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 15", column "Stroke volume** [cm³]": "244" (footnote: "Calculated stroke volume"); datasheet: "Displacement volume/double stroke: 244cm³" (owner transcription 2026-10-28)
 - **Source conditions:** geometric, calculated by Maximator
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -161,7 +161,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `120` 1/min
 - **Source:** DLE 15 datasheet [S8]
 - **Location:** workbook Master row 88
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** DLE 15 datasheet, "Technical Data": "Maximum cycles: 120 / min" (owner transcription 2026-10-28)
 - **Source conditions:** maximum cycle rate, base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -172,7 +172,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `7` barg (workbook "7 / 300 bar": minimum gas inlet pressure; the 300 is not registered)
 - **Source:** [S7]
 - **Location:** workbook Master row 89
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 15", column "min. gas inlet pressure pAmin [bar]": "7" (psi: "102"); datasheet: "Minimum suction pressure pA: 7" (owner transcription 2026-10-28)
 - **Source conditions:** base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -183,7 +183,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `300` barg
 - **Source:** [S7]
 - **Location:** workbook Master row 90
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 15", column "max. working pressure pB*** [bar]": "300" (psi: "4350"); footnote: "Maximum permissible static working pressure"; datasheet: "Maximum outlet pressure pB: 300 bar" (owner transcription 2026-10-28)
 - **Source conditions:** base-type limit; the module limits stage 1 to 140 bar
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -194,7 +194,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `30` (ratio 1:30)
 - **Source:** [S7], DLE 30 datasheet [S9]
 - **Location:** workbook Master row 97
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 30", column "Pressure ratio i": "1:30"; DLE 30 datasheet: "Pressure ratio i: 1:30" (owner transcription 2026-10-28)
 - **Source conditions:** DLE 30 base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -205,7 +205,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `120` cm3
 - **Source:** [S7], [S9]
 - **Location:** workbook Master row 98
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 30", column "Stroke volume** [cm³]": "120" (in³: "7,3"); datasheet: "Displacement volume/double stroke: 120 cm³ 7.3 in³" (owner transcription 2026-10-28)
 - **Source conditions:** base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -216,7 +216,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `120` 1/min
 - **Source:** DLE 30 datasheet [S9]
 - **Location:** workbook Master row 99
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** DLE 30 datasheet, "Technical Data": "Maximum cycles: 120 / min" (owner transcription 2026-10-28)
 - **Source conditions:** maximum cycle rate, base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -227,7 +227,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `15` barg (workbook "15 / 600 bar": minimum gas inlet pressure)
 - **Source:** [S7], [S9]
 - **Location:** workbook Master row 100
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 30", column "min. gas inlet pressure pAmin [bar]": "15" (psi: "218"); datasheet: "Minimum suction pressure pA: 15 bar / 220 psi" (owner transcription 2026-10-28)
 - **Source conditions:** base type
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -238,7 +238,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `600` barg
 - **Source:** [S7]
 - **Location:** workbook Master row 101
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Maximator catalog "Maximator Gas boosters EN" p.16, section "DLE... single stage, double acting, 1 air drive section", row "DLE 30", column "max. working pressure pB*** [bar]": "600" (psi: "8700"); footnote: "Maximum permissible static working pressure"; datasheet: "Maximum outlet pressure pB: 600 bar / 8700 psi" (owner transcription 2026-10-28)
 - **Source conditions:** base-type limit; the module limits stage 2 to 400 bar
 - **Transferability:** (base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET, 0.0
