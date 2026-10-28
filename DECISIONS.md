@@ -64,7 +64,7 @@ remotely on 2026-10-23 (refs/tags/legacy-1.0^{} resolves to the baseline commit)
   Realistic candidate today: the FC TERMINAL characteristic from independent Regatron
   sweeps. F8-Solis becomes a candidate only once complete measured DC/AC inputs for the F8
   path exist. SMA legacy telemetry is never F8 evidence.
-- **D5 – Status vocabulary. Status: OPEN (proposal below; owner decides).**
+- **D5 – Status vocabulary. Status: DECIDED by D26 (2026-10-28); the proposal below is kept as history.**
   Proposal: three separate fields. evidence_status: MEASURED > CALIBRATED > DATASHEET >
   DERIVED > PRELIM > ENVELOPE > GUESS > BACKLOG. observation_status: OBSERVED / NOT
   OBSERVED / MISSING (whether the quantity was captured in the period; NOT OBSERVED is not
@@ -235,3 +235,124 @@ D10 stays reserved for the battery conflict (HANDOFF).
   export; the digits are verified against that export before committing). No other
   generator text is touched. docs/02 is regenerated in the same commit and the diff is
   reviewed. Text-only. Executed in task P02b.
+
+## 2026-10-28 – Pre-M1 definition gates (D20–D30, owner decisions)
+
+These entries define what the new core must compute and accept before M1 code starts.
+Each entry stands alone and was approved individually by the owner (task P08, text only).
+SPEC follow-up mandatory in P09 before M1 code: D20, D21 and D22 change SPEC wording that
+is translated in P09; until then SPEC and these entries differ on purpose. The G-labels
+G1–G11 are aliases of D20–D30 in this order.
+
+- **D20 (G1) – Cycle closure. Status: DECIDED (owner, 2026-10-28).**
+  A cycle is CLOSED iff |n_end - n_start| <= eps * n_ref AND u(dn) <= eps * n_ref, with
+  n_ref = max(n_tank_in, n_tank_out) from the ledger. eps = 5 % is adopted from the legacy
+  cycle_closed threshold (0.05) for continuity; it is an owner choice carried over as a
+  magnitude, NOT a derived or measured value (the legacy threshold compared a different
+  quantity: production vs. stored). Otherwise the closure verdict is NOT VERIFIABLE.
+  AMENDMENTS: (a) the SPEC closure definition ("tank content at start and end are equal")
+  gains an explicit tolerance for MEASURED closure; in Layer 2 the tank state is simulated,
+  closure is exact by construction and unchanged, and the M1 gate there is the Layer-2
+  balance invariant. (b) D8 is amended: the DCT 541 is authorized for the CLOSURE VERDICT
+  only, never for tank-state calibration or validation. Until the sensor repeatability test
+  is done, measured closure is NOT VERIFIABLE.
+- **D21 (G2) – RTE terms and headline rule. Status: DECIDED (owner, 2026-10-28).**
+  Exactly two named numbers: RTE_storage (AC-bus-to-AC-bus storage chain) and RTE_island.
+  AMENDMENT of the SPEC boundary wording: the second boundary "PV-to-AC" is defined
+  precisely as input = PV AC entering the storage path (slice principle), output = AC after
+  the FC inverter. Under the slice principle this input coincides with the storage-chain
+  input, so the two numbers coincide BY DEFINITION; the island term is informative only when
+  its input basis differs (PV DC or whole-bus input), which requires a new entry. Headline
+  rule: an RTE may appear as a headline number (README, paper) only when the cycle is CLOSED
+  per D20 or the number is explicitly H2-normalized per D22. Otherwise E_in, E_out and the
+  tank delta are reported separately, each with status. Legacy demo outputs keep the legacy
+  label.
+- **D22 (G3) – Control-energy netting (resolves C16). Status: DECIDED (owner, 2026-10-28).**
+  E_out_net = (E_fc_terminal - E_ctrl) * eta_inv in EVERY RTE variant; the control energy is
+  assumed drawn on the DC bus before the inverter (measurement point is an open item, must
+  be confirmed). H2-normalized variant: RTE_H2norm = E_out_net * (n_stored / n_fc) / E_in,
+  where n_stored = tank INFLOW over the charge window (the hydrogen stored by this cycle)
+  and n_fc = hydrogen consumed over the discharge window. Legacy demo values for reference:
+  rte_open 0.2528, code rte_closed 0.2178, full-subtraction variant 0.1833, H2-normalized
+  0.1917.
+- **D23 (G4) – Ledger scope. Status: DECIDED (owner, 2026-10-28).**
+  Ledger items: EL energy incl. observed standby; dryer electrical; dryer vent (H2); water
+  system incl. RO standby over wall-clock time; filter train (inside E_in); compression air
+  system per D14 (variable share by air quantity, READY standby and network leakage as
+  separate items, leakage in the distribution block); FC control; FC inverter loss; FC
+  inverter standby once measured. The battery path is OUTSIDE the storage-chain boundary; a
+  whole-system number including the battery is a separate, separately named quantity and
+  needs its own entry. Standby and idle are accounted over wall-clock time, not per window.
+- **D24 (G5) – Integration rule. Status: DECIDED (owner, 2026-10-28).**
+  One function for the whole core: trapezoidal integration within valid segments; a gap is
+  dt > max(3 x nominal sampling interval, max_gap_s), in continuity with the legacy gap
+  detector (3 x median dt, max_gap_s = 30 s). The nominal intervals per source and the
+  multiplier are data-analysis properties documented in docs/03 (not physics registry
+  entries), owner-adjustable via DECISIONS. Gaps segment the series, the covered fraction is
+  reported, non-monotonic time is INVALID. AC8 note: the reference points are stationary, so
+  the rule change does not move them; on ramps the trapezoid deviates from the legacy
+  rectangles by about 1.7 % at 60 s sampling (1.475 vs 1.5 kWh), within the +-2 % bar
+  tolerance.
+- **D25 (G6) – Validity gates. Status: DECIDED (owner, 2026-10-28).**
+  A run or result is INVALID (never a plausible number) when: a REQUIRED parameter is
+  BACKLOG without an owner-approved GUESS (AC1); a Route-2 window has dp < 10 x FSO_abs
+  (registered value meas.p_sensor_fso_bar = 2.0 bar, i.e. 20 bar today; no new constant, per
+  docs/94 C6); a physical quantity is negative; time is non-monotonic; a mandatory channel is
+  missing; an FC module has no valid current while the power channel is valid (labelled
+  nameplate fallback, never a silent zero). Any further numeric limit introduced by the core
+  enters the registry or docs/03 with provenance (AGENTS rule 8).
+- **D26 (G7, completes D5) – Status vocabulary, final. Status: DECIDED (owner, 2026-10-28).**
+  evidence_status: MEASURED > CALIBRATED > DATASHEET > DATASHEET_SECONDARY (D15) > DERIVED >
+  PRELIM/ENVELOPE > GUESS > BACKLOG. OWNER_DECISION (D15) is a registry source status;
+  REJECTED (D11) and SUPERSEDED are registry states, not evidence statuses.
+  observation_status: OBSERVED / NOT OBSERVED / MISSING. result_origin: MEASURED (direct
+  channel read) / RECONSTRUCTED (changes when measurement data changes) / SIMULATED
+  (independent of measurement data), decided by a perturbation test. calculation_route:
+  FARADAY, NAMEPLATE, TANK_PV, ... The residual term is never DERIVED. Weakest-wins applies
+  within evidence_status only.
+  (b) Computed classification, applied to ALL numeric entries (no new status, no new field;
+  surfaced as a computed column in the register, P09): u = 0.0 is exact for (i)
+  OWNER_DECISION entries, (ii) DERIVED entries that are pure arithmetic from assessed
+  inputs, and (iii) TOLERANCE_BAND entries. TOLERANCE_BAND entries are exactly:
+  `meas.p_sensor_fso_bar`, `meas.p_sensor_thermal_bar_per_10K` - values that are themselves
+  a device's stated measurement-uncertainty bound, derived by pure arithmetic from the device
+  specification; first-order exact, the uncertainty of the band itself is out of scope.
+  Additions to this list require a DECISIONS entry. For every other numeric entry, u = 0.0
+  means UNCERTAINTY_NOT_ASSESSED. DERIVED status alone does not establish exactness.
+  (c) Effect: computation is never blocked; results carry the condition. The publication
+  lock is enforced ONLY for headline candidates per D21 (README/paper result numbers); all
+  other outputs show their status through the AC7 share report. Boundary to BACKLOG:
+  BACKLOG = no value, a REQUIRED backlog parameter makes the run INVALID (AC1);
+  UNCERTAINTY_NOT_ASSESSED = value exists, uncertainty unquantified, the run computes and the
+  result is not publishable as valid. Numeric BACKLOG placeholders are themselves
+  not-assessed. The existing entries with u = 0.0 (63 on 2026-10-28: 46 DATASHEET, 5 BACKLOG,
+  3 DERIVED, 2 GUESS, 4 REJECTED, 2 OWNER_DECISION, 1 DATASHEET_SECONDARY) are classified by
+  this rule without migration; assessing the uncertainty of entries that drive headline
+  candidates is a backlog by sensitivity, tracked in HANDOFF (first candidate:
+  kaeser.p_package_dealer_kw). Known audit item: fc.poc_max_duration_s (DERIVED, sourced from
+  a manual; classification open). Mechanism details of the register column and the
+  enforcement test belong to P09/M1. AGENTS.md (Status vocabulary) is updated in task P08.
+- **D27 (G8) – Registry cleanup. Status: DECIDED (owner, 2026-10-28).**
+  comp.* REJECTED keys are deleted at the legacy teardown (M6), not earlier.
+  stor.steel_mass_kg and bat.* are decided with D10 (battery); inv_fc.standby_W becomes a D23
+  ledger input once measured, until then it stays registered and is classified per D26. No
+  duplicate truth for the compressor remains.
+- **D28 (G9) – Registry and the freeze. Status: DECIDED (owner, 2026-10-28).**
+  registry.py is removed from the D2 physics freeze; this entry amends D2 and the AGENTS.md
+  Legacy-freeze section (updated in task P08). Value, uncertainty and status changes happen
+  only via a DECISIONS entry (AGENTS rule 2 and the protected-path rule stay). The AC8
+  reference is computed at tag legacy-1.0 and is unaffected. The params adapter blocks
+  REJECTED and SUPERSEDED entries only; UNCERTAINTY_NOT_ASSESSED entries remain READABLE and
+  the adapter propagates their status (weakest-wins), so computation is possible while
+  publication is gated by D26. The adapter exists only from P11; until then test_34 covers
+  only the comp.* keys (no general REJECTED/SUPERSEDED guard).
+- **D29 (G10) – Truth order, repo vs. library. Status: DECIDED (owner, 2026-10-28).**
+  The repository (SPEC.md, DECISIONS.md, registry.py, SOURCES.md) is the single authority for
+  the model. The library note "00 CURRENT STATE" is reduced to plant facts not yet recorded in
+  the repo and references the repo for everything else; the copilot-brief workflow is updated
+  accordingly.
+- **D30 (G11) – AC8 scope. Status: DECIDED (owner, 2026-10-28).**
+  The whole-chain comparison stays as decided in D7; deviations are handled through docs/94.
+  The legacy-bar-to-ledger mapping table in docs/94 is normative for WHICH bars are compared
+  (1:1 compared within tolerance; n:m compared as a group sum; no-counterpart bars excluded
+  with a stated reason). It is NOT a regression test of the ledger construction.

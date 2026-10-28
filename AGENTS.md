@@ -98,7 +98,8 @@ live in `docs/` and the SPEC; this file only points to them.
 
 ## Legacy freeze (D2)
 - The files existing at tag `legacy-1.0` under `src/verlustmappe/` are frozen, EXCEPT
-  `loaders/` (loader and data corrections are allowed if they change no physics parameter
+  `loaders/` and `registry.py` (D28; registry changes stay protected per rule 2) (loader and
+  data corrections are allowed if they change no physics parameter
   or limit, with the data state noted in the commit).
 - Text-only edits (comments, docstrings, warning strings) inside the frozen scope are
   allowed only per approved task and change no behavior.
@@ -129,12 +130,16 @@ live in `docs/` and the SPEC; this file only points to them.
 - Agents work on a branch, never push directly to `main`, never merge their own PR. The
   owner integrates and merges.
 
-## Status vocabulary (decision pending in DECISIONS.md)
-- Evidence status: `MEASURED > CALIBRATED > DATASHEET > DERIVED > PRELIM/ENVELOPE > GUESS >
-  BACKLOG`.
+## Status vocabulary (DECISIONS D5, completed by D15 and D26)
+- Evidence status: `MEASURED > CALIBRATED > DATASHEET > DATASHEET_SECONDARY > DERIVED >
+  PRELIM/ENVELOPE > GUESS > BACKLOG`. `OWNER_DECISION` is a registry source status;
+  `REJECTED` and `SUPERSEDED` are registry states, not evidence statuses.
 - `NAMEPLATE` is not an evidence status; a nameplate value is a `DATASHEET` value.
-- `NOT OBSERVED` is an observation flag, not an evidence status; do not mix it into the
-  same column until D5 is decided.
+- `NOT OBSERVED` is an observation flag (observation_status), not an evidence status; do not
+  mix it into the evidence column (D26).
+- `u = 0.0` is exact only for `OWNER_DECISION`, pure-arithmetic `DERIVED` entries and the
+  TOLERANCE_BAND list in D26; for every other numeric entry it means
+  UNCERTAINTY_NOT_ASSESSED: computation continues, the result is not publishable as valid.
 - A result carries the weakest status of the inputs that drive it. A calculated value must
   never look like a measured one.
 
