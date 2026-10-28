@@ -55,9 +55,12 @@ starting work.
 
 ## Next step
 
-- Follow-up after P05 (`chore/p05-followup`): stale texts, D9(a)/(c) remainder
-  (`dependencies` in pyproject.toml, explicit file names in run_all.py), then decisions on
-  the 0.014 comment block in registry.py, P04, then P02b.
+- Follow-up after P05 (`chore/p05-followup`): stale texts and the D9(a)/(c) remainder
+  (pytest test extra in pyproject.toml, explicit legacy list plus stray-file guard in
+  run_all.py) are done there.
+- Then, in this order: P04 (ci_guard compares parsed registry entries), owner decision on
+  the 0.014 comment block and SMA wording in registry.py (a registry.py edit, needs
+  DECISIONS and P04 first), then P02b (attribution in docs/01-04, docs/94, README note).
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
