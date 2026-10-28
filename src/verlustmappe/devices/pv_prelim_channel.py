@@ -19,7 +19,7 @@ e.g. PVsyst/SAM loss trees):
   capture ratio (performance ratio family): E_DC / (H_POA * A * eta_module)
 
 Two modes of operation:
-  mode 'measured' (SMA telemetry exists): E_DC and E_AC come from the inverter
+  mode 'measured' (legacy building-array telemetry exists): E_DC and E_AC come from the inverter
   directly (as already done in devices/pv_measured.py); this channel only ADDS the
   site-loss bars that the inverter cannot see (soiling, mismatch, shading,
   temperature), each flagged GUESS/PRELIM.

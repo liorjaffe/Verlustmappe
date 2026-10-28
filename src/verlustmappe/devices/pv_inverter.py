@@ -4,7 +4,7 @@ Kept SEPARATE from the FC-side inverter (inverter.py) on purpose: different devi
 different DC voltage classes, different efficiency behaviour, and they must
 stay separately analysable for the loss map.
 
-MEASURED mode (SMA SunSpec telemetry exists): E_DC and E_AC both measured,
+MEASURED mode (legacy building-array telemetry exists, not F8 evidence): E_DC and E_AC both measured,
 eta = E_AC / E_DC. Our 22-day window: energy-weighted 0.9719; load-dependent
 ~0.62 below 2 kW, 0.92 at 2-10 kW, 0.97 at 10-30 kW, 0.98 above.
 PRELIM mode: Euro-efficiency assumption from the registry (inv_pv.eta_euro).
@@ -25,4 +25,4 @@ class PVInverter:
         return dict(unit="INV_PV", e_dc_kWh=e_dc_kWh, e_ac_kWh=e_dc_kWh * eta if e_dc_kWh else None,
                     loss_kWh=e_dc_kWh * (1 - eta) if e_dc_kWh else None, eta=eta,
                     eta_is_measured=False, standby_kWh=0.0,
-                    note="PRELIM Euro efficiency; SMA telemetry would make this measured")
+                    note="PRELIM Euro efficiency; legacy-array telemetry would make this measured")

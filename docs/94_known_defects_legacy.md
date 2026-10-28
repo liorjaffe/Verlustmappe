@@ -2,7 +2,7 @@
 
 Baseline: commit d060c9b, tagged `legacy-1.0` (unmodified legacy, tests ALL PASS).
 These entries describe the defects of the tagged baseline. The tag remains unchanged.
-D2 freezes src/ model behavior; C11 text-only cleanup under D1 remains planned.
+D2 freezes src/ model behavior; C11/C13 text cleanup executed in P04 (D16, D17); booster.py docstring and warning text cleaned (D18).
 C9 is fixed in the P03 working version by a separate, owner-reviewed tests-only change
 under AGENTS.md rule 4, not by an exception to D2. See its entry for acceptance.
 This file is the intended-deviations list referenced by SPEC.md (AC8) and must be read
@@ -79,6 +79,8 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   full / half load, 33.22 Nm3) and "78.4 + 4.6 kWh" does not appear in that table. Final
   wording of the cleanup (delete comment block, align docstring and warning) is decided
   under D1 with the owner confirming the full-text reading.
+  Status: executed in P04: registry.py comment block deleted (D16b); booster.py docstring
+  and warning text cleaned (D18).
 - **C12 – Test architecture.** [executed: pytest collection; read: runner logic]
   The legacy tests are scripts defining `main()`; pytest collects no tests ("no tests ran").
   `tests/run_all.py` executes each `test_*.py` as a script and treats exit code 0 as PASS,
@@ -90,8 +92,11 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   SMA references throughout the legacy docs, README, device docstrings/comments and one
   test name describe the removed legacy building array (~184 kWp) or are plain leftovers.
   No physics impact. Text-only fix: README and docs/06 in task P02; remaining src/ text
-  (pv_measured.py, pv_inverter.py, live_feed.py, loaders/grafana.py docstrings, registry
-  comments) in task P04 under the D2 text exception. AC8 treatment: none.
+  (registry.py comments, devices/__init__.py, pv_measured.py, pv_inverter.py,
+  pv_prelim_channel.py, live_feed.py, loaders/solis_live.py) in task P04 under the D2 text
+  exception (D16c, amended by D17; D16 named loaders/grafana.py in error). Status:
+  executed in P04; the registry carries no SMA reference. tests/test_08* keep the SMA name
+  (frozen legacy regression, falls in M6). AC8 treatment: none.
   C13 is terminology-only and does not affect AC8 physics.
 
 ## AC8 treatment per defect (makes the SPEC exclusion rule operational)
@@ -108,7 +113,7 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
 | C8 Monte-Carlo scope | none: affects the uncertainty layer |
 | C9 registry leak | none for AC8; fixed in P03; tagged baseline unchanged |
 | C10 README boundary | none for AC8; fixed by the README task |
-| C11 eta doc conflict | none for AC8 numerics; cleanup task under D1 |
+| C11 eta doc conflict | none for AC8 numerics; cleanup executed in P04 |
 | C12 test architecture | none for AC8; decision D9 covers the new tests |
 | C13 SMA terminology | none: documentation only |
 

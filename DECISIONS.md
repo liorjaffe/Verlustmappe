@@ -201,3 +201,28 @@ D10 stays reserved for the battery conflict (HANDOFF).
   guard applies within the same diff. The hard-coded items 4 and 4b in `make_register.py`
   ("weakest numbers" text) are NOT part of D16; they belong to the extended P02b task and
   need their own extension of the D11 exception.
+
+- **D17 – SMA scrub in the registry (amends D16c). Status: DECIDED (owner, 2026-10-28).**
+  SMA is out of the system boundary and out of every evidence role (SPEC, D4, D7). "Removed"
+  means: physically removed (legacy ~184 kWp building array), textually isolated, kept only
+  as a labelled legacy reference. (c) is replaced: `registry.py` carries NO SMA/Deye
+  reference. `inv_pv.eta_euro` keeps the PRELIM literature value ("typical Euro efficiency
+  97-98 % for modern string inverters; no F8-specific datasheet yet (D6 open)"); the
+  comments and sources at the SMA mentions (inverter block comment, `pv.capture_ratio`
+  note, `meas.power_rel_unc`) are reworded without SMA. The 0.9719 22-day cross-check
+  remains ONLY in docs/04, attributed to the removed legacy building array, never F8
+  evidence. The src/ docstrings (`pv_measured.py`, `pv_inverter.py`, `pv_prelim_channel.py`,
+  `devices/__init__.py`, `live_feed.py`, `loaders/solis_live.py`) use the wording
+  "legacy building array, not F8 evidence". D16 named `loaders/grafana.py` in error; it has
+  no SMA text. NOT part of this decision: deleting `test_08b`, `pv_retro`, `results/pv_*`
+  (frozen legacy regression, D2, rule 4); they fall with the legacy teardown in M6.
+  Text-only, no behavior change; executed in P04.
+
+- **D18 - C11 remainder: booster.py docstring and warning text. Status: DECIDED (owner, 2026-10-28).**
+  The `devices/booster.py` module docstring drops the paragraph arguing 0.014 from
+  "78.4 + 4.6 kWh" and the eta_CSU = 54.5 % remark; it states instead that the registered
+  value is REJECTED (D11, wrong device basis DLE 30-2) and is used ONLY so the frozen
+  legacy-1.0 chain reproduces; see docs/94 C11. The real-gas note stays unchanged. The
+  warning string becomes "compression energy = ideal work / REJECTED legacy efficiency
+  (D11); meter the Kaeser (D14)". Text-only, no behavior change; covered by the D2 text
+  exception. Executed in task P04, same PR as D16/D17.

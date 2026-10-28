@@ -15,7 +15,7 @@ S6-GR1P6K string inverters serving the 28-module array (STATION_F8_A /
 STATION_F8_B below; machine name verified via inveterList 2026-10-22).
 Their PV-path vocabulary feeds the F8 profile of the preliminary channel
 (devices/pv_prelim_channel.PLANT_PROFILES["F8_12.74kWp"], measured mode)
-just like the SMA telemetry does for the big array, but via the
+just like the legacy building-array telemetry did, but via the
 SolisCloud API.
 
 The inverterDay DC channels run ~+3-4% above the eToday counter; eta_dc_ac

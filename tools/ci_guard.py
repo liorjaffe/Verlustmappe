@@ -1,5 +1,6 @@
 """Enforce repository rules that the agent instructions delegate to CI."""
 
+import ast
 import os
 import re
 import subprocess
@@ -55,6 +56,31 @@ def registry_keys(source: str) -> set[str]:
     return set(REGISTRY_KEY.findall(source))
 
 
+def registry_entries(source: str) -> dict[str, tuple[str, ...]]:
+    """Map key -> (value, unit, status, uncertainty) of every REGISTRY entry.
+
+    Comments, source text and effect text are not part of the entry.
+    """
+    entries: dict[str, tuple[str, ...]] = {}
+    for node in ast.parse(source).body:
+        if not (isinstance(node, ast.Assign) and isinstance(node.value, ast.Dict)
+                and any(isinstance(t, ast.Name) and t.id == "REGISTRY" for t in node.targets)):
+            continue
+        for key, call in zip(node.value.keys, node.value.values):
+            name = ast.literal_eval(key)
+            if isinstance(call, ast.Call) and len(call.args) >= 5 and not call.keywords:
+                fields = (call.args[0], call.args[1], call.args[3], call.args[4])
+                entries[name] = tuple(ast.dump(field) for field in fields)
+            else:
+                entries[name] = (ast.dump(call),)
+    return entries
+
+
+def changed_entries(old_source: str, new_source: str) -> list[str]:
+    old, new = registry_entries(old_source), registry_entries(new_source)
+    return sorted(key for key in old.keys() | new.keys() if old.get(key) != new.get(key))
+
+
 def main() -> int:
     errors: list[str] = []
     tests = sorted(TEST_DIR.glob("test_*.py"))
@@ -81,12 +107,15 @@ def main() -> int:
                 errors.append(
                     f"test-file count decreased from {len(prior_tests)} to {len(tests)}"
                 )
-            if REGISTRY in changed and not any(path.startswith("tests/") for path in changed):
-                errors.append(f"{REGISTRY} changed without a corresponding tests/ change")
-
             if REGISTRY in changed:
                 old_registry = git("show", f"{base}:{REGISTRY}")
                 new_registry = (ROOT / REGISTRY).read_text(encoding="utf-8")
+                entry_changes = changed_entries(old_registry, new_registry)
+                if entry_changes and not any(path.startswith("tests/") for path in changed):
+                    errors.append(
+                        f"{REGISTRY} entries changed without a corresponding tests/ change: "
+                        + ", ".join(entry_changes)
+                    )
                 new_keys = registry_keys(new_registry) - registry_keys(old_registry)
                 if new_keys:
                     if not SOURCES.is_file():

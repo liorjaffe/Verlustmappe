@@ -98,19 +98,6 @@ REGISTRY = {
     "comp.stroke_volume_cm3": P(120, "cm3/double stroke", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "flow capacity check"),
     "comp.max_cycles_per_min": P(100, "1/min", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "flow capacity check"),
     "comp.min_suction_bar":   P(20, "bar", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "storage lower pressure limit"),
-    # Anchor, verified against the FULL TEXT of Bovo, Poli, Trovo, Marini,
-    # Guarnieri, "Hydrogen energy storage system in a Multi-Technology
-    # Microgrid: technical features and performance", IJHE 48 (2023), part 1
-    # (DOI 10.1016/j.ijhydene.2022.11.346), Tab. 3 (CSU):
-    #   compression 78.4 kWh + auxiliaries 4.6 kWh for 33.22 Nm3 (tank 40->200
-    #   bar, 200 L, DoD 80%). Ideal work for that fill = 1.0-1.3 kWh depending
-    #   on the assumed suction pressure (40 bar tank-start vs 35 bar EL output),
-    #   computed with the correct mole-weighted fill integral.
-    #   -> overall efficiency 1.2-1.6%; registered 0.014 +-30%.
-    # This SUPERSEDES both the earlier "56-100 kWh consumed" reading (that
-    # number never appears in the paper; the first draft mixed it up with the
-    # HGU purifier energy) and the 2.4% figure computed with the single-shot
-    # ideal work (nRT ln(p2/p1) overstates a fill, see temperature_model).
     # NOTE on the paper's own eta_CSU = 54.5%: that is H2 energy / (H2 energy +
     # compression electricity), a DIFFERENT quantity, not a contradiction.
     # The paper's booster (Hydraulics Int.) is rated for up to 220 bar like ours.
@@ -248,7 +235,7 @@ REGISTRY = {
     "pv.module_efficiency_STC":   P(0.209, "-", "BYD MGK-36 datasheet Rev.06 (2024), 455 W class; Inmetro 006667/2021 class A 20.90 %. Superseded PRELIM: 0.220 (typical TOPCon)", "DATASHEET", 0.01,
                                 "nominal DC power per m2 of array"),
     "pv.p_dc_stc_W":              P(12740, "W", "28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None", "DATASHEET", 0.0,
-                                "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the legacy ~184 kWp SMA array)"),
+                                "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the removed legacy ~184 kWp building array)"),
     "pv.p_tc_pmax_per_K":         P(-0.0038, "1/K", "BYD MGK-36 datasheet Rev.06: -0.380 %/degC (2021 brochure lists -0.352; Rev.06 is the newer official document). Superseded PRELIM: -0.0029", "DATASHEET", 0.03,
                                 "cell-temperature derating"),
     "pv.noct_C":                  P(45, "degC", "BYD MGK-36 datasheet Rev.06: 45 +-2 degC. Superseded PRELIM: 43", "DATASHEET", 0.05,
@@ -266,9 +253,7 @@ REGISTRY = {
     # NOTE F8: inv_pv.eta_euro below remains PRELIM; no S6-GR1P6K efficiency
     # datasheet is registered. The previous S5-EO1P5K-48 values belong to the
     # FC-side inverter and are not valid for this PV boundary.
-    # PV-side inverter: string inverter, PV DC -> AC bus. The SMA Sunny
-    # Tripower telemetry already exists; when its measured data is used these
-    # PRELIM entries become cross-checks only.
+    # PV-side inverter: string inverter, PV DC -> AC bus.
     # F8 PV-side inverters are S6-GR1P6K string inverters, distinct from inv_fc.
     # TODO(owner): record device-identity correction in 00 CURRENT STATE.
     "inv_pv.model":               P("2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009)", "-", "SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206", "DATASHEET", 0.0,
@@ -279,7 +264,7 @@ REGISTRY = {
                                 "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"),
     # F8 full-production-day cross-check: after removing the +3-4% DC-channel
     # bias, eta_dc_ac ~1.00 is consistent with true eta ~0.97-0.98.
-    "inv_pv.eta_euro":            P(0.980, "-", "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters (Deye SUN-18/20K 98.0%; SMA core class similar). MEASURED cross-check from own 22-day SMA telemetry: 0.9719 energy-weighted. SMA 22-day cross-check 0.9719 belongs to the ALT building array, not the F8 boundary (Rev D, section 16); F8 cross-checks must come from Solis data (f8_day_balance)", "PRELIM", 0.01,
+    "inv_pv.eta_euro":            P(0.980, "-", "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters; no F8-specific datasheet yet (D6 open). F8 cross-checks must come from Solis data (f8_day_balance)", "PRELIM", 0.01,
                                 "PV DC->AC conversion bar"),
     "inv_pv.eta_peak":            P(0.985, "-", "PRELIMINARY: typical max efficiency 98-98.5%", "PRELIM", 0.005,
                                 "peak reference only, NOT for energy accounting"),
@@ -335,7 +320,7 @@ REGISTRY = {
                                 "shading bar"),
 
     # ===================== MEASUREMENT CHAIN =====================
-    "meas.power_rel_unc":     P(0.02, "-", "ASSUMPTION: device-reported power (Enapter/SMA telemetry), "
+    "meas.power_rel_unc":     P(0.02, "-", "ASSUMPTION: device-reported power (Enapter (EL) and legacy building-array telemetry), "
                                 "no independent power analyser yet", "GUESS", 0.5,
                                 "floor of every efficiency's uncertainty"),
 }

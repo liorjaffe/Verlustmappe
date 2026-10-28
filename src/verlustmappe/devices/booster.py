@@ -11,13 +11,8 @@ work by ~5-8% (Z > 1). That error is inside the eta_overall GUESS band and is
 documented here rather than corrected, because the GUESS dominates by an order
 of magnitude. If the booster is ever metered, switch W to the real-gas form
 (integral V dp with Z(p,T)).
-Anchor for eta_overall (verified against the full text, 2026-10): Bovo, Poli,
-Trovo, Marini, Guarnieri, IJHE 48 (2023) part 1, DOI 10.1016/j.ijhydene.2022.11.346,
-Tab. 3: 78.4 kWh compression + 4.6 kWh auxiliaries for 33.22 Nm3, tank 40->200
-bar. Correct fill-integral ideal work: 1.0-1.3 kWh (suction 40 vs 35 bar) ->
-overall 1.2-1.6%; registered 0.014 +-30%. (Their eta_CSU = 54.5% is H2 energy
-/ (H2 + compression electricity), a different quantity. The earlier "56-100
-kWh consumed" reading was a mix-up with the purifier energy and is withdrawn.)
+The registered eta_overall is REJECTED (D11, wrong device basis DLE 30-2) and is
+used ONLY so the frozen legacy-1.0 chain reproduces; see docs/94 C11.
 Until E_air_compressor is metered, E is estimated as W_ideal / eta_GUESS.
 """
 from .. import registry as R
@@ -72,4 +67,4 @@ class AirDrivenBooster:
         return dict(unit="CSU", ideal_work_kWh=w_ideal, energy_kWh=w_ideal / eta,
                     overall_efficiency=eta, energy_is_measured=False,
                     uncertainty_rel=R.entry("comp.overall_efficiency")["uncertainty"],
-                    warning="compression energy = ideal work / GUESS efficiency (+-50%); meter the Kaeser")
+                    warning="compression energy = ideal work / REJECTED legacy efficiency (D11); meter the Kaeser (D14)")
