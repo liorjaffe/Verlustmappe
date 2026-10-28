@@ -39,9 +39,10 @@ starting work.
 
 ## P05 open points (owner)
 
-- SOURCES quotes for the 22 entries are BACKLOG: fill verbatim quotes from the PDFs
-  before merge, otherwise rule 3 stays formally open. Pressure convention (gauge) is an
-  assumption (P-2).
+- SOURCES quotes: 20 of 22 entries carry verbatim quotes (owner transcription 2026-10-28).
+  `sys.n_rotex` and `sys.p_h2_out_project_barg` stay BACKLOG (owner decisions, no
+  document). Pressure convention (gauge) is an assumption (P-2); old Maximator repair
+  manual shows lower limits (150/300 bar), question P-3.
 - `kaeser.p_package_dealer_kw` (6.2 kW): uncertainty not assessed, owner to set.
 - Air consumption (D13): Maximator inquiry (chart conditions, continuous vs intermittent,
   gauge vs absolute) and site readout (SC2 load hours + kWh counter, stroke counters, EL
