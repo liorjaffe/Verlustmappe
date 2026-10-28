@@ -236,7 +236,7 @@ D10 stays reserved for the battery conflict (HANDOFF).
   generator text is touched. docs/02 is regenerated in the same commit and the diff is
   reviewed. Text-only. Executed in task P02b.
 
-## 2026-10-28 – Pre-M1 definition gates (D20–D30, owner decisions)
+## 2026-10-28 – Pre-M1 definition gates (D20–D31, owner decisions)
 
 These entries define what the new core must compute and accept before M1 code starts.
 Each entry stands alone and was approved individually by the owner (task P08, text only).
@@ -356,3 +356,20 @@ G1–G11 are aliases of D20–D30 in this order.
   The legacy-bar-to-ledger mapping table in docs/94 is normative for WHICH bars are compared
   (1:1 compared within tolerance; n:m compared as a group sum; no-counterpart bars excluded
   with a stated reason). It is NOT a regression test of the ledger construction.
+- **D31 – D25 sign rule (amends D25). Status: DECIDED (owner, 2026-10-28, task P09).**
+  The D25 gate "a physical quantity is negative" applies to COMPUTED and MODELLED quantities
+  within the storage-chain ledger scope (battery path outside per D23), not to raw channel
+  values with a sign convention (a meter reading negative on feed-in is not an INVALID
+  reason). Non-negative: energies and powers of a single path, masses, amounts of substance
+  and their rates (flows), absolute pressure, absolute temperature, water volumes. Signed by
+  definition: storage change (dE, dn), differences, relative and differential pressures.
+  Additions to either list require a DECISIONS entry.
+  Clarifications of D25 (no change of intent): (a) a missing mandatory channel makes only the
+  affected route or item INVALID, not automatically the whole run; mandatory channels are
+  enumerated per source in docs/03. (b) The nameplate fallback for a missing FC module
+  current (power channel valid) is a separate, labelled result with calculation_route =
+  NAMEPLATE, never a silent replacement of a measurement, and is subject to the D26
+  publication lock. (c) The Route-2 limit dp < 10 x FSO_abs of the tank-pressure sensor in
+  use applies to the legacy Route-2 path and to any future path that uses tank pressure as a
+  measurement; the new core does not use Route 2 (D8), re-admission needs a DECISIONS entry.
+  It is separate from the 50 bar window condition for leak-rate separation (docs/94 C6).

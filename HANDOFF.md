@@ -64,14 +64,14 @@ starting work.
 - P06 is merged (PR #5: Z-value docs quote the `test_02` assertions and the CoolProp 8.0.0
   cross-check; CoolProp is a verification tool, not a dependency).
 - P07 is merged (PR #6: docs/94 C14-C29 with AC8 rows, numbers recomputed from repo code).
-- P08 (D20-D30 pre-M1 definition gates, D5 closed by D26, AGENTS status vocabulary and freeze
-  amendment; text only) is executed on branch task/p08-pre-m1-gates, awaiting merge.
-- SPEC follow-up mandatory in P09 before M1 code: D20, D21 and D22 change SPEC wording
-  (closure tolerance, island boundary, control-energy netting); until P09 SPEC and these
-  entries differ on purpose. P09 also covers the register column "u not assessed" and its
-  enforcement test.
-- Next: P09 (SPEC from D20-D26), then M1 (P10 hand references, P11 port with the params
+- P08 is merged (PR #7: D20-D30 pre-M1 definition gates, D5 closed by D26, AGENTS status
+  vocabulary and freeze amendment; text only).
+- P09 (SPEC translation of D20-D26, D29, D30 plus new D31 sign rule) is executed on branch
+  task/p09-spec-from-gates, awaiting merge; the SPEC now matches D20-D31. The register column
+  "u not assessed" and its enforcement test are the code task P09b (after P09, before P10).
+- Next: merge P09, then P09b, then M1 (P10 hand references, P11 port with the params
   adapter, P12 ledger and gates).
+- Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
   (DERIVED, sourced from a manual).
@@ -82,7 +82,7 @@ starting work.
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
   Both tests restore `stor.volume_L` in a finally wrapper; owner acceptance
   (same-process leak check, both-modules failure path) executed before merge.
-- Next: see the order above (P08 merge, P09, M1).
+- Next: see the order above (P09, P09b, M1).
   
 
 Later:
