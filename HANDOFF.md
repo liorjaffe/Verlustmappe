@@ -64,8 +64,8 @@ starting work.
 - Then, in this order: Z-value check (docs/01, docs/04, README FAQ), docs/94 C14-C29 as its
   own task (text from the owner), D5 (uncertainty "not assessed"), the gates into DECISIONS
   before M1.
-- Still open (not in P02b): the demo summary line in the generated README block is not
-  labelled open-cycle (needs a generator change, own approval).
+- Station id `...567877` is consistency-verified against solis_live.py/test_10/docs/03 only;
+  the check against the SolisCloud export is still open (non-blocking).
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).

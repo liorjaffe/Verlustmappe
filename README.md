@@ -184,6 +184,8 @@ known defects listed in `docs/94_known_defects_legacy.md`, notably C3 (the plug 
 | H2 storage change (open cycle: +stored / -drawn) | -2.821 | DERIVED |
 
 **Demo summary:** PASS 03 full chain: EL eta 61.4%, FC eta 42.9%, RTE 25.3% [MC 22.4-26.6], H2 spread 0.0%
+
+*(Legacy open-cycle demo: the FC draws more hydrogen than the cycle produces, and the compressor value is REJECTED, D11. See the FAQ below.)*
 <!-- END GENERATED DEMO TABLE -->
 
 Read the status column first, the kWh column second. That is the discipline.

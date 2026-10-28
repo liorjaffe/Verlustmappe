@@ -41,7 +41,11 @@ def generated_content() -> str:
         "|---|---:|---|",
         *(f"| {stage.strip()} | {energy} | {status} |" for stage, energy, status in rows),
     ]
-    return "\n".join([*table, "", f"**Demo summary:** {summary}"])
+    note = (
+        "*(Legacy open-cycle demo: the FC draws more hydrogen than the cycle produces, "
+        "and the compressor value is REJECTED, D11. See the FAQ below.)*"
+    )
+    return "\n".join([*table, "", f"**Demo summary:** {summary}", "", note])
 
 
 def update_or_check(check: bool) -> None:

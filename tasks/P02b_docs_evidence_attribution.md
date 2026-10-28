@@ -15,6 +15,8 @@ and uncertainty stays byte-identical.
 ## Write-Scope
 - `docs/01_methods_handbook.md`, `docs/03_data_dictionary.md`, `docs/04_validation_log.md`
   (attribution/marker wording only)
+- `tools/make_readme_demo.py` (fixed note line under the demo summary, owner-approved
+  2026-10-28; protected only by review, not in the AGENTS protected list)
 - `README.md` (legacy note above the BEGIN marker; FAQ line "weakest number" only after
   the owner decision below)
 - `src/verlustmappe/reporting/make_register.py` (weakest-numbers items 4 and 4b only, D19)
@@ -24,7 +26,7 @@ and uncertainty stays byte-identical.
 
 ## Do not touch
 Values/statuses in docs/01-04, anything between the README GENERATED markers, `tests/`,
-`tools/`, `SOURCES.md`, `SPEC.md`, `AGENTS.md`, `ROADMAP.md`, `DECISIONS.md` (D19 exists),
+`tools/ci_guard.py`, `SOURCES.md`, `SPEC.md`, `AGENTS.md`, `ROADMAP.md`, `DECISIONS.md` (D19 exists),
 registry, other `src/` files, docs/94 C14-C29.
 
 ## Work items
@@ -51,8 +53,8 @@ registry, other `src/` files, docs/94 C14-C29.
    that rejected value. The full ranking is in docs/02 ("five weakest numbers"); the tank
    volume is a DATASHEET value (hydrostatic check open, not a placeholder)."
    Check it against the regenerated docs/02 list before committing; the list wins.
-   Labelling the demo summary line as open-cycle is NOT done here: it sits in the generated
-   block (README numbers are generated, rule 7); needs its own approved change.
+   The demo summary is labelled open-cycle by a fixed note line added in the generator
+   (`make_readme_demo.py`), README regenerated, no hand edit, no number in the note.
 5. `make_register.py`: item 4 text as in D19; item 4b station id `1298491919449567877`
    (verified against `loaders/solis_live.py`, `tests/test_10_pv_f8.py`, docs/03); regenerate
    docs/02, review the diff (only these two lines may change).
