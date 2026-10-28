@@ -86,7 +86,7 @@ Discrepancies found in OUR numbers (fixed):
 - bat.nominal_V was 48 V; the tested Regatron README says the FCM-802 regulates
   the bus to 52 V (48 V is only the factory default). Registry now 52 V, DERIVED,
   CONFIRM at the plant.
-- comp.overall_efficiency GUESS was 0.10 +-50%. The Veritas raw data imply
+- [superseded by D11; comp.* REJECTED] comp.overall_efficiency GUESS was 0.10 +-50%. The Veritas raw data imply
   3.0-5.3% overall for an air-driven booster (33.22 Nm3, 10->200 bar, ideal
   isothermal 3.0 kWh, consumed 56-100 kWh). Re-anchored to 0.04 +-40%, i.e.
   our GUESS now brackets the only comparable datapoint in the folder.
@@ -112,12 +112,14 @@ Not comparable (deliberately):
   wrong reference point - the formula was correct.
 - Loss chain closes algebraically; every bar labelled PRELIM (Rule 3).
 - Measured mode: AC follows the measurement; inverter bar flagged MEASURED.
-- **Inverter back-check against our own SMA telemetry**: energy-weighted
+- **Inverter back-check against telemetry of the removed legacy building array
+  (not F8 evidence)**: energy-weighted
   conversion efficiency over the 22-day window = 0.9719; the PRELIM Euro
   assumption 0.98 deviates only 0.8%. The typical-market anchor is consistent
-  with the measured hardware (within the 2% sanity bound; note that Euro
+  with the legacy-array hardware (supports only the generic string-inverter assumption,
+  not the F8 inverter; within the 2% sanity bound; note that Euro
   weighting vs our actual load distribution can legitimately shift this).
-- Stated limit: the DC-cable bar cannot be verified from the SMA data (the
+- Stated limit: the DC-cable bar cannot be verified from the legacy-array data (the
   inverter reports DC at its own terminals) - it stays PRELIM until the real
   cable lengths exist.
 
@@ -156,7 +158,7 @@ Every finding reproduced numerically before fixing; each has a guard now.
 3. **Compression anchor corrected twice.** The "56–100 kWh consumed" never
    appears in Bovo et al. (mix-up with the purifier energy). Full text (Tab. 3):
    78.4 + 4.6 kWh for 33.22 Nm³, 40→200 bar. Correct fill-integral ideal work
-   1.0–1.3 kWh → overall 1.2–1.6% → registry 0.014 ±30%. The paper's
+   1.0–1.3 kWh → overall 1.2–1.6% → registry 0.014 ±30% [superseded by D11; comp.* REJECTED]. The paper's
    eta_CSU = 54.5% is a different quantity (H2/(H2+comp)), not a contradiction.
    DOI now registered: 10.1016/j.ijhydene.2022.11.346.
 4. **Monte-Carlo n_cells clip (band artifact).** `_is_fraction` clipped EVERY

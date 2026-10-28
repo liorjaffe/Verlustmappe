@@ -50,7 +50,7 @@ starting work.
 - Workbook hash `0aa9f8ed...` should replace the original in "Master RTE sheets".
 - README note about the rejected assumption is not added (generated block); decide where.
 - ci_guard registry false alarm (registry change without tests change) not reproduced
-  with the P05 diff; P04 (branch task/p04-ci-guard) upgrades ci_guard to parsed entries, pending merge.
+  with the P05 diff; P04 (merged, PR #3) upgraded ci_guard to parsed entries.
 - Test guard for `comp.*` is a weak text scan until `models/params.py` exists.
 
 ## Next step
@@ -58,20 +58,20 @@ starting work.
 - Follow-up after P05 (`chore/p05-followup`): stale texts and the D9(a)/(c) remainder
   (pytest test extra in pyproject.toml, explicit legacy list plus stray-file guard in
   run_all.py) are done there.
-- Then, in this order: P04 (ci_guard parsed entries, C11/C13 src text cleanup, DECISIONS
-  D16/D17/D18, one PR; executed, awaiting merge), then the extended P02b task (attribution docs/01-04, docs/94, README legacy
-  note, docs/04 markers, make_register items 4/4b with regenerated docs/02 and an extended
-  D11 exception, stale texts), then the Z-value check (docs/04, README FAQ), then the gates
-  into DECISIONS before M1.
+- P04 is merged (PR #3: ci_guard parsed entries, C11/C13 text cleanup, D16/D17/D18).
+- P02b (docs/01-04 attribution, README legacy note and FAQ, make_register items 4/4b per
+  D19, docs/02 regenerated) is executed on branch task/p02b-attribution, awaiting merge.
+- Then, in this order: Z-value check (docs/01, docs/04, README FAQ), docs/94 C14-C29 as its
+  own task (text from the owner), D5 (uncertainty "not assessed"), the gates into DECISIONS
+  before M1.
+- Still open (not in P02b): the demo summary line in the generated README block is not
+  labelled open-cycle (needs a generator change, own approval).
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
   Both tests restore `stor.volume_L` in a finally wrapper; owner acceptance
   (same-process leak check, both-modules failure path) executed before merge.
-- Next: P02b (`tasks/P02b_docs_evidence_attribution.md`), then P04 (first
-  upgrade `tools/ci_guard.py` to compare parsed registry entries, then the
-  D1-authorized text cleanup incl. remaining `src/` SMA wording, and the
-  SOURCES stage-1 entry).
+- Next: see the order above (P02b merge, Z-value check, C14-C29).
   
 
 Later:

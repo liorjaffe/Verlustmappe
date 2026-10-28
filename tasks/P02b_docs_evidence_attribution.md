@@ -1,6 +1,6 @@
 # P02b - Evidence attribution in docs/01-04, README legacy note, generator text (D19)
 
-**Status:** Open
+**Status:** Complete (pending review)
 **Reference:** ROADMAP.md M0; docs/94 C13; DECISIONS D4, D11, D17, D19.
 **Patch base:** `main` after PR #3 (`ff63504`). This file replaces the earlier P02b text;
 items already done by P04/P05 were removed (docs/02 SMA wording, C13 file list in docs/94).

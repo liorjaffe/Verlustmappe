@@ -37,9 +37,12 @@ def main():
           "channel or a pyranometer.",
           "2. East-vertical shading (`pv.shading_rel`, PRELIM): unknown until the layout is surveyed.",
           "3. Soiling (`pv.soiling_rel`, PRELIM): vertical facade soils less than a tilted array; unmeasured.",
-          "4. Solis PV-AC efficiency: 0.966 datasheet peak vs 0.93-0.95 manual, no Euro efficiency published "
-          "(`inv_pv.eta_pv_ac_peak`, `inv_pv.eta_manual_range`; `inv_pv.eta_euro` is still PRELIM).",
-          "4b. F8 station id 1298491919449568000 also hosts F7 (SN ...0011); per-inverter-SN filtering is "
+          "4. F8 PV inverter (2 x Solis S6-GR1P6K) efficiency: no datasheet registered yet; "
+          "`inv_pv.eta_pv_ac_peak` and `inv_pv.eta_manual_range` are BACKLOG placeholders - "
+          "the numbers 0.966 / 0.93-0.95 in them belong to the FC-side Solis S5-EO1P5K-48 and "
+          "must NOT be used for the F8 S6 inverters (D6). `inv_pv.eta_euro` stays PRELIM "
+          "(generic literature value, no F8-specific datasheet yet).",
+          "4b. F8 station id 1298491919449567877 also hosts F7 (SN ...0011); per-inverter-SN filtering is "
           "mandatory before the measured channel goes live.",
           "5. String layout (`pv.string_config`, GUESS): 2 x 7 per inverter assumed; verify at the junction boxes.",
           "6. Imp discrepancy: nameplate 10.50 A vs MGK-36 datasheet 10.90 A (does not affect RTE, matters for fusing).",

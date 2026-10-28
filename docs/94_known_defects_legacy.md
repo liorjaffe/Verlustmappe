@@ -97,6 +97,7 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   exception (D16c, amended by D17; D16 named loaders/grafana.py in error). Status:
   executed in P04; the registry carries no SMA reference. tests/test_08* keep the SMA name
   (frozen legacy regression, falls in M6). AC8 treatment: none.
+  docs/01-04 evidence-attribution statements fixed in P02b.
   C13 is terminology-only and does not affect AC8 physics.
 
 ## AC8 treatment per defect (makes the SPEC exclusion rule operational)
