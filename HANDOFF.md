@@ -83,8 +83,9 @@ starting work.
   are BACKLOG until the Kaeser measurement (E3); D22 measurement point is carried as a
   documented assumption, not a blocker. Hand references go into the task that introduces the
   function. Test count now: pytest 77 passed.
-- P12 (branch task/p12-status-propagation): models/status.py, Param.u_class; test_37 awaits approval.
-- Next: P12 merge, then P13 (integration D24 + gate predicates), Z source clarification.
+- P12 is merged (PR #14: models/status.py with D26 ranking, total u_class, weakest; Param.u_class;
+  tests/test_37, parity with the register column over all 109 entries; pytest 88 passed).
+- Next: P13 (integration D24 + gate predicates, hand references first), Z source clarification.
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
