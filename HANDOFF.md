@@ -59,11 +59,13 @@ starting work.
   (pytest test extra in pyproject.toml, explicit legacy list plus stray-file guard in
   run_all.py) are done there.
 - P04 is merged (PR #3: ci_guard parsed entries, C11/C13 text cleanup, D16/D17/D18).
-- P02b (docs/01-04 attribution, README legacy note and FAQ, make_register items 4/4b per
-  D19, docs/02 regenerated) is executed on branch task/p02b-attribution, awaiting merge.
-- Then, in this order: Z-value check (docs/01, docs/04, README FAQ), docs/94 C14-C29 as its
-  own task (text from the owner), D5 (uncertainty "not assessed"), the gates into DECISIONS
-  before M1.
+- P02b is merged (PR #4: docs/01-04 attribution, README legacy note and FAQ, make_register
+  items 4/4b per D19, demo summary note, docs/02 regenerated).
+- P06 (Z-value docs: docs/01, docs/04, README FAQ quote the `test_02` assertions and the
+  CoolProp 8.0.0 cross-check; CoolProp is a verification tool, not a dependency) is executed
+  on branch task/p06-z-values-docs, awaiting merge.
+- Then, in this order: docs/94 C14-C29 as its own task (text from the owner), D5
+  (uncertainty "not assessed"), the gates into DECISIONS before M1.
 - Station id `...567877` is consistency-verified against solis_live.py/test_10/docs/03 only;
   the check against the SolisCloud export is still open (non-blocking).
 
@@ -71,7 +73,7 @@ starting work.
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
   Both tests restore `stor.volume_L` in a finally wrapper; owner acceptance
   (same-process leak check, both-modules failure path) executed before merge.
-- Next: see the order above (P02b merge, Z-value check, C14-C29).
+- Next: see the order above (P06 merge, C14-C29, gates).
   
 
 Later:

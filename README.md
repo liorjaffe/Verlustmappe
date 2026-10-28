@@ -284,8 +284,8 @@ Route 1 independently. When the two disagree, the residual is the gas lost betwe
 tank, itself a loss-map entry.
 
 **"Is 200 bar hydrogen an ideal gas?"**
-No. Z = 1.13 at 200 bar, 20 °C (NIST). Ignoring it overstates stored mass by 13%. The code
-uses the tabulated Z with ±0.5% (card C).
+No. Z = 1.125 at 200 bar, 20 °C (CoolProp/Leachman EOS). Ignoring it overstates stored mass
+by about 12.5%. The code uses the tabulated Z with ±1% (0–300 bar, 0–50 °C).
 
 **"Why two RTE numbers?"**
 Storage-chain RTE (AC in → AC out) is comparable with the literature. Island RTE (PV-AC in →

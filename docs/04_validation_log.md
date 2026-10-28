@@ -5,7 +5,7 @@ Which test proves what. Run everything with `python3 tests/run_all.py`.
 | Test | What it proves | Ground truth used |
 |---|---|---|
 | `test_01_constants_and_conversions` | constants match references; Faraday, gas law, isothermal work, trapezoid integration are implemented correctly | Enapter datasheet self-consistency (500 NL/h = 1.0785 kg/day), h2data.de (3.00 kWh/Nm³), hand-computed 1 A·h, 44.615 mol/m³ at STP, RT ln10, 2 kWh |
-| `test_02_hydrogen_routes` | Z table hits NIST checkpoints; Routes 1, 2, 4 agree to <1e-6 when fed the same physical truth; closure spread ≈ 0; nameplate route is the 62.4% constant | Z(350 bar,15 °C)=1.234, Z(200,20)=1.132, ρ(200 bar,20 °C)≈14.6 kg/m³; algebraic construction |
+| `test_02_hydrogen_routes` | Z table hits NIST checkpoints; Routes 1, 2, 4 agree to <1e-6 when fed the same physical truth; closure spread ≈ 0; nameplate route is the 62.4% constant | Z(350 bar,20 °C)=1.227±0.002, Z(200,20)=1.125±0.002, 14.6<ρ(200 bar g,20 °C)<14.8 kg/m³ (as asserted in `test_02`); CoolProp 8.0.0 cross-check Z(200,20)=1.1247, Z(350,20)=1.2240; algebraic construction |
 | `test_03_full_chain` | whole loss map runs; EL and FC efficiencies come out in physical ranges; RTE ≈ 26%; MC band brackets the estimate; a consistent tank reading closes to 0% spread | synthetic cycle 2.4 kW × 6 h charge, 2.5 kW × 2 h discharge |
 | `test_04_real_fc_data` | pipeline runs on real 2026-09-22 FC telemetry; finds ≥10 steady segments and ≥3 purge candidates; correctly refuses to call FC efficiency "measured" (terminal ≠ stack current) | the real log (3 h, 2161 rows) |
 | `test_05_analysis_methods` | characteristic-curve extraction, reference deviation, efficiency vs T, ramp/cycle energies, purge recovery, degradation regression and lifetime projection, relative-difference table | constructed linear V–I; discrete-signal energies; −0.4 mV/h synthetic degradation |
@@ -13,7 +13,7 @@ Which test proves what. Run everything with `python3 tests/run_all.py`.
 ## Bugs found by tests during development (kept here on purpose)
 - J→kWh instead of J→Wh in start/stop energies (factor 1000). Caught by `test_05`.
 - Tank end pressure inconsistent with produced hydrogen produced a 644% closure spread. Caught by `test_03`. This is the closure doing its job.
-- Constant Z = 1.10 at 200 bar underestimated the real-gas correction; replaced by the NIST table (1.132).
+- Constant Z = 1.10 at 200 bar underestimated the real-gas correction; replaced by the NIST table (1.132) (superseded; current table 1.125, see z_realgas.py).
 - Fuel-cell "polarisation curve" was computed from DC/DC output terminals; relabelled "terminal V–I" everywhere.
 - HTML analyzer assumed NL/min for flow; Enapter exports NL/hour (factor 60). Detector extended, warning added.
 - Two LHV constants (2.995 vs 2.998 Wh/NL) in two tools; unified through `constants.py`.
