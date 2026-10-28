@@ -1,4 +1,4 @@
-"""LAYER 2 - independent hand calculations vs. workbook column O. DRAFT.
+"""LAYER 2 - independent hand calculations vs. workbook column O.
 
 Every expected value is computed HERE from physical definitions and from
 inputs read out of the workbook; no project model is imported (Rule 4).

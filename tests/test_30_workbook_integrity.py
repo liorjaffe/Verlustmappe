@@ -1,4 +1,4 @@
-"""LAYER 1 - data integrity of the frozen workbook. DRAFT, not part of the repo.
+"""LAYER 1 - data integrity of the frozen workbook.
 
 Proves only: the file is the file we think it is, and it is internally
 well-formed. It does NOT prove any number is physically right.

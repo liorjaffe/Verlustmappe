@@ -1,4 +1,4 @@
-"""Minimal xlsx reader (stdlib only). DRAFT, not part of the repo.
+"""Minimal xlsx reader (stdlib only).
 
 Reads the frozen workbook without openpyxl. Formula cells are returned with
 their formula text and cached value separately. The 17 former pseudo-formula cells
