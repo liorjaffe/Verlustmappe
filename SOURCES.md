@@ -249,7 +249,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `5.85` kW (workbook text "5.5 + 0.35 kW")
 - **Source:** Kaeser SXC 8 nameplate photo [S10]
 - **Location:** workbook Master row 19
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** nameplate field "Bemessungsleistung 5,5 + 0,35 kW" (SXC 8, Material-Nr. 100692.11); the nameplate does not say what the 0,35 kW belong to (owner transcription 2026-10-28)
 - **Source conditions:** assignment of the 0.35 kW is not documented; the sum is the registered value
 - **Transferability:** same plant; the sum is an owner reading, to be confirmed
 - **Registry status and uncertainty:** DATASHEET (nameplate), 0.0
@@ -260,7 +260,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `11` barg
 - **Source:** Kaeser nameplate photo [S10]
 - **Location:** workbook Master row 35
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** nameplate field "Max. Betriebsüberdruck PS 11,00 bar" (limit, not an operating point) (owner transcription 2026-10-28)
 - **Source conditions:** nameplate pressure; observed line pressure is 8.1 bar (not registered)
 - **Transferability:** same plant; gauge assumed (P-2)
 - **Registry status and uncertainty:** DATASHEET (nameplate), 0.0
@@ -271,7 +271,7 @@ of the affected keys changes by decision.
 - **Value and unit:** `0.67` m3/min FAD
 - **Source:** Kaeser SXC compact brochure P-651/26D [S15]
 - **Location:** workbook Master row 36
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** Kaeser brochure P-651/26D (.10/24), technical data table (PDF p.6/7), row "SXC 8": "SXC 8 | 10 | 0,67 | 11 | 5,5 | CT 8 | +6 | 0,2 | 215 | 620 x 980 x 1480 | 69 | 300" (columns: Betriebsüberdruck 10, Volumenstrom Gesamtanlage 0,67, max. Überdruck 11); footnote: "*) Volumenstrom Gesamtanlage nach ISO 1217: 2009, Annex C/E, Ansaugdruck 1 bar (abs), Kühl- und Luftansaugtemperatur + 20 °C" (owner transcription 2026-10-28)
 - **Source conditions:** 10 bar working pressure, 11 bar version, ISO 1217:2009 Annex C/E, inlet 1 bar abs, 20 degC
 - **Transferability:** same type; ISO 1217 tolerance not stated; dealer lists the same flow at 11 bar
 - **Registry status and uncertainty:** DATASHEET, 0.0
@@ -282,9 +282,9 @@ of the affected keys changes by decision.
 - **Value and unit:** `6.2` kW
 - **Source:** dealer listing 100692.11 [S16]
 - **Location:** workbook Master row 28
-- **Verbatim quote:** BACKLOG
+- **Verbatim quote:** dealer listing (grobmotorik.org, "Schraubenkompressor Sxc 8 | 100692.11"): "Elektr. Leistungsaufnahme der Gesamtanlage bei 11,0 bar: 6,2 kW"; same listing: "Volumenstrom bei 11,0 bar: 0,67 m³/min (670 l/min.)"; "Ausführung mit SIGMA CONTROL Basic"; "Kältetrockner 0,28 kW" (owner transcription 2026-10-28)
 - **Source conditions:** at 11 bar; dryer inclusion not stated. CONFLICT: the same listing gives 0.67 m3/min at 11 bar, the manufacturer gives 0.67 at 10 bar
-- **Transferability:** secondary source with a known conflict; replace by measurement (SC2 kWh counter)
+- **Transferability:** secondary source with a known conflict; replace by measurement (SC2 kWh counter). Dealer attributes 0.67 m3/min and 6.2 kW both to 11.0 bar, manufacturer attributes 0.67 m3/min to 10 bar working pressure (11 bar = max. overpressure). Dealer controller variant ("SIGMA CONTROL Basic") conflicts with the installed SC2 (option C48, MCSIO); the photo governs. Inclusion of the refrigeration dryer in 6.2 kW not stated
 - **Registry status and uncertainty:** DATASHEET_SECONDARY, 0.0 (uncertainty to be set by owner)
 - **Used by:** none yet; basis of the derived Kaeser energy figure, which is workbook-only
 - **Reviewer/date:** owner, pending
