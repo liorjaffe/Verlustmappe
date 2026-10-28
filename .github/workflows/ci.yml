@@ -20,9 +20,11 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install test dependencies
-        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib requests
+        run: python -m pip install --disable-pip-version-check numpy pandas scipy matplotlib requests pytest
       - name: Run project test suite
         run: python tests/run_all.py
+      - name: Run pytest-style tests
+        run: python -m pytest -q
       - name: Enforce repository guards
         env:
           BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}

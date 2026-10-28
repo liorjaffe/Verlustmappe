@@ -127,3 +127,65 @@ remotely on 2026-10-23 (refs/tags/legacy-1.0^{} resolves to the baseline commit)
   purchased; deferred per D8).
 - tools/fuelcell_analyzer.html: archive to docs/ or delete.
 - GitHub branch protection: owner configures it (CODEOWNERS enforce only after that).
+
+## 2026-10-27 – Compressor and air system, workbook v2 (D11–D15, owner decisions)
+
+Source: owner workbook `Compressor_System_Specs_Master_v2.xlsx`, SHA-256
+`0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd942ae`. Task: P05.
+D10 stays reserved for the battery conflict (HANDOFF).
+
+- **D11 – comp.* is marked REJECTED, not deleted (authorization to execute, task P05).
+  Status: DECIDED.**
+  The six keys `comp.pressure_ratio`, `comp.stroke_volume_cm3`, `comp.max_cycles_per_min`,
+  `comp.min_suction_bar`, `comp.overall_efficiency`, `comp.specific_energy_kWh_per_Nm3`
+  describe a Maximator DLE 30-2 (wrong device basis, not an uncertainty). The installed
+  system is two-stage: HULC with DLE15-H2 (stage 1, 35 -> 140 barg) plus DLE 30-H2
+  (stage 2; ratio 1:30, 120 cycles/min, minimum suction 15 bar). They get the status
+  `REJECTED` ("legacy-only, device basis wrong (DLE 30-2)") and stay with their values
+  ONLY so the frozen legacy-1.0 chain reproduces; the new core never reads them.
+  Deletion happens at the legacy teardown (M6). Known consequence: legacy Monte-Carlo runs
+  still sample the rejected values. D2 exception, text and ordering only, no physics:
+  `reporting/make_register.py` (add the new status labels to `ORDER`; correct the
+  hard-coded "weakest number 1" text). `devices/booster.py` and `balance/*` stay frozen.
+  The README demo gets a note: its compressor value is a rejected legacy assumption.
+  Guard until the adapter `models/params.py` exists: a text test only (weak, finds
+  literal `comp.` / `REJECTED` reads under `models/`, `sim/`, `scenarios/`, `calibration/`).
+  Supersedes D1 (2026-10-21): the question "which efficiency as INPUT" lapses; eta_iso,el
+  becomes a derived quantity, eta = W_iso / E_el.
+- **D12 – Working pressures. Status: DECIDED.**
+  `stor.p_work_barg = 200` stays: it is the legacy-1.0 operating pressure used by the
+  frozen `balance/d_loss_map.py`. For the new core the project case is
+  `sys.p_h2_out_project_barg = 300` (OWNER_DECISION). `hulc.tank_limit_bar` is NOT
+  registered separately; it refers to this key (workbook status Observed, tank does not
+  exceed ~300 bar in practice). Different meaning, different key, both documented.
+- **D13 – Air consumption of the HULC. Status: DECIDED.**
+  Primary L1 model = the manufacturer air-consumption CURVE as a function of H2 flow
+  (TDS p.2), evaluated at the plant operating point. The operating point is OPEN
+  (continuous vs intermittent operation, chart conditions, series addition of both
+  curves unconfirmed). 14.6 Nm3/Nm3 is the value at module maximum flow (83.3 NL/min), NOT a
+  bound: at 10 NL/min (one EL2.1) the same readings give about 50. Path B (4.59 – 6.30,
+  geometry only) is a physical lower bound. Nothing is registered until the manufacturer
+  answer or an L3 readout (SIGMA CONTROL 2 load hours + kWh counter, HULC stroke counters,
+  EL production, same period). Then the curve points are registered, status
+  "Datasheet (chart reading)", conditions open. Revocation: manufacturer answer or L3 data.
+- **D14 – D3 stage 1, Kaeser energy in the RTE. Status: DECIDED.**
+  Boundary confirmed by the owner: the Kaeser supplies only the HULC and the four Rotex.
+  Rules: variable air energy proportional to air quantity (HULC / Rotex 1–4 / other);
+  READY standby and network leakage as separate items; leakage belongs to the distribution
+  block, not to the HULC; standby by air draw, else equal split (assumption). Supersedes
+  workbook row `energy.allocation_rule` (pending). Stage 1 yields NO RTE number (Kaeser
+  input power Open; 6.2 kW is a dealer value). `balance/*` unchanged.
+- **D15 – Status vocabulary, partial D5. Status: DECIDED for these labels only.**
+  New: `OWNER_DECISION` (`sys.n_rotex`, `sys.p_h2_out_project_barg`),
+  `DATASHEET_SECONDARY` (`kaeser.p_package_dealer_kw`, 6.2 kW at 11 bar vs 0.67 m3/min at
+  10 bar; conflict in the SOURCES transferability line), `REJECTED` (D11). Other
+  `Observed` rows stay unregistered (BACKLOG). Gauge pressures use `barg` in key names.
+  Registry scope is an exact list of workbook statuses: `Datasheet`, `Nameplate`,
+  `Datasheet (base type)` (transferred from DLE15/DLE30 catalog, said in the SOURCES
+  transferability line), `Project decision`, `Dealer`. Everything else (Calculated*,
+  Observed, Open, Assumption, "(conflicting)", "(scope to confirm)", "(identity assumed)",
+  "(chart reading)") is workbook-only; `sim/` computes derived values itself.
+- **Tests.** The first new test file is `test_30` instead of the planned `test_20`,
+  because the SPEC reserves test_20–26 for AC1–AC8. New suites are pytest style; D9 (a)–(d)
+  land in the same owner commit. The workbook is a hash-pinned fixture; editing it
+  triggers the full re-review. The manual mutation check is not named `test_*`.

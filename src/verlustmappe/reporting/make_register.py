@@ -5,7 +5,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 from verlustmappe import registry as R
 
-ORDER = {"BACKLOG": 0, "GUESS": 1, "PRELIM": 2, "DERIVED": 3, "DATASHEET": 4, "MEASURED": 5}
+ORDER = {"REJECTED": -1, "BACKLOG": 0, "GUESS": 1, "PRELIM": 2, "DERIVED": 3, "OWNER_DECISION": 3.5,
+         "DATASHEET_SECONDARY": 3.8, "DATASHEET": 4, "MEASURED": 5}
 
 def main():
     rows = sorted(((v["status"], k, v) for k, v in R.REGISTRY.items()),
@@ -15,12 +16,15 @@ def main():
          "`src/verlustmappe/registry.py` by `reporting/make_register.py`; edit the registry, not this file.", "",
          "Status: BACKLOG = placeholder, MUST be replaced. GUESS = assumption bounded only by literature/physics.",
          "PRELIM = typical-market value, real hardware not yet chosen. DERIVED = computed from",
-         "other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.", "",
+         "other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.",
+         "OWNER_DECISION = project decision by the owner. DATASHEET_SECONDARY = secondary source with a known conflict.",
+         "REJECTED = legacy-only, device basis wrong; never an input of the new core (DECISIONS D11).", "",
          "| Status | Key | Value | Unit | Rel. unc. | Source | What it drives |", "|---|---|---|---|---|---|---|"]
     for st, k, v in rows:
         L.append(f"| {st} | `{k}` | {v['value']} | {v['unit']} | {v['uncertainty']} | {v['source']} | {v['effect']} |")
     L += ["", "## The five weakest numbers and how to fix each", "",
-          "1. `comp.overall_efficiency` (GUESS +-40%). Energy meter on the Kaeser air compressor during booster runs.",
+          "1. `comp.overall_efficiency` (REJECTED, legacy-only, wrong device basis). The Kaeser air-compressor energy "
+          "needs a meter (SIGMA CONTROL 2 kWh counter) during booster runs; no registry value replaces it until measured.",
           "2. `dry.vent_fraction` (GUESS +-50%). Bound with a long charge window: Faraday - tank-pV - known leaks.",
           "3. `el.n_cells` / `fc.n_cells` (GUESS). Ask the manufacturers; Faraday routes scale linearly with them.",
           "4. `meas.p_sensor_fso_bar` (DERIVED from the 0-400 bar range). Confirm the delivered DCT 541 label; the "

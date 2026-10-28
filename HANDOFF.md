@@ -17,6 +17,11 @@ starting work.
   `docs/94_known_defects_legacy.md` (C1-C12), `.github/CODEOWNERS` extended to
   all 13 protected paths, matching AGENTS.md.
 
+- P05 (branch `feat/p05-compressor-xlsx-v2`, not merged): D11-D15, 22 SOURCES entries
+  (quotes BACKLOG), registry `comp.*` REJECTED + 22 workbook entries, `make_register.py`
+  (D11 exception), docs/01 note, tests `test_30`-`test_34` (pytest), D9 (a)-(d).
+  `python3 tests/run_all.py` covers test_01-12 only; `pytest -q` covers test_30+.
+
 ## Blocked
 
 - GitHub branch protection cannot be configured from repository files. A
@@ -32,7 +37,25 @@ starting work.
   105 Ah / 5 kWh and 48 V nominal (52 V is the Regatron bus setpoint). Needs a
   DECISIONS entry (D10) before any registry change.
 
+## P05 open points (owner)
+
+- SOURCES quotes: 20 of 22 entries carry verbatim quotes (owner transcription 2026-10-28).
+  `sys.n_rotex` and `sys.p_h2_out_project_barg` stay BACKLOG (owner decisions, no
+  document). Pressure convention (gauge) is an assumption (P-2); old Maximator repair
+  manual shows lower limits (150/300 bar), question P-3.
+- `kaeser.p_package_dealer_kw` (6.2 kW): uncertainty not assessed, owner to set.
+- Air consumption (D13): Maximator inquiry (chart conditions, continuous vs intermittent,
+  gauge vs absolute) and site readout (SC2 load hours + kWh counter, stroke counters, EL
+  production) are open; nothing registered.
+- Workbook hash `0aa9f8ed...` should replace the original in "Master RTE sheets".
+- README note about the rejected assumption is not added (generated block); decide where.
+- ci_guard registry false alarm (registry change without tests change) not reproduced
+  with the P05 diff; P04 upgrade still planned.
+- Test guard for `comp.*` is a weak text scan until `models/params.py` exists.
+
 ## Next step
+
+- P05: owner review and merge; then P02b, then P04.
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
@@ -45,7 +68,6 @@ starting work.
   
 
 Later:
-- D9 (a)-(d) in one commit together with the first new test file
-  (`tests/test_20_static_map.py`) in M1, as D9 requires.
+- D9 (a)-(d) done in P05 (test_20-26 stay reserved by the SPEC).
 - M1 per `ROADMAP.md`.
 - Backlog: migrate the 87 registry citations into complete `SOURCES.md` entries.

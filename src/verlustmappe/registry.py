@@ -12,6 +12,9 @@ Each entry carries:
                  DERIVED    computed from other entries
                  GUESS      an assumption; must be bounded by data later
                  BACKLOG    placeholder; MUST be replaced before any paper number
+                 OWNER_DECISION       project decision by the owner (DECISIONS D15)
+                 DATASHEET_SECONDARY  documented secondary source with a known conflict
+                 REJECTED             legacy-only, device basis wrong; the new core never reads it (D11)
   uncertainty  relative (fraction) unless the unit says otherwise
   effect       what result this number drives (so you know what breaks if
                it is wrong)
@@ -89,10 +92,12 @@ REGISTRY = {
                                 "pre-treatment energy bar; NOT 0 if the pump feeds the RO"),
 
     # ============ COMPRESSOR: Maximator DLE 30-2 air-driven gas booster ============
-    "comp.pressure_ratio":    P(60, "-", "Maximator DLE 30-2 TDS", "DATASHEET", 0.0, "stall pressure check"),
-    "comp.stroke_volume_cm3": P(120, "cm3/double stroke", "Maximator DLE 30-2 TDS", "DATASHEET", 0.0, "flow capacity check"),
-    "comp.max_cycles_per_min": P(100, "1/min", "Maximator DLE 30-2 TDS", "DATASHEET", 0.0, "flow capacity check"),
-    "comp.min_suction_bar":   P(20, "bar", "Maximator DLE 30-2 TDS", "DATASHEET", 0.0, "storage lower pressure limit"),
+    # D11 (2026-10-27): the six comp.* keys below are REJECTED (wrong device basis, DLE 30-2).
+    # Values stay ONLY so the frozen legacy-1.0 chain reproduces; the new core never reads them.
+    "comp.pressure_ratio":    P(60, "-", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "stall pressure check"),
+    "comp.stroke_volume_cm3": P(120, "cm3/double stroke", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "flow capacity check"),
+    "comp.max_cycles_per_min": P(100, "1/min", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "flow capacity check"),
+    "comp.min_suction_bar":   P(20, "bar", "Maximator DLE 30-2 TDS", "REJECTED", 0.0, "storage lower pressure limit"),
     # Anchor, verified against the FULL TEXT of Bovo, Poli, Trovo, Marini,
     # Guarnieri, "Hydrogen energy storage system in a Multi-Technology
     # Microgrid: technical features and performance", IJHE 48 (2023), part 1
@@ -113,12 +118,38 @@ REGISTRY = {
                                 "33.22 Nm3 (full / half load), 10-bar booster inlet, fill-integral ideal work "
                                 "-> overall 1.9-4.3%; decision 2026-10-21: 0.03 +-40%. Our Kaeser+Maximator "
                                 "chain may differ. MEASURE it.",
-                                "GUESS", 0.4,
+                                "REJECTED", 0.4,
                                 "compression loss bar; MUST be replaced by Kaeser energy measurement"),
     "comp.specific_energy_kWh_per_Nm3": P(2.3, "kWh/Nm3", "Bovo IJHE 2023 Tab. 3: 60.28/56.36/100.2 kWh per 33.22 Nm3 "
                                 "-> 1.81/1.70/3.02; midpoint of full/half power. Cross-check only; the model "
-                                "uses comp.overall_efficiency", "GUESS", 0.4,
+                                "uses comp.overall_efficiency", "REJECTED", 0.4,
                                 "pressure-independent sanity check of the compression bar"),
+
+    # ===== P05 workbook v2: primary data (D11-D15; details in SOURCES.md) =====
+    # Pressures are gauge by assumption (SOURCES open point P-2). '(base type)' rows are DLE15/DLE30
+    # catalog values transferred to the -H2 units, not verified against the -H2 datasheet.
+    'sys.n_rotex': P(4, '-', 'owner decision 2026-10-27, SOURCES.md', 'OWNER_DECISION', 0.0, 'none yet'),
+    'sys.p_h2_out_project_barg': P(300, 'barg', 'owner decision 2026-10-27 (D12), SOURCES.md', 'OWNER_DECISION', 0.0, 'none yet'),
+    'sys.p_h2_out_nameplate_barg': P(400, 'barg', 'HULC system nameplate, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'sys.p_h2_in_barg': P(35, 'barg', 'HydroHulc TDS p.2, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.mod.q_h2_max_nm3h': P(5, 'Nm3/h', "HydroHulc TDS p.2 ('up to'), SOURCES.md", 'DATASHEET', 0.0, 'none yet'),
+    'hulc.m140.limits': P(140, 'barg', 'HydroHulc TDS p.2, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.m400.limits': P(400, 'barg', 'HydroHulc TDS p.2, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.pl_max_barg': P(10, 'barg', 'Maximator catalog, upper end of range 1-10, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s1.i': P(15, '-', 'DLE 15 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s1.v_disp_cm3': P(244, 'cm3', 'DLE 15 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s1.f_max_min': P(120, '1/min', 'DLE 15 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s1.pa_min_barg': P(7, 'barg', 'DLE 15 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s1.pb_max_barg': P(300, 'barg', 'DLE 15 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s2.i': P(30, '-', 'DLE 30 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s2.v_disp_cm3': P(120, 'cm3', 'DLE 30 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s2.f_max_min': P(120, '1/min', 'DLE 30 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s2.pa_min_barg': P(15, 'barg', 'DLE 30 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'hulc.s2.pb_max_barg': P(600, 'barg', 'DLE 30 base type, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'kaeser.p_rated_nameplate_kw': P(5.85, 'kW', 'Kaeser SXC 8 nameplate 5.5 + 0.35 kW (sum, assignment open), SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'kaeser.ps_barg': P(11, 'barg', 'Kaeser SXC 8 nameplate, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'kaeser.q_fad_m3min': P(0.67, 'm3/min FAD', 'Kaeser brochure P-651/26D, 10 bar working pressure, SOURCES.md', 'DATASHEET', 0.0, 'none yet'),
+    'kaeser.p_package_dealer_kw': P(6.2, 'kW', 'dealer listing, conflicting pressure basis, SOURCES.md', 'DATASHEET_SECONDARY', 0.0, 'none yet; uncertainty NOT assessed (owner to set)'),
 
     # ===================== STORAGE =====================
     # Tank identity from the nameplate photo (VITKOVICE CYLINDERS S-16-50-22-27):
