@@ -8,6 +8,20 @@ from verlustmappe import registry as R
 ORDER = {"REJECTED": -1, "BACKLOG": 0, "GUESS": 1, "PRELIM": 2, "DERIVED": 3, "OWNER_DECISION": 3.5,
          "DATASHEET_SECONDARY": 3.8, "DATASHEET": 4, "MEASURED": 5}
 
+# D26(b)(iii): closed list of TOLERANCE_BAND keys; extend via DECISIONS only
+TOLERANCE_BAND = ("meas.p_sensor_fso_bar", "meas.p_sensor_thermal_bar_per_10K")
+
+def u_class(key, entry):
+    """Computed D26 classification: 'assessed' (u > 0), 'exact' or 'NOT ASSESSED' (u = 0.0).
+    Exact with u = 0.0: status OWNER_DECISION or a TOLERANCE_BAND key. DERIVED alone does not
+    establish exactness (D26); a single DERIVED entry becomes exact only through a DECISIONS
+    entry that extends the D26 enumeration."""
+    if entry["uncertainty"] != 0.0:
+        return "assessed"
+    if entry["status"] == "OWNER_DECISION" or key in TOLERANCE_BAND:
+        return "exact"
+    return "NOT ASSESSED"
+
 def main():
     rows = sorted(((v["status"], k, v) for k, v in R.REGISTRY.items()),
                   key=lambda r: (ORDER[r[0]], -float(r[2]["uncertainty"]) if isinstance(r[2]["uncertainty"], (int, float)) else 0))
@@ -19,9 +33,15 @@ def main():
          "other entries. DATASHEET = manufacturer claim. MEASURED = measured by us.",
          "OWNER_DECISION = project decision by the owner. DATASHEET_SECONDARY = secondary source with a known conflict.",
          "REJECTED = legacy-only, device basis wrong; never an input of the new core (DECISIONS D11).", "",
-         "| Status | Key | Value | Unit | Rel. unc. | Source | What it drives |", "|---|---|---|---|---|---|---|"]
+         "u class (computed, DECISIONS D26): `assessed` = u > 0. With u = 0.0: `exact` only for OWNER_DECISION and the "
+         "TOLERANCE_BAND keys `meas.p_sensor_fso_bar`, `meas.p_sensor_thermal_bar_per_10K`; every other entry is "
+         "`NOT ASSESSED` (value exists, uncertainty unquantified; DERIVED alone does not mean exact). "
+         f"Currently {sum(u_class(k, v) == 'NOT ASSESSED' for _, k, v in rows)} of {len(rows)} entries are NOT ASSESSED "
+         f"and {sum(u_class(k, v) == 'exact' for _, k, v in rows)} are exact with u = 0.0. Computation is never blocked; "
+         "headline numbers are gated (D21/D26).", "",
+         "| Status | Key | Value | Unit | Rel. unc. | u class | Source | What it drives |", "|---|---|---|---|---|---|---|---|"]
     for st, k, v in rows:
-        L.append(f"| {st} | `{k}` | {v['value']} | {v['unit']} | {v['uncertainty']} | {v['source']} | {v['effect']} |")
+        L.append(f"| {st} | `{k}` | {v['value']} | {v['unit']} | {v['uncertainty']} | {u_class(k, v)} | {v['source']} | {v['effect']} |")
     L += ["", "## The five weakest numbers and how to fix each", "",
           "1. `comp.overall_efficiency` (REJECTED, legacy-only, wrong device basis). The Kaeser air-compressor energy "
           "needs a meter (SIGMA CONTROL 2 kWh counter) during booster runs; no registry value replaces it until measured.",
