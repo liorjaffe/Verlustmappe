@@ -17,8 +17,8 @@ starting work.
   `docs/94_known_defects_legacy.md` (C1-C12), `.github/CODEOWNERS` extended to
   all 13 protected paths, matching AGENTS.md.
 
-- P05 (branch `feat/p05-compressor-xlsx-v2`, not merged): D11-D15, 22 SOURCES entries
-  (quotes BACKLOG), registry `comp.*` REJECTED + 22 workbook entries, `make_register.py`
+- P05 is complete (PR #1, merge `3ceb62e`): D11-D15, 22 SOURCES entries
+  (20 with verbatim quotes), registry `comp.*` REJECTED + 22 workbook entries, `make_register.py`
   (D11 exception), docs/01 note, tests `test_30`-`test_34` (pytest), D9 (a)-(d).
   `python3 tests/run_all.py` covers test_01-12 only; `pytest -q` covers test_30+.
 
@@ -55,7 +55,9 @@ starting work.
 
 ## Next step
 
-- P05: owner review and merge; then P02b, then P04.
+- Follow-up after P05 (`chore/p05-followup`): stale texts, D9(a)/(c) remainder
+  (`dependencies` in pyproject.toml, explicit file names in run_all.py), then decisions on
+  the 0.014 comment block in registry.py, P04, then P02b.
 
 - P02 is complete (implementation commits `1f0a0e7`, `7047101`; merge via main).
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).

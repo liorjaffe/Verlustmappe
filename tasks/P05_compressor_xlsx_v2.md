@@ -1,6 +1,6 @@
 # P05 - Mark the DLE 30-2 compressor assumptions as REJECTED, add workbook v2 primary data
 
-**Status:** Implemented on branch `feat/p05-compressor-xlsx-v2`, awaiting owner review
+**Status:** Complete (PR #1, merge `3ceb62e`)
 **Reference:** ROADMAP M1 (AC1, layer-1 parameters); DECISIONS D11–D15 (2026-10-27).
 **Patch base:** `166a634` (re-verify with `git rev-parse main`).
 **Precondition:** D11–D15 committed (owner-approved) before any other edit.
