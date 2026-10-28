@@ -66,10 +66,11 @@ starting work.
 - P07 is merged (PR #6: docs/94 C14-C29 with AC8 rows, numbers recomputed from repo code).
 - P08 is merged (PR #7: D20-D30 pre-M1 definition gates, D5 closed by D26, AGENTS status
   vocabulary and freeze amendment; text only).
-- P09 (SPEC translation of D20-D26, D29, D30 plus new D31 sign rule) is executed on branch
-  task/p09-spec-from-gates, awaiting merge; the SPEC now matches D20-D31. The register column
-  "u not assessed" and its enforcement test are the code task P09b (after P09, before P10).
-- Next: merge P09, then P09b, then M1 (P10 hand references, P11 port with the params
+- P09 is merged (PR #8: SPEC matches D20-D31, D31 sign rule added).
+- P09b (branch task/p09b-u-not-assessed): register column "u class" per D26 is in docs/02
+  (59 NOT ASSESSED, 4 exact, 46 assessed); enforcement test tests/test_35_u_class.py is the
+  second commit and needs owner approval.
+- Next: merge P09b, then M1 (P10 hand references, P11 port with the params
   adapter, P12 ledger and gates).
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
