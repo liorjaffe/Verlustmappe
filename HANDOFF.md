@@ -61,11 +61,11 @@ starting work.
 - P04 is merged (PR #3: ci_guard parsed entries, C11/C13 text cleanup, D16/D17/D18).
 - P02b is merged (PR #4: docs/01-04 attribution, README legacy note and FAQ, make_register
   items 4/4b per D19, demo summary note, docs/02 regenerated).
-- P06 (Z-value docs: docs/01, docs/04, README FAQ quote the `test_02` assertions and the
-  CoolProp 8.0.0 cross-check; CoolProp is a verification tool, not a dependency) is executed
-  on branch task/p06-z-values-docs, awaiting merge.
-- Then, in this order: docs/94 C14-C29 as its own task (text from the owner), D5
-  (uncertainty "not assessed"), the gates into DECISIONS before M1.
+- P06 is merged (PR #5: Z-value docs quote the `test_02` assertions and the CoolProp 8.0.0
+  cross-check; CoolProp is a verification tool, not a dependency).
+- P07 (docs/94 C14-C29 with AC8 rows, numbers recomputed from repo code) is executed on
+  branch task/p07-docs94-c14-c29, awaiting merge.
+- Then, in this order: D5 (uncertainty "not assessed"), the gates into DECISIONS before M1.
 - Station id `...567877` is consistency-verified against solis_live.py/test_10/docs/03 only;
   the check against the SolisCloud export is still open (non-blocking).
 
@@ -73,7 +73,7 @@ starting work.
 - P03 is complete: C9 fixed (tests `1afd616`, docs `b705ae3`, merge `8bd06ef`).
   Both tests restore `stor.volume_L` in a finally wrapper; owner acceptance
   (same-process leak check, both-modules failure path) executed before merge.
-- Next: see the order above (P06 merge, C14-C29, gates).
+- Next: see the order above (P07 merge, D5, gates).
   
 
 Later:
