@@ -112,15 +112,8 @@ Not comparable (deliberately):
   wrong reference point - the formula was correct.
 - Loss chain closes algebraically; every bar labelled PRELIM (Rule 3).
 - Measured mode: AC follows the measurement; inverter bar flagged MEASURED.
-- **Inverter back-check against telemetry of the removed legacy building array
-  (not F8 evidence)**: energy-weighted
-  conversion efficiency over the 22-day window = 0.9719; the PRELIM Euro
-  assumption 0.98 deviates only 0.8%. The typical-market anchor is consistent
-  with the legacy-array hardware (supports only the generic string-inverter assumption,
-  not the F8 inverter; within the 2% sanity bound; note that Euro
-  weighting vs our actual load distribution can legitimately shift this).
-- Stated limit: the DC-cable bar cannot be verified from the legacy-array data (the
-  inverter reports DC at its own terminals) - it stays PRELIM until the real
+- The former inverter back-check against the Sept 2026 dataset was removed per D33 (owner decision 2026-10-28; owner statement: not from the F8 inverters; exact provenance unresolved).
+- Stated limit: the DC-cable bar cannot be verified from inverter-terminal DC data - it stays PRELIM until the real
   cable lengths exist.
 
 ## Live-channel preparation round (2026-10-07)
@@ -241,9 +234,6 @@ Each item was fixed, run through `tools/probes/run_probes.py` and
    time base, tank).
 
 Still open (needs data, not code):
-- `data/processed/pv_retro/pv_merged.csv`: first rows have a counter-like value in
-  `grid_Hz` (498728.95); regenerate from the raw export. The meter total
-  (5190.3 kWh) starts only on 9 Sept 14:40, so the morning of day 1 is missing.
 - Confirm the delivered DCT 541 label and the `bundle_isolated` practice.
 - Rest windows after a fill (GS fit); Kaeser energy meter; EL stack current
   export; Solis export with FC currents or a DC current.
