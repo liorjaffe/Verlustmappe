@@ -2,6 +2,25 @@
 
 Which test proves what. Run everything with `python3 tests/run_all.py`.
 
+## Current new-core acceptance: open AC8 positions (D35, 2026-10-29)
+
+The historical test results below are not evidence of full new-core AC1 or AC8
+acceptance. Passing the existing suites does not close these positions.
+
+| AC8 position | Current evidence / blocker | Required next evidence or decision |
+|---|---|---|
+| Tagged reference generator and values | OPEN: `tests/reference/legacy-1.0/` and its committed generator are not present (SPEC AC8, ROADMAP M1). | Scoped reference task generating values at `legacy-1.0`, with explicit reference conditions. |
+| Legacy-bar to ledger mapping, including compression/C28 | OPEN: mapping awaits ledger names; D13 air-demand conditions and D14 electrical-input/allocation bases are unresolved. D30 supplies the mapping procedure, not a compression exemption (D35). | Normative mapping in docs/94, justified comparison/grouping and resolution of dependent comparisons; no automatic exclusion for an unquantified counterpart. |
+| Historical RTE regression | OPEN: D11 rejects the historical compression basis for the new core; D14 prevents a production RTE while Kaeser input power is open. D13/D14 closure alone does not establish historical comparability (D35). | Separate owner decision: historical fixture-only treatment with explicit D11/D28 permission and coverage, or explicit RTE deferral with normative amendments. Neither option is approved by D35. |
+
+Full AC8 remains open, including its RTE comparison; the existing tolerances
+are unchanged. Full M1 acceptance requires AC1 over the applicable SPEC/D23
+scope and AC8, unless explicitly amended. Intermediate implementation work
+may proceed without implying partial acceptance. No compression GUESS or
+historical-parameter exception is introduced.
+
+## Historical test evidence
+
 | Test | What it proves | Ground truth used |
 |---|---|---|
 | `test_01_constants_and_conversions` | constants match references; Faraday, gas law, isothermal work, trapezoid integration are implemented correctly | Enapter datasheet self-consistency (500 NL/h = 1.0785 kg/day), h2data.de (3.00 kWh/Nm³), hand-computed 1 A·h, 44.615 mol/m³ at STP, RT ln10, 2 kWh |
@@ -237,4 +256,3 @@ Still open (needs data, not code):
 - Confirm the delivered DCT 541 label and the `bundle_isolated` practice.
 - Rest windows after a fill (GS fit); Kaeser energy meter; EL stack current
   export; Solis export with FC currents or a DC current.
-

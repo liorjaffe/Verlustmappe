@@ -94,13 +94,19 @@ correction.
   legacy-continuity value, not newly derived. Nominal intervals per source are documented in
   `docs/03`. Gaps segment the series and the covered fraction is reported; no minimum
   covered fraction is set (open, AGENTS rule 8). Non-monotonic time is INVALID.
-- INVALID, never a plausible number (D25, D31): a REQUIRED parameter is BACKLOG without an
-  owner-approved GUESS; a computed or modelled quantity is negative where the sign rule of
+- INVALID, never a plausible number (D25, D31, D35): a parameter required for the declared
+  calculation scope is BACKLOG without an owner-approved, clearly labelled GUESS permitted
+  by the applicable specific decisions; a computed or modelled quantity is negative where the sign rule of
   D31 requires non-negative (energies and powers of a single path, masses, amounts and
   their flows, absolute pressure and temperature, water volumes; signed by definition:
   storage change, differences, relative and differential pressures; raw channel values
   with a sign convention are exempt); non-monotonic time; a mandatory channel is missing
-  (per source in `docs/03`; only the affected route or item is INVALID).
+  (per source in `docs/03`; the affected route or item is INVALID, and the declared run is
+  INVALID if a required result cannot be supplied by an explicitly permitted alternative).
+- Under D35, an unresolved model, operating-point or allocation basis required for the
+  declared run also prevents a valid overall calculation. Independent valid partial results
+  must remain visible; missing required values and their dependent numerical results remain
+  unquantified. Narrow intermediate scopes do not satisfy full-chain AC1 acceptance.
 - A missing FC module current with a valid power channel yields a separate labelled result
   with calculation_route = NAMEPLATE, never a silent replacement, subject to the D26
   publication lock.
@@ -114,8 +120,13 @@ correction.
 - Layer 1 (static loss map): device models evaluated at defined operating points from
   registry parameters. An operating point includes the state quantities it needs as
   inputs: tank pressure, gas temperature, wall temperature, battery SoC, connected storage
-  volume. No DataFrames, no global state, no measured-data requirement. Result: loss chain
-  per operating point and an RTE map, every bar with evidence status.
+  volume. No DataFrames, no global state, no general measured-data prerequisite.
+  Result: a loss chain per operating point, each quantified item with evidence status or
+  each unquantified item with no numeric value, a BACKLOG indication and a stated reason.
+  Powers and flows at a point are distinguished from energies and amounts over a defined
+  duration or process. The RTE map requires materially and energetically consistent paired
+  charge/discharge reference cases defined in P15, subject to the applicable validity and
+  publication gates (D35).
 - Layer 2 (simulation): the same device models executed in a time loop with a state
   vector. Interface: step(state, inputs, dt) -> outputs, new_state, losses. Losses are
   booked into a loss ledger from each device's own physics; the ledger aggregates on
@@ -138,10 +149,18 @@ correction.
 
 ## Functional criteria
 
-- **AC1:** The static loss map computes a complete chain without measured data; every bar
-  carries an evidence status derived from its inputs. A run with a REQUIRED BACKLOG
-  parameter must be treated as invalid unless an owner-approved, clearly labeled GUESS
-  placeholder exists.
+- **AC1:** The static loss map computes a complete chain without measured data being a
+  general prerequisite. Acceptance requires a run that is not INVALID and covers the full
+  applicable storage-chain scope specified by SPEC and D23, retaining D23's explicitly stated
+  conditions. Each quantified item carries an evidence status derived from its inputs.
+  Each required input must be available or supplied by an owner-approved, clearly labelled
+  GUESS permitted by the applicable specific decisions.
+
+  Every report identifies all required items in its stated scope. Unquantified items carry
+  no numeric value, a BACKLOG indication and a stated reason. Independent valid partial
+  results remain visible. Narrower intermediate calculations identify their limited scope;
+  "partial" describes scope, not a new validity status. Such calculations, and complete
+  reports of INVALID full-chain runs, do not satisfy AC1 acceptance (D35).
 - **AC2:** The simulation runs under at least five loads and two PV profiles; all balance
   invariants hold at every step. Acceptance of the PV-profile part requires a decided POA
   source recorded in DECISIONS.md; the load part is independent of it.
@@ -155,10 +174,13 @@ correction.
   provenance, and an independent hold-out check are documented. The first device is
   selected per DECISIONS.md (D4); AC4 acceptance is blocked until that selection is
   recorded.
-- **AC7:** The report shows the share of loss energy per evidence status and per result
-  origin (D26); loss bars whose weakest-wins status includes UNCERTAINTY_NOT_ASSESSED are
-  reported as a separate share of the loss energy; it states the model limits (what the
-  model cannot do).
+- **AC7:** The report shows the share of quantified loss energy per evidence status and
+  per result origin (D26), explicitly naming the denominator. Quantified loss bars with
+  UNCERTAINTY_NOT_ASSESSED inputs are reported as a separate share on that same basis.
+  Unquantified items are listed separately with their blocking reasons and without energy
+  percentages. An incomplete required loss chain must not be presented as a complete loss
+  total, an overall loss ranking or a quantitatively complete Sankey diagram. The report
+  states the model limits (D35).
 - **AC8:** Layer 1 reproduces the frozen 1.0 reference points within tolerance (bars
   ±2 %, RTE ±0.5 percentage points) with characteristic curves clamped to legacy
   constants. Reference points are defined deviation-free: standby power = 0 and
@@ -180,6 +202,9 @@ correction.
 
 ## Balance invariants (every step, Layer 2)
 
+- Under D35, a balance that cannot be evaluated because a required energy or mole quantity
+  is unquantified is reported as not evaluated, never as passed. This is distinct from a
+  computed balance violation and introduces no new D26 status name.
 - Electrical: input = output + independently booked losses + storage content change.
 - Hydrogen: produced = consumed + vent + leakage + buffer/tank change, balanced in mol,
   not only in kWh.
@@ -217,9 +242,13 @@ correction.
   means UNCERTAINTY_NOT_ASSESSED; DERIVED status alone does not establish exactness.
 - Effect: computation is never blocked and results carry the condition. The publication
   lock applies only to headline candidates (README, paper numbers, D21); other outputs
-  show their status through the AC7 share report. BACKLOG takes precedence: a REQUIRED
-  BACKLOG parameter makes the run INVALID (AC1); a numeric BACKLOG placeholder is itself
-  not-assessed. Existing u = 0.0 entries are classified, not migrated; assessing those
+  show their status through the AC7 share report. BACKLOG takes precedence: a parameter
+  required for the declared calculation scope that is BACKLOG makes the run INVALID unless an owner-approved,
+  clearly labelled GUESS is permitted by the applicable specific decisions (AC1/D35).
+  Independent valid partial results remain visible; affected and dependent numerical results
+  remain unquantified. A numeric BACKLOG placeholder is itself not-assessed and does not count
+  as an available required value merely because it contains a number. This does not change
+  adapter readability under D28. Existing u = 0.0 entries are classified, not migrated; assessing those
   that drive headline candidates is an audit backlog (HANDOFF). Register column and
   enforcement test: task P09b.
 

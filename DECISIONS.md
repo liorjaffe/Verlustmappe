@@ -301,6 +301,8 @@ G1–G11 are aliases of D20–D30 in this order.
   missing; an FC module has no valid current while the power channel is valid (labelled
   nameplate fallback, never a silent zero). Any further numeric limit introduced by the core
   enters the registry or docs/03 with provenance (AGENTS rule 8).
+  Amendment recorded 2026-10-29: D35 sections 1-2 govern declared scope, missing
+  required bases and visibility of independent results; this historical text is retained.
 - **D26 (G7, completes D5) – Status vocabulary, final. Status: DECIDED (owner, 2026-10-28).**
   evidence_status: MEASURED > CALIBRATED > DATASHEET > DATASHEET_SECONDARY (D15) > DERIVED >
   PRELIM/ENVELOPE > GUESS > BACKLOG. OWNER_DECISION (D15) is a registry source status;
@@ -332,6 +334,8 @@ G1–G11 are aliases of D20–D30 in this order.
   kaeser.p_package_dealer_kw). Known audit item: fc.poc_max_duration_s (DERIVED, sourced from
   a manual; classification open). Mechanism details of the register column and the
   enforcement test belong to P09/M1. AGENTS.md (Status vocabulary) is updated in task P08.
+  Amendment recorded 2026-10-29: D35 sections 2 and 4 clarify the REQUIRED-BACKLOG
+  boundary in (c), preserving D28 readability and D26 publication rules.
 - **D27 (G8) – Registry cleanup. Status: DECIDED (owner, 2026-10-28).**
   comp.* REJECTED keys are deleted at the legacy teardown (M6), not earlier.
   stor.steel_mass_kg and bat.* are decided with D10 (battery); inv_fc.standby_W becomes a D23
@@ -373,6 +377,8 @@ G1–G11 are aliases of D20–D30 in this order.
   use applies to the legacy Route-2 path and to any future path that uses tank pressure as a
   measurement; the new core does not use Route 2 (D8), re-admission needs a DECISIONS entry.
   It is separate from the 50 bar window condition for leak-rate separation (docs/94 C6).
+  Amendment recorded 2026-10-29: D35 section 2 supplements clarification (a) with
+  declared-run aggregation. The sign rule and clarifications (b)/(c) are unchanged.
 **D32 — Qualification of source sampling intervals for D24. Status: DECIDED (owner, 2026-10-29).**
 
 Nominal sampling intervals and gap-rule multipliers are data-analysis properties, not physics parameters. Their source-specific basis and limitations are documented in docs/03. Changes require a DECISIONS entry. D24's integration and gap rules remain unchanged.
@@ -423,3 +429,62 @@ Descriptions of current capabilities must distinguish the new core from frozen l
 This decision changes no acceptance criterion, parameter value, compression basis, allocation rule or RTE gate. D13, D14, D20, D21, D22, D25, D26 and D31 remain applicable. Any subsequent change to incomplete-calculation reporting or validity aggregation requires a separate, explicitly approved decision.
 
 Recording note: approved and recorded on 2026-10-29 following the owner's translation review in the coordination chat, including the deliberate descriptive-terminology addition and the explicit reservation of D35.
+
+**D35 — Incomplete calculation bases, scope and validity reporting. Status: DECIDED (owner, 2026-10-29).**
+
+**1. Applicability and acceptance scope.**
+This decision applies to the new core, not to the frozen legacy calculation path. SPEC and the decided ledger scope under D23 establish the normative acceptance scope, including D23's explicitly stated conditions. The P14 task implements those requirements; it cannot reduce them. Changes to the acceptance scope require an explicit owner decision and corresponding normative amendments.
+
+Narrower intermediate calculations are permitted and must identify their limited scope. "Partial" describes the scope only; it is not a new validity status. Such calculations do not satisfy full-chain AC1 acceptance.
+
+**2. Report completeness and calculation validity.**
+Every report identifies all required items within its stated scope. Each item is either quantified with its applicable evidence and uncertainty information or explicitly unquantified, with no numeric value, a BACKLOG indication and a stated reason.
+
+A REQUIRED BACKLOG parameter without an owner-approved, clearly labelled GUESS permitted by the applicable specific decisions makes the declared run INVALID. An unresolved model, operating-point or allocation basis required for that run likewise prevents a valid overall calculation.
+
+Under D25 as clarified by D31(a), a missing mandatory channel first makes the affected route or item INVALID. It also makes the declared run INVALID if a required result cannot be supplied by an explicitly permitted alternative. An unavailable route that is not required for the declared scope does not automatically invalidate the run. The separate labelled NAMEPLATE result under D25 as clarified by D31(b) remains subject to its existing rules.
+
+Independent valid partial results must remain visible. Neither their availability nor the completeness of the report makes the overall INVALID calculation valid.
+
+**3. Required items and dependencies.**
+The approved P14 task identifies the initial implementation scope, required items and dependencies against SPEC/D23. Their implementation is centralized in the ledger definition; reporting and checks do not maintain separate implementation lists. Tests check the implementation against independently specified acceptance expectations.
+
+Blocking causes must be traceable in machine-readable form through dependent results. The concrete typed representation of an unquantified item is specified by P14. This decision introduces no new registry field, evidence status or run-status name.
+
+**4. Distinct input conditions.**
+Missing required inputs and unresolved model or allocation bases are reported with their specific causes. An attempted use of a REJECTED or SUPERSEDED parameter remains a program or definition error and must fail explicitly; it must not be converted into an ordinary BACKLOG item.
+
+For a required parameter, a numeric BACKLOG placeholder does not count as an available value unless an owner-approved, clearly labelled GUESS is permitted by the applicable specific decisions. This is a calculation-validity rule, not an adapter read restriction. D28 remains unchanged.
+
+UNCERTAINTY_NOT_ASSESSED alone neither blocks computation nor makes the calculation INVALID. Its publication consequences remain governed by D26 and D21.
+
+**5. Numerical and physical meaning.**
+An unquantified item must not be replaced by zero, silently omitted from an aggregate or hidden by a numerical default. A dependent total, balance or RTE remains unquantified if its required inputs are unquantified.
+
+Powers and flows at an operating point must be distinguished from energies and amounts over a defined duration or process. A static RTE requires a materially and energetically consistent paired charge/discharge reference case, specified in P15. An isolated operating point does not by itself define an RTE.
+
+**6. Compression and ideal-gas fill work.**
+This decision authorizes no compression GUESS and supplies no missing compression formula or operating assumption.
+
+D13 governs the air-demand basis and its operating-point conditions. D14 additionally requires the Kaeser electrical-input basis and the specified allocation, including separate standby and leakage accounting. Closing one basis does not establish the others.
+
+The existing isothermal fill-work function is an ideal-gas calculation. P14 must explicitly decide whether to use it as a labelled ideal-gas quantity, with its modelling role and limits reported, or defer its use pending the real-gas work. It must not be presented as quantified electrical compression energy.
+
+**7. AC7 reporting.**
+Quantified losses with unassessed uncertainty remain numerical items subject to D26. Unquantified items are listed separately with their blocking reasons and without energy percentages.
+
+Shares calculated over quantified losses must explicitly name that denominator and must not be described as shares of all losses when required losses remain unquantified. Such a report must not claim a complete loss total, a largest overall loss or a quantitatively complete Sankey diagram. No numerical bounds are authorized by this decision.
+
+**8. Acceptance boundaries and Layer 2.**
+AC1 acceptance requires a run that is not INVALID and covers the full applicable SPEC/D23 scope. Required inputs must be available or supplied by an owner-approved, clearly labelled GUESS permitted by the applicable specific decisions. A status-complete report containing unquantified required items does not satisfy this acceptance requirement.
+
+This decision grants no AC8 exclusion, historical-parameter exception, RTE deferral or partial M1 acceptance. Open AC8 comparisons, including the RTE comparison affected by compression, remain explicitly recorded in docs/04 with their blocking references.
+
+Closing the real-plant compression basis does not itself establish comparability with the rejected historical compression assumption. The historical AC8 treatment requires a separate owner decision.
+
+In Layer 2, a balance that cannot be evaluated because a required energy or mole quantity is unquantified is reported as not evaluated, never as passed. This descriptive outcome is distinct from a computed balance violation and introduces no new D26 status name.
+
+**Acknowledged M1 consequence.**
+Implementation work may progress while full M1 acceptance remains blocked. AC1 requires a valid full-scope calculation under SPEC/D23; AC8 additionally requires the historical comparisons, including RTE, unless expressly amended. Closing the applicable D13 and D14 bases does not by itself satisfy historical AC8 comparability. No partial M1 acceptance is implied.
+
+Recording note: approved and recorded on 2026-10-29 in the owner's coordination chat, following verification of D31(a)/(b) and approval to incorporate the precise D25/D31 references and implement the text package. D25, D26(c) and D31(a) are amended as specified above; their historical wording is retained. No AC8 option is selected.

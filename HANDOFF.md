@@ -206,3 +206,29 @@ Later:
 - Decisions needed / next step: owner review, then the separate D35 text package
   with the full SPEC/D23 acceptance scope and run-level validity rule. AC8 remains
   an open decision; this task authorizes neither a D35 entry nor P14 implementation.
+
+## D35 recording (P13e, 2026-10-29)
+
+- Done: recorded D35 and explicit amendments to D25, D26(c) and D31(a);
+  synchronized SPEC AC1/AC7, Layer 1, validity/status and Layer-2 evaluation rules.
+  Historical decision wording and all prior P13c/P13d content are preserved.
+- AC1 still requires a non-INVALID full applicable SPEC/D23 calculation. Narrow
+  intermediate runs and complete reports of incomplete calculations do not pass AC1.
+  "Partial" is a scope description, not a new status. P14 cannot reduce D23.
+- Independent valid results remain visible; missing required bases propagate to
+  dependent results without numeric defaults. D28 readability is unchanged.
+- Open AC8 positions are now explicit in docs/04. No fixture exception, RTE
+  deferral, compression GUESS or partial M1 acceptance has been approved.
+- Acknowledged consequence: implementation may progress while full M1 acceptance
+  remains blocked. D13 air demand and D14 electrical input/allocation are separate;
+  their closure does not itself establish historical AC8 RTE comparability.
+- Verification: old/new task quotations match their sources after whitespace
+  normalization; prior D32/D34 and their task files are preserved; SPEC AC8 is
+  unchanged. Legacy ALL PASS; pytest 109 passed; CI guard passed (22 files,
+  BASE_REF=origin/main); README demo check matches. See P13e for commands.
+  These checks do not prove future ledger behavior or AC8 acceptance.
+  No commit or push authorized or performed.
+- Decisions needed / next step: review P13e; then prepare the scoped P14 task and
+  separate AC8 reference/decision task. P14 must decide labelled ideal-gas fill-work
+  use versus deferral; real-gas port still waits for C25. No code task is authorized
+  by this text update. Earlier P13c/P13d next-step notes describe their task-time state.
