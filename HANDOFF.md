@@ -94,7 +94,7 @@ starting work.
 - Native API timestamps must not be rounded or merged onto an artificial grid before applying the D24 duplicate-timestamp rule; the deposited F8 data contain no non-positive intervals.
 - Bridging BACKLOG: reconstructed bridging share on the PV path, to be quantified on the first measured week; a per-source multiplier remains a DECISIONS option.
 - Merge policy: preserve native source timestamps; never snap them onto an artificial grid before applying D24 timestamp validation.
-- Next: finish and review P13b (docs/03 cadence table and D24/C20 note); then Z source clarification and P14 (ledger, balances, ParamSet, test_20).
+- P13b is complete (PR #20 merged to `main`, merge `271310e`): `docs/03` nominal-cadence table, D24/C20 note, and the owner-approved F8 portal-chart source entry are recorded in `tasks/P13b_nominal_cadence_docs.md`.
 - Later: adapt the copilot-brief workflow (outside the repo) to D29; also check the D23 text against code in M1.
 - Audit backlog (D26): the 63 entries with u = 0.0 are classified, not migrated; first
   candidate kaeser.p_package_dealer_kw; open source/status item fc.poc_max_duration_s
@@ -113,3 +113,55 @@ Later:
 - D9 (a)-(d) done in P05 (test_20-26 stay reserved by the SPEC).
 - M1 per `ROADMAP.md`.
 - Backlog: migrate the 87 registry citations into complete `SOURCES.md` entries.
+
+## Current handoff (2026-10-29)
+
+### Done in the current session
+
+- PR #20 was merged by the owner; `main` is at merge commit `271310e`.
+- Post-merge checks: `tests/run_all.py` passed with the project `.venv` on `PATH`
+  (`ALL PASS`); `pytest -q` passed (109 tests); `ci_guard.py` passed (22 test files).
+  The README demo check passed in 20 alternating Dev/Desktop pairs (40 successful runs),
+  but failed again during this handoff update with `No module named 'numpy'`. An immediate
+  `-v` rerun succeeded. A separate diagnostic process used the expected Desktop venv,
+  had that venv's `site-packages` on `sys.path`, found NumPy 2.5.4, and reported package
+  and metadata timestamps of 2026-10-20. These diagnostics are not the failing process's
+  own `sys.path`; the failure cause remains unknown.
+- The incomplete copy at `~/dev/verlustmappe` was brought up to date for project files
+  using rsync while excluding `.git`, `.venv`, `.pytest_cache`, root `Differenz/`, and
+  names matching `* 2.*`. A subsequent dry-run showed only the root-directory timestamp
+  difference; `tools/make_readme_demo.py` exists in the copy and NumPy/Pandas import there.
+- The README demo check passed in 20 alternating Dev/Desktop pairs (40 successful runs).
+  This is evidence that the earlier failure did not reproduce in that test window; it
+  does not establish that the cause is fixed.
+- The owner confirmed iCloud Desktop & Documents synchronization is enabled. This is an
+  observation only, not evidence that iCloud caused the import failure.
+- The two rsync processes (PIDs 94188 and 94189) are no longer running.
+
+### Open / do not assume resolved
+
+- The intermittent `ModuleNotFoundError: numpy` cause remains unknown. If it recurs,
+  capture the failing interpreter path, `sys.path`, NumPy package/metadata timestamps, and
+  `pip show numpy` immediately before retrying; retain the existing capture protocol.
+- Do not delete or commit the untracked `Differenz/` tree or files with ` 2` in their
+  names. Earlier inspection found 529 such entries in `data/raw/solis_f8/` and 231 in
+  `data/processed/solis_f8/`; only two pairs were compared and those two were identical.
+  The remaining pairs have not been verified. The duplicate files' origin is unknown.
+- The Dev/Desktop synchronization is adequate for the demo-check experiment, not a proof
+  that every file in both worktrees is identical: `.git`, `.venv`, caches, `Differenz/`,
+  and `* 2.*` were intentionally excluded.
+- Existing owner decisions/backlogs remain open as listed above, including the Z-source
+  clarification (C25), the 12.780 kWp portal text versus 12.74 kWp registry value, and
+  the station-ID cross-check against the SolisCloud export.
+
+### Next work
+
+1. Prepare a separate, bounded docs/94 task for the two candidates recorded above
+   (`booster.account()` documentation/behavior and `isothermal_work_kWh` without an
+   active consumer). Establish the AC/reference and Write-Scope before implementation,
+   per AGENTS.md.
+2. Resolve the Z-source clarification before porting `z_realgas` (C25).
+3. Continue M1 with P14 (ledger, balances, `ParamSet`, and `test_20`), following its
+   dependency and Write-Scope requirements. The docs/94 task and P14 task files do not
+   yet exist; do not treat this handoff list as authorization to edit outside an
+   approved task scope.
