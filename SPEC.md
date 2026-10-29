@@ -38,8 +38,9 @@ correction.
 - PV source of the storage island: F8 (28 x BYD455MGEK-36 = 12.74 kWp, vertical east
   facade). The island RTE counter uses the slice principle: only the PV AC energy that
   enters the storage path.
-- The SMA dataset (5.19 MWh / 22 days) belongs to the legacy building-array analysis and is
-  NOT part of this boundary; SMA characteristics are never F8 calibration evidence.
+- The Sept 2026 PV dataset (`pv_merged.csv`) is excluded per D33 (owner statement: not produced by
+  the F8 inverters; exact provenance unresolved). It is NOT part of this boundary and is never
+  F8 calibration evidence.
 - Compressed-air generation (Kaeser) is reported separately as long as no DECISIONS entry
   includes it in the RTE (D3).
 - Tank gas temperature and tank pressure are simulated state variables of the Layer 2 tank

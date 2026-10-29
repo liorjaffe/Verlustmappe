@@ -121,7 +121,7 @@ live in `docs/` and the SPEC; this file only points to them.
   `calibration/overlays/`.
 - Agents deliver fit proposals and overlay drafts only, into `calibration/drafts/`.
   Approved overlays and registry values are written by the owner, never by an agent.
-- Fit and hold-out windows stay separate. SMA legacy telemetry is never F8 evidence.
+- Fit and hold-out windows stay separate. The Sept 2026 PV dataset (excluded per D33, not from F8) is never F8 evidence.
 - Tests must reset any global state they change (try/finally). Agents never write random
   draws or run-local parameters into the global registry; parameter sets are materialized
   per run and immutable (model details: SPEC).
