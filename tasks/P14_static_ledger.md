@@ -437,3 +437,31 @@ After the last edit execute the script, legacy suite, pytest, CI guard with
 BASE_REF=origin/main, README check and diff checks. Commit messages identify
 the owner-chat date and numeric zero comparison. Report both commit hashes
 and the script output for owner review. All implementation approval remains open.
+
+## Implementation approval (owner chat, 2026-10-29)
+
+The owner authorizes models/params.py, new models/ledger.py and
+models/static_map.py, new tests/test_20_static_map.py and
+tests/test_40_static_ledger.py, this task, HANDOFF.md and docs/04_validation_log.md.
+Reference files, constants and registry remain unchanged. Two local commits:
+implementation/documentation first, tests separately with rationale; prefix
+`P14:`. Run all mandatory checks at each commit, not only after the test commit.
+No push or PR. Final diffs and checks go to owner review.
+
+- K1: input-domain validation and computed/modelled D31 sign validation have
+  separate machine-readable causes. Both can invalidate; zero is valid.
+- K2: dependency causes are enum codes with the affected dependency and a
+  human-readable explanation, never freetext-only.
+- K3: validation log explicitly states "bounded case verified, full-chain AC1
+  remains open" only after the focused tests have actually passed.
+- K4: owner-approved type/data-integrity clarification: reject wrong types,
+  bool and nonfinite numeric inputs/results explicitly with exceptions.
+  This is not a D25 physical threshold or new operating limit.
+- R1: the immutable scenario object lives in static_map.py, separate from the
+  registry-only ParamSet. Computed and blocked items are distinct frozen types;
+  explicit None is permitted only for absent scenario inputs, not result values.
+- R2: suite green at every commit, including the additive implementation commit.
+- Measurement independence: do not introduce a production data argument or a
+  fixture-discarding wrapper. If there is no measurement-access boundary, test
+  and document the pure dependency architecture and scenario perturbations,
+  and explicitly report that no measurement data-path perturbation was exercised.

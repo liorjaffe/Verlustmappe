@@ -344,3 +344,38 @@ Later:
 - Reference commit remains pending owner comparison. No source/model changes,
   other test edits, constant changes, push or PR. Next: owner review of hashes,
   script output and files before separate implementation approval.
+
+## P14 reference acceptance (owner chat, 2026-10-29)
+
+- Owner completed comparison of both reference files with the approved chat text
+  and accepted 80fb225 as final for the reference-only scope. This supersedes
+  the pending-review notes above; no full-chain or plant-validation claim follows.
+- Prior execution evidence: reference script and numeric zero/display checks
+  passed; legacy ALL PASS; pytest 109 passed; CI guard with BASE_REF=origin/main
+  passed; README demo matched; working-tree and staged diff checks were clean.
+- Owner's remote verification of D35 section 2 remains outstanding until
+  separately authorized publication. No push or PR has been authorized.
+- Future P14 commit messages use the prefix `P14:`. Do not amend existing commits.
+- Next: present the concrete implementation scope in chat before any code/test
+  write: registry-only ParamSet plus separate immutable scenario inputs,
+  models/ledger.py, models/static_map.py, SPEC-reserved test_20 and test_40
+  (recheck availability). Include typed missing-result semantics and the
+  section-8 minimal measurement fixture without a tautological wrapper.
+- Implementation, protected test writes and further commits require separate
+  approval. Reference files, registry and constants remain unchanged.
+
+## P14 implementation approval and delivery (2026-10-29)
+
+- Owner approved the model files, test_20/test_40, task/handoff and validation log,
+  with K1-K4: distinct input-domain/D31 cause codes, enum dependency causes,
+  explicit open full-chain AC1, and nonfinite/type checks as data integrity.
+  Zero remains valid. Scenario resides in static_map.py, not the registry adapter.
+- Two local commits authorized: additive implementation first, independent
+  focused tests second. Each commit must pass all mandatory checks; no push/PR.
+- Implementation adds frozen registry capture, five scalar quantities and central
+  computed/blocked ledger reporting. Full report retains unresolved/conditional
+  items; no loss residual, RTE, hidden defaults or constant changes.
+- The scalar path has no measurement boundary. Report that limit honestly;
+  no fake production fixture argument or discarded-fixture perturbation claim.
+- Next: verify implementation baseline, then add independent tests and report
+  actual per-commit gates and diffs for owner review. References remain unchanged.

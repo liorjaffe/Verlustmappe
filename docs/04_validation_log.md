@@ -19,6 +19,19 @@ scope and AC8, unless explicitly amended. Intermediate implementation work
 may proceed without implying partial acceptance. No compression GUESS or
 historical-parameter exception is introduced.
 
+## P14 bounded implementation (2026-10-29)
+
+The additive implementation provides registry-only immutable parameter capture,
+separate scenario inputs, a central ledger inventory and five bounded quantities.
+Input-domain and computed D31 failures have distinct cause codes. Required
+unquantified dependencies block the declared scope, preserving independent results.
+
+Focused test_20/test_40 coverage is pending the separate test commit.
+Full-chain AC1 remains open; this implementation is not acceptance evidence.
+AC8 remains open as listed above. The pure scalar path has no measurement-access
+boundary: no measurement data-path perturbation is claimed. Scenario dependency
+perturbations and architectural guards belong to the subsequent focused tests.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

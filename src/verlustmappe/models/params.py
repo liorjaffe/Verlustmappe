@@ -5,7 +5,9 @@ objects and never writes back.
 Blocks REJECTED and SUPERSEDED entries (D11, D26/D28). UNCERTAINTY_NOT_ASSESSED entries stay
 readable: the status is passed on (D26), computation is never blocked by u = 0.0.
 """
-from dataclasses import dataclass
+from collections.abc import Iterable, Mapping
+from dataclasses import dataclass, replace
+from types import MappingProxyType
 
 from .. import registry as _registry
 from .status import u_class as _u_class
@@ -37,3 +39,40 @@ def get_param(key):
                  uncertainty=e["uncertainty"],
                  u_class=_u_class(key, e["status"], e["uncertainty"]))
 
+
+def _immutable(value: object) -> object:
+    if isinstance(value, Mapping):
+        return MappingProxyType({key: _immutable(item) for key, item in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(_immutable(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return frozenset(_immutable(item) for item in value)
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    raise TypeError(f"unsupported parameter value type: {type(value).__name__}")
+
+
+@dataclass(frozen=True)
+class ParamSet:
+    """Requested registry keys only; nested mutable values are frozen on capture."""
+
+    parameters: tuple[Param, ...]
+
+    def __post_init__(self) -> None:
+        captured = tuple(replace(p, value=_immutable(p.value)) for p in self.parameters)
+        if len({p.key for p in captured}) != len(captured):
+            raise ValueError("duplicate requested parameter keys")
+        for p in captured:
+            if p.status in BLOCKED_STATUSES:
+                raise BlockedParameterError(f"{p.key} is {p.status}")
+        object.__setattr__(self, "parameters", captured)
+
+    @classmethod
+    def from_registry(cls, keys: Iterable[str]) -> "ParamSet":
+        return cls(tuple(get_param(key) for key in keys))
+
+    def __getitem__(self, key: str) -> Param:
+        for parameter in self.parameters:
+            if parameter.key == key:
+                return parameter
+        raise KeyError(key)
