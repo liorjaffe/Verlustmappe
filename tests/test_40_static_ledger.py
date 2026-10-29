@@ -13,7 +13,7 @@ from verlustmappe import registry
 from verlustmappe.models.ledger import (
     Blocked, CauseCode, Computed, Item, Report, Role, computed, sum_compatible,
 )
-from verlustmappe.models.params import BlockedParameterError, Param, ParamSet
+from verlustmappe.models.params import BlockedParameterError, ParamSet
 from verlustmappe.models.static_map import Scenario, calculate
 
 
@@ -25,6 +25,12 @@ def parameters():
 @pytest.fixture
 def scenario():
     return Scenario(2100, 8, 2700, 20, 1800, "owner-approved synthetic P14 case")
+
+
+def registry_entry(monkeypatch, key, **changes):
+    entry = dict(registry.REGISTRY[key])
+    entry.update(changes)
+    monkeypatch.setitem(registry.REGISTRY, key, entry)
 
 
 def test_registry_snapshot_is_requested_immutable_and_run_local(scenario):
@@ -43,10 +49,12 @@ def test_registry_snapshot_is_requested_immutable_and_run_local(scenario):
     assert registry.REGISTRY == before
 
 
-def test_nested_capture_freezes_values_without_mutating_source():
+def test_nested_capture_freezes_values_without_mutating_source(monkeypatch):
     source = {"stages": [1, 2]}
-    parameter = Param("synthetic", source, "-", "GUESS", 0, "NOT ASSESSED")
-    snapshot = ParamSet((parameter,))
+    monkeypatch.setitem(registry.REGISTRY, "synthetic", {
+        "value": source, "unit": "-", "status": "GUESS", "uncertainty": 0,
+    })
+    snapshot = ParamSet.from_registry(("synthetic",))
     source["stages"].append(3)
     captured = snapshot["synthetic"].value
     assert captured["stages"] == (1, 2)
@@ -55,10 +63,10 @@ def test_nested_capture_freezes_values_without_mutating_source():
 
 
 @pytest.mark.parametrize("state", ["REJECTED", "SUPERSEDED"])
-def test_blocked_parameter_state_is_not_backlog(parameters, state):
-    bad = replace(parameters["el.n_cells"], status=state)
+def test_blocked_parameter_state_is_not_backlog(monkeypatch, parameters, state):
+    registry_entry(monkeypatch, "el.n_cells", status=state)
     with pytest.raises(BlockedParameterError, match=state):
-        ParamSet((bad, parameters["el.faradaic_efficiency"]))
+        ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency"))
 
 
 def test_adapter_errors_are_not_caught_as_backlog():
@@ -124,18 +132,20 @@ def test_nonfinite_computation_is_not_backlog(scenario, parameters):
         calculate(replace(scenario, el_ac_input_power_W=1e308), parameters, scope="bounded")
 
 
-def test_numeric_backlog_placeholder_is_unavailable_not_adapter_blocked(scenario, parameters):
-    placeholder = replace(parameters["el.n_cells"], value=0, status="BACKLOG")
-    copied = ParamSet((placeholder, parameters["el.faradaic_efficiency"]))
+def test_numeric_backlog_placeholder_is_unavailable_not_adapter_blocked(
+    monkeypatch, scenario, parameters,
+):
+    registry_entry(monkeypatch, "el.n_cells", value=0, status="BACKLOG")
+    copied = ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency"))
     result = calculate(scenario, copied, scope="bounded")["hydrogen_amount_mol"]
     assert isinstance(result, Blocked)
     assert {cause.code for cause in result.causes} == {CauseCode.UNAVAILABLE_PARAMETER}
 
 
-def test_unknown_evidence_is_definition_error_not_backlog(scenario, parameters):
-    bad = replace(parameters["el.n_cells"], status="UNKNOWN")
+def test_unknown_evidence_is_definition_error_not_backlog(monkeypatch, scenario, parameters):
+    registry_entry(monkeypatch, "el.n_cells", status="UNKNOWN")
     with pytest.raises(ValueError, match="not in the D26 vocabulary"):
-        calculate(scenario, ParamSet((bad, parameters["el.faradaic_efficiency"])),
+        calculate(scenario, ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency")),
                   scope="bounded")
 
 
@@ -155,14 +165,15 @@ def test_sum_roles_units_duplicate_and_blocking(scenario, parameters):
     assert isinstance(sum_compatible(missing, keys), Blocked)
 
 
-def test_invalid_scope_provenance_units_and_requested_parameters(scenario, parameters):
+def test_invalid_scope_provenance_units_and_requested_parameters(monkeypatch, scenario, parameters):
     with pytest.raises(ValueError, match="unknown declared scope"):
         calculate(scenario, parameters, scope="invented")
     with pytest.raises(ValueError, match="provenance"):
         replace(scenario, provenance="")
-    wrong_unit = replace(parameters["el.n_cells"], unit="W")
-    with pytest.raises(ValueError, match="expected unit"):
-        calculate(scenario, ParamSet((wrong_unit, parameters["el.faradaic_efficiency"])),
-                  scope="bounded")
+    with monkeypatch.context() as patch:
+        registry_entry(patch, "el.n_cells", unit="W")
+        with pytest.raises(ValueError, match="expected unit"):
+            calculate(scenario, ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency")),
+                      scope="bounded")
     with pytest.raises(KeyError):
         calculate(scenario, ParamSet.from_registry(("el.n_cells",)), scope="bounded")
