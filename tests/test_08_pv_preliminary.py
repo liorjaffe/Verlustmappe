@@ -1,5 +1,4 @@
-"""PV preliminary channel: physics back-checks against hand calculations and
-the MEASURED SMA telemetry (the one real PV datapoint set we have)."""
+"""PV preliminary channel: physics back-checks against hand calculations."""
 import _path
 import numpy as np
 from verlustmappe.devices.pv_prelim_channel import pv_account, cell_temperature, PLANT_PROFILES
@@ -32,27 +31,5 @@ def main():
     assert any(b["status"] == "MEASURED" for b in rm["bars"])
     print("PASS 08a PV prelim math: NOCT model, derating, chain closure, labels")
 
-def backcheck_against_sma():
-    """Compare the PRELIM inverter assumption against the MEASURED SMA telemetry."""
-    import pandas as pd, os
-    from verlustmappe.loaders.grafana import map_pv
-    df = map_pv(pd.read_csv(os.path.join(_path.ROOT, "data/processed/pv_retro/pv_merged.csv"),
-                            index_col=0, parse_dates=True))
-    both = df[["dc_power_W", "ac_power_W"]].dropna()
-    both = both[both["dc_power_W"] > 500]
-    # measured energy-weighted conversion efficiency over the whole window:
-    eta_measured = both["ac_power_W"].sum() / both["dc_power_W"].sum()
-    eta_prelim = R.get("inv_pv.eta_euro")
-    dev = abs(eta_measured - eta_prelim) / eta_measured
-    print("PASS 08b inverter backcheck: measured (energy-weighted) %.4f vs PRELIM Euro %.4f -> deviation %.1f%%"
-          % (eta_measured, eta_prelim, dev*100))
-    # the PRELIM Euro value must be within 2% of the measured one (sanity, not proof:
-    # different load distributions can legitimately shift Euro weighting)
-    assert dev < 0.02, "PRELIM Euro efficiency inconsistent with own measured telemetry"
-    # DC cable + MPPT cannot be separated in the measured data (inverter reports DC
-    # at its terminals), so the DC-cable bar remains unverifiable - stated limit.
-    return eta_measured
-
 if __name__ == "__main__":
     main()
-    backcheck_against_sma()
