@@ -407,3 +407,19 @@ Recording note: approved on 2026-10-29 in the owner's coordination chat, includi
   the F8 cloud history has no data for 2026-09-17..2026-10-22 (API returns empty lists), so no
   F8 cross-check exists for September. A text guard forbids the vendor label
   (word boundary) in the new core.
+
+**D34 — Staged model development and limits on interpretation. Status: DECIDED (owner, 2026-10-29).**
+
+Development follows the existing roadmap: static device physics and the Layer-1 loss map first, dynamic simulation using the same device models next, followed by component calibration and an independent hold-out check under M4/AC4.
+
+A general hydrogen measurement campaign is not a prerequisite for implementing Layer 1 or Layer 2. This does not waive source requirements, software verification, or evidence required to quantify a particular item or accept a milestone. Model results are reported with their result origin, evidence status, assumptions and limits. No system-level plant-validation acceptance is introduced by this decision; introducing one requires a separate owner decision.
+
+Hand calculations, balance checks, synthetic tests and legacy regression provide verification evidence within their stated scope. They do not establish measured plant performance or independent validation of the plant.
+
+"Report completeness", "calculation validity", "software verification", "calibration and independent hold-out checking", and "RTE publication eligibility" are descriptive distinctions, not additions to the D26 vocabulary. Calculation validity remains subject to D25/D31 and their expressly approved amendments; this does not pre-decide the run-level validity semantics reserved for the separate D35 decision. No broader "validated" claim is introduced beyond the existing AC4/AC5 framework.
+
+Descriptions of current capabilities must distinguish the new core from frozen legacy demonstrations and future calibration or hold-out work. Any necessary README change requires its own approved scope. The generated legacy block and its existing generator gate remain unchanged until the roadmap-authorized transition.
+
+This decision changes no acceptance criterion, parameter value, compression basis, allocation rule or RTE gate. D13, D14, D20, D21, D22, D25, D26 and D31 remain applicable. Any subsequent change to incomplete-calculation reporting or validity aggregation requires a separate, explicitly approved decision.
+
+Recording note: approved and recorded on 2026-10-29 following the owner's translation review in the coordination chat, including the deliberate descriptive-terminology addition and the explicit reservation of D35.

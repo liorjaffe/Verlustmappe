@@ -187,3 +187,22 @@ Later:
 - Decisions needed / next step: review the P13c diff, then finalize the separate
   D34/D35 text package and its Write-Scope. D34/D35 and the AC8 option remain
   unrecorded and undecided by this task; no P14 implementation is authorized.
+
+## D34 recording (P13d, 2026-10-29)
+
+- Done: recorded D34 after the owner's translation review, including the restored
+  model-result reporting sentence, explicitly approved descriptive terminology,
+  reservation of D35 run-level semantics and separate system-validation decision.
+- D34 records the staged roadmap direction; it changes no existing acceptance,
+  compression, allocation, validity or RTE gate. No README/code/test change.
+- Existing P13c/D32 changes and all prior HANDOFF content are preserved. The
+  P13c statement about unrecorded D34 describes the earlier task state; this
+  section records the subsequent D34 completion.
+- Verification: final English task/decision text equality; SHA-256 confirms
+  unchanged prior decision text, HANDOFF prefix and P13c task. Legacy ALL PASS;
+  pytest 109 passed; CI guard passed (22 files, BASE_REF=origin/main); README
+  demo check matches. Commands are recorded in P13d.
+  No commit or push authorized or performed.
+- Decisions needed / next step: owner review, then the separate D35 text package
+  with the full SPEC/D23 acceptance scope and run-level validity rule. AC8 remains
+  an open decision; this task authorizes neither a D35 entry nor P14 implementation.
