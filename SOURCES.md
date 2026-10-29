@@ -31,7 +31,17 @@ does not establish that its source entry is complete or that the value is transf
 
 ## New externally sourced entries
 
-No new numeric source entries were added as part of the agent-governance setup.
+### F8 SolisCloud portal chart cadence (docs/03; D32)
+
+- **Value and unit:** `300 s` minimum observed interval; nominal grid derived under D32(a), not a registry parameter.
+- **Source:** SolisCloud portal, `data/raw/Daily+Power+Station+Chart_29-10-2026.xls`, owner-provided export; SHA-256 `754740b3eb2e8f119bfa1b200fa2f0ae2c66b872c28bdc3166d416281d742621`.
+- **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.
+- **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.
+- **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.
+- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the F8 nameplate capacity remains 12.74 kWp (28 x 455 W) per the registry, pending a separate owner decision on the discrepancy.
+- **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).
+- **Used by:** docs/03 nominal-sampling table.
+- **Reviewer/date:** owner approved 2026-10-29.
 
 ## P05 workbook v2 entries (2026-10-27)
 
