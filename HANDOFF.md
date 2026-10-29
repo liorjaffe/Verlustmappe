@@ -232,3 +232,98 @@ Later:
   separate AC8 reference/decision task. P14 must decide labelled ideal-gas fill-work
   use versus deferral; real-gas port still waits for C25. No code task is authorized
   by this text update. Earlier P13c/P13d next-step notes describe their task-time state.
+
+## P14 task preparation (2026-10-29)
+
+- Done: created tasks/P14_static_ledger.md with the owner's verbatim case-specific
+  EL-GUESS permission, SPEC/D23 coverage/dependencies, scope declaration, proposed
+  implementation/tests and reference-before-implementation order.
+- Current permission covers task preparation and this handoff only. No code,
+  protected tests/references, registry changes, commit or push authorized.
+- Explicit choices: defer dryer quantification and ideal-gas fill-work use in the
+  first scope (D35 section 6); no EL conversion-loss decomposition or RTE.
+- Deferred: confirm el.n_cells with Enapter when contact becomes possible; owner
+  reports no current contact route. Revisit el.faradaic_efficiency with the
+  existing E1 stack-current export work. Neither validation obligation is closed;
+  stack current alone is not independent validation of Faradaic efficiency.
+- The two EL uncertainty fields remain assumption bands without documented basis.
+  GUESS evidence and assessed input fields do not establish propagated output
+  uncertainty. No headline or measured-plant claim is permitted by this permission.
+- Dryer follow-up: complete missing dry.* source entries, then resolve applicability
+  of the power-envelope versus throughput approach. Registry remains unchanged;
+  no new parallel measurement backlog is created.
+- Documented boundary clarification: SPEC's older D3 compressed-air wording versus
+  its decided D14/D23 allocation. Do not omit air or implement disputed boundary
+  behavior; resolve if that behavior is needed. The isolated EL case is unaffected.
+- Clarified for this P14 intermediate case only: el_ac_input_power_W,
+  stack_current_A, operating_time_s, el_ac_standby_power_W and standby_time_s
+  are GUESS scenario
+  assumptions with unassessed input uncertainty; results are SIMULATED with
+  GUESS evidence. Existing EL input fields and owner-only error handling remain
+  unchanged. No general scenario classification or new status is introduced.
+- Owner-approved reference contract is now recorded in the task: 2100 W AC,
+  8 A DC stack, 2700 s operation; separate 20 W AC standby for 1800 s. These
+  synthetic values are not defaults or verified device conditions. No stack
+  voltage or loss difference is formed from AC power and DC current.
+- Approved comparison tolerances, exact complete-zero case, missing-result
+  semantics and a concrete test-only measurement fixture are recorded there.
+  Zero results remain GUESS/SIMULATED; uncomputed results have no origin.
+  Perturbation must exercise any actual measurement-access boundary, not a
+  wrapper that discards data by construction; future execution is unverified.
+- Registry ParamSet and immutable scenario inputs stay separate. Protected
+  reference/test writes, concrete implementation scope and typed absence
+  representation still require approval. No code or git operation is authorized.
+- Sources: constants remain under the existing SOURCES migration backlog,
+  not a new P14 blocker. Yodwong has its own citation/transferability backlog.
+  Dryer DATASHEET labels conflict with missing source coverage; report that
+  discrepancy without changing the registry or quantifying a dryer result.
+  Missing D25 mandatory-channel list is a separate measurement-data backlog,
+  not a blocker for the synthetic scalar case.
+- Verification: exact owner-block comparison and SHA-256 preservation checks pass.
+  Legacy ALL PASS; pytest 109 passed; CI guard passed (22 files,
+  BASE_REF=origin/main); README demo check matches; git diff --check clean.
+  These results cover the unchanged software, not future P14 functionality.
+  Existing D32/D34/D35 changes and prior handoff are preserved.
+- Next: obtain explicit git authorization to version the existing decision
+  package before a separately authorized hand-reference commit; code and tests
+  follow only with their own write approval. External originals are needed for
+  the deferred Yodwong/dryer full citations, not for recording this contract.
+  AC8 reference/option work remains separate and unresolved.
+
+## Local decision-package versioning (2026-10-29)
+
+- Owner explicitly authorized local commits of the existing D32/D34/D35
+  documentation package only, with no push. Earlier no-commit statements above
+  and in the task files describe their task-time permissions and outcomes.
+- Done on docs/p14-task-preparation, in order:
+  - 4316753: D32, P13c task and matching handoff.
+  - 17118ab: D34, P13d task and matching handoff.
+  - f23d9f8: D35 amendments, SPEC, open AC8 positions, P13e task and handoff.
+- D32/D34 index snapshots were matched against the previously recorded SHA-256
+  values before committing. Shared files were staged without modifying their
+  working-tree contents. No P14 preparation, source code, tests, registry or
+  unrelated data files were included; no push or PR was performed.
+- P14 task preparation and this current handoff remain local uncommitted work.
+  Protected P14 reference/test writes and implementation are still unauthorized.
+- Next: obtain explicit protected-reference write and reference-commit approval
+  before creating the approved hand calculation files. A push or PR still needs
+  its own authorization; the owner integrates. AC8 choices remain unresolved.
+- P14 wording follow-up: blocked outputs have no computed-result evidence_status
+  or origin; the report retains SPEC/D35's BACKLOG indication for unquantified
+  items. Tolerances are tied to current rounded code constants; fixture times
+  deliberately match the scenario endpoints as an accidental-consumption trap.
+  The task now identifies the committed local decision baseline separately from
+  its historical preparation base. No additional commit or push authorized.
+
+## P14 reference-only approval (2026-10-29)
+
+- Owner approved the reviewed reference document and stdlib script for the two
+  named hand-reference paths, plus task/handoff status updates. Numeric zeros
+  are compared numerically, not by string/repr; F display rounding is explicit.
+- Authorized order: commit the task preparation/handoff first, then execute
+  and separately commit the reference files after all mandatory checks.
+  The second commit remains pending owner comparison against the chat text.
+- No model implementation, other test-file writes, push, PR or additional
+  protected-path changes. Prior no-write/no-commit notes are historical.
+- Next: create and verify the hand references, report both hashes and output;
+  await owner review before treating the reference commit as final.
