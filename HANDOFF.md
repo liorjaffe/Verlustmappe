@@ -379,3 +379,18 @@ Later:
   no fake production fixture argument or discarded-fixture perturbation claim.
 - Next: verify implementation baseline, then add independent tests and report
   actual per-commit gates and diffs for owner review. References remain unchanged.
+
+## P14 bounded test delivery (2026-10-29)
+
+- Implementation commit 887b8c9 is independently suite-green before/after commit:
+  legacy ALL PASS, pytest 109 passed, BASE_REF=origin/main guard passed, README
+  matches, diff checks clean.
+- Added only test_20_static_map.py and test_40_static_ledger.py: 28 focused cases
+  pass against committed hand literals, numeric zeros, missing/domain/sign cause
+  codes, immutable requested snapshots, status/bands, inventory and accounting.
+- Bounded case verified, full-chain AC1 remains open. AC8 also remains open.
+  Measurement fixture trap and architecture are checked; actual measurement
+  data-path perturbation is not exercised because no such boundary exists.
+- Run all final gates at the test commit and deliver both diffs/hashes to owner.
+  No push/PR, reference changes or constants/registry changes. Next: owner final
+  text/numeric review, not automatic scope expansion or full M1 acceptance.

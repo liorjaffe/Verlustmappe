@@ -1,8 +1,8 @@
 # P14 - Immutable run parameters, ledger and first static calculation
 
-**Status:** Case-specific reference contract approved in owner chat on 2026-10-29;
-reference document/script writes and two local commits approved in owner chat
-on 2026-10-29. Implementation, other test writes, push and PR remain unauthorized.
+**Status:** Reference accepted; bounded implementation and focused tests delivered
+under owner-chat approval on 2026-10-29, pending final owner review.
+Full-chain AC1/AC8 remain open. No push or PR authorized.
 **References:** ROADMAP M1; SPEC Layers, Ledger scope, AC1/AC5/AC7 and traceability;
 D23/D25/D26/D28/D31/D34/D35; P12 decomposition.
 **Recording date:** 2026-10-29.
@@ -465,3 +465,21 @@ No push or PR. Final diffs and checks go to owner review.
   fixture-discarding wrapper. If there is no measurement-access boundary, test
   and document the pure dependency architecture and scenario perturbations,
   and explicitly report that no measurement data-path perturbation was exercised.
+
+## Implementation evidence (2026-10-29)
+
+- 887b8c9 contains implementation and documentation only. Mandatory suites ran
+  before and after that commit: legacy ALL PASS, pytest 109 passed, CI guard
+  passed with BASE_REF=origin/main, README matches, diff checks clean.
+- Focused test_20/test_40: 28 passed. Expectations are hand-reference literals,
+  numeric zero checks and independently stated scope/dependency requirements.
+  Initial test-authoring failures were a nonexistent REJECTED fixture key and
+  an omitted local helper in the architecture whitelist; corrected to the
+  actual comp.pressure_ratio key and explicit _number helper. No tolerance
+  widened and no pre-existing assertion or test changed.
+- New Python modules and tests have no Pylance diagnostics at inspection.
+- No measurement-access boundary exists. Section-8 fixture values are explicit,
+  but no data-path perturbation is claimed. Scenario perturbations and an
+  architecture import/call/signature guard pass.
+- Final mandatory gates run again at the separate test commit. Reference files,
+  constants and registry are unchanged. Owner comparison of diffs remains pending.

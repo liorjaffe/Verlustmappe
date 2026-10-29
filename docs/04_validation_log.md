@@ -26,11 +26,20 @@ separate scenario inputs, a central ledger inventory and five bounded quantities
 Input-domain and computed D31 failures have distinct cause codes. Required
 unquantified dependencies block the declared scope, preserving independent results.
 
-Focused test_20/test_40 coverage is pending the separate test commit.
-Full-chain AC1 remains open; this implementation is not acceptance evidence.
+Bounded case verified, full-chain AC1 remains open.
+The separate test_20/test_40 suite passes 28 focused tests against the previously
+committed hand literals/tolerances: five quantities, numeric zeros, missing
+dependencies, distinct input-domain/D31 cause codes, enum causes, integrity
+exceptions, immutable snapshots, input bands and role-safe aggregation.
+The full inventory and conditional FC standby are checked against independent
+requirements; they are not generated from the model's own inventory.
+Implementation commit 887b8c9 independently passed legacy ALL PASS, pytest
+109 passed, CI guard (BASE_REF=origin/main), README and diff checks before and
+after commit. The separate test commit receives the same final gates.
 AC8 remains open as listed above. The pure scalar path has no measurement-access
 boundary: no measurement data-path perturbation is claimed. Scenario dependency
-perturbations and architectural guards belong to the subsequent focused tests.
+perturbations and an explicit import/call/signature architectural guard are
+tested; the section-8 fixture trap is checked, not passed to a fake wrapper.
 
 ## Historical test evidence
 
