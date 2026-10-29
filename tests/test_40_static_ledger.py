@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from verlustmappe import registry
 from verlustmappe.models.ledger import (
-    Blocked, CauseCode, Computed, Item, Report, Role, computed, sum_compatible,
+    ITEMS, Blocked, CauseCode, Computed, Item, Report, Role, Sign, computed, sum_compatible,
 )
 from verlustmappe.models.params import BlockedParameterError, ParamSet
 from verlustmappe.models.static_map import Scenario, calculate
@@ -177,3 +177,55 @@ def test_invalid_scope_provenance_units_and_requested_parameters(monkeypatch, sc
                       scope="bounded")
     with pytest.raises(KeyError):
         calculate(scenario, ParamSet.from_registry(("el.n_cells",)), scope="bounded")
+
+
+def test_direct_paramset_injection_rejected_but_individual_params_replaceable(parameters):
+    forged = replace(parameters["el.n_cells"], value=121)
+    assert forged.value == 121
+    with pytest.raises(TypeError):
+        ParamSet((forged,))
+    with pytest.raises(TypeError):
+        ParamSet(parameters=(forged,))
+    with pytest.raises(TypeError, match="from_registry"):
+        ParamSet()
+    with pytest.raises(TypeError):
+        replace(parameters, parameters=(forged,))
+    requested = ParamSet.from_registry(("el.n_cells",))
+    assert tuple(p.key for p in requested.parameters) == ("el.n_cells",)
+    assert requested["el.n_cells"].value == 120
+
+
+def test_signed_storage_change_and_nonnegative_energy_follow_d31():
+    storage = next(item for item in ITEMS if item.key == "storage_change_kWh")
+    assert storage.sign == Sign.SIGNED
+    change = computed(storage, -1, ("GUESS",), (), ())
+    assert isinstance(change, Computed)
+    assert change.value == -1
+    assert not Report("bounded", (change,), ()).invalid
+
+    energy = Item("synthetic_path_energy_kWh", "kWh", Role.ELECTRICAL_INPUT, ())
+    assert energy.sign == Sign.NONNEGATIVE
+    negative = computed(energy, -1, ("GUESS",), (), ())
+    assert isinstance(negative, Blocked)
+    assert {cause.code for cause in negative.causes} == {CauseCode.INVALID_COMPUTED_SIGN}
+    assert Report("bounded", (negative,), ()).invalid
+
+
+@pytest.mark.parametrize("key,unit", [
+    ("storage_change_mol", "mol"),
+    ("difference_kWh", "kWh"),
+    ("relative_pressure_bar", "bar"),
+    ("differential_pressure_bar", "bar"),
+])
+def test_other_d31_signed_quantities_use_explicit_classification(key, unit):
+    item = Item(key, unit, Role.STORAGE, (), sign=Sign.SIGNED)
+    result = computed(item, -1, ("GUESS",), (), ())
+    assert isinstance(result, Computed)
+    assert result.value == -1
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), -float("inf"), True, "8"])
+def test_signed_does_not_bypass_data_integrity(bad):
+    storage = next(item for item in ITEMS if item.key == "storage_change_kWh")
+    with pytest.raises(ValueError, match="non-finite|expected a finite number"):
+        computed(storage, bad, ("GUESS",), (), ())

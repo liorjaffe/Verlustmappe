@@ -58,6 +58,20 @@ Negative NONNEGATIVE results remain blocked with invalid_computed_sign.
 Both classifications still reject nonfinite/bool/wrong-type values with an
 exception as K4 data integrity, not a physical threshold or D25 sign failure.
 
+W3 accepted limitation: metadata propagation covers the current linear
+amount -> mass -> LHV chain, not general multi-predecessor merging. Aggregation
+checks roles/units and duplicate IDs, not arbitrary parent/child double booking.
+No general ledger-infrastructure completeness is claimed; reassess before P15
+grouping/netting needs either capability.
+
+W4: the import/call/signature architecture tripwire is deliberately bound to the
+current code structure, not a transitive proof of all imported dependencies.
+A refactor must explicitly review that boundary, not silently rewrite the guard.
+The fixture trap is checked, but no measurement data-path perturbation was run.
+Deferred obligation: at the first real measurement-access path (P15/P16 or loader
+integration), implement the absent/present/varied measurement perturbation with
+fixed scenario inputs. The tripwire must not substitute for it at that point.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

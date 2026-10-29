@@ -394,3 +394,24 @@ Later:
 - Run all final gates at the test commit and deliver both diffs/hashes to owner.
   No push/PR, reference changes or constants/registry changes. Next: owner final
   text/numeric review, not automatic scope expansion or full M1 acceptance.
+
+## P14 W1-W4 follow-up (owner chat, 2026-10-29)
+
+- Four commits authorized, separately suite-green before/after, no amend/push:
+  A a4da7cf test-setup only (restored registry fixtures, assertions unchanged);
+  B e92459c public ParamSet creation restricted to from_registry;
+  C 03608e0 existing D31 signed classification, no new physics limit;
+  D regressions and these W3/W4 limits. A/B/C each pass all 137 tests.
+- W1 is an API guarantee, not a security boundary. Python internals can be
+  deliberately bypassed; individual Param replacements remain possible.
+  No public ParamSet injection path remains. Registry/constants unchanged.
+- W3 accepted for the current chain: metadata merging is linear only;
+  aggregation does not generally detect parent/child double booking.
+  Reassess before P15 grouping/netting; no general-infrastructure claim.
+- W4 architecture tripwire is deliberately bound to current code structure.
+  Deferred obligation: when a real measurement-access path appears in P15/P16
+  or loader integration, run the defined no/present/varied measurement tests
+  with fixed scenarios. Do not retain the tripwire as a substitute.
+- Next: deliver complete git-show diffs, regression outputs and per-commit gates
+  for owner final review. Full-chain AC1/AC8 remain open. No further building
+  or scope expansion before that review.

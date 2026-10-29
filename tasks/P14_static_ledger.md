@@ -483,3 +483,27 @@ No push or PR. Final diffs and checks go to owner review.
   architecture import/call/signature guard pass.
 - Final mandatory gates run again at the separate test commit. Reference files,
   constants and registry are unchanged. Owner comparison of diffs remains pending.
+
+## W1-W4 follow-up approval and limits (owner chat, 2026-10-29)
+
+Owner approved four individually gated commits, no amend/push/PR:
+A only mechanical test-setup changes through monkeypatch registry fixtures,
+with unchanged assertions/numbers/tolerances and unchanged model; B restrict
+public ParamSet creation to from_registry; C apply the existing D31 signed list;
+D add regressions and W3/W4 documentation. No conftest or reference changes.
+Each commit receives legacy, pytest, BASE_REF=origin/main guard, README and diff
+checks before and after commit. W1 documentation belongs to B; W2 to C;
+W3/W4 and regression evidence belong to D.
+
+- A: a4da7cf, fixture-only setup, 137 tests before/after, including original 28.
+- B: e92459c, API-only origin guard (not a Python security boundary); individual
+  Param replacements remain possible but have no public injection path.
+- C: 03608e0, explicit Item sign classification; storage change is signed,
+  five bounded quantities keep the nonnegative default; K4 exceptions unchanged.
+- B and C each pass 137 tests before/after. New regressions are added only in D.
+- W3: current linear metadata propagation and role/unit/duplicate-ID aggregation
+  are bounded capabilities, not general multi-parent merging or hierarchy checks.
+- W4: architecture tripwire is bound to current code structure, not a transitive
+  measurement-access proof. Real data-path perturbation is deferred until the
+  first actual measurement integration, not waived or replaced by the tripwire.
+- Full-chain AC1/AC8 and owner implementation comparison remain open.
