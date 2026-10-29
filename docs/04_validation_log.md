@@ -49,6 +49,15 @@ objects can still be hand-built or replaced, but have no public injection path
 into ParamSet. Commit A moved test setup through restored registry fixtures;
 the original 28 cases pass before and after the W1 code correction.
 
+W2 correction (D31 compliance, no list change): Item has an explicit Sign
+classification. NONNEGATIVE remains the default for the five P14 quantities;
+storage change is SIGNED. Signed energy/mole changes, differences and relative/
+differential pressures use SIGNED; path energies/powers, masses, amounts/flows,
+absolute pressures/temperatures and water volumes use NONNEGATIVE under D31.
+Negative NONNEGATIVE results remain blocked with invalid_computed_sign.
+Both classifications still reject nonfinite/bool/wrong-type values with an
+exception as K4 data integrity, not a physical threshold or D25 sign failure.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

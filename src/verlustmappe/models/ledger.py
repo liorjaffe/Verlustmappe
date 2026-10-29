@@ -16,6 +16,13 @@ class Role(str, Enum):
     STORAGE = "storage"
 
 
+class Sign(str, Enum):
+    """D31 classification: path quantities versus signed changes/differences."""
+
+    NONNEGATIVE = "nonnegative"
+    SIGNED = "signed"
+
+
 class CauseCode(str, Enum):
     MISSING_REQUIRED_INPUT = "missing_required_input"
     BLOCKED_DEPENDENCY = "blocked_dependency"
@@ -41,6 +48,7 @@ class Item:
     required: bool = True
     condition: str = ""
     unresolved: tuple[Cause, ...] = ()
+    sign: Sign = Sign.NONNEGATIVE
 
 
 def _pending(
@@ -51,6 +59,7 @@ def _pending(
         required=not bool(condition), condition=condition,
         unresolved=tuple(Cause(CauseCode.UNRESOLVED_BASIS, name, reason)
                          for name, reason in bases),
+        sign=Sign.SIGNED if role == Role.STORAGE else Sign.NONNEGATIVE,
     )
 
 
@@ -128,7 +137,10 @@ def computed(
     input_uncertainties: tuple[InputUncertainty, ...],
     provenance: tuple[tuple[str, str], ...],
 ) -> Result:
-    if not check_nonnegative(value, item.key):
+    if not isinstance(item.sign, Sign):
+        raise ValueError(f"{item.key}: unknown D31 sign classification {item.sign!r}")
+    nonnegative = check_nonnegative(value, item.key)
+    if item.sign == Sign.NONNEGATIVE and not nonnegative:
         return Blocked(item, (Cause(CauseCode.INVALID_COMPUTED_SIGN, item.key,
                                    "D31 computed/modelled quantity is negative"),))
     return Computed(item, value, weakest(statuses), "SIMULATED",
