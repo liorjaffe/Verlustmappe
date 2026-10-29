@@ -41,6 +41,14 @@ boundary: no measurement data-path perturbation is claimed. Scenario dependency
 perturbations and an explicit import/call/signature architectural guard are
 tested; the section-8 fixture trap is checked, not passed to a fake wrapper.
 
+W1 correction (owner chat, 2026-10-29): public ParamSet construction is restricted
+to from_registry(), preserving adapter status/u_class checks and requested keys.
+Direct construction is rejected. This is an API-level guarantee, not a Python
+security boundary: determined callers can bypass internals. Individual Param
+objects can still be hand-built or replaced, but have no public injection path
+into ParamSet. Commit A moved test setup through restored registry fixtures;
+the original 28 cases pass before and after the W1 code correction.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

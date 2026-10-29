@@ -52,24 +52,25 @@ def _immutable(value: object) -> object:
     raise TypeError(f"unsupported parameter value type: {type(value).__name__}")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, init=False)
 class ParamSet:
-    """Requested registry keys only; nested mutable values are frozen on capture."""
+    """Public creation only via from_registry; an API guard, not a security boundary."""
 
     parameters: tuple[Param, ...]
 
-    def __post_init__(self) -> None:
-        captured = tuple(replace(p, value=_immutable(p.value)) for p in self.parameters)
-        if len({p.key for p in captured}) != len(captured):
-            raise ValueError("duplicate requested parameter keys")
-        for p in captured:
-            if p.status in BLOCKED_STATUSES:
-                raise BlockedParameterError(f"{p.key} is {p.status}")
-        object.__setattr__(self, "parameters", captured)
+    def __init__(self) -> None:
+        raise TypeError("ParamSet must be created with ParamSet.from_registry()")
 
     @classmethod
     def from_registry(cls, keys: Iterable[str]) -> "ParamSet":
-        return cls(tuple(get_param(key) for key in keys))
+        captured = tuple(
+            replace(p, value=_immutable(p.value)) for p in (get_param(key) for key in keys)
+        )
+        if len({p.key for p in captured}) != len(captured):
+            raise ValueError("duplicate requested parameter keys")
+        snapshot = object.__new__(cls)
+        object.__setattr__(snapshot, "parameters", captured)
+        return snapshot
 
     def __getitem__(self, key: str) -> Param:
         for parameter in self.parameters:
