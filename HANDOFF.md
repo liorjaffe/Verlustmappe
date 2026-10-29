@@ -327,3 +327,20 @@ Later:
   protected-path changes. Prior no-write/no-commit notes are historical.
 - Next: create and verify the hand references, report both hashes and output;
   await owner review before treating the reference commit as final.
+
+## P14 hand-reference delivery (2026-10-29)
+
+- Task preparation committed as f743e4d before creating either reference file.
+- Created the approved reference document and stdlib Decimal script only.
+  Script differences from the chat draft: F precision note, numeric-zero note,
+  display-only formatting to print the approved reference rounding.
+- Missing/status/measurement-perturbation requirements are documented, not
+  implemented in the arithmetic script. D35 section 2 at f23d9f8 is the precise
+  reference for the unquantified-item BACKLOG indication.
+- Verification is to run after this last edit: script and independent numeric
+  zero/display assertions; legacy suite; pytest; CI guard with origin/main;
+  README demo; working-tree and staged diff checks. Report actual results in
+  the delivery, not as evidence of future model functionality.
+- Reference commit remains pending owner comparison. No source/model changes,
+  other test edits, constant changes, push or PR. Next: owner review of hashes,
+  script output and files before separate implementation approval.
