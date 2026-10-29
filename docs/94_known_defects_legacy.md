@@ -67,8 +67,8 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   `tasks/P03_c9_registry_leak_fix.md` (both modules, normal and exceptional paths).
   The tagged baseline and C4 remain unchanged.
 - **C10 – README boundary.** [read]
-  The PV system boundary is missing (F8 is the storage-chain PV source); the SMA dataset
-  (5.19 MWh / 22 days) is presented as "genuinely measured" without a boundary note;
+  The PV system boundary is missing (F8 is the storage-chain PV source); the Sept 2026 PV dataset
+  (excluded, D33) was presented without a boundary note;
   docs/07 is missing from the README tree.
 - **C11 – Compressor-eta documentation conflict.** [read: repo conflict; primary text:
   Tab. 3 read in the library full-text copy]
@@ -87,15 +87,15 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   so a pytest-style file without `main()` would pass silently. `ci.yml` calls run_all, not
   pytest. This is the factual basis for the open test-runner decision for the new tests
   (test_20 to test_26), recorded as D9 in DECISIONS.md.
-- **C13 - Stale SMA terminology.** [read: repo-wide grep at 7a81918]
+- **C13 - Stale vendor terminology (retired label).** [read: repo-wide grep at 7a81918]
   The PV source of the storage chain is the F8 array with two Solis S6-GR1P6K inverters.
-  SMA references throughout the legacy docs, README, device docstrings/comments and one
+  Outdated references throughout the legacy docs, README, device docstrings/comments and one
   test name describe the removed legacy building array (~184 kWp) or are plain leftovers.
   No physics impact. Text-only fix: README and docs/06 in task P02; remaining src/ text
   (registry.py comments, devices/__init__.py, pv_measured.py, pv_inverter.py,
   pv_prelim_channel.py, live_feed.py, loaders/solis_live.py) in task P04 under the D2 text
   exception (D16c, amended by D17; D16 named loaders/grafana.py in error). Status:
-  executed in P04; the registry carries no SMA reference. tests/test_08* keep the SMA name
+  executed in P04; the registry carries no vendor reference. tests/test_08* keep the old name
   (frozen legacy regression, falls in M6). AC8 treatment: none.
   docs/01-04 evidence-attribution statements fixed in P02b.
   C13 is terminology-only and does not affect AC8 physics.
@@ -158,9 +158,10 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
   a 999 s hole at 10 NL/h where the device policy books 0); report_cli interpolates power
   without labelling it as estimated; the electrolyzer.py module docstring describes a
   "mean power over max_gap_s" policy the code does not implement. Impact: small at 60 s
-  telemetry, large at 20-min PV data (ramp 0-3 kW over 1 h: 1.0 vs 1.5 kWh, left
-  rectangles vs trapezoid). Fix: one integration function with segment-wise gap handling
+  telemetry, potentially material at longer intervals. Fix: one integration function with segment-wise gap handling
   and reported coverage. AC8 treatment: none.
+  Current F8 cadence basis (D32): 300 s from the 2026-10-28 SolisCloud portal chart; API history
+  has timestamp jitter and is an observation, not the nominal-grid basis.
 
 - **C21 – Truthiness treats 0.0 measurements as missing.** [read]
   `inverter.py`, `pv_inverter.py` and `pv_prelim_channel.py` gate on `if e_x and ...`, so
@@ -248,7 +249,7 @@ by reading the code; [brief] = carried from the 2026-10-21 brief without re-veri
 | C10 README boundary | none for AC8; fixed by the README task |
 | C11 eta doc conflict | none for AC8 numerics; cleanup executed in P04 |
 | C12 test architecture | none for AC8; decision D9 covers the new tests |
-| C13 SMA terminology | none: documentation only |
+| C13 stale terminology | none: documentation only |
 | C14 no input guard | none: new-core concern; legacy unmodified |
 | C15 cycle_closed flag | none: the flag is not an AC8 quantity |
 | C16 rte_closed boundary | none: rte_closed is not an AC8 quantity |

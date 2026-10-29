@@ -229,8 +229,7 @@ PV-side context.
 
 **Code.** `devices/pv_inverter.py`, `devices/inverter.py`;
 chain uses inv_fc.eta for the discharge bar and inv_pv.eta_euro for the PV bar.
-**Verified by.** `test_03` (FC inverter bar at 94% assumption);
-`test_08b` (PV Euro assumption vs measured telemetry of the removed legacy building array, 0.8% deviation; not F8 evidence).
+**Verified by.** `test_03` (FC inverter bar at 94% assumption). The former PV back-check (`test_08b`) was removed (D33); `inv_pv.eta_euro` stays PRELIM.
 
 ## T. F8 PV array: module data, string check, capture ratio, plant profiles
 
@@ -258,7 +257,7 @@ recommended 5.5 kW maximum PV power (design review, not hidden).
 
 **T3. Capture ratio with a real P_STC.** `CR = E_DC / (H_POA x P_STC)` (IEC 61724 family);
 `PVSystem.account` now computes it for the F8 channel once POA irradiation exists. For the
-legacy ~184 kWp SMA array 12 740 W is NOT the right P_STC: the two plants stay separate.
+any other plant 12 740 W is NOT the right P_STC: only F8 is in scope.
 *Error if wrong.* A wrong P_STC shifts CR 1:1. *Code.* `devices/pv_measured.py`. *Test.* `test_10`.
 
 **T4. Plant profiles.** `PLANT_PROFILES` in `devices/pv_prelim_channel.py` holds the module

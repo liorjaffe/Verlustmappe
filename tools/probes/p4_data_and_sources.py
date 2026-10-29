@@ -5,15 +5,6 @@ from verlustmappe.loaders.grafana import map_fc
 from verlustmappe.hydrogen.temperature_model import isothermal_work_mol_integral, temperature_corrected_mass
 from verlustmappe import registry as R
 
-pv = pd.read_csv(os.path.join(REPO, "data/processed/pv_retro/pv_merged.csv"), index_col=0, parse_dates=True)
-check("PV data: the grid_Hz column contains a counter-like value in its first rows",
-      (pv["grid_Hz"] > 1000).any(),
-      "fix the merge that produced data/processed/pv_retro/pv_merged.csv (column mix-up in the head rows)",
-      f"max grid_Hz = {pv['grid_Hz'].max():.2f}")
-dt = pv.index.to_series().diff().dt.total_seconds()
-info(f"PV data is {dt.median()/60:.0f}-min sampled: low-load efficiency bins may come from non-simultaneous DC/AC snapshots")
-info(f"PV dataset peak {pv['ac_power_W'].max()/1e3:.1f} kW is far below the building array: this file covers one inverter/sub-array, "
-     "so do not compare it with a whole-array reference")
 
 fc = map_fc(pd.read_csv(os.path.join(REPO, "data/processed/fc_retro/fc_merged.csv"), index_col=0, parse_dates=True))
 f = fc.dropna(subset=["fc_power_W", "run_hours", "total_run_energy"])

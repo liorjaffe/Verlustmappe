@@ -373,3 +373,21 @@ G1–G11 are aliases of D20–D30 in this order.
   use applies to the legacy Route-2 path and to any future path that uses tank pressure as a
   measurement; the new core does not use Route 2 (D8), re-admission needs a DECISIONS entry.
   It is separate from the 50 bar window condition for leak-rate separation (docs/94 C6).
+- **D33 – Sept 2026 PV dataset excluded; F8 is the only PV source. Status: DECIDED (owner, 2026-10-28).**
+  The Sept 2026 PV dataset (`data/processed/pv_retro/pv_merged.csv` and files derived from it)
+  comes, per the owner (plant knowledge), from a device other than the F8 inverters; exact
+  provenance remains unresolved. It carries no evidence and no register
+  argument; the 0.9719 backcheck loses its evidential role and `inv_pv.eta_euro` stays PRELIM
+  without dataset support. The old dataset label is retired; texts say "Sept 2026 PV dataset
+  (excluded, D33)". Only F8 (station F8_Fachada Leste, two Solis inverters, 12.78 kWp per the
+  Solis station list) is in scope; other stations are not considered. Any cadence such as
+  "20 min" that does not come from Solis is outdated. F8 history (SolisCloud inverterDay, 300 s
+  grid, days with data only) is deposited under `data/raw/solis_f8/`. Historical DECISIONS
+  entries keep their wording (protocol). Owner decision 2026-10-28: `pv_merged.csv` and the back-check `test_08b` (function
+  `backcheck_against_sma`, a deliberate exception to the M6 timing in D17) are deleted now; the
+  probe block and doc references are removed. F8 history under `data/raw/solis_f8/` is the PV basis.
+  Known cost: the file was the only artefact that could have allowed a later provenance check,
+  and `inv_pv.eta_euro` has no measured PV support until F8 history covers enough load range;
+  the F8 cloud history has no data for 2026-09-17..2026-10-22 (API returns empty lists), so no
+  F8 cross-check exists for September. A text guard forbids the vendor label
+  (word boundary) in the new core.

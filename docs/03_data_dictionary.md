@@ -116,15 +116,29 @@ station id 1298491919449567877, API-verified 2026-10-22; the metadata CSV rounds
 and must not be used for station ids). Always filter per inverter SN (`f8_inverters()`,
 `f8_live_dfs()`); station-level calls mix all inverters.
 
+### Nominal sampling interval per source (D24/D32)
+
+Gap rule: D24; qualification of nominal intervals: D32. Nominal intervals and any gap
+multiplier are data-analysis properties, not physics registry entries; changes require a
+DECISIONS entry.
+
+| Source | Nominal interval | Basis and limitation | Observed cadence / open point |
+|---|---:|---|---|
+| Regatron fast log | 0.05 s (20 Hz) | Code-anchored target: `FAST_LOG_HZ = 20.0` in `tools/regatron/regatron_bridge.py`; the code sets the requested rate, but the comment says it depends on G5 round-trip timing. This is not a guaranteed device rate. | D24's 30-s minimum dominates the gap threshold. |
+| FC retro export | BACKLOG | The 5-s grid in `data/processed/fc_retro/fc_merged.csv` is from a merged file without a verifiable raw-source export or generating script; it does not qualify as source cadence. | The merged-file grid is not used as `nominal_dt_s`. |
+| EL (Enapter) | BACKLOG | No source-specific logging interval or raw EL time series is available in the repository. | "~1 Hz" is an unverified comment, not a limit input. |
+| SolisCloud F8 daily PV source | 300 s | Grid-derived under D32(a) from the F8 portal chart `data/raw/Daily+Power+Station+Chart_29-10-2026.xls` (chart date 2026-10-28): 160 intervals are 300 s and one is 1200 s; 300 s is the smallest interval. The API polling interval is not used as evidence. | `inverterDay` history: 74,304 intervals, raw `dataTimestamp` values sorted within each daily response before UTC conversion; median 299.965 s, 97.8% in 290-310 s, 13 intervals >900 s, none non-positive. API timestamps are observed jitter, not exact grid points. Official API documentation does not specify endpoint-specific resolution. |
+| Tank DCT 541 | BACKLOG | "500 Hz capable" is a capability, not a logging interval. | No logger cadence evidence in the repository. |
+
 ### SolisCloud live + history (`loaders/solis_live.py`)
 
 | Function | Returns | Notes |
 |---|---|---|
 | `solis_live_df` | Single-row UTC DataFrame, `ac_power_W` | Prints STALE WARNING when `dataTimestamp` is older than 15 min; the endpoint returns the LAST value for offline inverters, so a stale row is not live data. |
-| `solis_day_df(sn, date)` | 5-min day curve: `ac_power_W`, `e_today_Wh`, `dc_V_mppt1..4`, `dc_A_mppt1..4`, `dc_power_W` | `dc_power_W` is the sum of `uPv*iPv` channels. |
+| `solis_day_df(sn, date)` | Timestamped daily curve: `ac_power_W`, `e_today_Wh`, `dc_V_mppt1..4`, `dc_A_mppt1..4`, `dc_power_W` | The API timestamps show jitter around the 300-s portal-chart grid; see the nominal-interval table. `dc_power_W` is the sum of `uPv*iPv` channels. |
 | `f8_day_dfs(date)` / `f8_range_dfs(start, end)` | Curves for both F8 inverters | Each inverter is requested by serial number. |
 | `f8_day_balance(start, end)` | Per-day table: `e_ac_counter_kWh`, `e_dc_channel_kWh`, `eta_dc_ac` | E_AC is MEASURED from the `eToday` counter; E_DC is PRELIM from DC channels; `eta_dc_ac` is diagnostic only. |
-| `energy_kWh(series, dt_s=300)` | Integrated series energy in kWh | Uses the nominal sample interval. |
+| `energy_kWh(series, dt_s=300)` | Integrated series energy in kWh | The default is a calculation parameter; it is not evidence of the source cadence. |
 
 Verified unit conventions: `inveterDetail` reports `pac` in kW and `eTotal` is
 assumed MWh (verify `eTotalStr` when the device reports again); `inverterDay`

@@ -3,7 +3,7 @@
 
 Usage:
   python3 src/report_cli.py fc ../data/processed/fc_retro/fc_merged.csv
-  python3 src/report_cli.py pv ../data/processed/pv_retro/pv_merged.csv
+  python3 src/report_cli.py pv <processed pv csv>
   python3 src/report_cli.py pvprelim
   python3 src/report_cli.py pvf8
   python3 src/report_cli.py pvf8measured
