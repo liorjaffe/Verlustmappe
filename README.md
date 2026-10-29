@@ -104,7 +104,7 @@ verlustmappe/
 │   │                              e_degradation -> f_compare
 │   ├── uncertainty/               RSS propagation (GUM) + Monte-Carlo (GUM S1)
 │   ├── loaders/                   raw Grafana/Regatron exports -> pipeline columns
-│   │                              Grafana source: removed legacy SMA building array (~184 kWp; reference only)
+│   │                              PV data: Solis F8 only (history in data/raw/solis_f8/); Sept 2026 dataset excluded, D33
 │   ├── reporting/                 tables and figures into results/ + register generator
 │   └── live_feed.py               rolling-window wrapper for a live plotter
 ├── tools/                         INTERACTIVE helpers (display & control, no paper numbers)
@@ -254,7 +254,7 @@ feeds a plotter at rolling-window cadence.
 ```bash
 python3 tests/run_all.py                       # all tests, each prints its ground truth
 python3 src/verlustmappe/reporting/report_cli.py fc data/processed/fc_retro/fc_merged.csv
-python3 src/verlustmappe/reporting/report_cli.py pv data/processed/pv_retro/pv_merged.csv
+python3 src/verlustmappe/reporting/report_cli.py pvf8
 ```
 Outputs land in `results/tables/*.csv` and `results/plots/`. Open any CSV in
 `tools/fuelcell_analyzer.html` (double-click the file, drag the CSV in) to inspect
