@@ -373,6 +373,22 @@ G1–G11 are aliases of D20–D30 in this order.
   use applies to the legacy Route-2 path and to any future path that uses tank pressure as a
   measurement; the new core does not use Route 2 (D8), re-admission needs a DECISIONS entry.
   It is separate from the 50 bar window condition for leak-rate separation (docs/94 C6).
+**D32 — Qualification of source sampling intervals for D24. Status: DECIDED (owner, 2026-10-29).**
+
+Nominal sampling intervals and gap-rule multipliers are data-analysis properties, not physics parameters. Their source-specific basis and limitations are documented in docs/03. Changes require a DECISIONS entry. D24's integration and gap rules remain unchanged.
+
+**(a) Demonstrated source grid.** A source-export grid may establish the interval used as `nominal_dt_s` when every consecutive timestamp interval in the identified evidence series is exactly the proposed grid interval or a positive integer multiple of it, and that grid interval is itself the smallest observed interval. **A grid shown only in preprocessed or merged files does not qualify, and a grid without any dropout counts only for an API or portal export of the source system itself.** The evidence series, source provenance and applicability to the input series must be stated explicitly. This establishes an export grid, not a guaranteed device acquisition rate.
+
+**(b) Distinguish specification, configuration and observation.** A documented source interval, a configured logging target and an observed cadence must not be presented as interchangeable. Configured targets must be labelled as such and must not be described as guaranteed device rates. An observed median, an API polling interval, a device capability or a grid introduced by merging or resampling does not by itself establish the source's nominal interval. **No new status labels.** Where no qualified basis exists, the nominal interval remains BACKLOG. **The basis must be verifiable from the repository: a cited export is deposited under `data/raw/`, and a row whose export is not deposited stays BACKLOG.**
+
+**(c) Preserve timestamps.** The grid criterion in (a) introduces no rounding or jitter tolerance. Native timestamps of the calculation input must be preserved; they must not be snapped to an artificial grid to satisfy the criterion or before D24 timestamp-validity checks. An exact grid demonstrated by one export does not imply that another representation has exact-grid timestamps; its applicability and observed deviations must be documented separately.
+
+**(d) Existing F8 application.** The F8 portal-chart export identified and cited in task P13b is accepted as the basis for the 300-s nominal interval used for the F8 daily PV source in docs/03. The API history's timestamp deviations remain observations and are not rounded away. This approval does not establish an endpoint-specific API guarantee.
+
+**(e) No additional acceptance claim.** Qualification of a nominal interval does not establish completeness of a time series or validate energy reconstructed between samples. D24 continues to determine integration, gaps and covered fraction. The existing backlog for quantifying the reconstructed bridging share remains open.
+
+Recording note: approved on 2026-10-29 in the owner's coordination chat, including the three restored rules from the earlier review round (merged-file exclusion, repository-verifiable basis, no new status labels); recorded in the repository on its actual date. It resolves previously existing references to D32; it does not assert that a historical approval record has been recovered.
+
 - **D33 – Sept 2026 PV dataset excluded; F8 is the only PV source. Status: DECIDED (owner, 2026-10-28).**
   The Sept 2026 PV dataset (`data/processed/pv_retro/pv_merged.csv` and files derived from it)
   comes, per the owner (plant knowledge), from a device other than the F8 inverters; exact

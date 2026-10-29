@@ -165,3 +165,25 @@ Later:
    dependency and Write-Scope requirements. The docs/94 task and P14 task files do not
    yet exist; do not treat this handoff list as authorization to edit outside an
    approved task scope.
+
+## D32 recording (P13c, 2026-10-29)
+
+- Done: recorded the exact owner-approved D32 text in DECISIONS.md and in
+  tasks/P13c_record_d32.md, including the merged-file/dropout restriction,
+  deposit-or-BACKLOG rule and prohibition on new status labels.
+- Approval and recording date: 2026-10-29. No historical owner-approved record
+  is claimed to have been recovered. The missing D32 entry is now recorded.
+- Before editing: no unstaged or staged HANDOFF changes; the only pre-existing
+  local difference from origin/main was HANDOFF-only commit 601a42b. Its content
+  is preserved separately from this appended task outcome.
+- Read-only consistency checks: docs/03 and P13b agree on the D32(a) source-grid
+  criterion, F8 portal-export basis, native timestamp preservation and open
+  bridging share. No changes to those files were required.
+- Verification: exact task/decision text equality, unchanged prior decision text
+  and HANDOFF prefix, unchanged read-only files, and portal-export hash match.
+  Legacy suite ALL PASS; pytest 109 passed; CI guard passed (22 test files,
+  BASE_REF=origin/main); README demo check matches. See P13c for commands.
+  No commit or push authorized or performed; owner review remains pending.
+- Decisions needed / next step: review the P13c diff, then finalize the separate
+  D34/D35 text package and its Write-Scope. D34/D35 and the AC8 option remain
+  unrecorded and undecided by this task; no P14 implementation is authorized.
