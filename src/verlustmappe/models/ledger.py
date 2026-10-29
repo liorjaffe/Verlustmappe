@@ -1,6 +1,6 @@
 """Central P14 item inventory and explicit computed/blocked results (D35)."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from .status import weakest
@@ -25,6 +25,7 @@ class Sign(str, Enum):
 
 class CauseCode(str, Enum):
     MISSING_REQUIRED_INPUT = "missing_required_input"
+    MISSING_REQUIRED_ITEM = "missing_required_item"
     BLOCKED_DEPENDENCY = "blocked_dependency"
     INVALID_INPUT_DOMAIN = "invalid_input_domain"
     INVALID_COMPUTED_SIGN = "invalid_computed_sign"
@@ -139,11 +140,12 @@ def computed(
 ) -> Result:
     if not isinstance(item.sign, Sign):
         raise ValueError(f"{item.key}: unknown D31 sign classification {item.sign!r}")
+    evidence_status = weakest(statuses)
     nonnegative = check_nonnegative(value, item.key)
     if item.sign == Sign.NONNEGATIVE and not nonnegative:
         return Blocked(item, (Cause(CauseCode.INVALID_COMPUTED_SIGN, item.key,
                                    "D31 computed/modelled quantity is negative"),))
-    return Computed(item, value, weakest(statuses), "SIMULATED",
+    return Computed(item, value, evidence_status, "SIMULATED",
                     input_uncertainties, provenance)
 
 
@@ -152,11 +154,30 @@ class Report:
     scope: str
     results: tuple[Result, ...]
     limits: tuple[str, ...]
+    validation_causes: tuple[Cause, ...] = field(init=False)
+
+    def __post_init__(self) -> None:
+        if self.scope not in ("bounded", "full"):
+            raise ValueError(f"unknown declared scope {self.scope!r}")
+        present = {result.item.key for result in self.results}
+        missing = tuple(
+            Cause(CauseCode.MISSING_REQUIRED_ITEM, item.key,
+                  f"Required item is absent from {self.scope} report")
+            for item in ITEMS
+            if item.required and (self.scope == "full" or item.key in BOUNDED_KEYS)
+            and item.key not in present
+        )
+        object.__setattr__(self, "validation_causes", missing)
 
     @property
     def invalid(self) -> bool:
-        return any(isinstance(result, Blocked) and result.item.required
-                   for result in self.results)
+        required = {item.key for item in ITEMS if item.required
+                    and (self.scope == "full" or item.key in BOUNDED_KEYS)}
+        return bool(self.validation_causes) or any(
+            isinstance(result, Blocked)
+            and (result.item.key in required or result.item.required)
+            for result in self.results
+        )
 
     def __getitem__(self, key: str) -> Result:
         for result in self.results:
@@ -172,9 +193,24 @@ def sum_compatible(report: Report, keys: tuple[str, ...]) -> float | Blocked:
     results = tuple(report[key] for key in keys)
     if len({(result.item.unit, result.item.role) for result in results}) != 1:
         raise ValueError("cannot aggregate incompatible units or accounting roles")
-    for result in results:
-        if isinstance(result, Blocked):
-            return result
+    blocked = tuple(result for result in results if isinstance(result, Blocked))
+    if blocked:
+        dependencies = tuple(sorted(keys))
+        item = Item(
+            f"aggregate:{dependencies!r}", results[0].item.unit, results[0].item.role,
+            dependencies, required=any(result.item.required for result in results),
+            sign=Sign.SIGNED if any(result.item.sign == Sign.SIGNED for result in results)
+            else Sign.NONNEGATIVE,
+        )
+        causes = {cause for result in blocked for cause in result.causes}
+        causes.update(
+            Cause(CauseCode.BLOCKED_DEPENDENCY, result.item.key,
+                  "Aggregate depends on blocked item")
+            for result in blocked
+        )
+        return Blocked(item, tuple(sorted(
+            causes, key=lambda cause: (cause.code.value, cause.dependency, cause.reason),
+        )))
     total = sum(result.value for result in results if isinstance(result, Computed))
     check_nonnegative(total, "aggregate")
     return total
