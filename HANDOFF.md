@@ -415,3 +415,29 @@ Later:
 - Next: deliver complete git-show diffs, regression outputs and per-commit gates
   for owner final review. Full-chain AC1/AC8 remain open. No further building
   or scope expansion before that review.
+
+## P14 infrastructure corrections: red checkpoint (2026-10-29)
+
+- Owner approved test preparation, then red regressions shown before code commit E,
+  then separate regression/documentation commit F; no amend/push.
+- Preparation cb6cda2 removes the false assertion that a one-item bounded report
+  is valid. Negative signed storage remains checked as Computed with value -1.
+  Mandatory gates before/after: legacy ALL PASS, 148 pytest passed, guard and
+  README check passed.
+- Uncommitted regressions cover missing required items, negative-result status
+  definition errors and complete/order-independent aggregate blockers.
+- Red outputs delivered: 7 failures, existing 148 tests pass. Owner clarified
+  successful sums remain numeric, not Computed; no metadata merge is authorized.
+- E 33a476a fixes report completeness, status short-circuit and aggregate cause
+  preservation. Before/after gates: legacy ALL PASS, 155 pytest passed, guard,
+  README and diff checks pass. Both checks include uncommitted regression tests
+  and this HANDOFF checkpoint; E itself contains ledger.py only.
+- D31 inventory audit closed: the sole signed inventory item is storage change;
+  all other 17 items are nonnegative. Explicit regression mapping belongs to F.
+- F adds the full status matrix, canonical requiredness, optional-item coverage,
+  signed numeric sums, stable aggregate identity, shared-cause deduplication and
+  explicit D31 mapping, plus task/validation/handoff evidence.
+- P15 decision deferred: whether mixed SIGNED/NONNEGATIVE aggregates should be
+  rejected. Blocked synthetic items currently use any-SIGNED; W3/W4 unchanged.
+- Next: deliver full git-show output of preparation/E/F and green gates for
+  owner final review. Full-chain AC1/AC8 remain open. No push or final acceptance.

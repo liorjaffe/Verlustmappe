@@ -72,6 +72,44 @@ Deferred obligation: at the first real measurement-access path (P15/P16 or loade
 integration), implement the absent/present/varied measurement perturbation with
 fixed scenario inputs. The tripwire must not substitute for it at that point.
 
+### P14 report/gate/aggregation corrections (owner chat, 2026-10-29)
+
+Preparation cb6cda2 removes a false assertion that a one-item bounded report is
+valid; the negative signed-storage Computed/value assertions remain. Legacy,
+148 pytest cases, guard and README checks pass before and after that commit.
+
+Seven new regression cases failed against the unchanged model: three absent
+required-inventory cases, three negative-value status-definition cases, and
+one simultaneous-missing aggregate case. Code-only commit E (33a476a) makes
+all seven pass. Before and after E, full gates pass with 155 pytest cases;
+the regression tests and HANDOFF checkpoint are explicitly uncommitted in both
+worktree checks. E does not contain those test/documentation changes.
+
+Report construction now records missing_required_item causes for absent required
+items in the declared scope, without fabricating numerical results. Requiredness
+is authoritative in ITEMS, not replaceable result metadata. Independent literal
+requirements in tests cover empty full, relabeled bounded and thinned bounded
+reports; normal calculated reports have no missing-item causes. Full reports
+still remain INVALID for their unresolved required items.
+
+Evidence validation precedes computed()'s sign short-circuit. The UNKNOWN,
+REJECTED and SUPERSEDED x negative/zero/positive matrix always raises, never
+relabels a definition error as BACKLOG.
+
+Blocked sums identify a synthetic aggregate, preserve all blockers and their
+root causes, deduplicate identical causes and sort causes/dependencies into
+canonical order. Reversing summands preserves aggregate identity and causes.
+Successful sums remain numeric, including signed sums -1 + -1 = -2 and
+1 + -2 = -1; no output metadata merge or computed sign gate is introduced.
+Synthetic blocked items use SIGNED if any summand is SIGNED. P15 must reconsider
+whether mixed-sign classifications within the same role/unit should be rejected.
+The existing W3 metadata/double-booking limits remain unchanged.
+
+The D31 audit is closed: explicit key-to-sign expectations cover all 18 items;
+only storage_change_kWh is SIGNED. No D31 list, physics or registry change.
+Bounded case verified, full-chain AC1 remains open. AC8 remains open.
+Commit F versions the regressions and this evidence separately.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

@@ -507,3 +507,27 @@ W3/W4 and regression evidence belong to D.
   measurement-access proof. Real data-path perturbation is deferred until the
   first actual measurement integration, not waived or replaced by the tripwire.
 - Full-chain AC1/AC8 and owner implementation comparison remain open.
+
+## Report/gate/aggregation corrections (owner chat, 2026-10-29)
+
+Approved sequence: a separate mechanical test-preparation commit, red regression
+outputs delivered before code commit E, then tests/documentation commit F.
+Write-Scope: models/ledger.py, tests/test_40_static_ledger.py, this task,
+docs/04_validation_log.md and HANDOFF.md. P14: prefix; mandatory gates before
+and after every commit; no amend/push. References/registry/constants untouched.
+
+- Preparation cb6cda2 removes the substantively false assertion declaring an
+  incomplete one-item bounded report valid, preserving negative-storage checks.
+- E 33a476a validates report coverage on construction with missing_required_item
+  causes and canonical inventory requiredness, validates status before sign
+  short-circuit, and aggregates all blocked causes under a stable synthetic item.
+- Seven regressions were red before E and green after E. Both E gates run with
+  those regressions and HANDOFF changes present but uncommitted (155 passed).
+- F extends regression coverage to the status/sign matrix, authoritative
+  requiredness, conditional absence, deduplication, stable aggregate identity,
+  numeric signed sums and explicit D31 key/sign mapping.
+- Owner clarified successful sums remain numbers, not Computed: -1 + -1 = -2,
+  1 + -2 = -1. No general multi-parent metadata merge is authorized.
+- Synthetic blocked aggregates use any-SIGNED classification. P15 must review
+  mixed-sign aggregation semantics; W3/W4 limitations and deferred obligations
+  remain in force. D31 audit closed; full-chain AC1/AC8 remain open.

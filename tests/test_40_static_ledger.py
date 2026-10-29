@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from verlustmappe import registry
 from verlustmappe.models.ledger import (
-    ITEMS, Blocked, CauseCode, Computed, Item, Report, Role, Sign, computed, sum_compatible,
+    ITEMS, Blocked, Cause, CauseCode, Computed, Item, Report, Role, Sign, computed, sum_compatible,
 )
 from verlustmappe.models.params import BlockedParameterError, ParamSet
 from verlustmappe.models.static_map import Scenario, calculate
@@ -25,6 +25,139 @@ def parameters():
 @pytest.fixture
 def scenario():
     return Scenario(2100, 8, 2700, 20, 1800, "owner-approved synthetic P14 case")
+
+
+@pytest.mark.parametrize("case", ["empty_full", "relabeled_bounded", "thinned_bounded"])
+def test_required_item_absence_invalidates_report(scenario, parameters, case):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    bounded_keys = {
+        "el_operating_energy_kWh", "el_standby_energy_kWh",
+        "hydrogen_amount_mol", "hydrogen_mass_kg", "hydrogen_lhv_energy_kWh",
+    }
+    full_additional_required = {
+        "dryer_electrical_energy_kWh", "dryer_vent_energy_kWh", "water_energy_kWh",
+        "filter_energy_kWh", "compression_air_energy_kWh", "ready_energy_kWh",
+        "leakage_energy_kWh", "fc_control_energy_kWh", "fc_inverter_loss_kWh",
+        "el_conversion_loss_kWh", "fc_conversion_loss_kWh", "storage_change_kWh",
+    }
+    if case == "empty_full":
+        report = Report("full", (), ())
+        missing = bounded_keys | full_additional_required
+    elif case == "relabeled_bounded":
+        report = replace(bounded, scope="full")
+        missing = full_additional_required
+    else:
+        report = replace(bounded, results=bounded.results[:2])
+        missing = {"hydrogen_amount_mol", "hydrogen_mass_kg", "hydrogen_lhv_energy_kWh"}
+    assert report.invalid, f"{case}: absent required items must invalidate the report"
+    assert {(cause.code.value, cause.dependency) for cause in report.validation_causes} == {
+        ("missing_required_item", key) for key in missing
+    }
+
+
+@pytest.mark.parametrize("status", ["UNKNOWN", "REJECTED", "SUPERSEDED"])
+@pytest.mark.parametrize("value", [-1, 0, 1])
+def test_status_definition_error_precedes_negative_short_circuit(status, value):
+    item = Item("synthetic_energy_kWh", "kWh", Role.ELECTRICAL_INPUT, ())
+    with pytest.raises(ValueError, match="not in the D26 vocabulary"):
+        computed(item, value, (status,), (), ())
+
+
+def test_aggregate_preserves_all_blockers_and_identity(scenario, parameters):
+    report = calculate(
+        replace(scenario, el_ac_input_power_W=None, standby_time_s=None),
+        parameters, scope="bounded",
+    )
+    keys = ("el_operating_energy_kWh", "el_standby_energy_kWh")
+    forward = sum_compatible(report, keys)
+    reverse = sum_compatible(report, tuple(reversed(keys)))
+    assert isinstance(forward, Blocked) and isinstance(reverse, Blocked)
+    expected_roots = {"el_ac_input_power_W", "standby_time_s"}
+    for aggregate in (forward, reverse):
+        assert {cause.dependency for cause in aggregate.causes
+                if cause.code == CauseCode.MISSING_REQUIRED_INPUT} == expected_roots
+        assert {cause.dependency for cause in aggregate.causes
+                if cause.code == CauseCode.BLOCKED_DEPENDENCY} == set(keys)
+        assert set(aggregate.item.dependencies) == set(keys)
+        assert aggregate.item.key not in keys
+        assert len(aggregate.causes) == len(set(aggregate.causes))
+    assert forward.causes == reverse.causes
+    assert forward.item == reverse.item
+
+
+def test_inventory_requiredness_cannot_be_overridden_by_result(scenario, parameters):
+    report = calculate(replace(scenario, stack_current_A=None), parameters, scope="bounded")
+    results = tuple(replace(result, item=replace(result.item, required=False))
+                    if isinstance(result, Blocked) else result for result in report.results)
+    rebuilt = replace(report, results=results)
+    assert not rebuilt.validation_causes
+    assert rebuilt.invalid
+
+
+def test_calculated_reports_have_complete_required_coverage(scenario, parameters):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    full = calculate(scenario, parameters, scope="full")
+    assert not bounded.validation_causes and not bounded.invalid
+    assert not full.validation_causes and full.invalid
+    conditional = "fc_inverter_standby_energy_kWh"
+    without_conditional = replace(
+        full, results=tuple(result for result in full.results if result.item.key != conditional),
+    )
+    assert not without_conditional.validation_causes
+
+
+@pytest.mark.parametrize("values", [(-1, -1), (1, -2)])
+def test_signed_sums_remain_numeric_without_sign_gate(values):
+    items = tuple(Item(key, "kWh", Role.STORAGE, (), sign=Sign.SIGNED)
+                  for key in ("first_change_kWh", "second_change_kWh"))
+    results = tuple(computed(item, value, ("GUESS",), (), ())
+                    for item, value in zip(items, values))
+    assert all(isinstance(result, Computed) for result in results)
+    report = Report("bounded", results, ())
+    total = sum_compatible(report, ("first_change_kWh", "second_change_kWh"))
+    assert isinstance(total, (int, float)) and not isinstance(total, bool)
+    assert total == (-2 if values == (-1, -1) else -1)
+
+
+@pytest.mark.parametrize("signed_key", ["first", "second"])
+def test_blocked_aggregate_any_signed_and_shared_cause_deduplication(signed_key):
+    items = tuple(
+        Item(key, "kWh", Role.STORAGE, (),
+             sign=Sign.SIGNED if key == signed_key else Sign.NONNEGATIVE)
+        for key in ("first", "second")
+    )
+    cause = Cause(CauseCode.MISSING_REQUIRED_INPUT, "shared_input", "Missing shared input")
+    report = Report("bounded", tuple(Blocked(item, (cause,)) for item in items), ())
+    aggregate = sum_compatible(report, ("first", "second"))
+    reverse = sum_compatible(report, ("second", "first"))
+    assert isinstance(aggregate, Blocked) and isinstance(reverse, Blocked)
+    assert aggregate == reverse
+    assert aggregate.item.sign == Sign.SIGNED
+    assert aggregate.causes.count(cause) == 1
+    assert len(aggregate.causes) == 3
+
+
+def test_inventory_signs_match_explicit_d31_requirements():
+    assert {item.key: item.sign for item in ITEMS} == {
+        "el_operating_energy_kWh": Sign.NONNEGATIVE,
+        "el_standby_energy_kWh": Sign.NONNEGATIVE,
+        "hydrogen_amount_mol": Sign.NONNEGATIVE,
+        "hydrogen_mass_kg": Sign.NONNEGATIVE,
+        "hydrogen_lhv_energy_kWh": Sign.NONNEGATIVE,
+        "dryer_electrical_energy_kWh": Sign.NONNEGATIVE,
+        "dryer_vent_energy_kWh": Sign.NONNEGATIVE,
+        "water_energy_kWh": Sign.NONNEGATIVE,
+        "filter_energy_kWh": Sign.NONNEGATIVE,
+        "compression_air_energy_kWh": Sign.NONNEGATIVE,
+        "ready_energy_kWh": Sign.NONNEGATIVE,
+        "leakage_energy_kWh": Sign.NONNEGATIVE,
+        "fc_control_energy_kWh": Sign.NONNEGATIVE,
+        "fc_inverter_loss_kWh": Sign.NONNEGATIVE,
+        "fc_inverter_standby_energy_kWh": Sign.NONNEGATIVE,
+        "el_conversion_loss_kWh": Sign.NONNEGATIVE,
+        "fc_conversion_loss_kWh": Sign.NONNEGATIVE,
+        "storage_change_kWh": Sign.SIGNED,
+    }
 
 
 def registry_entry(monkeypatch, key, **changes):
