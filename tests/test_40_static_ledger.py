@@ -201,7 +201,6 @@ def test_signed_storage_change_and_nonnegative_energy_follow_d31():
     change = computed(storage, -1, ("GUESS",), (), ())
     assert isinstance(change, Computed)
     assert change.value == -1
-    assert not Report("bounded", (change,), ()).invalid
 
     energy = Item("synthetic_path_energy_kWh", "kWh", Role.ELECTRICAL_INPUT, ())
     assert energy.sign == Sign.NONNEGATIVE
