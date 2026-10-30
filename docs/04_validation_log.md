@@ -130,8 +130,11 @@ Code commit a23c1e9 also changes one test assertion (owner-approved exception
 to AGENTS rule 4, because R2 requires green at every commit): overriding
 required=False on known items now raises on construction instead of yielding
 invalid=True. Gates before and after: legacy ALL PASS, 168 pytest, guard,
-README and diff checks. 15 new regression cases failed (DID NOT RAISE) against
-the unchanged model; 2 unknown-extra cases pin existing behavior.
+README and diff checks. The regression commit adds 16 new test cases
+(6 duplicate, 7 noncanonical field, 1 SIGNED -1, 2 unknown-extra). Against the
+unchanged model 15 cases failed (DID NOT RAISE): 14 new cases plus the changed
+existing requiredness test; the 2 new unknown-extra cases passed, pinning
+existing behavior.
 Mutants, full suite, actual pytest exit codes: duplicate check removed
 survives without the regressions (exit 0) and fails 6 with them (exit 1);
 canonical check removed fails 1 without and 9 with them; deep-dive survivor
@@ -139,6 +142,19 @@ M5 (extra-item requiredness ignored) survives without (exit 0) and fails 1
 with them (exit 1). A hand-built Computed with a canonical item and a wrong
 value remains possible (separate public-construction finding).
 Bounded case verified, full-chain AC1 remains open. AC8 remains open.
+
+Corrections after independent review (owner chat, 2026-10-29), no amend:
+the 337c45e commit message misstates two points. "15 cases failed" are 14 new
+cases plus the changed existing test. The canonical-check mutant does not
+survive without the new regressions: the changed requiredness test already
+kills it (1 failed); the new regressions cover further field deviations. Only
+the duplicate-check mutant and M5 survive without them. The session gate helper
+used for b4bb21f, a23c1e9 and 337c45e returned exit 0 even when a gate failed;
+commit decisions relied on reading each gate's own exit code, not on the helper.
+The corrected helper (session-local, not in the repository) exits 1 on any
+failed gate (negative control: exit 1, set -e caller stops before commit).
+Fresh gates with it: b4bb21f and a23c1e9 168 passed, 337c45e 184 passed; legacy,
+guard, README and diff checks exit 0 at all three. Logs are session-local.
 
 ## Historical test evidence
 

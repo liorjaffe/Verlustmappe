@@ -555,7 +555,13 @@ P14 owner acceptance remain open. No push/PR.
 - b4bb21f: deep-dive section above committed unchanged (docs only).
 - a23c1e9: Report rejects duplicate keys and noncanonical known items
   (contract and rule-4 exception in the P14 task). Regressions and docs follow
-  in the next P14: commit. Red before a23c1e9: 15 DID NOT RAISE; 2 pin behavior.
+  in the next P14: commit (16 new cases). Red before a23c1e9: 15 DID NOT RAISE
+  = 14 new cases + the changed requiredness test; 2 new cases pin behavior.
+- Review corrections (no amend): 337c45e message miscounts and wrongly says the
+  canonical-check mutant survives without the new regressions (the changed
+  requiredness test kills it). The old session gate helper exited 0 on failure;
+  corrected helper verified (negative control exit 1) and fresh gates at
+  b4bb21f, a23c1e9, 337c45e all pass. Details in docs/04.
 - Prior check closed: sum_compatible() rejects duplicate summand keys;
   test_sum_roles_units_duplicate_and_blocking guards it (mutant: 1 failed,
   pytest exit 1). This is separate from Report-entry duplicates (now fixed).
