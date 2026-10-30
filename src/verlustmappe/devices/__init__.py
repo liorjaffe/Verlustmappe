@@ -8,8 +8,8 @@ formula, which uncertainty) lives in each file's docstring.
     pv_prelim_channel.py   preliminary PV loss channel ("vorerst")        PRELIM
     pv_inverter.py         PV-side inverter, PV DC -> AC bus              measured / PRELIM
     electrolyzer.py        electrolyser unit (Enapter EL 2.1 + PSU)       AC -> H2
-    booster.py             air-driven gas booster (Maximator DLE 30-2)    H2 35 -> 200 bar
     dryer.py               H2 dryer (Enapter DRY 2.1)                     gas + electrical
+    booster.py             air-driven gas booster (Maximator DLE 30-2)    H2 35 -> 200 bar
     tank.py                storage tank (VITKOVICE 800 L)                 pV state, Route 2
     fuel_cell.py           fuel cell system (2x IE-LIFT 802)              H2 -> DC
     inverter.py            FC-side inverter, 48-52 V bus -> AC island     PRELIM / measured
@@ -27,8 +27,8 @@ from .pv_measured import PVSystem
 from .pv_prelim_channel import pv_account, cell_temperature
 from .pv_inverter import PVInverter
 from .electrolyzer import ElectrolyzerUnit
-from .booster import AirDrivenBooster
 from .dryer import Dryer
+from .booster import AirDrivenBooster
 from .water_system import WaterSystem
 from .tank import Tank
 from .fuel_cell import FuelCellSystem
