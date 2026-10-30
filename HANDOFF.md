@@ -707,3 +707,23 @@ P14 owner acceptance remain open. No push/PR.
 - Next: review the committed runner evidence and continue with the separately
   pending Package B decisions. Full-chain AC1/AC8 and final P14 acceptance
   remain open.
+
+## D36 nominal EL domain implementation (2026-10-30)
+
+- Done: `static_map.calculate()` enforces the D36 nominal domains before the
+  hydrogen calculation. Invalid finite values block the hydrogen chain with
+  `INVALID_INPUT_DOMAIN` and the relevant parameter key; electrical outputs
+  remain visible. Integrity errors remain `ValueError`.
+- Tests: red-first focused run reproduced four failures before the fix; after
+  the fix, all 25 focused cases passed. The full pytest suite reports 223
+  passed. The registry, uncertainties, constants and hand references are
+  unchanged.
+- Commits: implementation `18de0e2`; separate tests `593b6b9`.
+- Mutation evidence: M4's anchor remains intact. The D36 mutation is in the
+  default run; seven default pairs and eight pairs with inventory uniqueness
+  opt-in passed. Logs and manifests are recorded in `docs/04_validation_log.md`.
+- Decisions still needed: constants provenance semantics and public
+  `Computed` construction. Next work should continue with those Package B
+  contracts, independently of this completed D36 implementation.
+- Full-chain AC1/AC8 and final P14 acceptance remain open. No push or PR was
+  made.

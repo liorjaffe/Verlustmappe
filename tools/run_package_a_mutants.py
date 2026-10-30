@@ -1,4 +1,4 @@
-"""Reproduce the bounded P14 Package A mutation checks in isolated copies."""
+"""Reproduce the bounded P14 mutation checks in isolated copies."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ from tempfile import TemporaryDirectory
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-TEST_FILE = "tests/test_40_static_ledger.py"
+DEFAULT_TEST_FILE = "tests/test_40_static_ledger.py"
 
 
 @dataclass(frozen=True)
@@ -31,6 +31,7 @@ class Mutation:
     selected_cases: int
     approval_reference: str
     option: str | None = None
+    test_file: str = DEFAULT_TEST_FILE
 
 
 MUTATIONS = (
@@ -63,6 +64,35 @@ MUTATIONS = (
         "test_negative_registry_parameter_has_exact_domain_cause_and_propagates",
         1,
         "bfdaf38: HANDOFF.md, Package A owner approval",
+    ),
+    Mutation(
+        "M_D36_nominal_el_domains",
+        "src/verlustmappe/models/static_map.py",
+        (
+            "        elif not check_nonnegative(parameter.value, key):\n"
+            "            causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,\n"
+            "                                 \"registry input is outside its permitted "
+            "nominal domain\"),)\n"
+            "        elif key == \"el.faradaic_efficiency\" and parameter.value > 1:\n"
+            "            causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,\n"
+            "                                 \"registry input is outside its permitted "
+            "nominal domain\"),)\n"
+            "        elif key == \"el.n_cells\" and (\n"
+            "                parameter.value <= 0 or parameter.value % 1 != 0):\n"
+            "            causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,\n"
+            "                                 \"registry input is outside its permitted "
+            "nominal domain\"),)\n"
+        ),
+        (
+            "        elif False:\n"
+            "            causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,\n"
+            "                                 \"registry input is outside its permitted "
+            "nominal domain\"),)\n"
+        ),
+        "test_d36_invalid_nominal_parameters_block_hydrogen_path",
+        6,
+        "D36: DECISIONS.md, owner-approved nominal EL domain contract",
+        test_file="tests/test_20_static_map.py",
     ),
     Mutation(
         "M14_report_scope_guard",
@@ -402,12 +432,12 @@ def _run_self_check(python: str, log_dir: Path) -> None:
 
 
 def _run_pytest_mutation(
-    python: str, cwd: Path, selector: str,
+    python: str, cwd: Path, test_file: str, selector: str,
 ) -> subprocess.CompletedProcess[str]:
-    return _run_pytest(python, cwd, TEST_FILE, selector)
+    return _run_pytest(python, cwd, test_file, selector)
 
 
-def _copy_test_environment(destination: Path) -> None:
+def _copy_test_environment(destination: Path, test_file: str) -> None:
     shutil.copytree(
         REPO_ROOT / "src",
         destination / "src",
@@ -415,7 +445,7 @@ def _copy_test_environment(destination: Path) -> None:
     )
     tests = destination / "tests"
     tests.mkdir()
-    shutil.copy2(REPO_ROOT / TEST_FILE, tests / "test_40_static_ledger.py")
+    shutil.copy2(REPO_ROOT / test_file, tests / Path(test_file).name)
     shutil.copy2(REPO_ROOT / "pyproject.toml", destination / "pyproject.toml")
 
 
@@ -442,12 +472,14 @@ def _run_one(
 ) -> None:
     with TemporaryDirectory(prefix=f"verlustmappe-{mutation.name}-") as temporary:
         root = Path(temporary)
-        _copy_test_environment(root)
+        _copy_test_environment(root, mutation.test_file)
         source_text = (root / mutation.source).read_text(encoding="utf-8")
         record["anchor_occurrences"] = source_text.count(mutation.old)
         persist_manifest()
 
-        baseline = _run_pytest_mutation(python, root, mutation.selector)
+        baseline = _run_pytest_mutation(
+            python, root, mutation.test_file, mutation.selector,
+        )
         baseline_log = baseline.stdout or ""
         (log_dir / f"{mutation.name}.baseline.log").write_text(
             baseline_log, encoding="utf-8",
@@ -463,7 +495,9 @@ def _run_one(
         _validate_baseline(baseline.returncode, baseline_summary, mutation.selected_cases)
 
         record["anchor_occurrences"] = _apply_mutation(root, mutation)
-        mutated = _run_pytest_mutation(python, root, mutation.selector)
+        mutated = _run_pytest_mutation(
+            python, root, mutation.test_file, mutation.selector,
+        )
         mutant_log = mutated.stdout or ""
         (log_dir / f"{mutation.name}.mutant.log").write_text(
             mutant_log, encoding="utf-8",
@@ -540,7 +574,9 @@ def _write_manifest(path: Path, manifest: dict[str, object]) -> None:
 
 
 def _source_hashes(mutations: tuple[Mutation, ...]) -> dict[str, str]:
-    paths = {REPO_ROOT / TEST_FILE, Path(__file__).resolve()}
+    paths = {
+        REPO_ROOT / mutation.test_file for mutation in mutations
+    } | {Path(__file__).resolve()}
     paths.update(REPO_ROOT / mutation.source for mutation in mutations)
     return {
         str(path.relative_to(REPO_ROOT)): _sha256(path)
@@ -571,7 +607,7 @@ def main() -> int:
     project_python = REPO_ROOT / ".venv" / "bin" / "python"
     parser = argparse.ArgumentParser(
         description=(
-            "Run the bounded Package A mutations in temporary copies; this is "
+            "Run the bounded P14 mutations in temporary copies; this is "
             "development evidence, not a full-suite mutation score."
         )
     )
@@ -591,7 +627,7 @@ def main() -> int:
         action="store_true",
         help=(
             "also run the separately scoped ITEMS key-uniqueness mutation; "
-            "excluded from the default Package A run"
+            "excluded from the default P14 mutation run"
         ),
     )
     args = parser.parse_args()
@@ -626,6 +662,7 @@ def main() -> int:
                 "name": mutation.name,
                 "approval_reference": mutation.approval_reference,
                 "source": mutation.source,
+                "test_file": mutation.test_file,
                 "selector": mutation.selector,
                 "expected_selected_cases": mutation.selected_cases,
                 "anchor_occurrences": None,
@@ -680,7 +717,7 @@ def main() -> int:
         print(f"Logs and manifest (if produced): {run_dir}", file=sys.stderr)
         return 1
 
-    print(f"PACKAGE A MUTANTS OK; logs and manifest: {run_dir}")
+    print(f"P14 MUTATION CHECKS OK; logs and manifest: {run_dir}")
     return 0
 
 

@@ -571,3 +571,35 @@ Still open (needs data, not code):
 - Confirm the delivered DCT 541 label and the `bundle_isolated` practice.
 - Rest windows after a fill (GS fit); Kaeser energy meter; EL stack current
   export; Solis export with FC currents or a DC current.
+
+## D36 nominal EL parameter domains (2026-10-30)
+
+The consumer in `static_map.calculate()` now blocks finite nominal parameter
+values outside the D36 domains with `INVALID_INPUT_DOMAIN` and the relevant
+parameter key. The required hydrogen path is blocked and makes the report
+invalid; independent operating and standby electrical results remain visible.
+Non-numeric values, booleans and non-finite values still raise `ValueError`.
+No registry values or uncertainties, constants, or hand-reference files changed.
+
+Red-first evidence before the implementation: the focused selector chose 25
+cases; 21 passed and the four new domain cases failed as expected (efficiency
+98, efficiency 1.0000000001, 120.5 cells, and zero cells). The negative-domain,
+valid-boundary, registry-immutability and integrity cases already passed.
+After implementation, the same selector passed all 25 cases.
+
+Implementation commit `18de0e2` and separate regression commit `593b6b9`.
+Each was validated with the canonical sequential gates: legacy
+`python3 tests/run_all.py` ended `ALL PASS`; `pytest -q` reported 223 passed;
+the `BASE_REF=origin/main` CI guard passed for 24 test files; the README demo
+check matched; and `git diff --check` passed.
+
+The mutation runner now includes D36 in its default set, hashes and runs the
+test file selected by each mutation, and reports a P14-wide label. Its M4
+negative-registry anchor still occurs once and the M4 mutant remains killed.
+The default run passed seven baseline/mutant pairs, including D36's six
+selected regression cases; the inventory-uniqueness opt-in run passed all
+eight pairs. Both manifests and per-mutant logs are outside the repository:
+`/tmp/verlustmappe-p14-d36-mutants/20261030T153415858279` and
+`/tmp/verlustmappe-p14-d36-mutants/20261030T153422310592`. This is targeted
+mutation evidence, not proof of physical correctness or complete mutation
+coverage. Full-chain AC1/AC8 and final P14 acceptance remain open.
