@@ -420,3 +420,28 @@ def test_unknown_extra_item_stays_visible_and_only_required_blocker_invalidates(
     assert not report.validation_causes
     assert report["synthetic_extra_kWh"] == extra
     assert report.invalid is required
+
+
+def _plain_cause_codes(item):
+    return replace(item, unresolved=tuple(replace(cause, code=cause.code.value)
+                                          for cause in item.unresolved))
+
+
+@pytest.mark.parametrize("key,retype", [
+    pytest.param("el_operating_energy_kWh",
+                 lambda item: replace(item, sign=item.sign.value), id="sign_as_str"),
+    pytest.param("hydrogen_lhv_energy_kWh",
+                 lambda item: replace(item, role=item.role.value), id="role_as_str"),
+    pytest.param("el_standby_energy_kWh",
+                 lambda item: replace(item, required=int(item.required)), id="required_as_int"),
+    pytest.param("dryer_electrical_energy_kWh", _plain_cause_codes, id="cause_code_as_str"),
+])
+def test_report_rejects_equal_but_retyped_known_item(scenario, parameters, key, retype):
+    full = calculate(scenario, parameters, scope="full")
+    canonical = next(item for item in ITEMS if item.key == key)
+    retyped = retype(canonical)
+    assert retyped == canonical, "precondition: Python equality alone accepts the retyped item"
+    results = tuple(replace(result, item=retyped) if result.item.key == key else result
+                    for result in full.results)
+    with pytest.raises(ValueError, match=f"{key}.*central inventory"):
+        Report("full", results, ())

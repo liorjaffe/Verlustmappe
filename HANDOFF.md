@@ -606,3 +606,16 @@ P14 owner acceptance remain open. No push/PR.
   EL consumer; constants dependency/provenance semantics; public Computed
   construction. P15 mixed-sign aggregation remains deferred.
 - Full-chain AC1/AC8 and final P14 owner acceptance remain open. No push/PR.
+
+## P14 type-identical canonical items (owner chat, 2026-10-29)
+
+- 4461dc8: docs-only corrections of counts, mutation statement and gate helper.
+- ebff573: canonical Report check compares recursively with identical types
+  (str-based enums and 1 == True no longer pass). Code only; existing suite green.
+- Next commit: four retyped-item regressions plus task/docs. Red before ebff573
+  (4 DID NOT RAISE, exit 1); mutant reverting to == survives without them
+  (184 passed, exit 0) and fails with them (4 failed, exit 1).
+- Gate helper now exits 1 on any failed gate; it is session-local, not in the
+  repository. Whether to version it under tools/ is an open owner question.
+- Next unchanged: package A (own approval), package B decisions, full-chain
+  AC1/AC8 and final P14 acceptance open. No push/PR.

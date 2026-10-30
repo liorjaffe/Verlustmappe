@@ -156,6 +156,16 @@ failed gate (negative control: exit 1, set -e caller stops before commit).
 Fresh gates with it: b4bb21f and a23c1e9 168 passed, 337c45e 184 passed; legacy,
 guard, README and diff checks exit 0 at all three. Logs are session-local.
 
+Type-identical canonical items (owner contract addition, 2026-10-29): Python ==
+accepted known items with sign or role as plain strings, required as int, and
+plain-string cause codes inside unresolved, because the enums are str-based and
+1 == True. Code commit ebff573 compares recursively with identical types.
+Four new regression cases (each asserting the retyped item is == canonical as a
+precondition) failed with DID NOT RAISE against the unchanged model (pytest
+exit 1). Mutant reverting to ==, full suite: 184 passed without the new cases
+(exit 0), 4 failed with them (exit 1). Gates with the corrected helper before
+and after ebff573: legacy ALL PASS, 184 passed, guard, README, diff exit 0.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

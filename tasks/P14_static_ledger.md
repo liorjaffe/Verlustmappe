@@ -562,3 +562,14 @@ required, condition, unresolved), SIGNED redefinition carrying -1, and
 required/optional unknown extras. Mutation evidence is in docs/04.
 Open, not part of this contract: a hand-built Computed with a canonical item
 and wrong value remains constructible (public-construction finding).
+
+## Report contract addition: type-identical canonical items (owner chat, 2026-10-29)
+
+Same Write-Scope and rules as the Report integrity contract above.
+Addition to rule 2: a known key requires full type-identical agreement with
+its ITEMS definition, recursively through tuples and nested dataclasses
+(Cause in unresolved). Python == accepted retyped items because Role, Sign
+and CauseCode are str-based enums and 1 == True. This is a precision of the
+approved contract, not a correction of a23c1e9, which behaved as approved.
+Rule 4 holds strictly: code commit ebff573 changes no test; the four
+regressions (sign, role, required, cause code retyped) follow separately.
