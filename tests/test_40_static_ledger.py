@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import FrozenInstanceError, replace
+import math
 from pathlib import Path
 import sys
 
@@ -445,3 +446,81 @@ def test_report_rejects_equal_but_retyped_known_item(scenario, parameters, key, 
                     for result in full.results)
     with pytest.raises(ValueError, match=f"{key}.*central inventory"):
         Report("full", results, ())
+
+
+def test_doubled_operating_time_doubles_electrical_and_faraday_results(scenario, parameters):
+    baseline = calculate(scenario, parameters, scope="bounded")
+    doubled = calculate(
+        replace(scenario, operating_time_s=2 * scenario.operating_time_s),
+        parameters, scope="bounded",
+    )
+    for key in (
+        "el_operating_energy_kWh", "hydrogen_amount_mol",
+        "hydrogen_mass_kg", "hydrogen_lhv_energy_kWh",
+    ):
+        base_result = baseline[key]
+        doubled_result = doubled[key]
+        assert isinstance(base_result, Computed)
+        assert isinstance(doubled_result, Computed)
+        assert doubled_result.value / base_result.value == pytest.approx(
+            2.0, rel=1e-14, abs=0.0,
+        )
+
+
+def test_zero_operating_time_zeros_electrical_and_faraday_results(scenario, parameters):
+    zero = calculate(replace(scenario, operating_time_s=0), parameters, scope="bounded")
+    for key in (
+        "el_operating_energy_kWh", "hydrogen_amount_mol",
+        "hydrogen_mass_kg", "hydrogen_lhv_energy_kWh",
+    ):
+        zero_result = zero[key]
+        assert isinstance(zero_result, Computed)
+        assert zero_result.value == 0
+
+
+def test_negative_registry_parameter_has_exact_domain_cause_and_propagates(
+        monkeypatch, scenario):
+    registry_entry(monkeypatch, "el.faradaic_efficiency", value=-0.98)
+    parameters = ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency"))
+    report = calculate(scenario, parameters, scope="bounded")
+    assert report.invalid
+    for key in ("hydrogen_amount_mol", "hydrogen_mass_kg", "hydrogen_lhv_energy_kWh"):
+        result = report[key]
+        assert isinstance(result, Blocked)
+        assert any(cause.code == CauseCode.INVALID_INPUT_DOMAIN
+                   and cause.dependency == "el.faradaic_efficiency"
+                   for cause in result.causes)
+
+
+def test_report_rejects_invalid_scope_with_complete_results(scenario, parameters):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    assert not bounded.invalid
+    with pytest.raises(ValueError, match="unknown declared scope"):
+        Report("invented", bounded.results, bounded.limits)
+
+
+def test_aggregate_rejects_overflow_from_finite_results(scenario, parameters):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    first = Item("finite_large_a_kWh", "kWh", Role.ELECTRICAL_INPUT, ())
+    second = Item("finite_large_b_kWh", "kWh", Role.ELECTRICAL_INPUT, ())
+    first_result = computed(first, 1e308, ("GUESS",), (), ())
+    second_result = computed(second, 1e308, ("GUESS",), (), ())
+    assert isinstance(first_result, Computed) and math.isfinite(first_result.value)
+    assert isinstance(second_result, Computed) and math.isfinite(second_result.value)
+    report = Report("bounded", bounded.results + (first_result, second_result), ())
+    assert not report.invalid
+    with pytest.raises(ValueError, match="non-finite"):
+        sum_compatible(report, (first.key, second.key))
+
+
+@pytest.mark.parametrize("statuses", [(), ("OWNER_DECISION",)])
+@pytest.mark.parametrize("value", [-1.0, 1.0])
+def test_computed_requires_evidence_status_before_sign_handling(statuses, value):
+    item = next(item for item in ITEMS if item.key == "el_operating_energy_kWh")
+    with pytest.raises(ValueError, match="D26"):
+        computed(item, value, statuses, (), ())
+
+
+def test_inventory_item_keys_are_unique():
+    keys = tuple(item.key for item in ITEMS)
+    assert len(keys) == len(set(keys))
