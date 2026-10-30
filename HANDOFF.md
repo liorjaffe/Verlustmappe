@@ -693,8 +693,10 @@ P14 owner acceptance remain open. No push/PR.
   seven with opt-in). This explains the red naked-`python3`/`pytest` runs:
   those commands resolved outside the project venv or were absent from PATH.
   The earlier parallel `.venv` import failures were not reproduced in the
-  canonical invocation; their exact cause remains unverified. Logs and both
-  manifests are at `/tmp/verlustmappe-p14-canonical-20261030`.
-- No commit made yet. Canonical verification is green; no push or PR.
-- Next: owner review of the uncommitted three-file diff. Full-chain AC1/AC8
-  and final P14 acceptance remain open.
+  canonical invocation; their exact cause remains unverified. Final gate logs
+  and both manifests are at `/tmp/verlustmappe-p14-canonical-final-20261030`.
+- Runner and evidence documentation were committed as `c7032b0`
+  (`P14: harden Package A mutation evidence`); no push or PR was made.
+- Next: review the committed runner evidence and continue with the separately
+  pending Package B decisions. Full-chain AC1/AC8 and final P14 acceptance
+  remain open.

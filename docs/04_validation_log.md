@@ -330,8 +330,9 @@ in the task's canonical form, with `.venv/bin` first on PATH and
 The previously observed parallel venv import failures were not reproduced in
 this canonical sequential run; their exact cause remains unverified. The
 canonical gate evidence and both run manifests are in
-`/tmp/verlustmappe-p14-canonical-20261030` on the local machine and are not
-repository artifacts.
+`/tmp/verlustmappe-p14-canonical-final-20261030` on the local machine and are
+not repository artifacts. Runner and evidence documentation are committed in
+`c7032b0`; no push was made.
 
 ## Historical test evidence
 
