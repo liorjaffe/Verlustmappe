@@ -441,3 +441,110 @@ Later:
   rejected. Blocked synthetic items currently use any-SIGNED; W3/W4 unchanged.
 - Next: deliver full git-show output of preparation/E/F and green gates for
   owner final review. Full-chain AC1/AC8 remain open. No push or final acceptance.
+
+## P14 deep-dive findings and next decisions (owner chat, 2026-10-29)
+
+No code changes authorized by this note. Owner asked that this handoff preserve
+the recent adversarial review for the next agent/session. Current HEAD at review:
+2f33898; branch docs/p14-task-preparation; tracked worktree was clean.
+
+### Confirmed test gaps and evidence
+
+- Mutation evidence was rerun on an unmutated temporary copy containing src,
+  tests and pyproject.toml. Baseline: 168 passed, pytest exit 0; all 168
+  collected test IDs matched the repository. No conftest.py exists.
+- Positive controls in that same harness: M3 (hardcoded standby time) and M8
+  (HHV in place of LHV) each failed 1 test, exit 1.
+- Full-suite survivors, each 168 passed / exit 0: M1 hardcoded operating_time_s
+  in Faraday formula; M2 hardcoded operating_time_s in operating-energy formula;
+  M4 removed negative registry-parameter gate; M5 removed result.item.required
+  handling; M6 removed aggregate finite check; M14 removed Report scope check.
+  Logs were under /tmp/p14_mut5_logs and are temporary, not repository evidence.
+  Mutants were hand-selected; this is not a completeness percentage.
+- M1/M2 are genuine gaps: current perturbations never vary operating_time_s
+  while numeric, so both formula paths can hardcode 2700 and pass. A missing-time
+  test blocks before calculation and does not test the factor. No second complete
+  reference scenario is required to close this specific gap.
+- M6 is not equivalent: two finite Computed values of 1e308 can be built through
+  the public helper; aggregation currently raises on inf, whereas removing its
+  check returns inf. Add a regression with a complete otherwise-valid bounded
+  report and replace two compatible results with individually finite values.
+- M5 is not equivalent, but desired scope semantics remain undecided. With the
+  mutant applied, a complete bounded report plus an extra synthetic required
+  Blocked item reports invalid=False. Decide whether extra items are permitted
+  and required before writing M5-specific tests.
+- M4 and M14 need isolated tests: negative registry parameter must assert the
+  exact invalid_input_domain code and parameter dependency through dependants;
+  invalid Report scope must be tested with complete results so completeness does
+  not mask the scope guard.
+- Do not claim a complete transitive import audit: text search found no other
+  importers, but did not prove dynamic/transitive access. This is unnecessary for
+  the mutation conclusion because the full test suite was run.
+
+### Further review findings
+
+- The P14 dependency contract (task lines 138-144) names Faraday constant for
+  H2 amount and molar mass/LHV for LHV transport. Current Item dependencies and
+  output provenance do not carry these constants. Treat this as a likely
+  traceability/contract gap, not yet a settled field-design decision. Formula
+  dependency, provenance (name/value/unit/numerical basis), and evidence/
+  uncertainty policy are separate questions. F's displayed value is rounded;
+  molar mass is conventional; LHV is a rounded thermochemical basis. Do not
+  invent D26 statuses or put constants into Item.dependencies without clarifying
+  that field's namespace/semantics.
+- Current Report checks required-key presence but does not check canonical
+  Item definitions or duplicate keys. Reproduced: known operating-energy item
+  changed to SIGNED permits -1 as Computed in a non-INVALID report; removing
+  hydrogen_mass dependencies is accepted; duplicate Computed/Blocked entries
+  under one key make lookup/aggregation depend on result order. Proposed fix:
+  reject duplicate keys and reject known-key Item definitions that differ from
+  ITEMS; do not silently normalize. Decide whether unknown synthetic items are
+  permitted and how their requiredness affects validity.
+- Eta=98 and n_cells=120.5 currently produce a non-INVALID H2 result (~1321.83
+  mol); eta=-0.98 is blocked as invalid_input_domain. Nominal-value definition
+  checks are distinct from uncertainty distributions: an unbounded MC draw does
+  not make an invalid nominal value valid. Owner must decide exception versus
+  blocking/INVALID, preferably at the EL-specific consumer; for cell count test
+  the value is positive/integral (120.0 may be valid), not Python int type.
+  Do not invent bounds for scenario current/power (e.g. 80 A) without a source.
+- LHV relative model deviation from the independent hand basis is about
+  -6.6676 ppm with a symmetric +/-7 ppm tolerance around the reference. Remaining
+  headroom is about 0.3324 ppm further negative and 13.6676 ppm positive (~41x).
+  Do not recenter tolerance on code constants or change approved tolerance.
+- Float 1.575 and 0.01 are not exactly binary-representable; equality with Python
+  literals only demonstrates identical float rounding.
+- Lower priority/unresolved: direct vs transitive input metadata semantics in
+  Computed; Scenario subclass fields may accumulate ignored causes; Decimal and
+  numpy.int64 are rejected while numpy.float64 works; passing a string to
+  ParamSet.from_registry iterates characters; Item.dependencies mixes actual
+  keys and unresolved-basis labels; public Computed construction can forge
+  value/status/origin. These are not authorized fixes in the current block.
+- Underflow to Computed(0.0) is not a contract violation: task requires type
+  distinction from Blocked, not preservation of arbitrarily small nonzero values.
+- SIMULATED/data-path limit is already disclosed in report limits. A possible
+  D26 clarification (pure scalar independence by construction; perturbation
+  test when a measurement boundary exists) is a separate owner decision.
+- Tolerance error budget is directional: a positive implementation error can
+  compensate the negative code-constant offset. Ratio perturbations test
+  dependency only, not a wrong fixed factor; the hand reference remains needed.
+
+### Suggested next sequence; no implementation approval implied
+
+1. Owner decide Report scope for extra/synthetic items; nominal eta/cell-count
+   failure behavior; and dependency/provenance semantics for constants.
+2. If approved, add only scoped regressions for operating_time_s x2 and zero,
+   negative registry cause propagation, direct invalid scope, and finite-sum
+   overflow. These tests are expected to pass on correct current code; verify
+   their value by showing the relevant mutants survive before and fail after.
+   Assertions must isolate each cause; no unrelated formula/tolerance changes.
+3. Keep the mutation evidence exact and reproducible: codebase, exact patch,
+   same config and collected test IDs, baseline, positive control, per-run log
+   and actual pytest exit code. No new mutation framework or CI requirement is
+   implied.
+4. Resolve Report canonical-item/duplicate-key policy and constants traceability
+   design before implementing either. Keep reference values, registry and
+   constants unchanged absent separate approval.
+
+No package-A changes, new reference scenario, CI tooling, D26/SPEC amendment or
+package-B decision is authorized by this handoff. Full-chain AC1/AC8 and final
+P14 owner acceptance remain open. No push/PR.
