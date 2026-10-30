@@ -210,6 +210,129 @@ Test-only commit bcb5cd4 passed the local helper before and after commit:
 legacy ALL PASS, pytest 198 passed, ci_guard, README and both diff checks all
 exit 0. Full logs are session-local.
 
+### Reproducible Package A mutation runner (2026-10-30)
+
+`tools/run_package_a_mutants.py` runs the seven bounded mutations above in
+temporary copies of `src/` and `tests/test_40_static_ledger.py`; it does not
+mutate the working tree. Each mutation includes its source replacement,
+selector, expected case count and the Package A approval reference
+(`bfdaf38`, HANDOFF.md). Baseline selectors must pass exactly the expected
+number of selected tests. A kill requires pytest exit 1 and exactly that many
+failed selected tests. Exit 5 with no selected tests, other exits, setup errors,
+unexpected summaries or counts, and survivors are rejected.
+
+The parser recognizes exactly one full pytest summary line with a duration,
+including either a category count such as `80 deselected` or `no tests ran`.
+It does not select a summary by searching for the last arbitrary line
+containing ` in `. On every run, two self-check stages execute: actual pytest
+output from a passing, failing, no-selection and empty-suite fixture validates
+the parser and classifications; then the no-selection run must specifically be
+classified as `no_selected_tests`, not merely rejected. The failing fixture is
+also parsed with an appended warning line to ensure unrelated trailing output
+does not replace the summary. Self-checks also reject missing and multiple
+recognized summary lines; the empty-suite output is separately classified as
+`no_selected_tests`.
+
+Each run writes per-case logs and `run-manifest.json` outside the repository.
+The manifest records timestamp, selected Python executable/prefix/version,
+pytest version, repository HEAD, SHA-256 hashes of the runner/test/mutated
+source files, each mutation's approval reference, anchor count, selector,
+expected and observed counts, exit codes, summaries and status. It deliberately
+does not copy the full environment, which could contain sensitive values.
+Temporary source copies are cleaned on success and failure.
+
+Reproduce with:
+
+```sh
+.venv/bin/python tools/run_package_a_mutants.py \
+  --log-dir /tmp/verlustmappe-p14-package-a-mutants
+```
+
+Hardened-run evidence: parser self-check passed against actual pytest outputs
+(`1 passed`, `1 failed`, `1 deselected` with exit 5, and `no tests ran` with
+exit 5). The no-selection case was specifically classified as
+`no_selected_tests`; an appended warning did not change failure-summary
+parsing. All seven baselines passed and all seven mutants failed with pytest
+exit 1 and exact selected/failing counts: M1 2, M2 2, M4 1, M14 1, M6 1,
+MB_silent_status_default 4, and M_items_key_uniqueness 1. The run manifest
+reported status `passed`, Python 3.14.7, pytest 9.1.1, and one matching mutation
+anchor per mutation. This remains a targeted lower-bound check, not full-suite
+mutation testing or a completeness percentage. Its logs and manifest are
+external and temporary.
+
+### Legacy interpreter incident (2026-10-30)
+
+`tests/run_all.py` invokes each child with `sys.executable`. Both
+`python3 tests/run_all.py` and `.venv/bin/python tests/run_all.py` returned 12
+in a recent attempt with child import errors for NumPy or Pandas. The shell
+`python3` resolves to `/opt/homebrew/opt/python@3.14/bin/python3.14`, while
+`.venv/bin/python` resolves to the repository venv with NumPy and Pandas
+installed. In a subsequent check, a direct run of test 01 with the venv
+interpreter passed three consecutive times, while the full legacy runner
+continued to fail. A diagnostic run with a temporary `PYTHONPATH`/`sitecustomize`
+logged the venv executable, prefix, site-packages path, and NumPy/Pandas module
+locations in each child, and that run passed; because this changed the child
+environment, it does not explain the unmodified failure. The direct full-suite
+commands still failed on the latest check (exit 12), and the direct README
+check failed to import NumPy. A `runpy` README check passed, but is not the
+documented command. Cause remains UNVERIFIED and is not attributed to fallback
+to the base interpreter. Diagnose the exact unmodified child launch and import
+state before changing `run_all.py`.
+
+### Gates after runner hardening (2026-10-30)
+
+- Hardened mutation runner: exit 0; parser self-check passed; seven baselines
+  passed and seven mutants failed with expected counts and pytest exits.
+- `python3 tests/run_all.py`: exit 12 (missing NumPy/Pandas in test children).
+- `.venv/bin/python -m pytest -q`: 198 passed.
+- `BASE_REF=origin/main .venv/bin/python tools/ci_guard.py`: passed.
+- `.venv/bin/python tools/make_readme_demo.py --check`: exit 1 (could not import
+  the synthetic test because NumPy was not found in that invocation).
+- `git diff --check`, `git diff --cached --check`, and runner `py_compile`:
+  passed.
+- A later diagnostic `runpy` invocation of the legacy suite and README check
+  passed, but does not replace the required direct-command evidence. The
+  gates were still considered unverified at that point because the documented
+  PATH-prefixed invocation had not yet been rerun. The canonical rerun is
+  recorded below.
+
+### Mutation-runner review corrections (2026-10-30)
+
+The default mutation set now excludes `M_items_key_uniqueness`; the explicit
+`--include-inventory-uniqueness` flag adds it. The seven-mutation run documented
+above predates this default-scope correction. After the change, the default
+runner passed six baseline/mutant pairs, and a separate run with the flag passed
+all seven.
+
+The runner self-check now verifies the `summary_invalid` reason for duplicate
+categories. Direct self-checks of `_validate_mutant` verify rejection reasons
+for a non-failing exit, a failure mixed with an error, too many failures, too
+few failures, and no selected tests. `_source_hashes()` resolves `__file__`
+before making it relative to the repository root. Passing and failing pytest
+self-check fixtures now have distinct filenames: rewriting one file quickly
+could reuse timestamp-based bytecode and turn the expected failure into a pass.
+The corrected fixture separation was verified in both runner modes.
+
+The red naked-`python3` and `pytest` commands were invocation artifacts in this
+shell: `python3` resolved to the Homebrew base Python without NumPy/Pandas, and
+`pytest` was not on that interpreter's PATH. Re-running the gates sequentially
+in the task's canonical form, with `.venv/bin` first on PATH and
+`PYTHONDONTWRITEBYTECODE=1`, passed:
+
+- `python3 tests/run_all.py`: `ALL PASS`.
+- `pytest -q`: 198 passed.
+- `BASE_REF=origin/main python3 tools/ci_guard.py`: passed, 24 test files.
+- `python3 tools/make_readme_demo.py --check`: generated demo matches.
+- `git diff --check` and `git diff --cached --check`: passed.
+- Default mutation runner: six baselines and six mutants passed.
+- `--include-inventory-uniqueness`: all seven baselines and mutants passed.
+
+The previously observed parallel venv import failures were not reproduced in
+this canonical sequential run; their exact cause remains unverified. The
+canonical gate evidence and both run manifests are in
+`/tmp/verlustmappe-p14-canonical-20261030` on the local machine and are not
+repository artifacts.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

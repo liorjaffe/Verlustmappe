@@ -628,3 +628,73 @@ P14 owner acceptance remain open. No push/PR.
 - Next: resolve Package B decisions (nominal EL parameter domain, constants
   provenance semantics, public Computed construction) before implementation.
   Full-chain AC1/AC8 and final P14 acceptance remain open. No push.
+
+## P14 reproducible Package A mutation runner (2026-10-30)
+
+- Added `tools/run_package_a_mutants.py` within the agreed tools/docs/HANDOFF
+  scope. The initial runner ran seven mutations, including the inventory-
+  uniqueness mutation later moved behind an opt-in flag, in a temporary
+  source/test copy; each selector must first pass the exact expected baseline
+  count. A kill requires pytest exit 1 and exactly the expected failed cases,
+  with no errors, skips, or other outcomes. The runner now parses exactly one
+  complete pytest summary, self-checks with actual passing/failing/no-selection/
+  empty-suite pytest output, and asserts the exact `no_selected_tests` reason.
+  No tests or production files were changed.
+- Before hardening, seven baseline selectors passed (2, 2, 1, 1, 1, 4, 1
+  cases); all seven mutants failed with those exact counts and pytest exit 1.
+  This prior run is not evidence for the hardened runner. The
+  six core source replacements cite bfdaf38; inventory uniqueness uses the
+  later explicit opt-in scope agreement, not bfdaf38.
+  The external run manifest records interpreter, pytest, HEAD, source hashes,
+  anchors, selectors, outcomes and exit codes. Logs and manifest are temporary.
+  This remains a targeted lower bound, not a full-suite mutation result.
+- Reproduce with `.venv/bin/python tools/run_package_a_mutants.py --log-dir
+  /tmp/verlustmappe-p14-package-a-mutants`. Hardened runner rerun passed all
+  parser self-checks and all seven mutants (manifest status passed; exact
+  outcomes and pytest exits recorded in docs/04).
+- Legacy interpreter incident: recent `python3 tests/run_all.py` and
+  `.venv/bin/python tests/run_all.py` attempts returned 12 for missing
+  NumPy/Pandas in test children; the direct README check also failed to import
+  NumPy. Pytest 198, CI guard, diff checks, and mutation runner passed. A
+  diagnostic `runpy` run passed legacy and README checks, but does not replace
+  the documented invocations. At that point the cause was unresolved:
+  `run_all.py` uses `sys.executable`, and instrumenting a run with temporary
+  PYTHONPATH changed the environment. The later canonical PATH-prefixed gate
+  run passed; see the review-correction section below. The exact cause of the
+  earlier parallel venv import failures remains unverified.
+- Decisions needed: Package B's eta/cell-count domain and handling, constants
+  provenance semantics, and public `Computed` construction each need their
+  own decision before implementation.
+- Next: review the final diff. No commit, push or PR has been made. Full-chain
+  AC1/AC8 and final P14 acceptance remain open.
+
+## P14 mutation-runner review corrections (2026-10-30)
+
+- The runner now excludes `M_items_key_uniqueness` from its default Package A
+  run. Use `--include-inventory-uniqueness` to run it explicitly. The earlier
+  seven-mutation default-run evidence above predates this scope correction;
+  a new default run passed six mutations, and a separate opt-in run passed all
+  seven.
+- The inventory-uniqueness mutation's manifest provenance now cites the
+  2026-10-30 owner-chat opt-in agreement, not bfdaf38. All pytest subprocesses
+  set `PYTHONDONTWRITEBYTECODE=1`, and copied source trees exclude
+  `__pycache__`.
+- Parser self-checks now assert `summary_invalid` for duplicate categories.
+  Direct `_validate_mutant` self-checks require the exact rejection reasons for
+  exit 0, `failed` plus `error`, too many/few failures, and no selected tests.
+- Pass/fail self-check fixtures use distinct module filenames. A same-file
+  rewrite could reuse timestamp-based bytecode and made the failing fixture
+  appear to pass; the separate-file correction was rerun successfully.
+- `_source_hashes()` resolves `__file__` before making it relative to the repo
+  root, avoiding a relative-path `ValueError`.
+- Canonical sequential gates with `.venv/bin` first on PATH and
+  `PYTHONDONTWRITEBYTECODE=1` all passed: legacy `ALL PASS`, pytest 198,
+  CI guard, README check, diff checks, and both mutation runs (six default,
+  seven with opt-in). This explains the red naked-`python3`/`pytest` runs:
+  those commands resolved outside the project venv or were absent from PATH.
+  The earlier parallel `.venv` import failures were not reproduced in the
+  canonical invocation; their exact cause remains unverified. Logs and both
+  manifests are at `/tmp/verlustmappe-p14-canonical-20261030`.
+- No commit made yet. Canonical verification is green; no push or PR.
+- Next: owner review of the uncommitted three-file diff. Full-chain AC1/AC8
+  and final P14 acceptance remain open.
