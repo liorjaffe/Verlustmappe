@@ -722,6 +722,13 @@ P14 owner acceptance remain open. No push/PR.
 - Mutation evidence: M4's anchor remains intact. The D36 mutation is in the
   default run; seven default pairs and eight pairs with inventory uniqueness
   opt-in passed. Logs and manifests are recorded in `docs/04_validation_log.md`.
+- M4 detail: it is killed by the negative-efficiency regression, which
+  requires `INVALID_INPUT_DOMAIN` for `el.faradaic_efficiency = -0.98`.
+  Negative cell counts are also covered by D36's `n_cells <= 0` branch, so
+  only the negative-efficiency case depends solely on the nonnegativity check.
+- Follow-up, not implemented: consider making `_number()` reject a negative
+  value when `check_nonnegative()` returns false, then remove its redundant
+  type-check branch. Current D36 call sites reject negatives before `_number()`.
 - Decisions still needed: constants provenance semantics and public
   `Computed` construction. Next work should continue with those Package B
   contracts, independently of this completed D36 implementation.

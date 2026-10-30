@@ -595,7 +595,13 @@ check matched; and `git diff --check` passed.
 
 The mutation runner now includes D36 in its default set, hashes and runs the
 test file selected by each mutation, and reports a P14-wide label. Its M4
-negative-registry anchor still occurs once and the M4 mutant remains killed.
+negative-registry anchor still occurs once and the M4 mutant remains killed:
+M4 removes the nonnegativity check, and the negative-efficiency regression
+(`el.faradaic_efficiency = -0.98`) requires `INVALID_INPUT_DOMAIN` with the
+efficiency parameter key. The D36 checks additionally reject efficiency above
+1 and cell counts that are nonpositive or non-integer-valued. Negative cell
+counts are covered by both the nonnegativity check and the D36 `n_cells <= 0`
+condition; negative efficiency relies on the nonnegativity check.
 The default run passed seven baseline/mutant pairs, including D36's six
 selected regression cases; the inventory-uniqueness opt-in run passed all
 eight pairs. Both manifests and per-mutant logs are outside the repository:
@@ -603,3 +609,10 @@ eight pairs. Both manifests and per-mutant logs are outside the repository:
 `/tmp/verlustmappe-p14-d36-mutants/20261030T153422310592`. This is targeted
 mutation evidence, not proof of physical correctness or complete mutation
 coverage. Full-chain AC1/AC8 and final P14 acceptance remain open.
+
+Follow-up hardening considered: `_number()` currently calls
+`check_nonnegative()` but ignores its boolean result. Current callers reject
+negative parameter values before calling `_number()`; a future focused change
+may make `_number()` reject a negative value itself and remove its now
+redundant post-check type branch. This is not required for the verified D36
+consumer behavior and was not changed in this implementation.
