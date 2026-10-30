@@ -1,6 +1,6 @@
 """Central P14 item inventory and explicit computed/blocked results (D35)."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields, is_dataclass
 from enum import Enum
 
 from .status import weakest
@@ -106,6 +106,20 @@ BOUNDED_KEYS = tuple(item.key for item in ITEMS[:5])
 _CANONICAL = {item.key: item for item in ITEMS}
 
 
+def _identical(value: object, canonical: object) -> bool:
+    """Equality with identical types, recursively: str-based enums equal plain strings and
+    1 == True in Python, so == alone would accept retyped inventory definitions."""
+    if type(value) is not type(canonical):
+        return False
+    if isinstance(canonical, tuple):
+        return len(value) == len(canonical) and all(
+            _identical(a, b) for a, b in zip(value, canonical))
+    if is_dataclass(canonical):
+        return all(_identical(getattr(value, f.name), getattr(canonical, f.name))
+                   for f in fields(canonical))
+    return value == canonical
+
+
 @dataclass(frozen=True)
 class InputUncertainty:
     key: str
@@ -166,7 +180,7 @@ class Report:
             raise ValueError(f"duplicate result keys in report: {duplicates}")
         for result in self.results:
             canonical = _CANONICAL.get(result.item.key)
-            if canonical is not None and result.item != canonical:
+            if canonical is not None and not _identical(result.item, canonical):
                 raise ValueError(f"{result.item.key}: item definition differs from the "
                                  "central inventory")
         present = set(keys)
