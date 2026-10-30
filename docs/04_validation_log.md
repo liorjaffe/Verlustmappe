@@ -178,6 +178,12 @@ retyping tests to preserve nested type-strict comparison.
 `tools/run_local_gates.py` is a development helper, not CI. It runs each
 mandatory check, stores per-check logs outside the repository, and exits
 nonzero if any command fails. `ci_guard.py` remains the CI guard.
+Helper commit 2537d26 passed the six checks before and after commit when
+invoked with `.venv/bin/python`: legacy ALL PASS; pytest 188 passed; guard,
+README and both diff checks exit 0. The CLI negative control injects one
+failed command result, returns 1, and writes all six logs. A prior invocation
+with the system Python correctly failed (no pytest/numpy); it was not counted
+as project-suite evidence and was rerun with the project interpreter.
 
 ## Historical test evidence
 

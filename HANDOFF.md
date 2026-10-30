@@ -618,5 +618,10 @@ P14 owner acceptance remain open. No push/PR.
 - Gate helper versioning is owner-approved. `tools/run_local_gates.py` is a
   local Python development helper, explicitly separate from CI; it preserves
   per-check logs outside the repository and exits nonzero on any failed gate.
-- Next unchanged: package A (own approval), package B decisions, full-chain
-  AC1/AC8 and final P14 acceptance open. No push/PR.
+- Package A has owner approval (2026-10-30): operating-time x2/zero, negative
+  registry cause propagation, invalid scope, finite-sum overflow, empty and
+  OWNER_DECISION-only computed statuses, plus ITEMS key uniqueness. Use
+  actual pytest exit codes and show each relevant mutant surviving before and
+  failing after; ratio checks use rel=1e-14 as dependency evidence only.
+- Next: implement Package A in the approved test/documentation scope. Package
+  B decisions, full-chain AC1/AC8 and final P14 acceptance remain open. No push.
