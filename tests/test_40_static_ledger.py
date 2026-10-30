@@ -89,9 +89,8 @@ def test_inventory_requiredness_cannot_be_overridden_by_result(scenario, paramet
     report = calculate(replace(scenario, stack_current_A=None), parameters, scope="bounded")
     results = tuple(replace(result, item=replace(result.item, required=False))
                     if isinstance(result, Blocked) else result for result in report.results)
-    rebuilt = replace(report, results=results)
-    assert not rebuilt.validation_causes
-    assert rebuilt.invalid
+    with pytest.raises(ValueError, match="central inventory"):
+        replace(report, results=results)
 
 
 def test_calculated_reports_have_complete_required_coverage(scenario, parameters):

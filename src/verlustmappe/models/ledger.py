@@ -103,6 +103,7 @@ ITEMS = (
              ("storage_model", "Process boundaries and gas-state reconciliation unresolved")),
 )
 BOUNDED_KEYS = tuple(item.key for item in ITEMS[:5])
+_CANONICAL = {item.key: item for item in ITEMS}
 
 
 @dataclass(frozen=True)
@@ -159,7 +160,16 @@ class Report:
     def __post_init__(self) -> None:
         if self.scope not in ("bounded", "full"):
             raise ValueError(f"unknown declared scope {self.scope!r}")
-        present = {result.item.key for result in self.results}
+        keys = [result.item.key for result in self.results]
+        duplicates = sorted({key for key in keys if keys.count(key) > 1})
+        if duplicates:
+            raise ValueError(f"duplicate result keys in report: {duplicates}")
+        for result in self.results:
+            canonical = _CANONICAL.get(result.item.key)
+            if canonical is not None and result.item != canonical:
+                raise ValueError(f"{result.item.key}: item definition differs from the "
+                                 "central inventory")
+        present = set(keys)
         missing = tuple(
             Cause(CauseCode.MISSING_REQUIRED_ITEM, item.key,
                   f"Required item is absent from {self.scope} report")
