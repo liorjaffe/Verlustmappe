@@ -469,10 +469,11 @@ the recent adversarial review for the next agent/session. Current HEAD at review
   the public helper; aggregation currently raises on inf, whereas removing its
   check returns inf. Add a regression with a complete otherwise-valid bounded
   report and replace two compatible results with individually finite values.
-- M5 is not equivalent, but desired scope semantics remain undecided. With the
-  mutant applied, a complete bounded report plus an extra synthetic required
-  Blocked item reports invalid=False. Decide whether extra items are permitted
-  and required before writing M5-specific tests.
+- M5 exposed a missing required-extra validity check. The approved P14 report
+  contract (task section "Report integrity contract") permits unknown extra
+  items, requires them to remain visible, and makes a required Blocked extra
+  invalidate; an optional Blocked extra remains visible without invalidating.
+  This contract supersedes the earlier open wording.
 - M4 and M14 need isolated tests: negative registry parameter must assert the
   exact invalid_input_domain code and parameter dependency through dependants;
   invalid Report scope must be tested with complete results so completeness does
@@ -498,8 +499,9 @@ the recent adversarial review for the next agent/session. Current HEAD at review
   hydrogen_mass dependencies is accepted; duplicate Computed/Blocked entries
   under one key make lookup/aggregation depend on result order. Proposed fix:
   reject duplicate keys and reject known-key Item definitions that differ from
-  ITEMS; do not silently normalize. Decide whether unknown synthetic items are
-  permitted and how their requiredness affects validity.
+  ITEMS; do not silently normalize. The later P14 report contract permits
+  unknown synthetic items and defines how required and optional Blocked extras
+  affect validity; no further decision is open on that point.
 - Eta=98 and n_cells=120.5 currently produce a non-INVALID H2 result (~1321.83
   mol); eta=-0.98 is blocked as invalid_input_domain. Nominal-value definition
   checks are distinct from uncertainty distributions: an unbounded MC draw does
@@ -507,6 +509,8 @@ the recent adversarial review for the next agent/session. Current HEAD at review
   blocking/INVALID, preferably at the EL-specific consumer; for cell count test
   the value is positive/integral (120.0 may be valid), not Python int type.
   Do not invent bounds for scenario current/power (e.g. 80 A) without a source.
+  This nominal EL-domain question was subsequently decided in D36; its
+  implementation remains separately authorized.
 - LHV relative model deviation from the independent hand basis is about
   -6.6676 ppm with a symmetric +/-7 ppm tolerance around the reference. Remaining
   headroom is about 0.3324 ppm further negative and 13.6676 ppm positive (~41x).
@@ -530,8 +534,9 @@ the recent adversarial review for the next agent/session. Current HEAD at review
 
 ### Suggested next sequence; no implementation approval implied
 
-1. Owner decide Report scope for extra/synthetic items; nominal eta/cell-count
-   failure behavior; and dependency/provenance semantics for constants.
+1. The P14 task decides the Report contract for unknown extras; D36 decides
+   nominal EL parameter domains. Constants dependency/provenance semantics
+   remain an owner decision.
 2. If approved, add only scoped regressions for operating_time_s x2 and zero,
    negative registry cause propagation, direct invalid scope, and finite-sum
    overflow. These tests are expected to pass on correct current code; verify
@@ -602,9 +607,10 @@ P14 owner acceptance remain open. No push/PR.
   direct invalid scope with complete results (M14), finite-sum overflow (M6),
   and computed() with empty / OWNER_DECISION-only statuses. Show each relevant
   mutant surviving before and failing after.
-- Package B, waiting on owner decisions: nominal eta/cell-count behavior at the
-  EL consumer; constants dependency/provenance semantics; public Computed
-  construction. P15 mixed-sign aggregation remains deferred.
+- Package B: nominal eta/cell-count behavior at the EL consumer is decided by
+  D36; constants dependency/provenance semantics and public Computed
+  construction still await owner decisions. P15 mixed-sign aggregation remains
+  deferred.
 - Full-chain AC1/AC8 and final P14 owner acceptance remain open. No push/PR.
 
 ## P14 type-identical canonical items (owner chat, 2026-10-29)
@@ -662,11 +668,12 @@ P14 owner acceptance remain open. No push/PR.
   PYTHONPATH changed the environment. The later canonical PATH-prefixed gate
   run passed; see the review-correction section below. The exact cause of the
   earlier parallel venv import failures remains unverified.
-- Decisions needed: Package B's eta/cell-count domain and handling, constants
-  provenance semantics, and public `Computed` construction each need their
-  own decision before implementation.
-- Next: review the final diff. No commit, push or PR has been made. Full-chain
-  AC1/AC8 and final P14 acceptance remain open.
+- Decision D36 now records the nominal EL parameter domains. Constants
+  provenance semantics and public `Computed` construction remain open.
+- Runner and validation evidence were committed in `c7032b0`; the Handoff
+  correction is committed in `03f662e`. No push or PR has been made.
+- Next: resolve remaining Package B decisions. Full-chain AC1/AC8 and final
+  P14 acceptance remain open.
 
 ## P14 mutation-runner review corrections (2026-10-30)
 

@@ -488,3 +488,56 @@ In Layer 2, a balance that cannot be evaluated because a required energy or mole
 Implementation work may progress while full M1 acceptance remains blocked. AC1 requires a valid full-scope calculation under SPEC/D23; AC8 additionally requires the historical comparisons, including RTE, unless expressly amended. Closing the applicable D13 and D14 bases does not by itself satisfy historical AC8 comparability. No partial M1 acceptance is implied.
 
 Recording note: approved and recorded on 2026-10-29 in the owner's coordination chat, following verification of D31(a)/(b) and approval to incorporate the precise D25/D31 references and implement the text package. D25, D26(c) and D31(a) are amended as specified above; their historical wording is retained. No AC8 option is selected.
+
+**D36 — Nominal EL parameter domains in the P14 consumer. Status: DECIDED (owner, 2026-10-30).**
+
+The P14 EL consumer validates the nominal values of `el.faradaic_efficiency` and
+`el.n_cells` before using them in the hydrogen calculation. This validation applies
+independently of how the parameter set was created; it is not a security boundary.
+Other future consumers require their own domain contracts.
+
+- `el.faradaic_efficiency` must be a finite numeric value in the inclusive range
+  0 through 1.
+- `el.n_cells` must be a finite, positive integer-valued number. Integer 120 and
+  numeric 120.0 are valid; 120.5 and 0 are invalid.
+- Comparisons are exact and have no tolerance. Values are not rounded, clamped or
+  automatically converted.
+- Finite numeric values outside these domains, including negative values, block
+  dependent results with `INVALID_INPUT_DOMAIN` and the relevant parameter key.
+  The required hydrogen path makes the report invalid; independent electrical EL
+  results remain visible.
+- Non-numeric values, booleans and non-finite values remain data-integrity errors
+  and raise `ValueError`; they are not converted to `Blocked`.
+- This decision validates deterministic nominal values only. It defines no
+  Monte-Carlo distribution, sampling rule, truncation or uncertainty propagation;
+  those require a separate contract. It changes no registry value or uncertainty
+  and introduces no bounds on scenario power or current.
+
+Acceptance criteria for the separately authorized implementation:
+
+1. Efficiency 98 and 1.0000000001 are blocked with `el.faradaic_efficiency` as
+   the cause.
+2. Efficiency 0 is valid as an integer or floating-point value; hydrogen amount,
+   hydrogen mass and LHV transport are computed and each is exactly zero.
+3. Efficiency 1 is valid both as an integer and as a floating-point value.
+4. Cell count 120 is valid as the current registry integer, and 120.0 is valid;
+   120.5 and 0 are blocked with `el.n_cells` as the cause.
+5. Negative finite efficiency and cell-count values are blocked with
+   `INVALID_INPUT_DOMAIN` and their respective parameter keys; existing M4
+   negative-value coverage remains applicable.
+6. With the hydrogen path blocked, independent electrical results remain
+   visible and the report is invalid because the required hydrogen path is
+   unavailable.
+7. Strings, booleans, NaN and positive or negative infinity raise `ValueError`.
+8. Registry values and uncertainties remain unchanged.
+9. A mutation that removes the new domain checks is evaluated separately. The
+   existing M4 mutant alone does not prove range and integer-domain protection;
+   whether the new mutant is in the default or opt-in set is left to the
+   implementation authorization.
+
+Recording note: approved by the owner on 2026-10-30 after reproducing that the
+current P14 consumer accepts efficiency 98 with 120.5 cells as a non-INVALID
+computed hydrogen result, and accepts zero cells. The recorded probe also
+confirmed that efficiency zero computes exact zero hydrogen amount, mass and
+LHV transport. This is a decision only; code and tests require separate
+authorization.
