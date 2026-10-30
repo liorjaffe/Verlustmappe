@@ -615,7 +615,8 @@ P14 owner acceptance remain open. No push/PR.
 - Next commit: four retyped-item regressions plus task/docs. Red before ebff573
   (4 DID NOT RAISE, exit 1); mutant reverting to == survives without them
   (184 passed, exit 0) and fails with them (4 failed, exit 1).
-- Gate helper now exits 1 on any failed gate; it is session-local, not in the
-  repository. Whether to version it under tools/ is an open owner question.
+- Gate helper versioning is owner-approved. `tools/run_local_gates.py` is a
+  local Python development helper, explicitly separate from CI; it preserves
+  per-check logs outside the repository and exits nonzero on any failed gate.
 - Next unchanged: package A (own approval), package B decisions, full-chain
   AC1/AC8 and final P14 acceptance open. No push/PR.

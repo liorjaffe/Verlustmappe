@@ -9,3 +9,15 @@
 
 Rule: tools display and control. Numbers for the paper come only from
 src/verlustmappe/ pipelines into results/.
+
+`run_local_gates.py` is a development helper, not part of CI. Run it from
+the project environment with an external log directory, for example:
+
+```sh
+python tools/run_local_gates.py --log-dir /tmp/verlustmappe-gates
+```
+
+It runs the legacy suite, pytest, `ci_guard.py` with `BASE_REF=origin/main`,
+the README check, and staged/unstaged diff checks. It records each command's
+output separately and exits nonzero if any command fails. CI continues to use
+its own configured workflow and `ci_guard.py`.

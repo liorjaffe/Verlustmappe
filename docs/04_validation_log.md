@@ -166,6 +166,19 @@ exit 1). Mutant reverting to ==, full suite: 184 passed without the new cases
 (exit 0), 4 failed with them (exit 1). Gates with the corrected helper before
 and after ebff573: legacy ALL PASS, 184 passed, guard, README, diff exit 0.
 
+The four retyping tests were rerun before versioning the local gate helper:
+4 passed, 66 deselected (pytest exit 0). The Dryer item used for the nested
+CauseCode case has one unresolved Cause with CauseCode.UNRESOLVED_BASIS; the
+test is not vacuous. `_identical` compares tuple and dataclass fields
+recursively; other leaf values fall back to `==` after exact type equality.
+Current Item definitions use tuples/dataclasses/enums/primitives, not list,
+dict or set fields. If such a container is added, extend the comparator and
+retyping tests to preserve nested type-strict comparison.
+
+`tools/run_local_gates.py` is a development helper, not CI. It runs each
+mandatory check, stores per-check logs outside the repository, and exits
+nonzero if any command fails. `ci_guard.py` remains the CI guard.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |
