@@ -531,3 +531,34 @@ and after every commit; no amend/push. References/registry/constants untouched.
 - Synthetic blocked aggregates use any-SIGNED classification. P15 must review
   mixed-sign aggregation semantics; W3/W4 limitations and deferred obligations
   remain in force. D31 audit closed; full-chain AC1/AC8 remain open.
+
+## Report integrity contract (owner chat, 2026-10-29)
+
+Approved Write-Scope: models/ledger.py, tests/test_40_static_ledger.py, this
+task, docs/04_validation_log.md and HANDOFF.md. P14: prefix; no amend/push/PR.
+Approved sequence: docs-only HANDOFF commit b4bb21f (deep-dive section added
+outside this session, committed unchanged); code commit a23c1e9; regression
+and documentation commit. Red regressions shown before a23c1e9.
+
+Contract:
+1. Result keys are unique per report. Duplicates raise ValueError on
+   construction, including identical entries; no first/last preference.
+2. A key from ITEMS must carry the complete canonical Item definition
+   (dataclass equality incl. condition and unresolved). Deviations raise
+   ValueError; no silent normalization. This checks definitions, not values.
+3. Unknown extra items remain permitted (deliberately extensible report, not
+   a test exception). They never satisfy canonical required items. A required
+   Blocked extra invalidates; an optional Blocked extra stays visible without
+   invalidating. No plant physics or AC1 coverage extension follows.
+
+Approved exception to AGENTS rule 4: a23c1e9 changes the assertion of
+test_inventory_requiredness_cannot_be_overridden_by_result from invalid=True to
+ValueError on construction. R2 (green at every commit) and the new contract
+make a separate green test-only commit impossible; the change is stricter.
+
+Regressions: duplicates (Computed+Blocked, different values, identical; both
+orders), seven noncanonical field changes (sign, dependencies, unit, role,
+required, condition, unresolved), SIGNED redefinition carrying -1, and
+required/optional unknown extras. Mutation evidence is in docs/04.
+Open, not part of this contract: a hand-built Computed with a canonical item
+and wrong value remains constructible (public-construction finding).

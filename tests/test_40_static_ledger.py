@@ -360,3 +360,63 @@ def test_signed_does_not_bypass_data_integrity(bad):
     storage = next(item for item in ITEMS if item.key == "storage_change_kWh")
     with pytest.raises(ValueError, match="non-finite|expected a finite number"):
         computed(storage, bad, ("GUESS",), (), ())
+
+
+@pytest.mark.parametrize("first", [True, False])
+@pytest.mark.parametrize("kind", ["computed_and_blocked", "different_values", "identical"])
+def test_report_rejects_duplicate_result_keys(scenario, parameters, kind, first):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    original = bounded["el_operating_energy_kWh"]
+    if kind == "computed_and_blocked":
+        duplicate = Blocked(original.item, (Cause(
+            CauseCode.MISSING_REQUIRED_INPUT, "el_ac_input_power_W", "Duplicate entry"),))
+    elif kind == "different_values":
+        duplicate = replace(original, value=999.0)
+    else:
+        duplicate = original
+    results = (duplicate,) + bounded.results if first else bounded.results + (duplicate,)
+    with pytest.raises(ValueError, match="duplicate.*el_operating_energy_kWh"):
+        Report("bounded", results, ())
+
+
+@pytest.mark.parametrize("key,change", [
+    ("el_operating_energy_kWh", {"sign": Sign.SIGNED}),
+    ("hydrogen_mass_kg", {"dependencies": ()}),
+    ("hydrogen_amount_mol", {"unit": "kmol"}),
+    ("hydrogen_lhv_energy_kWh", {"role": Role.LOSS}),
+    ("storage_change_kWh", {"required": False}),
+    ("fc_inverter_standby_energy_kWh", {"condition": ""}),
+    ("dryer_electrical_energy_kWh", {"unresolved": ()}),
+])
+def test_report_rejects_noncanonical_known_item_definition(scenario, parameters, key, change):
+    full = calculate(scenario, parameters, scope="full")
+    results = tuple(replace(result, item=replace(result.item, **change))
+                    if result.item.key == key else result for result in full.results)
+    with pytest.raises(ValueError, match=f"{key}.*central inventory"):
+        Report("full", results, ())
+
+
+def test_report_rejects_signed_redefinition_carrying_negative_energy(scenario, parameters):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    signed = replace(bounded["el_operating_energy_kWh"].item, sign=Sign.SIGNED)
+    negative = computed(signed, -1, ("GUESS",), (), ())
+    assert isinstance(negative, Computed)
+    results = tuple(negative if result.item.key == signed.key else result
+                    for result in bounded.results)
+    with pytest.raises(ValueError, match="el_operating_energy_kWh.*central inventory"):
+        Report("bounded", results, ())
+
+
+@pytest.mark.parametrize("required", [True, False])
+def test_unknown_extra_item_stays_visible_and_only_required_blocker_invalidates(
+        scenario, parameters, required):
+    bounded = calculate(scenario, parameters, scope="bounded")
+    assert not bounded.invalid
+    extra = Blocked(
+        Item("synthetic_extra_kWh", "kWh", Role.LOSS, ("synthetic_basis",), required=required),
+        (Cause(CauseCode.UNRESOLVED_BASIS, "synthetic_basis", "Synthetic extra item"),),
+    )
+    report = Report("bounded", bounded.results + (extra,), ())
+    assert not report.validation_causes
+    assert report["synthetic_extra_kWh"] == extra
+    assert report.invalid is required

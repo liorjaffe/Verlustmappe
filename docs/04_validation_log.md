@@ -110,6 +110,36 @@ only storage_change_kWh is SIGNED. No D31 list, physics or registry change.
 Bounded case verified, full-chain AC1 remains open. AC8 remains open.
 Commit F versions the regressions and this evidence separately.
 
+### P14 Report integrity contract (owner chat, 2026-10-29)
+
+Reproduced on 2f33898 by building reports from the valid bounded calculate()
+output: a known item redefined as SIGNED with -1, or with its dependencies
+removed, gave a non-INVALID report; a duplicated key made lookup and
+sum_compatible depend on result order (1.585 versus 999.01 kWh for two
+Computed entries, or Computed versus Blocked). calculate() itself always
+emits 18 unique, canonical items; only direct Report construction was affected.
+
+Owner contract: result keys are unique (duplicates raise ValueError, also
+identical entries); a known key must equal its ITEMS definition completely,
+including condition and unresolved (ValueError, no normalization); unknown
+extra items remain permitted, a required Blocked extra invalidates, an
+optional one stays visible without invalidating. Extra items authorize no
+plant physics and do not extend AC1 coverage.
+
+Code commit a23c1e9 also changes one test assertion (owner-approved exception
+to AGENTS rule 4, because R2 requires green at every commit): overriding
+required=False on known items now raises on construction instead of yielding
+invalid=True. Gates before and after: legacy ALL PASS, 168 pytest, guard,
+README and diff checks. 15 new regression cases failed (DID NOT RAISE) against
+the unchanged model; 2 unknown-extra cases pin existing behavior.
+Mutants, full suite, actual pytest exit codes: duplicate check removed
+survives without the regressions (exit 0) and fails 6 with them (exit 1);
+canonical check removed fails 1 without and 9 with them; deep-dive survivor
+M5 (extra-item requiredness ignored) survives without (exit 0) and fails 1
+with them (exit 1). A hand-built Computed with a canonical item and a wrong
+value remains possible (separate public-construction finding).
+Bounded case verified, full-chain AC1 remains open. AC8 remains open.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |

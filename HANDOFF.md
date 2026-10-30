@@ -548,3 +548,55 @@ the recent adversarial review for the next agent/session. Current HEAD at review
 No package-A changes, new reference scenario, CI tooling, D26/SPEC amendment or
 package-B decision is authorized by this handoff. Full-chain AC1/AC8 and final
 P14 owner acceptance remain open. No push/PR.
+
+## P14 verification and Report contract fix (owner chat, 2026-10-29)
+
+### Done
+- b4bb21f: deep-dive section above committed unchanged (docs only).
+- a23c1e9: Report rejects duplicate keys and noncanonical known items
+  (contract and rule-4 exception in the P14 task). Regressions and docs follow
+  in the next P14: commit. Red before a23c1e9: 15 DID NOT RAISE; 2 pin behavior.
+- Prior check closed: sum_compatible() rejects duplicate summand keys;
+  test_sum_roles_units_duplicate_and_blocking guards it (mutant: 1 failed,
+  pytest exit 1). This is separate from Report-entry duplicates (now fixed).
+- Prior check closed: weakest(()) and weakest(("OWNER_DECISION",)) raise the
+  D26 ValueError, guarded by test_37 (mutant: 1 failed, exit 1). computed(...,
+  statuses=()) raises the same error before the sign check, but no test pins it
+  at computed() level: a silent "GUESS" default survives (168 passed, exit 0).
+  Test gap for package A, not a code defect.
+- Deep-dive survivor M5 is now killed by the unknown-extra regression.
+
+### Evidence status (do not overstate)
+- The deep-dive mutation figures (/tmp/p14_mut5_logs) come from a local run
+  report; full logs were not given to an independent reviewer and are temporary.
+  Earlier pipeline exit codes (pytest | tail) must not be read as pytest exit
+  codes. All exit codes in this section were captured from pytest directly.
+  One mutation script in this session first printed tail's exit code; it was
+  rerun with the real pytest exit before any result was recorded.
+
+### Unchanged P14 base (verified against files, not copied from chat)
+- Scenario: 2100 W AC operation, 8 A DC stack current, 2700 s; separately
+  20 W AC standby over 1800 s. Constant over each period; non-overlap is a
+  stated assumption, not checked by code (scenario holds durations only).
+- el.n_cells 120 and el.faradaic_efficiency 0.98, both GUESS, u 0.05 / 0.03,
+  input classification only; no output uncertainty propagation.
+- Constants, hand reference vs model code: F 96485.33212 vs 96485.332 C/mol;
+  M_H2 0.002016 vs 2.016e-3 kg/mol; LHV 119.96/3.6 vs 33.322 kWh/kg.
+  References: tests/reference/hand/p14_static_ledger.md, p14_hand_calc.py.
+  SOURCES migration of constants does not block the accepted reference.
+- Already in place: ParamSet only via from_registry() (API guarantee, not a
+  security boundary; scenario inputs separate). computed() distinguishes SIGNED
+  and NONNEGATIVE; 18 inventory items, only storage_change_kWh SIGNED;
+  nonfinite/wrong-type values are data-integrity errors. Blocked results carry
+  no value and no computed origin; successful sums stay numeric.
+
+### Next (each needs its own write approval)
+- Package A, independent of package B decisions: regressions for
+  operating_time_s x2 and zero (M1/M2), negative registry parameter cause (M4),
+  direct invalid scope with complete results (M14), finite-sum overflow (M6),
+  and computed() with empty / OWNER_DECISION-only statuses. Show each relevant
+  mutant surviving before and failing after.
+- Package B, waiting on owner decisions: nominal eta/cell-count behavior at the
+  EL consumer; constants dependency/provenance semantics; public Computed
+  construction. P15 mixed-sign aggregation remains deferred.
+- Full-chain AC1/AC8 and final P14 owner acceptance remain open. No push/PR.
