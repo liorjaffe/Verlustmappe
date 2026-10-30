@@ -492,6 +492,33 @@ def test_negative_registry_parameter_has_exact_domain_cause_and_propagates(
                    for cause in result.causes)
 
 
+@pytest.mark.parametrize(
+    "key",
+    ["el.n_cells", "el.faradaic_efficiency"],
+)
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param("not-a-number", id="string"),
+        pytest.param(True, id="true"),
+        pytest.param(False, id="false"),
+        pytest.param(float("nan"), id="nan"),
+        pytest.param(float("inf"), id="positive-infinity"),
+        pytest.param(float("-inf"), id="negative-infinity"),
+    ],
+)
+def test_non_numeric_boolean_and_nonfinite_registry_parameters_raise_value_error(
+        scenario, key, value):
+    original = deepcopy(registry.REGISTRY[key])
+    try:
+        registry.REGISTRY[key]["value"] = value
+        parameters = ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency"))
+        with pytest.raises(ValueError):
+            calculate(scenario, parameters, scope="bounded")
+    finally:
+        registry.REGISTRY[key] = original
+
+
 def test_report_rejects_invalid_scope_with_complete_results(scenario, parameters):
     bounded = calculate(scenario, parameters, scope="bounded")
     assert not bounded.invalid
