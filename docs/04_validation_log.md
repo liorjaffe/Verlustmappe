@@ -185,6 +185,31 @@ failed command result, returns 1, and writes all six logs. A prior invocation
 with the system Python correctly failed (no pytest/numpy); it was not counted
 as project-suite evidence and was rerun with the project interpreter.
 
+### Package A regressions (owner approval, 2026-10-30)
+
+No production code changed. Ten new test cases pass on the unmutated model:
+operating time doubled and zeroed for electrical input, Faraday amount and
+dependent mass/LHV (ratio tolerance 1e-14 is dependency evidence only);
+negative registry parameter with exact INVALID_INPUT_DOMAIN cause propagated
+through hydrogen amount, mass and LHV; invalid direct Report scope with
+complete bounded results; finite-input aggregate overflow; empty and
+OWNER_DECISION-only computed statuses for positive and negative values; and
+ITEMS key uniqueness. Baseline: 10 selected passed; full suite 198 passed.
+
+Each named mutant ran in an isolated temporary copy, with actual pytest exit
+codes: M1 hardcoded Faraday operating time fails both doubling and zero cases
+(2 failed, exit 1); M2 hardcoded electrical operating time likewise (2 failed,
+exit 1); M4 removed negative-registry gate (1 failed, exit 1); M14 removed
+Report scope guard (1 failed, exit 1); M6 removed aggregate finite check
+(1 failed, exit 1); silent status default (4 failed, exit 1); duplicate key
+in ITEMS (1 failed, exit 1). The working repository was not mutated for these
+runs. This hand-selected mutant set is a lower bound on tested fault detection,
+not a completeness percentage.
+
+Test-only commit bcb5cd4 passed the local helper before and after commit:
+legacy ALL PASS, pytest 198 passed, ci_guard, README and both diff checks all
+exit 0. Full logs are session-local.
+
 ## Historical test evidence
 
 | Test | What it proves | Ground truth used |
