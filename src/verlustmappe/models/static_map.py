@@ -67,7 +67,14 @@ def calculate(scenario: Scenario, parameters: ParamSet, *, scope: str) -> Report
                                  "BACKLOG placeholder is not an available required value"),)
         elif not check_nonnegative(parameter.value, key):
             causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,
-                                 "registry input is negative"),)
+                                 "registry input is outside its permitted nominal domain"),)
+        elif key == "el.faradaic_efficiency" and parameter.value > 1:
+            causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,
+                                 "registry input is outside its permitted nominal domain"),)
+        elif key == "el.n_cells" and (
+                parameter.value <= 0 or parameter.value % 1 != 0):
+            causes[key] = (Cause(CauseCode.INVALID_INPUT_DOMAIN, key,
+                                 "registry input is outside its permitted nominal domain"),)
         else:
             values[key] = _number(parameter.value, key)
 
