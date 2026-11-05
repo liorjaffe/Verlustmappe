@@ -1,10 +1,10 @@
-# plant/ac_cable.toml - AC-Leitungen PV-Wechselrichter -> EL
-# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
-# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+# plant/ac_cable.toml - AC cables PV inverter -> EL
+# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "ac_cable"
-title = "AC-Leitungen PV-Wechselrichter -> EL"
+title = "AC cables PV inverter -> EL"
 
 [param."cable.ac_loss_rel"]
 value = 0.005

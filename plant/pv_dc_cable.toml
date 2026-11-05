@@ -1,13 +1,13 @@
-# plant/pv_dc_cable.toml - DC-Leitungen PV-Feld -> PV-Wechselrichter
-# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
-# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+# plant/pv_dc_cable.toml - DC cables PV array -> PV inverter
+# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "pv_dc_cable"
-title = "DC-Leitungen PV-Feld -> PV-Wechselrichter"
+title = "DC cables PV array -> PV inverter"
 
 [notes]
-# Kommentare aus registry.py, wortgleich, ungeprueft:
+# Comments from registry.py, verbatim, unchecked:
 registry_comments = '''
 # --- cables and wiring (DC side PV->inverter, AC side inverter->EL bus) ---'''
 

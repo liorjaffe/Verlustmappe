@@ -1,18 +1,18 @@
-# plant/pv_array.toml - PV-Feld F8 (BYD455MGEK-36, Ostfassade)
-# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
-# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+# plant/pv_array.toml - PV array F8 (BYD455MGEK-36, east facade)
+# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "pv_array"
-title = "PV-Feld F8 (BYD455MGEK-36, Ostfassade)"
+title = "PV array F8 (BYD455MGEK-36, east facade)"
 
 [open]
 questions = [
-  "Nennleistung: 12,74 kWp (28 x 455 W) gegen 12,78 kWp in der Solis-Stationsliste. Owner entscheidet.",
+  "Rated power: 12.74 kWp (28 x 455 W) versus 12.78 kWp in the Solis station list. Owner decides.",
 ]
 
 [notes]
-# Kommentare aus registry.py, wortgleich, ungeprueft:
+# Comments from registry.py, verbatim, unchecked:
 registry_comments = '''
 # ===================== PV / INVERTER =====================
 # PRELIMINARY VERSION ("vorerst"): no real hardware chosen yet. Every entry

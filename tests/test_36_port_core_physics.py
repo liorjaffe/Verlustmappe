@@ -1,7 +1,7 @@
 """P11: ported constants and fill work, params adapter.
 
 Expected values are the P10 hand values (tests/reference/hand/), not model output. The legacy
-parity checks were removed with the legacy code on 2026-11-05 (restart N2, owner decision).
+comparison is the regression required by AGENTS (ported physics exists twice until M6).
 """
 import os
 import re
@@ -32,6 +32,16 @@ def test_bovo_point_hand_value():
     assert isothermal_fill_work_kWh(n_mol, 40.0, 200.0, 293.15).work_kWh == pytest.approx(1.0153037, rel=1e-5)
 
 
+def test_work_matches_legacy():
+    from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
+    from verlustmappe.hydrogen.temperature_model import isothermal_work_mol_integral as legacy
+    cases = [(1000.0, 20.0, 200.0, 293.15, None), (1000.0, 100.0, 200.0, 293.15, 35.0),
+             (1000.0, 20.0, 200.0, 293.15, 35.0), (500.0, 10.0, 30.0, 300.0, 40.0),
+             (500.0, 50.0, 40.0, 293.15, None), (500.0, 20.0, 30.0, 293.15, 35.0)]
+    for mol, p1, p2, T, ps in cases:
+        assert isothermal_fill_work_kWh(mol, p1, p2, T, ps).work_kWh == pytest.approx(legacy(mol, p1, p2, T, ps), rel=1e-12, abs=0)
+
+
 def test_exact_zero_is_flagged():
     from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
     for args in [(500.0, 50.0, 40.0, 293.15, None), (500.0, 20.0, 30.0, 293.15, 35.0)]:
@@ -51,8 +61,13 @@ def test_work_domain_errors():
         isothermal_fill_work_kWh(1.0, 20.0, 200.0, 293.15, p_suction_abs_bar=0.0)
 
 
-def test_constants_match_hand():
+def test_constants_match_legacy_and_hand():
     from verlustmappe.models import constants as N
+    from verlustmappe import constants as L
+    for name in ("M_H2_KG_PER_MOL", "F_C_PER_MOL", "R_J_PER_MOL_K", "V_MOL_NL_PER_MOL", "RHO_H2_KG_PER_NL",
+                 "LHV_H2_KWH_PER_KG", "HHV_H2_KWH_PER_KG", "LHV_H2_WH_PER_NL", "HHV_H2_WH_PER_NL",
+                 "J_PER_KWH", "J_PER_WH", "PA_PER_BAR", "P_ATM_BAR"):
+        assert getattr(N, name) == getattr(L, name), name
     # hand/constants.md
     assert N.R_J_PER_MOL_K == pytest.approx(8.31446261815324, rel=1e-9)
     assert N.F_C_PER_MOL == pytest.approx(96485.33212331, rel=2e-9)

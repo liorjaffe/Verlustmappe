@@ -21,6 +21,7 @@ class Check:
 
 
 CHECKS = (
+    Check("device_scripts", (sys.executable, "tests/run_all.py")),
     Check("pytest", (sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider")),
     Check("diff_check", ("git", "diff", "--check")),
     Check("staged_diff_check", ("git", "diff", "--cached", "--check")),

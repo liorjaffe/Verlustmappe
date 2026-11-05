@@ -1,42 +1,43 @@
-# START – Zustand (wird überschrieben, nie ergänzt; höchstens 60 Zeilen)
+# START – current state (overwritten, never appended; at most 60 lines)
 
-Stand: 2026-11-05 · Branch `neustart` · `main` unverändert bis zum Owner-Merge.
+State: 2026-11-05 · branch `neustart` · `main` unchanged until the owner merges.
 
-## Ziel
-Energiekontenbuch der realen Pilotanlage (PV-DC → H₂ → FC-AC) je statischem Lastpunkt,
-jede Zahl mit Herkunft, Lücken sichtbar. Details: `CONTRACT.md` §1–§4.
+## Goal
+Energy ledger of the real pilot plant (PV DC → H₂ → FC AC) per static load point, every
+number with its origin, gaps visible. Details: `CONTRACT.md` §1–§4.
 
-## Stand des Neustarts
-- [x] N0 Archiv-Tag `archive-2026-11`, Branch, Duplikate und `Differenz/` entfernt
+## Restart progress
+- [x] N0 archive tag `archive-2026-11`, branch, duplicates and `Differenz/` removed
 - [x] N1 `AGENTS.md`, `START.md`, `CONTRACT.md`, `decisions/`
-- [x] N2 Werte in `plant/<gerät>.toml` (16 Dateien, 109 Schlüssel, Gleichheit per Test);
-      Realgas, Loader-Tests, Formate, Arbeitsbuch gerettet; Altbestand entfernt
-- [ ] N3 neuer Kern `model/` (physics, devices mit step/event, balance, views);
-      P14-Fall wird erster Test von `el`; Tests nach Modulnamen
-- [ ] N4 `cases/F1.toml` und Fallbericht, sofort mit MISSING-Posten
-- [ ] N5 Owner prüft den Branch und mergt
+- [x] N2 values in `plant/<device>.toml` (16 files, 109 keys, equality proven by test);
+      real gas, loader tests, formats, workbook kept; legacy removed
+- [x] Correction: device models (`devices/`, `hydrogen/`, `conversions`, `constants`) and
+      their tests restored; analyses, old balance, Monte Carlo, reports stay in the archive
+- [ ] N3 accounts A/B/C built on the existing device models; a device is reworked only
+      with a comparison test against the existing model
+- [ ] N4 `cases/F1.toml` and case report, immediately with MISSING items
+- [ ] N5 owner reviews the branch and merges
 
-## Nächster Schritt
-N3 vorbereiten: Schnittstelle `step`/`event` und Postenliste für A/B an F1 festlegen;
-dafür müssen die [V]-Punkte in `CONTRACT.md` §4–§6 entschieden sein.
+## Next step
+Owner decides the [V] items in `CONTRACT.md` §4–§6; then prepare N3.
 
-## Offene Owner-Entscheidungen
-1. Alle [V]-Punkte in `CONTRACT.md` (Abgrenzung A/B, Formel C, Fallregeln, Statusschema).
-2. Werteschutz: KI legt Wertänderungen nur als Vorschlag ab, Owner übernimmt?
+## Open owner decisions
+1. All [V] items in `CONTRACT.md` (A/B boundary, formula C, case rules, status scheme).
+2. Value protection: the agent submits value changes only as proposals, the owner applies?
 
-## Offene Anlagenfragen (stehen auch unter [open] in der jeweiligen Gerätedatei)
-- Filterpumpe (Hausnetz): Leistung und Laufzeit; Registry führt 0 W (`water_pump.toml`)
-- PV-Leistung F8: 12,74 kWp gegen 12,78 kWp (`pv_array.toml`)
-- PV-WR S6-GR1P6K: Datenblatt fehlt (`pv_inverter.toml`)
-- H₂Core-Batterie: 100 Ah/52 V gegen 105 Ah/5 kWh/48 V (`fc_battery.toml`)
-- Kaeser: Eingangsleistung, kWh-Zähler, Laststunden; Booster-Luftbedarf am Betriebspunkt;
-  Herstellerfragen P-1 bis P-3 (`booster.toml`)
-- Solis-DC-Kanal liegt 3–4 % über dem Zähler (Altbefund), daher nur Diagnose
-- Regatron-Fast-Logs: vorhanden? Mit oder ohne FC-WR am Bus?
+## Open plant questions (also under [open] in the device file)
+- Filter pump (house grid): power and run time; registry has 0 W (`water_pump.toml`)
+- PV power F8: 12.74 kWp versus 12.78 kWp (`pv_array.toml`)
+- PV inverter S6-GR1P6K: datasheet missing (`pv_inverter.toml`)
+- H₂Core battery: 100 Ah/52 V versus 105 Ah/5 kWh/48 V (`fc_battery.toml`)
+- Kaeser: input power, kWh meter, load hours; booster air demand at the operating point;
+  manufacturer questions P-1 to P-3 (`booster.toml`)
+- Solis DC channel reads 3–4 % above the counter (legacy finding), so diagnostic only
+- Regatron fast logs: available? With or without the FC inverter on the bus?
 
-## Bereits entschieden – nicht neu diskutieren
-Keine Sonnensteuerung · PV-Überschuss ist kein Verlust · Kaeser in Konto B ·
-H₂Core-Batterie ≠ separates PV-Batteriesystem · Raum-Infrastruktur ausgeschlossen ·
-keine zentrale Steuerung (in Geräten enthalten) · AC8 entfällt · Verluste nie als
-Differenz · fehlender Wert = keine Zahl · Regatron-Werkzeuge bleiben in `tools/`.
-Quelle: `CONTRACT.md`, `decisions/`.
+## Already decided – do not reopen
+No sun-driven control · PV surplus is not a loss · Kaeser in account B ·
+H₂Core battery ≠ separate PV battery system · room infrastructure excluded ·
+no central control (contained in devices) · AC8 dropped · losses never as a difference ·
+missing value = no number · Regatron tools stay in `tools/`.
+Source: `CONTRACT.md`, `decisions/`.

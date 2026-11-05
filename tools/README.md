@@ -10,7 +10,7 @@
 Rule: tools display and control. Numbers for the paper come only from
 src/verlustmappe/ pipelines into results/.
 
-`run_local_gates.py` runs pytest and `git diff --check` and keeps each command's output
+`run_local_gates.py` runs `tests/run_all.py`, pytest and `git diff --check` and keeps each command's output
 in an external log directory; it exits nonzero if any check fails:
 
 ```sh

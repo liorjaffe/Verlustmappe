@@ -1,14 +1,14 @@
-# plant/pv_inverter.toml - PV-Wechselrichter (2 x Solis, F8)
-# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
-# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+# plant/pv_inverter.toml - PV inverter (2 x Solis, F8)
+# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "pv_inverter"
-title = "PV-Wechselrichter (2 x Solis, F8)"
+title = "PV inverter (2 x Solis, F8)"
 
 [open]
 questions = [
-  "D6: Datenblatt S6-GR1P6K fehlt.",
+  "D6: S6-GR1P6K datasheet missing.",
 ]
 
 [source_block]
@@ -25,7 +25,7 @@ text = '''
 - **Reviewer/date:** owner approved 2026-10-29.'''
 
 [notes]
-# Kommentare aus registry.py, wortgleich, ungeprueft:
+# Comments from registry.py, verbatim, unchecked:
 registry_comments = '''
 # --- TWO SEPARATE INVERTERS (kept apart, they are different devices and
 #     must stay separately analysable: PV-side vs FC-side) ---

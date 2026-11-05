@@ -1,172 +1,169 @@
-# CONTRACT – was gilt
+# CONTRACT – what applies
 
-Einzige Quelle für „was gilt“. Wird bei jeder Änderung **umgeschrieben, nicht ergänzt**.
-Begründungen stehen in `decisions/`, nie hier. Stand: 2026-11-05 (Neustart).
+The single place for "what applies". **Rewrite on every change, never append.**
+Reasons live in `decisions/`, never here. State: 2026-11-05 (restart).
 
-**[E]** vom Owner entschieden – gilt. **[V]** Vorschlag – gilt erst nach Owner-Entscheidung;
-bis dahin nicht als Regel verwenden, sondern als offene Frage behandeln.
-`(Dnn)` verweist auf die alte Entscheidung, aus der eine Regel übernommen ist (Archiv-Tag
-`archive-2026-11`); sie muss nicht gelesen werden.
+**[E]** decided by the owner – applies. **[V]** proposal – applies only after an owner
+decision; until then treat it as an open question, not as a rule.
+`(Dnn)` names the old decision a rule was taken from (tag `archive-2026-11`); it does not
+need to be read.
 
-## 1 Ziel [E]
+## 1 Goal [E]
 
-Für die reale Pilotanlage zeigen, wohin jede kWh geht. Je gewähltem statischem Lastpunkt
-ein Bericht: Energieweg vom PV-DC bis zum AC-Ausgang des FC-Wechselrichters mit jedem
-Verlust und seiner Ursache, daneben der Energiebedarf der Nebenverbraucher. Jede Zahl
-trägt ihre Herkunft. Was fehlt, steht als fehlend da. Keine Forschung an Zell- oder
-Stackdetails: marktübliche Geräte dürfen Black Boxes mit belegten Ein- und Ausgängen sein.
+Show for the real pilot plant where every kWh goes. For each chosen static load point, one
+report: the energy path from PV DC to the AC output of the FC inverter with every loss and
+its cause, next to the energy demand of the auxiliary consumers. Every number carries its
+origin. Missing values are shown as missing. No research into cell or stack details:
+market-standard devices may be black boxes with documented inputs and outputs.
 
-## 2 Umfang
+## 2 Scope
 
-- [E] Nur Geräte mit **direktem Einfluss auf die Produktion**. Raum- und
-  Gebäudeinfrastruktur ist ausgeschlossen: Lüftung, Gaswarnung, Heizung, Frostschutz,
-  Raumgeräte.
-- [E] Es gibt keine zentrale Anlagensteuerung (SPS, Steuerrechner). Steuerungen sind in
-  die Geräte eingebaut und kein eigenes Gerät. Ihr Verbrauch gehört zum jeweiligen Gerät;
-  wird er dort getrennt ausgewiesen (FC-Steuerung, §4), wird er dort gebucht.
-- [V] Prüfbare Formulierung: Ein Gerät gehört dazu, wenn es Energie umsetzt, um ein
-  Prozessmedium herzustellen, umzuwandeln, aufzubereiten, zu fördern oder zu speichern
-  (Strom der Kette, H₂, Prozesswasser, Druckluft).
-- [E] PV-Quelle ist nur F8 („F8_Fachada Leste“, zwei Solis-Wechselrichter). Der PV-Datensatz
-  vom Sept. 2026 (`pv_merged.csv`) ist ausgeschlossen und nie Evidenz (D33).
-- [E] Keine sonnengeführte Produktion. PV-Überschuss gehört nicht zur Rechnung und ist kein
-  Verlust.
-- [E] Der Regatron ist ein Prüfstand, kein Anlagengerät. Er ist Messquelle (Schicht 3).
-- [E] Der Vergleich mit dem Altstand (früher AC8) entfällt.
+- [E] Only devices with a **direct influence on production**. Room and building
+  infrastructure is excluded: ventilation, gas detection, heating, frost protection,
+  room equipment.
+- [E] There is no central plant control (PLC, control computer). Controls are built into
+  the devices and are not devices of their own. Their consumption belongs to the device;
+  where a device reports it separately (FC control, §4), it is booked there.
+- [V] Testable wording: a device is in scope if it converts energy to produce, convert,
+  treat, move or store a process medium (chain electricity, H₂, process water, compressed
+  air).
+- [E] The only PV source is F8 ("F8_Fachada Leste", two Solis inverters). The Sept 2026 PV
+  dataset (`pv_merged.csv`) is excluded and never evidence (D33).
+- [E] No sun-driven production. PV surplus is not part of the calculation and is not a loss.
+- [E] The Regatron is a test bench, not a plant device. It is a measurement source (layer 3).
+- [E] The comparison with the legacy state (formerly AC8) is dropped.
 
-## 3 Schichten [E]
+## 3 Layers [E]
 
-| Schicht | Eingabe | Aussage |
+| Layer | Input | Statement |
 |---|---|---|
-| 1 statisch | vorgegebene Lastpunkte (Prozentwerte sind nur Beispiele) | modelliert |
-| 2 dynamisch | **vorgegebenes Lastprofil**; PV nur als Verfügbarkeit, keine Sonnensteuerung | modelliert |
-| 3 validiert | Messfenster | „validiert“ nur für diese Fenster, innerhalb der Unsicherheit |
+| 1 static | given load points (percentages are examples only) | modelled |
+| 2 dynamic | **given load profile**; PV only as availability, no sun-driven control | modelled |
+| 3 validated | measurement windows | "validated" only for those windows, within uncertainty |
 
-Konten A, B, C sind in allen Schichten gleich definiert. Vor Schicht 3 wird keine
-Validierung behauptet (D34).
+Accounts A, B, C are defined identically in all layers. No validation is claimed before
+layer 3 (D34).
 
-## 4 Konten
+## 4 Accounts
 
-- **A – Serienpfad** [E Grundsatz, V Details]: PV-DC (Modul-/Stringausgang) → DC-Kabel →
-  PV-Wechselrichter → AC → EL → Dryer → Booster → Speicher → FC (mit H₂Core-Batterie und
-  DC-Bus) → FC-Wechselrichter → AC-Out. Real hängt der EL am Hausnetz; die Kette ist eine
-  **Zurechnung** (eine PV-Scheibe wird dem Pfad zugeordnet), keine Behauptung physischer
-  Direktversorgung.
-- **B – Nebenverbraucher** [E]: Geräte, die real aus Hausnetz oder dem separaten
-  PV-Batteriesystem versorgt werden, je Gerät mit Versorger und Phase. Das separate
-  PV-Batteriesystem ist nur externer Lieferant; sein Inneres wird nicht modelliert. Der
-  Kaeser (Verdichtung) liegt in B.
-- [V] Abgrenzung A/B: A enthält Energie, die durch die Serienumwandlung fließt. B enthält
-  jeden anderen elektrischen Verbrauch, auch Standby von Geräten des Serienpfads
-  (EL, PV-WR, FC-WR) und Dryer-Strom.
-- [E] FC-Steuerung wird nach D22 im Serienpfad netto abgezogen:
-  E_out_net = (E_fc_terminal − E_ctrl) · η_inv. Annahme: Bezug vom DC-Bus vor dem
-  Wechselrichter; Messpunkt offen. Einmal gebucht.
-- **C – Systemwirkungsgrad** [V Name und Formel]:
-  η_sys = E_AC,out / (E_PV,DC,Anteil + E_B,extern + ΔS_Korrektur).
-  Ausgabe erst, wenn Verdichtung und Batterie einen Status haben. Bis dahin [V]: A und B
-  stehen nebeneinander mit eigener Summe, **ohne addierte Gesamtgröße**; A erscheint nie
-  allein.
-- [E] H₂Core-Batterie gehört zum FC-System. Sie ist nicht das separate PV-Batteriesystem
-  für Nebenverbraucher. Batterieentladung darf nicht als Rückverstromung aus H₂ erscheinen.
+- **A – series path** [E principle, V details]: PV DC (module/string output) → DC cable →
+  PV inverter → AC → EL → dryer → booster → storage → FC (with H₂Core battery and DC bus) →
+  FC inverter → AC out. In reality the EL is supplied from the house grid; the chain is an
+  **allocation** (a slice of PV is assigned to the path), not a claim of physical direct
+  supply.
+- **B – auxiliary consumers** [E]: devices actually supplied from the house grid or the
+  separate PV battery system, each with its supplier and phase. The separate PV battery
+  system is only an external supplier; its internals are not modelled. The Kaeser
+  (compression) is in B.
+- [V] A/B boundary: A contains energy that flows through the series conversion. B contains
+  every other electrical consumption, including standby of series-path devices (EL, PV
+  inverter, FC inverter) and dryer electricity.
+- [E] FC control is netted in the series path per D22:
+  E_out_net = (E_fc_terminal − E_ctrl) · η_inv. Assumption: drawn from the DC bus before
+  the inverter; measurement point open. Booked once.
+- **C – system efficiency** [V name and formula]:
+  η_sys = E_AC,out / (E_PV,DC,share + E_B,external + ΔS_correction).
+  Reported only once compression and battery have a status. Until then [V]: A and B are
+  shown side by side with their own totals, **without a summed total**; A never appears
+  alone.
+- [E] The H₂Core battery belongs to the FC system. It is not the separate PV battery system
+  for auxiliary consumers. Battery discharge must not appear as reconversion from H₂.
 
-## 5 Fall (Schicht 1)
+## 5 Case (layer 1)
 
-- [V] Ein Fall enthält nur Eingaben, Annahmen und Begründungen. Alles Berechnete entsteht
-  im Modell.
-- [E] EL-Anker: AC-Leistung, Stackstrom, Betriebszeit, Standby-Leistung, Standby-Zeit.
-  Keine dieser Größen wird ohne belegte Beziehung aus einer anderen abgeleitet.
-- [E] Ein gewähltes Solis-Zeitfenster zeigt nur, dass genug PV-**Energie** da war. Es
-  belegt keine zeitgleiche Leistung und keine reale Versorgung. [V] Die Auswahlregel des
-  Fensters wird vorher festgehalten.
-- [V] Der PV-Gesamtbetriebspunkt kommt aus dem Fenster. Wechselrichter und DC-Kabel werden
-  bei Gesamtleistung bzw. Gesamtstrom gerechnet; der Verlust wird anteilig der Scheibe
-  zugerechnet (Konvention, so benannt). Keine Umkehrfunktion nötig.
-- [V] Jede Phasendauer hat eine Begründung: Betriebsvorgabe, Messbeobachtung oder
-  bewusste Konvention.
-- [V] FC-Betriebspunkt wird gesetzt; die FC-Dauer folgt aus der Molbilanz (sonst ist der
-  Fall überbestimmt).
-- [V] Zyklusschluss ist eine deklarierte Annahme in mol, keine Messung. Zwischenspeicher
-  (Dryer-Hold-up, Puffer, Tank) werden als Annahme zusammengefasst.
-- [V] Batterie: Anteil oder ΔS wird deklariert. Netto null ist nicht verlustfrei;
-  Durchsatzverluste werden getrennt gerechnet.
-- [E] Zustandsgrößen eines Betriebspunkts sind Eingaben: Tankdruck, Gastemperatur,
-  Batterie-SoC, angeschlossenes Speichervolumen (800 L abgesperrt, sonst 1600 L).
+- [V] A case contains only inputs, assumptions and justifications. Everything computed
+  comes from the model.
+- [E] EL anchor: AC power, stack current, operating time, standby power, standby time.
+  None of them is derived from another without a documented relation.
+- [E] A chosen Solis time window shows only that enough PV **energy** was available. It
+  does not prove simultaneous power or real supply. [V] The window selection rule is
+  recorded beforehand.
+- [V] The PV total operating point comes from the window. Inverter and DC cable are
+  computed at total power or total current; the loss is allocated pro rata to the slice
+  (a convention, named as such). No inverse function needed.
+- [V] Every phase duration has a justification: operating requirement, measured
+  observation or deliberate convention.
+- [V] The FC operating point is set; the FC duration follows from the mole balance
+  (otherwise the case is overdetermined).
+- [V] Cycle closure is a declared assumption in mol, not a measurement. Intermediate
+  storage (dryer hold-up, buffer, tank) is lumped as an assumption.
+- [V] Battery: share or ΔS is declared. Net zero is not loss-free; throughput losses are
+  computed separately.
+- [E] State quantities of an operating point are inputs: tank pressure, gas temperature,
+  battery SoC, connected storage volume (800 L isolated, otherwise 1600 L).
 
-## 6 Bilanzregeln
+## 6 Balance rules
 
-- [E] Verluste kommen aus eigener Physik oder Messung, **nie als Differenz**
-  „Eingang minus Ausgang“.
-- [E] Verbrauch ist kein Verlust. Speicheränderung ist kein Verlust. Ein ungeklärter Rest
-  ist kein Verlust.
-- [V] Molbilanz zuerst: n_Anfang + n_EL = n_Ende + n_FC + n_vent + n_leak + n_purge.
-  Danach Energie: E_ein = E_aus + L + ΔS, mit ΔS = S_Ende − S_Anfang.
-- [V] Ein Rest R ist nur Diagnose: an Stellen, wo dieselbe Größe zweimal unabhängig
-  bestimmt ist. Im Modellfall nur als EL-Konsistenz (AC gegen V(I,T)·I plus
-  Gleichrichterverlust).
-- [V] Wärme ist in einer Vollenergiebilanz Abgabe, in einem Nutzenergiekonto Teil des
-  Umwandlungsverlusts – nie beides.
-- [V] Steckt ein Verbrauch schon in einem übergeordneten Messwert, wird er nicht noch
-  einmal addiert (enthalten-in).
-- [V] Verdichtung ist Verbrauch (Kaeser-Strom) und liegt nie im Speicherbestand.
-- [E] Ideale Füllarbeit darf nur als so benannte Idealgasgröße erscheinen, nie als
-  elektrische Verdichtungsenergie (D35).
-- [E] Kaeser (D14): versorgt nur den HULC und die vier Rotex. Variabler Anteil nach
-  Luftmenge (HULC / Rotex 1–4 / sonstige); READY-Standby und Netzleckage als eigene Posten;
-  Leckage gehört zum Verteilnetz, nicht zum HULC. Standby nach Luftbezug, sonst gleich
-  verteilt (Annahme). Kaeser-Eingangsleistung offen; 6,2 kW ist ein Händlerwert.
-- [E] HULC-Luftbedarf (D13): Herstellerkurve als Funktion des H₂-Flusses am
-  Anlagenbetriebspunkt; Betriebspunkt offen. 14,6 Nm³/Nm³ gilt nur bei Maximalfluss und
-  ist keine Grenze. Geometrie (4,59–6,30) ist eine physikalische Untergrenze.
-- [E] FC-Wechselrichter, Entladepfad (D3b): PV-AC-Datenblattwerte gelten dafür nicht.
-  Bis zur Messung nie MEASURED.
+- [E] Losses come from their own physics or from measurement, **never as a difference**
+  "input minus output".
+- [E] Consumption is not a loss. A storage change is not a loss. An unexplained residual is
+  not a loss.
+- [V] Mole balance first: n_start + n_EL = n_end + n_FC + n_vent + n_leak + n_purge.
+  Then energy: E_in = E_out + L + ΔS, with ΔS = S_end − S_start.
+- [V] A residual R is only a diagnostic: where the same quantity is determined twice
+  independently. In a model case only as EL consistency (AC versus V(I,T)·I plus rectifier
+  loss).
+- [V] Heat is an output in a full energy balance and part of the conversion loss in a
+  useful-energy account – never both.
+- [V] A consumption already contained in a higher-level reading is not added again
+  (contained-in).
+- [V] Compression is consumption (Kaeser electricity) and never part of the stored stock.
+- [E] Ideal fill work may only appear as a named ideal-gas quantity, never as electrical
+  compression energy (D35).
+- [E] Kaeser (D14): supplies only the HULC and the four Rotex. Variable share by air
+  quantity (HULC / Rotex 1–4 / other); READY standby and network leakage as separate
+  items; leakage belongs to the distribution network, not to the HULC. Standby by air draw,
+  otherwise split equally (assumption). Kaeser input power open; 6.2 kW is a dealer value.
+- [E] HULC air demand (D13): manufacturer curve as a function of H₂ flow at the plant
+  operating point; operating point open. 14.6 Nm³/Nm³ applies only at maximum flow and is
+  not a bound. Geometry (4.59–6.30) is a physical lower bound.
+- [E] FC inverter, discharge path (D3b): PV-AC datasheet values do not apply. Never
+  MEASURED until measured.
 
-## 7 Fehlende Werte und Gültigkeit [E]
+## 7 Missing values and validity [E]
 
-- Fehlt ein Wert, gibt es keine Zahl: nicht null, nicht weggelassen, kein Standardwert.
-  Abhängige Summen, Bilanzen und Kennzahlen bleiben ebenfalls offen. Unabhängige Ergebnisse
-  bleiben sichtbar (D35).
-- Anteile nur über quantifizierte Posten und mit genanntem Nenner. Keine Aussage „größter
-  Verlust“ und kein vollständiges Sankey, solange Posten fehlen (D35).
-- Berechnete Pfadgrößen (Energie, Leistung, Masse, Stoffmenge, Fluss, Absolutdruck,
-  Absoluttemperatur) dürfen nicht negativ sein. Vorzeichenbehaftet sind Änderungen und
-  Differenzen. Vorzeichen roher Messkanäle sind kein Fehler (D25, D31).
-- Nicht monoton steigende Zeit ist ungültig (D25).
-- Kein Begrenzen (clip, min, max) physikalischer Größen ohne Quelle und ohne sichtbaren
-  Hinweis im Ergebnis.
-- EL: Faraday-Wirkungsgrad endlich in [0, 1]; Zellzahl endlich, positiv, ganzzahlig.
-  Verletzungen blockieren die H₂-Ergebnisse; nicht-numerische, boolesche oder nicht
-  endliche Werte sind Datenfehler und lösen eine Ausnahme aus (D36).
-- Fehlt ein Pflichtkanal (Schicht 3), ist die betroffene Route ungültig, nicht automatisch
-  alles (D31).
+- A missing value gives no number: not zero, not omitted, no default. Dependent totals,
+  balances and figures stay open as well. Independent results stay visible (D35).
+- Shares only over quantified items and with a named denominator. No "largest loss" and no
+  complete Sankey while items are missing (D35).
+- Computed path quantities (energy, power, mass, amount, flow, absolute pressure, absolute
+  temperature) must not be negative. Changes and differences are signed. Signs of raw
+  measurement channels are not an error (D25, D31).
+- Non-monotonic time is invalid (D25).
+- No limiting (clip, min, max) of physical quantities without a source and a visible note
+  in the result.
+- EL: Faraday efficiency finite in [0, 1]; cell count finite, positive, integer. Violations
+  block the H₂ results; non-numeric, boolean or non-finite values are data errors and raise
+  an exception (D36).
+- A missing mandatory channel (layer 3) invalidates the affected route, not automatically
+  everything (D31).
 
 ## 8 Status
 
-- [V] Neues Schema: `status` = MEASURED > DATASHEET > SECONDARY > ASSUMED > MISSING;
-  das schwächste Eingangsglied bestimmt das Ergebnis. `origin` = measured | computed.
-  `u_kind` = none | band | envelope. u = 0 heißt „nicht bewertet“, außer ausdrücklich
-  anders angegeben.
-- Bis zur Entscheidung gilt der Status in `plant/<gerät>.toml` (1:1 aus der alten Registry).
-- [E] Für die meisten Werte fehlen noch Fundstelle und wörtliches Zitat; das ist offener
-  Arbeitsbestand, keine Bestätigung der Werte.
-- [E] Die Schlüssel `comp.*` (falsches Gerät Maximator DLE 30-2) dürfen in neuem Code nie
-  verwendet werden (D11).
+- [V] New scheme: `status` = MEASURED > DATASHEET > SECONDARY > ASSUMED > MISSING; the
+  weakest input determines the result. `origin` = measured | computed.
+  `u_kind` = none | band | envelope. u = 0 means "not assessed" unless stated otherwise.
+- Until decided, the status in `plant/<device>.toml` applies (1:1 from the old registry).
+- [E] Most values still lack a page reference and verbatim quote; that is open work, not a
+  confirmation of the values.
+- [E] The `comp.*` keys (wrong device, Maximator DLE 30-2) must never be used in new code
+  (D11).
 
-## 9 Messdaten (Schicht 3) [E]
+## 9 Measurement data (layer 3) [E]
 
-- Integration: Trapez innerhalb gültiger Segmente; Lücke, wenn
-  dt > max(3 × nominelles Intervall, 30 s); abgedeckter Anteil wird ausgewiesen (D24).
-- Nominelles Abtastintervall nur aus einem nachgewiesenen Exportraster der Quelle;
-  F8: 300 s. Zeitstempel werden nicht auf ein Raster gerundet (D32).
-- Zyklusschluss gemessen: CLOSED, wenn |Δn| ≤ 5 % · n_ref und u(Δn) ≤ 5 % · n_ref,
-  n_ref = max(n_zu, n_ab); sonst NOT VERIFIABLE. Der Drucksensor DCT 541 dient nur diesem
-  Urteil, nicht der Kalibrierung; bis zum Wiederholbarkeitstest ist gemessener Schluss
+- Integration: trapezoid within valid segments; gap if dt > max(3 × nominal interval,
+  30 s); the covered fraction is reported (D24).
+- Nominal sampling interval only from a demonstrated export grid of the source; F8: 300 s.
+  Timestamps are not snapped to a grid (D32).
+- Measured cycle closure: CLOSED if |Δn| ≤ 5 % · n_ref and u(Δn) ≤ 5 % · n_ref,
+  n_ref = max(n_in, n_out); otherwise NOT VERIFIABLE. The DCT 541 pressure sensor serves
+  only this verdict, not calibration; until the repeatability test, measured closure is
   NOT VERIFIABLE (D20, D8).
-- Tankdruck und Gastemperatur sind bis zur Nachrüstung simulierte Zustände (D8).
-- Erster Kalibrierkandidat: FC-Klemmenkennlinie aus Regatron-Sweeps (D4). Der
-  Regatron-Strom ist Bus-/Lastseite, nie FC-Ausgang.
+- Tank pressure and gas temperature are simulated states until the retrofit (D8).
+- First calibration candidate: FC terminal characteristic from Regatron sweeps (D4). The
+  Regatron current is bus/load side, never FC output.
 
-## 10 Veröffentlichung [E]
+## 10 Publication [E]
 
-Jede Zahl erscheint mit Status, Schicht und Annahmen. Ein berechneter Wert darf nie wie
-ein gemessener aussehen. „Validiert“ nur aus Schicht 3 und nur für die geprüften Fenster.
+Every number appears with status, layer and assumptions. A computed value must never look
+like a measured one. "Validated" only from layer 3 and only for the checked windows.

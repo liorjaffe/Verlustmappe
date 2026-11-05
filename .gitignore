@@ -1,5 +1,5 @@
 __pycache__/
 *.pyc
 .DS_Store
-# macOS-Kopien ("datei 2.csv") erzeugen Doppelfunde bei jeder Suche
+# macOS copies ("file 2.csv") cause duplicate hits in every search
 * 2.*

@@ -1,6 +1,6 @@
-"""Loader checks for Regatron fast-log, Solis CSV and SolisCloud history.
-Assertions copied verbatim from legacy test_06, test_09 and test_12; parts that needed
-legacy device or report modules are dropped. Files are written to tmp_path."""
+"""SolisCloud history loader checks. Assertions copied verbatim from legacy test_12; the
+part that needed the report generator is dropped. Regatron and Solis CSV loaders are
+covered by test_06 and test_09."""
 import sys
 from pathlib import Path
 
@@ -9,48 +9,6 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from verlustmappe.loaders import solis_live as SL
-from verlustmappe.loaders.regatron import active_window, align_with_enapter, load_fastlog
-from verlustmappe.loaders.solis import inverter_eta_measured, load_solis
-
-
-def test_regatron_fastlog_signs_window_and_merge(tmp_path):
-    t0 = pd.Timestamp("2026-09-22 13:00:00+00:00")
-    rows = []
-    for k in range(10):
-        rows.append(",".join([
-            (t0 + pd.Timedelta(seconds=k * 0.05)).isoformat(timespec="microseconds"),
-            f"{t0.timestamp() + k * 0.05:.6f}", "cc", "30.0", "48.0",
-            "49.1234", "49.1234", "-30.0000", "30.0000",
-            f"{49.1234 * 30:.3f}", "True", "False", "False", "False"]))
-    header = ("timestamp_iso,epoch_s,mode,commanded_value,commanded_limit,voltage_v,"
-              "raw_voltage_v,current_signed_a,current_mag_a,power_w,output_on,has_errors,"
-              "has_warnings,estop_latched")
-    path = tmp_path / "fastlog.csv"
-    path.write_text("\n".join([header] + rows) + "\n")
-    df = load_fastlog(str(path))
-    assert df["load_current_A"].iloc[0] == 30.0
-    assert df["bus_voltage_V"].iloc[0] == 49.1234
-    assert len(active_window(df, 0.5)) == 10
-    en = pd.DataFrame({"fc_power_W": 1000.0}, index=pd.DatetimeIndex([t0], name=None))
-    merged = align_with_enapter(en, df)
-    assert len(merged) == 1 and abs(merged["load_current_A"].iloc[0] - 30.0) < 1e-6
-
-
-def test_solis_csv_mapping_sign_and_measured_eta(tmp_path):
-    t0 = pd.Timestamp("2026-10-07 10:00:00+00:00")
-    header = ("Timestamp,AC output power (W),Battery voltage (V),Battery current (A),"
-              "AC voltage (V),FC1 current (A),FC2 current (A)")
-    rows = [",".join([(t0 + pd.Timedelta(seconds=k)).isoformat(), "2000", "52.0", "40.0",
-                      "230.0", "10.0", "5.0"]) for k in range(60)]
-    path = tmp_path / "solis.csv"
-    path.write_text("\n".join([header] + rows) + "\n")
-    df = load_solis(str(path))
-    assert "ac_out_W" in df.columns and "bus_voltage_V" in df.columns
-    assert abs(df["ac_out_W"].iloc[0] - 2000.0) < 1e-6
-    assert df["batt_current_A"].iloc[0] == 40.0
-    eta = inverter_eta_measured(df)
-    # E_in = 52 * (10 + 5 + 40) * 60 s, E_out = 2000 * 60 s
-    assert abs(eta["eta"] - 2000.0 / (52.0 * 55.0)) < 1e-6, eta
 
 
 def test_soliscloud_conversions_daily_curve_balance_and_stale_guard():

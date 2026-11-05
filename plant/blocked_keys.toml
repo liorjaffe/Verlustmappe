@@ -1,13 +1,13 @@
-# plant/blocked_keys.toml - Gesperrte Schluessel (duerfen im neuen Kern nie verwendet werden)
-# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
-# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+# plant/blocked_keys.toml - Blocked keys (must never be used in new code)
+# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "blocked_keys"
-title = "Gesperrte Schluessel (duerfen im neuen Kern nie verwendet werden)"
+title = "Blocked keys (must never be used in new code)"
 
 [notes]
-# Kommentare aus registry.py, wortgleich, ungeprueft:
+# Comments from registry.py, verbatim, unchecked:
 registry_comments = '''
 # ============ COMPRESSOR: Maximator DLE 30-2 air-driven gas booster ============
 # D11 (2026-10-27): the six comp.* keys below are REJECTED (wrong device basis, DLE 30-2).

@@ -1,8 +1,8 @@
-"""Parameterzugriff. Einzige Wertquelle ist plant/<geraet>.toml (seit 2026-11-05).
+"""Parameter access. The single value source is plant/<device>.toml (since 2026-11-05).
 
-Die Schnittstelle ist unveraendert: REGISTRY, get, entry, by_status, P. Jeder Eintrag
-hat value, unit, source, status, uncertainty, effect. Fehlt 'value' in der TOML-Datei,
-ist der Wert MISSING und wird als None gelesen. Werte aendert nur der Owner.
+The interface is unchanged: REGISTRY, get, entry, by_status, P. Every entry has value,
+unit, source, status, uncertainty, effect. If 'value' is absent in the TOML file, the value
+is MISSING and is read as None. Only the owner changes values.
 """
 import tomllib
 from pathlib import Path

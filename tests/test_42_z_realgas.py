@@ -1,4 +1,4 @@
-"""Real-gas Z of hydrogen (models/z_realgas.py). Checkpoints and tolerances copied
+"""Real-gas Z of hydrogen (hydrogen/z_realgas.py). Checkpoints and tolerances copied
 verbatim from legacy test_02 (CoolProp / Leachman EOS values, not computed here)."""
 import sys
 from pathlib import Path
@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from verlustmappe.models.constants import M_H2_KG_PER_MOL, R_J_PER_MOL_K
-from verlustmappe.models.z_realgas import z_h2
+from verlustmappe.hydrogen.z_realgas import z_h2
 
 
 def test_z_checkpoints():

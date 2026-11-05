@@ -1,7 +1,5 @@
 """Compressibility factor Z of hydrogen.
 
-Ported verbatim from hydrogen/z_realgas.py on 2026-11-05 (restart N2).
-
 Why it matters: at 200 bar hydrogen holds ~12% LESS mass than the ideal gas
 law predicts. Ignoring Z biases Route 2 by that amount.
 

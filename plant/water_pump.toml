@@ -1,14 +1,14 @@
-# plant/water_pump.toml - Filterstrang mit Pumpe (Popular Filtros)
-# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
-# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+# plant/water_pump.toml - Filter train with pump (Popular Filtros)
+# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "water_pump"
-title = "Filterstrang mit Pumpe (Popular Filtros)"
+title = "Filter train with pump (Popular Filtros)"
 
 [open]
 questions = [
-  "Owner (2026-11-05): Pumpe existiert und haengt am Hausnetz. Registry fuehrt 0 W (GUESS, 'rein hydraulisch'). Wert, Leistung und Laufzeit: Owner entscheidet.",
+  "Owner (2026-11-05): the pump exists and is supplied from the house grid. Registry has 0 W (GUESS, 'purely hydraulic'). Value, power and run time: owner decides.",
 ]
 
 [param."water.filter_train_power_W"]

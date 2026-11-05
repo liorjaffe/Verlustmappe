@@ -1,5 +1,6 @@
-"""Verlustmappe: Energiekontenbuch der Pilotanlage PV -> H2 -> Brennstoffzelle.
+"""Verlustmappe: energy ledger of the pilot plant PV -> H2 -> fuel cell.
 
-Einstieg: AGENTS.md (Karte) -> START.md (Stand) -> CONTRACT.md (was gilt).
-Werte: plant/<geraet>.toml, gelesen ueber registry.py. Rechnung: models/. Messdaten: loaders/.
+Entry: AGENTS.md (map) -> START.md (state) -> CONTRACT.md (what applies).
+Values: plant/<device>.toml, read via registry.py. Devices: devices/.
+Hydrogen: hydrogen/. Core (status, validity, item list): models/. Measurement data: loaders/.
 """

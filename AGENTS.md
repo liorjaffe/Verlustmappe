@@ -1,47 +1,54 @@
-# AGENTS – Einstieg für jede KI (wird automatisch geladen)
+# AGENTS – entry point for every AI agent (loaded automatically)
 
-Dieses Repository ist das einzige Gedächtnis des Projekts. Was nicht hier steht, gilt nicht.
+This repository is the project's only memory. What is not written here does not apply.
+All repository content is in English; conversation with the owner may be in German.
 
-## Arbeitsablauf
-1. `START.md` lesen (Zustand, nächster Schritt, offene Fragen).
-2. Frage in der Karte unten einordnen; nur die genannte Datei lesen.
-3. Nur im Umfang des Auftrags arbeiten, auf einem Branch; nie selbst nach `main` mergen.
-4. Einigungen mit dem Owner **in derselben Sitzung** in `CONTRACT.md` eintragen
-   (umschreiben, nicht anhängen); die Begründung kommt nach `decisions/`.
-5. `START.md` am Ende überschreiben (höchstens 60 Zeilen).
-6. Gates ausführen und mit Exitcodes berichten.
+## Workflow
+1. Read `START.md` (state, next step, open questions).
+2. Place the question in the map below; read only the file named there.
+3. Work only within the task's scope, on a branch; never merge into `main` yourself.
+4. Record agreements with the owner **in the same session** in `CONTRACT.md` (rewrite,
+   do not append); the reason goes to `decisions/`.
+5. Overwrite `START.md` at the end (at most 60 lines).
+6. Run the gates and report exit codes.
 
-## Karte: Frage → Datei
-| Frage | Datei |
+## Map: question → file
+| Question | File |
 |---|---|
-| Wo stehen wir, was ist als Nächstes zu tun? | `START.md` |
-| Was gilt (Ziel, Umfang, Konten, Bilanz, Status)? | `CONTRACT.md` |
-| Warum ist etwas so entschieden? | `decisions/` (nur bei Bedarf) |
-| Welcher Wert, welche Quelle, was ist offen? | `plant/<gerät>.toml` (gelesen über `src/verlustmappe/registry.py`) |
-| Wie wird gerechnet? | bis N3: `src/verlustmappe/models/`; danach `model/devices/<gerät>.py` |
-| Ist es belegt? | passender Test unter `tests/` |
-| Wie lese ich Messdaten? | `src/verlustmappe/loaders/` und `loaders/FORMATS.md` |
-| Gerätewissen aus dem Altstand (nur beim Portieren) | `git show archive-2026-11:<pfad>` |
+| Where are we, what is next? | `START.md` |
+| What applies (goal, scope, accounts, balance, status)? | `CONTRACT.md` |
+| Why was something decided? | `decisions/` (only if needed) |
+| Which value, which source, what is open? | `plant/<device>.toml` (read via `src/verlustmappe/registry.py`) |
+| How does device X compute? | `src/verlustmappe/devices/<device>.py` (docstring explains physics and assumptions) |
+| Hydrogen amounts, real gas, temperature? | `src/verlustmappe/hydrogen/` |
+| Core for status, validity, item list (P14)? | `src/verlustmappe/models/` |
+| Is it proven? | matching test under `tests/` |
+| How are measurement files read? | `src/verlustmappe/loaders/` and `loaders/FORMATS.md` |
+| Device knowledge from the legacy state (only when porting) | `git show archive-2026-11:<path>` |
 
-**Stoppregel:** Steht die Antwort nach der Karte nicht fest, nachfragen oder als UNVERIFIED
-markieren, nicht weitersuchen. Fehlersuche darf dem Aufrufpfad folgen; jede Abweichung von
-der Karte im Bericht begründen.
+**Stop rule:** If the answer is not settled after the map, ask or mark it UNVERIFIED; do
+not keep searching. Debugging may follow the call path; justify any deviation from the map
+in the report.
 
-## Regeln
-1. Keine Zahl erfinden. Fehlt ein Wert, ist er MISSING; nachfragen.
-2. Werte und erwartete Testwerte ändert nur der Owner; die KI legt einen Vorschlag vor.
-3. Erwartete Testwerte nie vom getesteten Modell berechnen; Herleitung steht im Test.
-4. Kein Verlust als Differenz „Eingang minus Ausgang“.
-5. Physikalische Größen über Funktions-/Dateigrenzen tragen die Einheit im Namen
+## Rules
+1. Never invent a number. A missing value is MISSING; ask.
+2. Only the owner changes values and expected test values; the agent submits a proposal.
+3. Never compute expected test values with the model under test; the derivation is in the
+   test.
+4. No loss as a difference "input minus output".
+5. Physical quantities crossing function or file boundaries carry their unit in the name
    (`power_W`, `energy_kWh`, `time_s`).
-6. Kein Begrenzen physikalischer Größen ohne Quelle und sichtbaren Hinweis.
-7. Neue Datei nur, wenn dafür eine andere entfällt oder zusammengeführt wird.
-8. Reviews: höchstens eine Runde je Entwurf. Befunde einordnen als Blocker,
-   Ergebniswirkung oder Pflege; nur die ersten beiden werden umgesetzt.
+6. No limiting of physical quantities without a source and a visible note.
+7. A new file only if another one is removed or merged. A device model is replaced only
+   when the new one gives the same numbers in a test or the difference is justified; until
+   then the old one stays.
+8. Reviews: at most one round per draft. Classify findings as blocker, result impact or
+   maintenance; only the first two are acted on.
 
-## Gates (aus `.venv`)
-`.venv/bin/python -m pytest -q` · `git diff --check` (beides: `tools/run_local_gates.py`)
+## Gates (from `.venv`)
+`.venv/bin/python tests/run_all.py` · `.venv/bin/python -m pytest -q` · `git diff --check`
+(all together: `tools/run_local_gates.py`)
 
-## Bericht
-Ergebnis (2–3 Zeilen) · Dateien mit Grund · Belege (Befehle und Exitcodes) · Commit ·
-UNVERIFIED und Annahmen.
+## Report
+Result (2–3 lines) · files with reason · evidence (commands and exit codes) · commit ·
+UNVERIFIED and assumptions.

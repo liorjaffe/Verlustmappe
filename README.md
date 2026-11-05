@@ -1,22 +1,25 @@
 # Verlustmappe
 
-Energiekontenbuch einer marktüblichen Pilotanlage: PV → Elektrolyseur → H₂-Speicher →
-Brennstoffzelle → AC. Für jeden gewählten statischen Lastpunkt soll sichtbar werden, wohin
-jede kWh geht, welcher Verlust welche Ursache hat und welche Werte noch fehlen.
+Energy ledger of a market-standard pilot plant: PV → electrolyser → H₂ storage → fuel cell
+→ AC. For each chosen static load point it should show where every kWh goes, which loss has
+which cause, and which values are still missing.
 
-**Einstieg:** [AGENTS.md](AGENTS.md) (Karte und Regeln) → [START.md](START.md) (aktueller
-Stand) → [CONTRACT.md](CONTRACT.md) (was gilt).
+**Entry:** [AGENTS.md](AGENTS.md) (map and rules) → [START.md](START.md) (current state) →
+[CONTRACT.md](CONTRACT.md) (what applies).
 
-| Ordner | Inhalt |
+| Folder | Content |
 |---|---|
-| `plant/` | eine Datei je Gerät: Werte, Status, Quellen, offene Fragen |
-| `src/verlustmappe/models/` | Rechnung |
-| `src/verlustmappe/loaders/` | Einlesen der Messdaten (Solis, Regatron, Enapter) |
-| `data/` | Messdaten |
-| `tests/` | Prüfungen, Handreferenzen unter `tests/reference/hand/` |
-| `decisions/` | Begründungen |
-| `tools/` | Anlagenwerkzeuge (Regatron-Bridge, Analyzer, Server, Plotter) |
+| `plant/` | one file per device: values, status, sources, open questions |
+| `src/verlustmappe/devices/` | device models, one file per device |
+| `src/verlustmappe/hydrogen/` | hydrogen amounts, real gas, tank temperature |
+| `src/verlustmappe/models/` | core: status, validity, item list |
+| `src/verlustmappe/loaders/` | reading measurement data (Solis, Regatron, Enapter) |
+| `data/` | measurement data |
+| `tests/` | checks; hand references under `tests/reference/hand/` |
+| `decisions/` | reasons |
+| `tools/` | plant tools (Regatron bridge, analyzer, server, plotters) |
 
-Tests: `python -m pytest -q` (Python ≥ 3.11, numpy, pandas, requests).
+Tests: `python tests/run_all.py` and `python -m pytest -q` (Python ≥ 3.11, numpy, pandas,
+scipy, requests).
 
-Der Altstand vor dem Neustart ist über den git-Tag `archive-2026-11` abrufbar.
+The state before the restart is available via the git tag `archive-2026-11`.

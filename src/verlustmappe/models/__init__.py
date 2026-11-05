@@ -1,1 +1,1 @@
-"""Rechenkern. Liest Werte nur ueber `params.py`, das `registry.py` (plant/*.toml) read-only nutzt."""
+"""Core. Reads values only via `params.py`, which uses `registry.py` (plant/*.toml) read-only."""
