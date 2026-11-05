@@ -38,7 +38,7 @@ def gap_limit_s(nominal_dt_s):
 
 def integrate_trapezoid(t_s, y, nominal_dt_s):
     """Integral of y over t_s per D24. `nominal_dt_s` has no default: the caller names the
-    source's nominal sampling interval (docs/03)."""
+    source's nominal sampling interval (loaders/FORMATS.md)."""
     t_s = list(t_s)
     y = list(y)
     if not t_s or len(t_s) != len(y):

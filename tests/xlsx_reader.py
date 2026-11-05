@@ -18,8 +18,8 @@ EXPECTED_SHA256 = "0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd94
 
 DEFAULT_PATHS = [
     os.environ.get("XLSX_PATH", ""),
-    os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                 "Compressor_System_Specs_Master_v2.xlsx"),
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                 "plant", "sources", "Compressor_System_Specs_Master_v2.xlsx"),
 ]
 
 
@@ -27,8 +27,8 @@ def xlsx_path():
     for p in DEFAULT_PATHS:
         if p and os.path.isfile(p):
             return p
-    raise FileNotFoundError("put Compressor_System_Specs_Master_v2.xlsx next to these "
-                            "files or set XLSX_PATH")
+    raise FileNotFoundError("Compressor_System_Specs_Master_v2.xlsx not found in "
+                            "plant/sources/; or set XLSX_PATH")
 
 
 def sha256(path=None):

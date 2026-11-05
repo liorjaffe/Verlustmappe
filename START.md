@@ -31,7 +31,8 @@ N2 vorbereiten: Behalten-Liste und Löschliste als einen Commit-Plan vorlegen; O
 - H₂Core-Batterie: 100 Ah/52 V in der Registry gegen 105 Ah/5 kWh/48 V im Datenblatt (D10)
 - Kaeser: Eingangsleistung, kWh-Zähler, Laststunden; Booster-Luftbedarf am Betriebspunkt
 - Filterpumpe (Hausnetz): Leistung und Laufzeit
-- Solis-DC-Kanal: was misst er genau? Regatron-Fast-Logs: vorhanden, mit/ohne FC-WR am Bus?
+- Solis-DC-Kanal: liegt laut Altbefund 3–4 % über dem Zähler (geprüft 2026-09-10..15),
+  daher nur Diagnose. Regatron-Fast-Logs: vorhanden, mit/ohne FC-WR am Bus?
 
 ## Bereits entschieden – nicht neu diskutieren
 Keine Sonnensteuerung · PV-Überschuss ist kein Verlust · Kaeser in Konto B ·

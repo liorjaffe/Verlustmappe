@@ -3,7 +3,7 @@
 The device exposes CAN + BMS comm (built-in) and optional Wi-Fi/RS485 via a
 Solis datalogger. Until the channel is connected, this loader accepts the two
 formats the pipeline will realistically receive and normalises them to the
-column vocabulary (docs/03_data_dictionary.md):
+column vocabulary (loaders/FORMATS.md):
 
   Format A "Solis Cloud export" (typical columns, comma or semicolon separated):
       Timestamp, AC output power (W) or "Load power", Battery voltage (V),
