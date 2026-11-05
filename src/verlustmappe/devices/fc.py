@@ -32,7 +32,7 @@ class FuelCellSystem:
         elif term_cols:
             for c in term_cols: keep &= np.isfinite(df[c].values.astype(float))
         P, t, df = P[keep], t[keep], df[keep]
-        from .electrolyzer import _sample_gaps
+        from .el import _sample_gaps
         dt, coverage = _sample_gaps(t, max_gap_s)
         e_out = float(np.sum(np.where(np.isfinite(P), P, 0.0) * dt) / 3.6e6)
         if stack_cols:

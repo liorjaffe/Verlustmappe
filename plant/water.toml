@@ -1,10 +1,15 @@
-# plant/water_ro.toml - Water treatment RO (BWT bestaqua 14ROC COFFEE)
+# plant/water.toml - Water system: RO unit (BWT bestaqua 14ROC COFFEE) and filter train with pump (Popular Filtros)
 # Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
 # Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
-name = "water_ro"
-title = "Water treatment RO (BWT bestaqua 14ROC COFFEE)"
+name = "water"
+title = "Water system: RO unit (BWT bestaqua 14ROC COFFEE) and filter train with pump (Popular Filtros)"
+
+[open]
+questions = [
+  "Owner (2026-11-05): the pump exists and is supplied from the house grid. Registry has 0 W (GUESS, 'purely hydraulic'). Value, power and run time: owner decides.",
+]
 
 [notes]
 # Comments from registry.py, verbatim, unchecked:
@@ -58,3 +63,11 @@ status = "DERIVED"
 uncertainty = 0.001
 source = "DERIVED from M_H2O/M_H2 x molar volume (18.015/2.016/22.414); cross-check for the datasheet value"
 effect = "stoichiometric water demand per NL H2 (route4_water.py ratio)"
+
+[param."water.filter_train_power_W"]
+value = 0.0
+unit = "W"
+status = "GUESS"
+uncertainty = 0.0
+source = "ASSUMPTION: Popular Filtros cartridge train is purely hydraulic; BUT a pump control panel (bomba) was photographed in the water path - verify on site"
+effect = "pre-treatment energy bar; NOT 0 if the pump feeds the RO"

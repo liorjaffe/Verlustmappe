@@ -2,7 +2,7 @@
 import _path, os
 import numpy as np, pandas as pd
 from verlustmappe.loaders.solis import load_solis, inverter_eta_measured
-from verlustmappe.devices.inverter import FCInverter
+from verlustmappe.devices.fc_inverter import FCInverter
 
 def main():
     t0 = pd.Timestamp("2026-10-07 10:00:00+00:00")

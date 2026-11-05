@@ -3,7 +3,7 @@ registry entries, the string design against the Solis window, the capture ratio
 and the plant-profile mechanism (default profile must stay unchanged)."""
 import _path
 from verlustmappe import registry as R
-from verlustmappe.devices.pv_prelim_channel import pv_account, PLANT_PROFILES
+from verlustmappe.devices.pv_array import pv_account, PLANT_PROFILES
 
 def main():
     # array power from module count x nameplate (card: array power)
@@ -36,7 +36,7 @@ def main():
     H = 5.0                                       # kWh/m2 (POA)
     e_dc = 0.82 * H * 12.74
     assert abs(e_dc / (H * 12.74) - 0.82) < 1e-12
-    from verlustmappe.devices.pv_measured import PVSystem
+    from verlustmappe.devices.pv_array import PVSystem
     res = PVSystem().account(e_dc_kWh=e_dc, e_ac_kWh=e_dc * 0.95, H_poa_kWh_m2=H)
     assert any(abs(v - 0.82) < 1e-9 for v in res.values() if isinstance(v, float)), res
 

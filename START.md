@@ -27,7 +27,7 @@ device models; list which inputs F1 needs from the owner.
 2. Value protection: the agent submits value changes only as proposals, the owner applies?
 
 ## Open plant questions (also under [open] in the device file)
-- Filter pump (house grid): power and run time; registry has 0 W (`water_pump.toml`)
+- Filter pump (house grid): power and run time; registry has 0 W (`water.toml`)
 - PV power F8: 12.74 kWp versus 12.78 kWp (`pv_array.toml`)
 - PV inverter S6-GR1P6K: datasheet missing (`pv_inverter.toml`)
 - H₂Core battery: 100 Ah/52 V versus 105 Ah/5 kWh/48 V (`fc_battery.toml`)

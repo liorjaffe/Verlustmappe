@@ -1,7 +1,7 @@
 """PV preliminary channel: physics back-checks against hand calculations."""
 import _path
 import numpy as np
-from verlustmappe.devices.pv_prelim_channel import pv_account, cell_temperature, PLANT_PROFILES
+from verlustmappe.devices.pv_array import pv_account, cell_temperature, PLANT_PROFILES
 from verlustmappe import registry as R
 
 def main():
