@@ -12,7 +12,7 @@ returned dict says so.
 """
 import numpy as np
 from .. import registry as R
-from ..conversions import energy_kWh_from_power
+from ..physics.conversions import energy_kWh_from_power
 from ..hydrogen import h2_from_stack_current, h2_from_energy_nameplate
 from ._common import t_seconds
 

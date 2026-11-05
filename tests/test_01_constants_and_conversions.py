@@ -1,8 +1,8 @@
 """Every constant and conversion is checked against an independent reference."""
 import _path
 import numpy as np
-from verlustmappe import constants as C
-from verlustmappe.conversions import mol_from_charge, mol_from_pVT, isothermal_work_kWh, NL_to_kg, energy_kWh_from_power
+from verlustmappe.physics import constants as C
+from verlustmappe.physics.conversions import mol_from_charge, mol_from_pVT, isothermal_work_kWh, NL_to_kg, energy_kWh_from_power
 
 def main():
     # datasheet self-consistency: Enapter 500 NL/h = 1.0785 kg/24 h

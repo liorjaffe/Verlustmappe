@@ -12,7 +12,8 @@ which cause, and which values are still missing.
 | `plant/` | one file per device: values, status, sources, open questions |
 | `src/verlustmappe/devices/` | device models, one file per device |
 | `src/verlustmappe/hydrogen/` | hydrogen amounts, real gas, tank temperature |
-| `src/verlustmappe/models/` | core: status, validity, item list |
+| `src/verlustmappe/physics/` | constants, unit conversions, time integration |
+| `src/verlustmappe/accounting/` | status, validity, item list, static case |
 | `src/verlustmappe/loaders/` | reading measurement data (Solis, Regatron, Enapter) |
 | `data/` | measurement data |
 | `tests/` | checks; hand references under `tests/reference/hand/` |

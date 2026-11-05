@@ -17,8 +17,8 @@ Tiers (see tank_thermal.py and handbook card C):
   tier 3: model T from the GS_tank fit (pressure-decay calibration)
 """
 import numpy as np
-from ..conversions import mol_from_pVT, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
-from .. import constants as C
+from ..physics.conversions import mol_from_pVT, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
+from ..physics import constants as C
 from .. import registry as R
 from .z_realgas import z_h2, Z_TABLE_UNCERTAINTY_REL
 from .temperature_model import hot_end_fill_bracket, tier1_temperature, tier2_temperature

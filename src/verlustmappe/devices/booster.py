@@ -16,8 +16,8 @@ used ONLY so the frozen legacy-1.0 chain reproduces; see docs/94 C11.
 Until E_air_compressor is metered, E is estimated as W_ideal / eta_GUESS.
 """
 from .. import registry as R
-from .. import constants as C
-from ..conversions import isothermal_work_kWh, NL_to_mol
+from ..physics import constants as C
+from ..physics.conversions import isothermal_work_kWh, NL_to_mol
 from ..hydrogen.temperature_model import isothermal_work_mol_integral
 
 class AirDrivenBooster:
@@ -43,7 +43,7 @@ class AirDrivenBooster:
             # consistency: if the throughput EXCEEDS what the tank window holds,
             # the surplus arrives before the window opens (or after it closes);
             # the honest floor is the work of the window mass itself.
-            from ..conversions import mol_from_pVT
+            from ..physics.conversions import mol_from_pVT
             from ..hydrogen.z_realgas import z_h2 as _z
             p1a, p2a = p_tank_start_barg + C.P_ATM_BAR, p_tank_end_barg + C.P_ATM_BAR
             mol_window = (mol_from_pVT(p2a, R.get("stor.volume_L") / 1000.0,

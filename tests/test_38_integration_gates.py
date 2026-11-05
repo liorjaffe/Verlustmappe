@@ -21,7 +21,7 @@ INF = float("inf")
 
 
 def _integrate(t, y, nominal=60):
-    from verlustmappe.models.integration import integrate_trapezoid
+    from verlustmappe.physics.integration import integrate_trapezoid
     return integrate_trapezoid(t, y, nominal)
 
 
@@ -34,7 +34,7 @@ def _hand():
 
 
 def test_constants_are_the_d24_values():
-    from verlustmappe.models import integration as I
+    from verlustmappe.physics import integration as I
     assert I.GAP_FACTOR == 3.0 and I.MAX_GAP_S == 30.0
     assert I.gap_limit_s(60) == 180.0 and I.gap_limit_s(1) == 30.0 and I.gap_limit_s(20) == 60.0
 
@@ -132,7 +132,7 @@ def test_result_is_immutable():
 
 
 def test_caller_errors_raise_with_message():
-    from verlustmappe.models.integration import integrate_trapezoid
+    from verlustmappe.physics.integration import integrate_trapezoid
     with pytest.raises(ValueError, match="non-empty"):
         integrate_trapezoid([], [], 60)
     with pytest.raises(ValueError, match="equal length"):
@@ -144,7 +144,7 @@ def test_caller_errors_raise_with_message():
 
 def test_parity_with_the_independent_reference_procedure():
     hand = _hand()
-    from verlustmappe.models.integration import integrate_trapezoid
+    from verlustmappe.physics.integration import integrate_trapezoid
     with open(os.path.join(ROOT, "tests", "reference", "hand", "p13_hand_calc.py")) as f:
         assert not any(ln.lstrip().startswith(("import verlustmappe", "from verlustmappe"))
                        for ln in f), "reference must stay independent of the package"
@@ -169,7 +169,7 @@ def test_parity_with_the_independent_reference_procedure():
 
 
 def test_check_nonnegative_three_way():
-    from verlustmappe.models.validity import check_nonnegative
+    from verlustmappe.accounting.validity import check_nonnegative
     assert check_nonnegative(0.0, "e") is True and check_nonnegative(-0.0, "e") is True
     assert check_nonnegative(3.5, "e") is True and check_nonnegative(2, "e") is True
     assert check_nonnegative(-0.001, "e") is False and check_nonnegative(-1e-300, "e") is False
@@ -177,7 +177,7 @@ def test_check_nonnegative_three_way():
 
 
 def test_check_nonnegative_caller_errors_name_the_problem():
-    from verlustmappe.models.validity import check_nonnegative
+    from verlustmappe.accounting.validity import check_nonnegative
     for bad in (NAN, INF, -INF):
         with pytest.raises(ValueError, match=r"energy_kWh: non-finite value"):
             check_nonnegative(bad, "energy_kWh")
@@ -187,7 +187,7 @@ def test_check_nonnegative_caller_errors_name_the_problem():
 
 
 def test_time_is_monotonic():
-    from verlustmappe.models.validity import time_is_monotonic
+    from verlustmappe.accounting.validity import time_is_monotonic
     assert time_is_monotonic([0, 60, 60, 120]) is True
     assert time_is_monotonic([0, 60, 30]) is False
     assert time_is_monotonic([0, NAN, 60]) is True
@@ -195,7 +195,7 @@ def test_time_is_monotonic():
 
 
 def test_monotonic_predicate_agrees_with_the_integrator():
-    from verlustmappe.models.validity import time_is_monotonic
+    from verlustmappe.accounting.validity import time_is_monotonic
     for t in ([0, 60, 30], [0, 60, 60], [0, NAN, 60], [60, NAN, 30]):
         invalid = _integrate(t, [1.0] * len(t)).reason == "non-monotonic time"
         assert invalid == (not time_is_monotonic(t))

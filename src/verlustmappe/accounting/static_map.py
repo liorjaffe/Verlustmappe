@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, fields
 
-from .constants import F_C_PER_MOL, J_PER_KWH, LHV_H2_KWH_PER_KG, M_H2_KG_PER_MOL
+from ..physics.constants import F_C_PER_MOL, J_PER_KWH, LHV_H2_KWH_PER_KG, M_H2_KG_PER_MOL
 from .ledger import (
     BOUNDED_KEYS, ITEMS, Blocked, Cause, CauseCode, Computed, InputUncertainty,
     Report, Result, computed,

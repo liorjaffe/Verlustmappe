@@ -1,7 +1,7 @@
 """P11: ported constants and fill work, params adapter.
 
-Expected values are the P10 hand values (tests/reference/hand/), not model output. The legacy
-comparison is the regression required by AGENTS (ported physics exists twice until M6).
+Expected values are the P10 hand values (tests/reference/hand/), not model output. The two
+fill-work implementations in hydrogen/temperature_model.py are compared with each other.
 """
 import os
 import re
@@ -20,20 +20,20 @@ KWH_PER_J = 1.0 / 3.6e6
 
 
 def test_work_matches_hand_values():
-    from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
+    from verlustmappe.hydrogen.temperature_model import isothermal_fill_work_kWh
     for (p1, p2), f in HAND_B_RT.items():
         expected_kWh = f * R_HAND * 293.15 * KWH_PER_J   # per mol
         assert isothermal_fill_work_kWh(1.0, p1, p2, 293.15).work_kWh == pytest.approx(expected_kWh, rel=1e-6), (p1, p2)
 
 
 def test_bovo_point_hand_value():
-    from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
+    from verlustmappe.hydrogen.temperature_model import isothermal_fill_work_kWh
     n_mol = 33.22e3 / 22.41397
     assert isothermal_fill_work_kWh(n_mol, 40.0, 200.0, 293.15).work_kWh == pytest.approx(1.0153037, rel=1e-5)
 
 
 def test_work_matches_legacy():
-    from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
+    from verlustmappe.hydrogen.temperature_model import isothermal_fill_work_kWh
     from verlustmappe.hydrogen.temperature_model import isothermal_work_mol_integral as legacy
     cases = [(1000.0, 20.0, 200.0, 293.15, None), (1000.0, 100.0, 200.0, 293.15, 35.0),
              (1000.0, 20.0, 200.0, 293.15, 35.0), (500.0, 10.0, 30.0, 300.0, 40.0),
@@ -43,7 +43,7 @@ def test_work_matches_legacy():
 
 
 def test_exact_zero_is_flagged():
-    from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
+    from verlustmappe.hydrogen.temperature_model import isothermal_fill_work_kWh
     for args in [(500.0, 50.0, 40.0, 293.15, None), (500.0, 20.0, 30.0, 293.15, 35.0)]:
         r = isothermal_fill_work_kWh(*args)
         assert r.work_kWh == 0.0 and r.exactly_zero and r.reason
@@ -54,20 +54,15 @@ def test_exact_zero_is_flagged():
 
 
 def test_work_domain_errors():
-    from verlustmappe.models.temperature_model import isothermal_fill_work_kWh
+    from verlustmappe.hydrogen.temperature_model import isothermal_fill_work_kWh
     with pytest.raises(ValueError):
         isothermal_fill_work_kWh(1.0, 20.0, float("nan"), 293.15)
     with pytest.raises(ValueError):
         isothermal_fill_work_kWh(1.0, 20.0, 200.0, 293.15, p_suction_abs_bar=0.0)
 
 
-def test_constants_match_legacy_and_hand():
-    from verlustmappe.models import constants as N
-    from verlustmappe import constants as L
-    for name in ("M_H2_KG_PER_MOL", "F_C_PER_MOL", "R_J_PER_MOL_K", "V_MOL_NL_PER_MOL", "RHO_H2_KG_PER_NL",
-                 "LHV_H2_KWH_PER_KG", "HHV_H2_KWH_PER_KG", "LHV_H2_WH_PER_NL", "HHV_H2_WH_PER_NL",
-                 "J_PER_KWH", "J_PER_WH", "PA_PER_BAR", "P_ATM_BAR"):
-        assert getattr(N, name) == getattr(L, name), name
+def test_constants_match_hand():
+    from verlustmappe.physics import constants as N
     # hand/constants.md
     assert N.R_J_PER_MOL_K == pytest.approx(8.31446261815324, rel=1e-9)
     assert N.F_C_PER_MOL == pytest.approx(96485.33212331, rel=2e-9)
@@ -78,14 +73,14 @@ def test_constants_match_legacy_and_hand():
 
 
 def test_barg_to_abs():
-    from verlustmappe.models.constants import barg_to_abs_bar
+    from verlustmappe.physics.constants import barg_to_abs_bar
     assert barg_to_abs_bar(0.0) == 1.01325
     assert barg_to_abs_bar(35.0) == pytest.approx(36.01325, abs=1e-12)
     assert barg_to_abs_bar(300.0) == pytest.approx(301.01325, abs=1e-12)
 
 
 def test_adapter_blocks_rejected_and_passes_status():
-    from verlustmappe.models.params import get_param, BlockedParameterError, Param
+    from verlustmappe.accounting.params import get_param, BlockedParameterError, Param
     with pytest.raises(BlockedParameterError):
         get_param("comp.overall_efficiency")
     with pytest.raises(KeyError):
@@ -99,7 +94,7 @@ def test_adapter_blocks_rejected_and_passes_status():
 def test_adapter_blocks_every_rejected_or_superseded_entry():
     # D28: general guard now that the adapter exists (test_34 covers comp.* only)
     from verlustmappe import registry as R
-    from verlustmappe.models.params import get_param, BlockedParameterError
+    from verlustmappe.accounting.params import get_param, BlockedParameterError
     blocked = [k for k, v in R.REGISTRY.items() if v["status"] in ("REJECTED", "SUPERSEDED")]
     assert len(blocked) >= 6   # the six comp.* keys at 2026-10-28
     for k in blocked:
@@ -112,19 +107,23 @@ def test_adapter_blocks_every_rejected_or_superseded_entry():
 
 def test_adapter_does_not_write_back():
     from verlustmappe import registry as R
-    from verlustmappe.models.params import get_param
+    from verlustmappe.accounting.params import get_param
     before = dict(R.REGISTRY["el.n_cells"])
     get_param("el.n_cells")
     assert R.REGISTRY["el.n_cells"] == before
 
 
-def test_new_core_imports_no_legacy_except_registry_in_params():
-    legacy = r"(hydrogen|devices|balance|analysis|loaders|uncertainty|reporting|conversions|live_feed|constants)"
-    pat = re.compile(rf"^\s*(from\s+\.\.\s*(import\s+)?{legacy}\b|from\s+verlustmappe\.{legacy}\b|import\s+verlustmappe\.{legacy}\b)", re.M)
-    base = os.path.join(ROOT, "src", "verlustmappe", "models")
+def test_accounting_reads_values_only_through_params():
+    # accounting/ may use physics/, but not device models, hydrogen routes or loaders;
+    # params.py is its only reader of registry.py (plant/).
+    other = r"(hydrogen|devices|loaders|registry)"
+    pat = re.compile(rf"^\s*(from\s+\.\.\s*(import\s+)?{other}\b|from\s+verlustmappe\.{other}\b|import\s+verlustmappe\.{other}\b)", re.M)
+    base = os.path.join(ROOT, "src", "verlustmappe", "accounting")
     for f in os.listdir(base):
         if f.endswith(".py"):
             text = open(os.path.join(base, f)).read()
+            if f == "params.py":
+                text = text.replace("from .. import registry as _registry", "")
             assert not pat.search(text), f
     params = open(os.path.join(base, "params.py")).read()
     assert "from .. import registry" in params

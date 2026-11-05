@@ -9,7 +9,7 @@ show part-load behaviour, ageing, or temperature effects. It is a nameplate
 BOUND, useful only to sanity-check the other routes and as a last-resort
 fallback that must be labelled as such in every figure.
 """
-from ..conversions import NL_to_kg, kg_to_mol, kg_to_NL, kg_to_kWh_LHV
+from ..physics.conversions import NL_to_kg, kg_to_mol, kg_to_NL, kg_to_kWh_LHV
 from .. import registry as R
 
 def h2_from_energy_nameplate(E_kWh, device):

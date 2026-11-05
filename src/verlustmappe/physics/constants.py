@@ -1,7 +1,9 @@
 """Physical constants used throughout. These are FACTS, not assumptions.
 
 Every value carries its source so a reviewer can check it. Device parameters
-(which ARE assumptions or datasheet claims) live in registry.py, not here.
+(which ARE assumptions or datasheet claims) live in plant/<device>.toml, not here.
+Hand derivation: tests/reference/hand/constants.md. Merged 2026-11-05 from the two former
+copies (constants.py, models/constants.py); values were identical.
 """
 
 # Molar mass of H2 [kg/mol]. H standard atomic weight 1.008 (IUPAC 2021);
@@ -15,7 +17,8 @@ F_C_PER_MOL = 96485.332
 # Universal gas constant [J/(mol K)]. CODATA 2018 exact: 8.314462618 J/(mol K).
 R_J_PER_MOL_K = 8.314462618
 
-# Molar volume of an ideal gas at NORMAL conditions (0 C, 101325 Pa) [NL/mol].
+# Molar volume of an ideal gas at NORMAL conditions (0 C, 101325 Pa = 1.01325 bar abs,
+# dry, DIN 1343) [NL/mol].
 # V = RT/p = 8.314462618*273.15/101325 = 22.414 L/mol.
 # "NL" (normal litre) throughout this project means 0 C and 1 atm, the European
 # convention. Enapter's datasheet is self-consistent with this: 500 NL/h =
@@ -42,3 +45,8 @@ J_PER_KWH = 3.6e6
 J_PER_WH = 3600.0
 PA_PER_BAR = 1.0e5
 P_ATM_BAR = 1.01325
+
+
+def barg_to_abs_bar(pressure_barg):
+    """Gauge to absolute pressure with the normal atmosphere (project convention)."""
+    return pressure_barg + P_ATM_BAR

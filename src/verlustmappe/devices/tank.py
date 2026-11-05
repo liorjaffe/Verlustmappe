@@ -1,7 +1,7 @@
 """Storage tank: mass in the tank from p, V, T and Z (real gas)."""
 from .. import registry as R
-from .. import constants as C
-from ..conversions import mol_from_pVT, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
+from ..physics import constants as C
+from ..physics.conversions import mol_from_pVT, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
 from ..hydrogen.z_realgas import z_h2
 
 class Tank:

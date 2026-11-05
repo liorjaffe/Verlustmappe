@@ -7,8 +7,8 @@ sanity check, not as a second vote in the closure.
 Reference: Enapter handbook, EL 2.1 'Data collected by Enapter Cloud'.
 """
 import numpy as np
-from ..conversions import NL_to_kg, NL_to_mol, kg_to_kWh_LHV
-from ..conversions import energy_kWh_from_power  # for signature symmetry only
+from ..physics.conversions import NL_to_kg, NL_to_mol, kg_to_kWh_LHV
+from ..physics.conversions import energy_kWh_from_power  # for signature symmetry only
 
 def h2_from_telemetry(flow_NLh, t_s):
     """Integrate a NL/h flow series over time [s] -> NL."""

@@ -21,7 +21,8 @@ All repository content is in English; conversation with the owner may be in Germ
 | Which value, which source, what is open? | `plant/<device>.toml` (read via `src/verlustmappe/registry.py`) |
 | How does device X compute? | `src/verlustmappe/devices/<device>.py` (docstring explains physics and assumptions) |
 | Hydrogen amounts, real gas, temperature? | `src/verlustmappe/hydrogen/` |
-| Core for status, validity, item list (P14)? | `src/verlustmappe/models/` |
+| Constants, unit conversions, time integration? | `src/verlustmappe/physics/` |
+| Status, validity, item list, static case (P14)? | `src/verlustmappe/accounting/` |
 | Is it proven? | matching test under `tests/` |
 | How are measurement files read? | `src/verlustmappe/loaders/` and `loaders/FORMATS.md` |
 | Device knowledge from the legacy state (only when porting) | `git show archive-2026-11:<path>` |

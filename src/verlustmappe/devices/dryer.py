@@ -8,7 +8,7 @@ Gas loss: regeneration blows down the off-line cartridge; the vented H2 is
   frequency -> modelled as a GUESS fraction of throughput.
 """
 from .. import registry as R
-from ..conversions import NL_to_kg, kg_to_kWh_LHV
+from ..physics.conversions import NL_to_kg, kg_to_kWh_LHV
 
 class Dryer:
     def account(self, duration_h, throughput_NL, measured_kWh=None):

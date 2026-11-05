@@ -15,7 +15,7 @@ direction: on the electrolyser side it overestimates delivered gas, on the
 fuel-cell side it underestimates consumed gas.
 """
 import numpy as np
-from ..conversions import mol_from_charge, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
+from ..physics.conversions import mol_from_charge, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
 from .. import registry as R
 
 def h2_from_stack_current(I_stack_paths, dt_s, n_cells, faradaic_eff, device="el"):

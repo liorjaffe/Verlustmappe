@@ -16,10 +16,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from verlustmappe import registry
-from verlustmappe.models import static_map
-from verlustmappe.models.ledger import Blocked, CauseCode, Computed
-from verlustmappe.models.params import ParamSet
-from verlustmappe.models.static_map import Scenario, calculate
+from verlustmappe.accounting import static_map
+from verlustmappe.accounting.ledger import Blocked, CauseCode, Computed
+from verlustmappe.accounting.params import ParamSet
+from verlustmappe.accounting.static_map import Scenario, calculate
 
 
 @pytest.fixture
@@ -219,7 +219,7 @@ def test_measurement_boundary_absent_and_fixture_trap_documented(scenario, param
     assert tuple(signature.parameters) == ("scenario", "parameters", "scope")
     tree = ast.parse(inspect.getsource(static_map))
     imports = {node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)}
-    assert imports == {"dataclasses", "constants", "ledger", "params", "validity"}
+    assert imports == {"dataclasses", "physics.constants", "ledger", "params", "validity"}
     assert not any(isinstance(node, ast.Import) for node in ast.walk(tree))
     calls = {node.func.id for node in ast.walk(tree)
              if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}

@@ -8,7 +8,7 @@ independent of electrochemistry and of the tank. Caveats: water also leaves as
 vapour in the H2 stream (removed in the dryer) and in the O2 vent, which makes
 this route an UPPER bound on H2 produced.
 """
-from ..conversions import kg_to_mol, kg_to_NL, kg_to_kWh_LHV
+from ..physics.conversions import kg_to_mol, kg_to_NL, kg_to_kWh_LHV
 
 M_H2O_KG_PER_MOL = 18.015e-3
 M_H2_KG_PER_MOL = 2.016e-3

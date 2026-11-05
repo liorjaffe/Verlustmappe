@@ -21,13 +21,13 @@ EXACT_KEYS = {
 
 
 def test_ranking_order_matches_d26():
-    from verlustmappe.models.status import EVIDENCE_ORDER
+    from verlustmappe.accounting.status import EVIDENCE_ORDER
     assert EVIDENCE_ORDER == ("MEASURED", "CALIBRATED", "DATASHEET", "DATASHEET_SECONDARY",
                               "DERIVED", "PRELIM", "GUESS", "BACKLOG")
 
 
 def test_weakest_of_mixed_lists():
-    from verlustmappe.models.status import weakest
+    from verlustmappe.accounting.status import weakest
     assert weakest(["DATASHEET", "GUESS"]) == "GUESS"
     assert weakest(["DATASHEET", "GUESS", "BACKLOG"]) == "BACKLOG"
     assert weakest(["MEASURED", "DATASHEET_SECONDARY", "DATASHEET"]) == "DATASHEET_SECONDARY"
@@ -36,19 +36,19 @@ def test_weakest_of_mixed_lists():
 
 
 def test_weakest_skips_owner_decision():
-    from verlustmappe.models.status import weakest
+    from verlustmappe.accounting.status import weakest
     assert weakest(["OWNER_DECISION", "DATASHEET"]) == "DATASHEET"
 
 
 def test_weakest_without_evidence_raises():
-    from verlustmappe.models.status import weakest
+    from verlustmappe.accounting.status import weakest
     for empty in ([], ["OWNER_DECISION"], ["OWNER_DECISION", "OWNER_DECISION"]):
         with pytest.raises(ValueError, match="D26"):
             weakest(empty)
 
 
 def test_unknown_status_raises_with_value():
-    from verlustmappe.models.status import weakest, u_class
+    from verlustmappe.accounting.status import weakest, u_class
     with pytest.raises(ValueError, match="TYPO"):
         weakest(["DATASHEET", "TYPO"])
     with pytest.raises(ValueError, match="TYPO"):
@@ -58,7 +58,7 @@ def test_unknown_status_raises_with_value():
 
 
 def test_weakest_rejects_blocked_statuses_with_value():
-    from verlustmappe.models.status import weakest
+    from verlustmappe.accounting.status import weakest
     for bad in ("REJECTED", "SUPERSEDED"):
         with pytest.raises(ValueError, match=bad):
             weakest(["DATASHEET", bad])
@@ -66,7 +66,7 @@ def test_weakest_rejects_blocked_statuses_with_value():
 
 def test_u_class_exact_set_and_bijection_with_u():
     from verlustmappe import registry as R
-    from verlustmappe.models.status import u_class
+    from verlustmappe.accounting.status import u_class
     cls = {k: u_class(k, v["status"], v["uncertainty"]) for k, v in R.REGISTRY.items()}
     assert {k for k, c in cls.items() if c == "exact"} == EXACT_KEYS
     for k, c in cls.items():
@@ -77,7 +77,7 @@ def test_u_class_exact_set_and_bijection_with_u():
 
 
 def test_u_class_derived_zero_is_not_assessed():
-    from verlustmappe.models.status import u_class
+    from verlustmappe.accounting.status import u_class
     assert u_class("fc.poc_max_duration_s", "DERIVED", 0.0) == "NOT ASSESSED"
     assert u_class("any.key", "DERIVED", 0.0) == "NOT ASSESSED"
     assert u_class("any.key", "GUESS", 0.0) == "NOT ASSESSED"
@@ -87,7 +87,7 @@ def test_u_class_derived_zero_is_not_assessed():
 
 def test_u_class_of_rejected_entries_and_weakest_refuses_them():
     from verlustmappe import registry as R
-    from verlustmappe.models.status import u_class, weakest
+    from verlustmappe.accounting.status import u_class, weakest
     # hand-listed (D26: 4 REJECTED with u = 0.0; the two efficiencies carry u = 0.4)
     expected = {
         "comp.pressure_ratio": "NOT ASSESSED",
@@ -110,7 +110,7 @@ def test_u_class_of_rejected_entries_and_weakest_refuses_them():
 
 def test_get_param_carries_u_class_and_leaves_registry_unchanged():
     from verlustmappe import registry as R
-    from verlustmappe.models.params import get_param
+    from verlustmappe.accounting.params import get_param
     before = copy.deepcopy(R.REGISTRY)
     assert get_param("sys.n_rotex").u_class == "exact"
     assert get_param("meas.p_sensor_fso_bar").u_class == "exact"

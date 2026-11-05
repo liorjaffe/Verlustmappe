@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from verlustmappe.models.constants import M_H2_KG_PER_MOL, R_J_PER_MOL_K
+from verlustmappe.physics.constants import M_H2_KG_PER_MOL, R_J_PER_MOL_K
 from verlustmappe.hydrogen.z_realgas import z_h2
 
 

@@ -11,11 +11,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from verlustmappe import registry
-from verlustmappe.models.ledger import (
+from verlustmappe.accounting.ledger import (
     ITEMS, Blocked, Cause, CauseCode, Computed, Item, Report, Role, Sign, computed, sum_compatible,
 )
-from verlustmappe.models.params import BlockedParameterError, ParamSet
-from verlustmappe.models.static_map import Scenario, calculate
+from verlustmappe.accounting.params import BlockedParameterError, ParamSet
+from verlustmappe.accounting.static_map import Scenario, calculate
 
 
 @pytest.fixture
