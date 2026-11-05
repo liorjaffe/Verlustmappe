@@ -76,7 +76,7 @@ def main():
     assert d["e_ac_kWh"] == ref["e_ac_kWh"] and "east-vertical" not in d["warning"]
     assert abs(d["e_stc_kWh"] - 160.0 * 836.0 * 0.220) < 1e-9
     assert all(b["status"] == "PRELIM" for b in d["bars"])
-    print("test_10 ok: F8 array, string design, profiles")
+    print("test_devices_pv_array_f8 ok: F8 array, string design, profiles")
 
 if __name__ == "__main__":
     main()

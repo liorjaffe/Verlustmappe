@@ -5,8 +5,8 @@ transcribed correctly. They encode inequalities (2nd law, eta_vol <= 1,
 stroke-rate limit), not point values.
 
 Independence: this file has its OWN data access and its OWN physics, written via
-mole amounts (n = pV/RT) instead of the ratio formulas used in test_31. Only
-test_dual_implementations_agree imports test_31, and only to compare.
+mole amounts (n = pV/RT) instead of the ratio formulas used in test_plant_workbook_hand_calcs. Only
+test_dual_implementations_agree imports test_plant_workbook_hand_calcs, and only to compare.
 
 No threshold in this file is invented: every bound is an inequality that follows
 from physics, or a value read from the workbook (Rule 8).
@@ -144,9 +144,9 @@ def test_hulc_drive_air_below_booster_limit():
 
 
 def test_dual_implementations_agree():
-    """The mole-based physics here must agree with the ratio formulas in test_31.
+    """The mole-based physics here must agree with the ratio formulas in test_plant_workbook_hand_calcs.
     Disagreement means one of the two derivations is wrong."""
-    import test_31_hand_calcs as T21
+    import test_plant_workbook_hand_calcs as T21
     for pl, pi in ((6, 125), (9, 140), (6, 140)):
         assert abs(path_b_ratio(pl, pi) - T21.pathB_ratio(pl, pi)) < 1e-4
     assert abs(w_iso_kwh_per_nm3(300) - 0.0641) < 5e-5

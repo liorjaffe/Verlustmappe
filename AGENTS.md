@@ -23,7 +23,7 @@ All repository content is in English; conversation with the owner may be in Germ
 | Hydrogen amounts, real gas, temperature? | `src/verlustmappe/hydrogen/` |
 | Constants, unit conversions, time integration? | `src/verlustmappe/physics/` |
 | Status, validity, item list, static case (P14)? | `src/verlustmappe/accounting/` |
-| Is it proven? | matching test under `tests/` |
+| Is it proven? | `tests/test_<package>_<topic>.py` (e.g. `test_devices_water.py`); hand values in `tests/reference/hand/` |
 | How are measurement files read? | `src/verlustmappe/loaders/` and `loaders/FORMATS.md` |
 | Device knowledge from the legacy state (only when porting) | `git show archive-2026-11:<path>` |
 

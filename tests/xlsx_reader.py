@@ -2,7 +2,7 @@
 
 Reads the frozen workbook without openpyxl. Formula cells are returned with
 their formula text and cached value separately. The 17 former pseudo-formula cells
-(column D) were converted to plain text (see test_20); numbers come from column O.
+(column D) were converted to plain text (see test_accounting_static_map); numbers come from column O.
 """
 import hashlib
 import os

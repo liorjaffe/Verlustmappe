@@ -20,7 +20,7 @@ e.g. PVsyst/SAM loss trees):
 
 Two modes of operation:
   mode 'measured' (legacy building-array telemetry exists): E_DC and E_AC come from the inverter
-  directly (as already done in devices/pv_measured.py); this channel only ADDS the
+  directly (as done in the measured mode below); this channel only ADDS the
   site-loss bars that the inverter cannot see (soiling, mismatch, shading,
   temperature), each flagged GUESS/PRELIM.
   mode 'preliminary' (no hardware, no telemetry): everything computed from
@@ -32,7 +32,7 @@ from .. import registry as R
 # Plant profiles override the registry module values per call. The default
 # "reference_184kWp" holds the former PRELIM values (the paper-comparison anchor,
 # bit-for-bit unchanged); "F8_12.74kWp" is the real BYD array (DATASHEET values).
-# F8 numbers are derived in tests/test_10_pv_f8.py, not typed independently:
+# F8 numbers are derived in tests/test_devices_pv_array_f8.py, not typed independently:
 # 28 x 455 W = 12740 W; 2.094 x 1.038 x 28 = 60.86 m2.
 PLANT_PROFILES = {
     "reference_184kWp": dict(

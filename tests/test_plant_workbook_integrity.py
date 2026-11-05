@@ -2,7 +2,7 @@
 
 Proves only: the file is the file we think it is, and it is internally
 well-formed. It does NOT prove any number is physically right.
-Run: python3 test_30_workbook_integrity.py   (or pytest -q)
+Run: python3 test_plant_workbook_integrity.py   (or pytest -q)
 
 Pins in this file (FORMULAS, EXPECTED_O) are DRIFT DETECTORS copied from the
 workbook: they make an unreviewed change visible, they are not evidence.

@@ -79,7 +79,7 @@ def main():
 
     # 10. water mass closure: permeate == EL demand (1:1, no buffer assumed)
     assert af["permeate_L"] == af["water_consumed_L"]
-    print("test_11_water_system PASS")
+    print("test_devices_water PASS")
 
 if __name__ == "__main__":
     main()

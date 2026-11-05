@@ -56,7 +56,7 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     # 400-bar full scale = 2.0 bar). It is NOT multiplied by the relative FSO
     # again (the first draft computed 0.5% x 1.25 bar = 0.006 bar, a unit error
     # that understated the pressure term by ~200x; fix validated against
-    # delta-mass propagation in test_07).
+    # delta-mass propagation in test_hydrogen_tank_thermal).
     fso_abs = R.get("meas.p_sensor_fso_bar")
     amp = max(p1, p2) / max(abs(p2 - p1), 1e-9)
     u_T_frac = u_T_start / max(T_start_C + 273.15, 1.0)

@@ -3,14 +3,14 @@ here = os.path.dirname(os.path.abspath(__file__))
 fails = 0
 # Script-style tests of the device models, by explicit name; pytest-style tests run via pytest -q
 LEGACY = [
-    "test_01_constants_and_conversions.py",
-    "test_02_hydrogen_routes.py",
-    "test_06_regatron_loaders.py",
-    "test_07_tank_thermal.py",
-    "test_08_pv_preliminary.py",
-    "test_09_solis_loader.py",
-    "test_10_pv_f8.py",
-    "test_11_water_system.py",
+    "test_physics_constants_conversions.py",
+    "test_hydrogen_routes.py",
+    "test_loaders_regatron.py",
+    "test_hydrogen_tank_thermal.py",
+    "test_devices_pv_array_prelim.py",
+    "test_loaders_solis.py",
+    "test_devices_pv_array_f8.py",
+    "test_devices_water.py",
 ]
 # C12: a script-style test file outside the list would pass silently under both runners
 stray = [os.path.basename(f) for f in glob.glob(os.path.join(here, "test_*.py"))

@@ -2,7 +2,7 @@
 
 Same alignment rule as the electrolyser: terminal power and terminal current
 must live on the same samples; unmatched rows are DROPPED, gaps are NOT
-bridged (see electrolyzer.py and external review 2026-10).
+bridged (see el.py and external review 2026-10).
 
 Terminal vs stack: the IE-LIFT has an internal DC/DC converter. Telemetry
 'Amperage'/'Voltage' are DC/DC OUTPUT (bus-side) values. The reverse-Faraday
@@ -45,7 +45,7 @@ class FuelCellSystem:
         # control energy over OBSERVED time only: the first draft used
         # len(df) * mean(dt), which bridges data gaps and invents auxiliary
         # consumption during unobserved periods (violates the project's own
-        # gap policy, fixed 2026-10; guarded by test_05b-style check in test_06).
+        # gap policy, fixed 2026-10; guarded by a check in test_loaders_regatron).
         observed_s = float(np.sum(dt[~np.isnan(dt)])) if len(dt) else 0.0
         e_ctrl = R.get("fc.control_input_W_max") / 1000.0 * observed_s / 3600.0
         # control energy scales with the number of modules actually present in the frame

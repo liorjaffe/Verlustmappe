@@ -1,6 +1,6 @@
 """SolisCloud history loader checks. Assertions copied verbatim from legacy test_12; the
 part that needed the report generator is dropped. Regatron and Solis CSV loaders are
-covered by test_06 and test_09."""
+covered by test_loaders_regatron and test_loaders_solis."""
 import sys
 from pathlib import Path
 

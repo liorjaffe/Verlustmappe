@@ -103,7 +103,7 @@ def test_stall_table_matches_workbook():
 
 
 def test_stall_formula_text_still_the_one_reviewed():
-    """Drift detector only (the same string is pinned in test_30); NOT evidence of correctness."""
+    """Drift detector only (the same string is pinned in test_plant_workbook_integrity); NOT evidence of correctness."""
     f = {f"D{r}": c.get("D", "") for r, c in X.master().items()}
     expect = "min(400, 30*pL + min(140, 15*pL + 35))"
     for ref in ("D119", "D120", "D121", "D122", "D123"):

@@ -44,7 +44,7 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
     # Handbook card G promises "reported uncertainty = max(statistical, spread)".
     # The first draft RETURNED both separately but never combined them, so every
     # downstream consumer silently used the (smaller) statistical value and the
-    # promise was broken (fixed 2026-10; guarded by test_02).
+    # promise was broken (fixed 2026-10; guarded by test_hydrogen_routes).
     u_reported = u_mean
     if spread is not None and np.isfinite(spread) and mean:
         u_reported = float(max(u_mean if u_mean is not None else 0.0, spread))

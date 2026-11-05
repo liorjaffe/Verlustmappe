@@ -92,7 +92,7 @@ def test_adapter_blocks_rejected_and_passes_status():
 
 
 def test_adapter_blocks_every_rejected_or_superseded_entry():
-    # D28: general guard now that the adapter exists (test_34 covers comp.* only)
+    # D28: general guard now that the adapter exists (test_plant_blocked_keys covers comp.* only)
     from verlustmappe import registry as R
     from verlustmappe.accounting.params import get_param, BlockedParameterError
     blocked = [k for k, v in R.REGISTRY.items() if v["status"] in ("REJECTED", "SUPERSEDED")]

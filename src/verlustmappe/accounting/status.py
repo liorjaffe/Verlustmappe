@@ -1,7 +1,7 @@
 """Evidence status ranking, u class and weakest-wins for the new core (D26, D28).
 
-No import of legacy modules. The u-class rule duplicates `reporting/make_register.u_class`
-until the legacy teardown (M6); tests/test_37 pins parity. Unknown or blocked statuses raise,
+The u-class rule is tested in tests/test_accounting_status.py (the former duplicate in
+reporting/make_register.py is in archive-2026-11). Unknown or blocked statuses raise,
 there is no silent default.
 """
 

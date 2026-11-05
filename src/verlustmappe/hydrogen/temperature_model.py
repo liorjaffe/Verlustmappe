@@ -144,7 +144,7 @@ def isothermal_work_mol_integral(mol, p1_abs_bar, p2_abs_bar, T_K, p_suction_abs
     first draft's arithmetic-mean shortcut (ln at (p_s + p_top)/2) overstated a
     20->200 bar fill by ~21% and understated 100->200 bar by ~16%. Fixed and
     verified against this closed form and against Monte-Carlo dm integration
-    (test_02, test_03).
+    (test_hydrogen_routes; legacy test_03 in archive-2026-11).
 
     p_suction defaults to p1 (tank already at compressor inlet pressure). Pass
     the real suction (e.g. EL output 35 bar) when the tank starts above it.

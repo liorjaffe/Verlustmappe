@@ -13,14 +13,17 @@ number with its origin, gaps visible. Details: `CONTRACT.md` §1–§4.
       real gas, loader tests, formats, workbook kept; legacy removed
 - [x] Correction: device models (`devices/`, `hydrogen/`, `conversions`, `constants`) and
       their tests restored; analyses, old balance, Monte Carlo, reports stay in the archive
+- [x] Architecture: `physics/`, `hydrogen/`, `devices/` (same names as `plant/`), `accounting/`,
+      `loaders/`; no duplicate constants; tests named `test_<package>_<topic>.py`;
+      `tests/test_structure.py` guards the layout
 - [ ] N3 accounts A/B/C built on the existing device models; a device is reworked only
       with a comparison test against the existing model
 - [ ] N4 `cases/F1.toml` and case report, immediately with MISSING items
 - [ ] N5 owner reviews the branch and merges
 
 ## Next step
-Prepare N3: item list of accounts A and B for case F1, mapped to the existing
-device models; list which inputs F1 needs from the owner.
+Owner reviews the branch `neustart` (layout, START, CONTRACT) and merges it into `main`.
+Then N3: item list of accounts A and B for case F1 on the existing device models.
 
 ## Open owner decisions
 1. Remaining [V] items in `CONTRACT.md`: scope wording (§2), formula C (§4), status scheme (§8).
