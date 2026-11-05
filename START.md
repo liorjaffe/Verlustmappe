@@ -22,8 +22,7 @@ N2 vorbereiten: Behalten-Liste und Löschliste als einen Commit-Plan vorlegen; O
 
 ## Offene Owner-Entscheidungen
 1. Alle [V]-Punkte in `CONTRACT.md` (Abgrenzung A/B, Formel C, Fallregeln, Statusschema).
-2. Übergeordnete Anlagensteuerung/SPS: gehört sie zur Rechnung? (siehe unten)
-3. Werteschutz: KI legt Wertänderungen nur als Vorschlag ab, Owner übernimmt?
+2. Werteschutz: KI legt Wertänderungen nur als Vorschlag ab, Owner übernimmt?
 
 ## Offene Anlagenfragen (nur der Owner kann sie beantworten)
 - Gerätezählung: welche Prozessgeräte es gibt und wer sie versorgt
@@ -36,6 +35,6 @@ N2 vorbereiten: Behalten-Liste und Löschliste als einen Commit-Plan vorlegen; O
 
 ## Bereits entschieden – nicht neu diskutieren
 Keine Sonnensteuerung · PV-Überschuss ist kein Verlust · Kaeser in Konto B ·
-H₂Core-Batterie ≠ separates PV-Batteriesystem · Raum-Infrastruktur ausgeschlossen ·
+H₂Core-Batterie ≠ separates PV-Batteriesystem · Raum-Infrastruktur ausgeschlossen · keine zentrale Steuerung (in Geräten enthalten) ·
 AC8 entfällt · Verluste nie als Differenz · fehlender Wert = keine Zahl ·
 Regatron-Werkzeuge bleiben in `tools/`. Quelle: `CONTRACT.md`, `decisions/`.

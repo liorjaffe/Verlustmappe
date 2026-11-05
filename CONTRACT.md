@@ -21,6 +21,9 @@ Stackdetails: marktübliche Geräte dürfen Black Boxes mit belegten Ein- und Au
 - [E] Nur Geräte mit **direktem Einfluss auf die Produktion**. Raum- und
   Gebäudeinfrastruktur ist ausgeschlossen: Lüftung, Gaswarnung, Heizung, Frostschutz,
   Raumgeräte.
+- [E] Es gibt keine zentrale Anlagensteuerung (SPS, Steuerrechner). Steuerungen sind in
+  die Geräte eingebaut und kein eigenes Gerät. Ihr Verbrauch gehört zum jeweiligen Gerät;
+  wird er dort getrennt ausgewiesen (FC-Steuerung, §4), wird er dort gebucht.
 - [V] Prüfbare Formulierung: Ein Gerät gehört dazu, wenn es Energie umsetzt, um ein
   Prozessmedium herzustellen, umzuwandeln, aufzubereiten, zu fördern oder zu speichern
   (Strom der Kette, H₂, Prozesswasser, Druckluft).
