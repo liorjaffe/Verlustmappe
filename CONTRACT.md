@@ -46,7 +46,7 @@ layer 3 (D34).
 
 ## 4 Accounts
 
-- **A – series path** [E principle, V details]: PV DC (module/string output) → DC cable →
+- **A – series path** [E]: PV DC (module/string output) → DC cable →
   PV inverter → AC → EL → dryer → booster → storage → FC (with H₂Core battery and DC bus) →
   FC inverter → AC out. In reality the EL is supplied from the house grid; the chain is an
   **allocation** (a slice of PV is assigned to the path), not a claim of physical direct
@@ -55,15 +55,15 @@ layer 3 (D34).
   separate PV battery system, each with its supplier and phase. The separate PV battery
   system is only an external supplier; its internals are not modelled. The Kaeser
   (compression) is in B.
-- [V] A/B boundary: A contains energy that flows through the series conversion. B contains
+- [E] A/B boundary: A contains energy that flows through the series conversion. B contains
   every other electrical consumption, including standby of series-path devices (EL, PV
   inverter, FC inverter) and dryer electricity.
 - [E] FC control is netted in the series path per D22:
   E_out_net = (E_fc_terminal − E_ctrl) · η_inv. Assumption: drawn from the DC bus before
   the inverter; measurement point open. Booked once.
-- **C – system efficiency** [V name and formula]:
+- **C – system efficiency** [V name and formula; E reporting rule]:
   η_sys = E_AC,out / (E_PV,DC,share + E_B,external + ΔS_correction).
-  Reported only once compression and battery have a status. Until then [V]: A and B are
+  [E] Reported only once compression and battery have a status. Until then A and B are
   shown side by side with their own totals, **without a summed total**; A never appears
   alone.
 - [E] The H₂Core battery belongs to the FC system. It is not the separate PV battery system
@@ -71,23 +71,23 @@ layer 3 (D34).
 
 ## 5 Case (layer 1)
 
-- [V] A case contains only inputs, assumptions and justifications. Everything computed
+- [E] A case contains only inputs, assumptions and justifications. Everything computed
   comes from the model.
 - [E] EL anchor: AC power, stack current, operating time, standby power, standby time.
   None of them is derived from another without a documented relation.
 - [E] A chosen Solis time window shows only that enough PV **energy** was available. It
-  does not prove simultaneous power or real supply. [V] The window selection rule is
+  does not prove simultaneous power or real supply. [E] The window selection rule is
   recorded beforehand.
-- [V] The PV total operating point comes from the window. Inverter and DC cable are
+- [E] The PV total operating point comes from the window. Inverter and DC cable are
   computed at total power or total current; the loss is allocated pro rata to the slice
   (a convention, named as such). No inverse function needed.
-- [V] Every phase duration has a justification: operating requirement, measured
+- [E] Every phase duration has a justification: operating requirement, measured
   observation or deliberate convention.
-- [V] The FC operating point is set; the FC duration follows from the mole balance
+- [E] The FC operating point is set; the FC duration follows from the mole balance
   (otherwise the case is overdetermined).
-- [V] Cycle closure is a declared assumption in mol, not a measurement. Intermediate
+- [E] Cycle closure is a declared assumption in mol, not a measurement. Intermediate
   storage (dryer hold-up, buffer, tank) is lumped as an assumption.
-- [V] Battery: share or ΔS is declared. Net zero is not loss-free; throughput losses are
+- [E] Battery: share or ΔS is declared. Net zero is not loss-free; throughput losses are
   computed separately.
 - [E] State quantities of an operating point are inputs: tank pressure, gas temperature,
   battery SoC, connected storage volume (800 L isolated, otherwise 1600 L).
@@ -98,16 +98,16 @@ layer 3 (D34).
   "input minus output".
 - [E] Consumption is not a loss. A storage change is not a loss. An unexplained residual is
   not a loss.
-- [V] Mole balance first: n_start + n_EL = n_end + n_FC + n_vent + n_leak + n_purge.
+- [E] Mole balance first: n_start + n_EL = n_end + n_FC + n_vent + n_leak + n_purge.
   Then energy: E_in = E_out + L + ΔS, with ΔS = S_end − S_start.
-- [V] A residual R is only a diagnostic: where the same quantity is determined twice
+- [E] A residual R is only a diagnostic: where the same quantity is determined twice
   independently. In a model case only as EL consistency (AC versus V(I,T)·I plus rectifier
   loss).
-- [V] Heat is an output in a full energy balance and part of the conversion loss in a
+- [E] Heat is an output in a full energy balance and part of the conversion loss in a
   useful-energy account – never both.
-- [V] A consumption already contained in a higher-level reading is not added again
+- [E] A consumption already contained in a higher-level reading is not added again
   (contained-in).
-- [V] Compression is consumption (Kaeser electricity) and never part of the stored stock.
+- [E] Compression is consumption (Kaeser electricity) and never part of the stored stock.
 - [E] Ideal fill work may only appear as a named ideal-gas quantity, never as electrical
   compression energy (D35).
 - [E] Kaeser (D14): supplies only the HULC and the four Rotex. Variable share by air

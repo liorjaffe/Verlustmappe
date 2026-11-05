@@ -19,10 +19,11 @@ number with its origin, gaps visible. Details: `CONTRACT.md` §1–§4.
 - [ ] N5 owner reviews the branch and merges
 
 ## Next step
-Owner decides the [V] items in `CONTRACT.md` §4–§6; then prepare N3.
+Prepare N3: item list of accounts A and B for case F1, mapped to the existing
+device models; list which inputs F1 needs from the owner.
 
 ## Open owner decisions
-1. All [V] items in `CONTRACT.md` (A/B boundary, formula C, case rules, status scheme).
+1. Remaining [V] items in `CONTRACT.md`: scope wording (§2), formula C (§4), status scheme (§8).
 2. Value protection: the agent submits value changes only as proposals, the owner applies?
 
 ## Open plant questions (also under [open] in the device file)
