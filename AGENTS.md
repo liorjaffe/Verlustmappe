@@ -17,19 +17,15 @@ Dieses Repository ist das einzige Gedächtnis des Projekts. Was nicht hier steht
 | Wo stehen wir, was ist als Nächstes zu tun? | `START.md` |
 | Was gilt (Ziel, Umfang, Konten, Bilanz, Status)? | `CONTRACT.md` |
 | Warum ist etwas so entschieden? | `decisions/` (nur bei Bedarf) |
-| Welcher Wert, welche Quelle? | bis N2: `src/verlustmappe/registry.py` + `SOURCES.md`; danach `plant/<gerät>.toml` |
+| Welcher Wert, welche Quelle, was ist offen? | `plant/<gerät>.toml` (gelesen über `src/verlustmappe/registry.py`) |
 | Wie wird gerechnet? | bis N3: `src/verlustmappe/models/`; danach `model/devices/<gerät>.py` |
 | Ist es belegt? | passender Test unter `tests/` |
-| Wie lese ich Messdaten? | `src/verlustmappe/loaders/` |
+| Wie lese ich Messdaten? | `src/verlustmappe/loaders/` und `loaders/FORMATS.md` |
+| Gerätewissen aus dem Altstand (nur beim Portieren) | `git show archive-2026-11:<pfad>` |
 
 **Stoppregel:** Steht die Antwort nach der Karte nicht fest, nachfragen oder als UNVERIFIED
 markieren, nicht weitersuchen. Fehlersuche darf dem Aufrufpfad folgen; jede Abweichung von
 der Karte im Bericht begründen.
-
-**Übergang bis N2:** Nicht lesen, um zu erfahren, was gilt: `HANDOFF.md`, `SPEC.md`,
-`DECISIONS.md`, `ROADMAP.md`, `RULES_LOG.md`, `docs/`, `tasks/` und der Legacy-Code unter
-`src/verlustmappe/` außerhalb von `models/` und `loaders/`. Gültiges daraus steht in
-`CONTRACT.md`. Gerätewissen aus Legacy-Dateien nur gezielt beim Portieren eines Geräts.
 
 ## Regeln
 1. Keine Zahl erfinden. Fehlt ein Wert, ist er MISSING; nachfragen.
@@ -43,10 +39,8 @@ der Karte im Bericht begründen.
 8. Reviews: höchstens eine Runde je Entwurf. Befunde einordnen als Blocker,
    Ergebniswirkung oder Pflege; nur die ersten beiden werden umgesetzt.
 
-## Gates (bis N2, aus `.venv`)
-`.venv/bin/python -m pytest -q` · `.venv/bin/python tests/run_all.py` ·
-`BASE_REF=origin/main .venv/bin/python tools/ci_guard.py` ·
-`.venv/bin/python tools/make_readme_demo.py --check`
+## Gates (aus `.venv`)
+`.venv/bin/python -m pytest -q` · `git diff --check` (beides: `tools/run_local_gates.py`)
 
 ## Bericht
 Ergebnis (2–3 Zeilen) · Dateien mit Grund · Belege (Befehle und Exitcodes) · Commit ·

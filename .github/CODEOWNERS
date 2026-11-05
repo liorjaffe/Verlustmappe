@@ -1,14 +1,4 @@
-# Human review required for protected paths. Must match "Protected paths" in AGENTS.md.
-/src/verlustmappe/registry.py @liorjaffe
-/SPEC.md @liorjaffe
-/ROADMAP.md @liorjaffe
+# Owner review for plant values, expected test values and CI (AGENTS.md, rule 2).
+/plant/ @liorjaffe
 /tests/ @liorjaffe
-/SOURCES.md @liorjaffe
-/DECISIONS.md @liorjaffe
-/AGENTS.md @liorjaffe
-/CLAUDE.md @liorjaffe
 /.github/ @liorjaffe
-/pyproject.toml @liorjaffe
-/conftest.py @liorjaffe
-/tools/ci_guard.py @liorjaffe
-/calibration/overlays/ @liorjaffe

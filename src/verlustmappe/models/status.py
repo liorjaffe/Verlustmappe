@@ -25,7 +25,7 @@ def _check(status, allow_blocked=False):
     if allow_blocked and s in BLOCKED:
         return s
     if s not in EVIDENCE_ORDER and s != OWNER_DECISION:
-        raise ValueError(f"status {status!r} is not in the D26 vocabulary (see DECISIONS.md); "
+        raise ValueError(f"status {status!r} is not in the D26 vocabulary (see CONTRACT.md §8); "
                          "REJECTED/SUPERSEDED entries must be blocked by the adapter (D28)")
     return s
 

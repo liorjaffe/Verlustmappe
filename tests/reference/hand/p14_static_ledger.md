@@ -2,7 +2,7 @@
 
 Owner approval: coordination chat, 2026-10-29. Reference-only writes and local
 commits approved; post-commit owner comparison remains required.
-References: SPEC AC1/AC7; D26/D34/D35; [approved P14 contract](../../../tasks/P14_static_ledger.md).
+References: SPEC AC1/AC7; D26/D34/D35; approved P14 contract (`git show archive-2026-11:tasks/P14_static_ledger.md`).
 Reproduce: `python3 tests/reference/hand/p14_hand_calc.py` (stdlib only).
 
 ## 1. Purpose and limits

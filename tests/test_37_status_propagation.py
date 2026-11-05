@@ -1,7 +1,7 @@
 """P12: status ranking, u class and weakest-wins in the new core (D26, D28).
 
-Expected values come from the D26 text (hand-listed), not from the model. Parity with the legacy
-register column is pinned per entry; the rule exists twice until the M6 teardown.
+Expected values come from the D26 text (hand-listed), not from the model. The parity check
+against the legacy register generator was removed with the legacy code on 2026-11-05 (N2).
 """
 import copy
 import os
@@ -83,15 +83,6 @@ def test_u_class_derived_zero_is_not_assessed():
     assert u_class("any.key", "GUESS", 0.0) == "NOT ASSESSED"
     assert u_class("any.key", "OWNER_DECISION", 0.0) == "exact"
     assert u_class("any.key", "DATASHEET", 0.05) == "assessed"
-
-
-def test_parity_with_register_column_over_all_entries():
-    from verlustmappe import registry as R
-    from verlustmappe.models.status import u_class
-    from verlustmappe.reporting.make_register import u_class as legacy_u_class
-    assert len(R.REGISTRY) == 109
-    for k, v in R.REGISTRY.items():
-        assert u_class(k, v["status"], v["uncertainty"]) == legacy_u_class(k, v), k
 
 
 def test_u_class_of_rejected_entries_and_weakest_refuses_them():

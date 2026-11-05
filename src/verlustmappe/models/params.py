@@ -1,6 +1,5 @@
-"""Adapter between the registry and the new core (D28). The ONLY new-core module allowed to
-import legacy code, and only `registry.py`, read-only. It copies values into immutable
-objects and never writes back.
+"""Adapter between the registry (plant/*.toml) and the core. The only core module that reads
+`registry.py`, read-only. It copies values into immutable objects and never writes back.
 
 Blocks REJECTED and SUPERSEDED entries (D11, D26/D28). UNCERTAINTY_NOT_ASSESSED entries stay
 readable: the status is passed on (D26), computation is never blocked by u = 0.0.

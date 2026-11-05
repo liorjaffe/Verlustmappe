@@ -1,7 +1,7 @@
 """Independent hand calculation for P13 (integration D24). Stdlib only.
 
 Imports nothing from `verlustmappe` and reads no legacy output (hand README rules 1 and 3).
-Every case is computed here segment by segment from the definition in tasks/P13; the
+Every case is computed here segment by segment from the definition in tasks/P13 (archive-2026-11); the
 expected values are also written out by hand in integration.md and asserted below.
 Run: python3 tests/reference/hand/p13_hand_calc.py
 

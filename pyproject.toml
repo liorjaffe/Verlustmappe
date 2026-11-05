@@ -1,7 +1,7 @@
 [project]
 name = "verlustmappe"
-version = "1.0.0"
-requires-python = ">=3.10"
+version = "2.0.0.dev0"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 test = ["pytest"]

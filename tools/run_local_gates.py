@@ -21,14 +21,7 @@ class Check:
 
 
 CHECKS = (
-    Check("legacy", (sys.executable, "tests/run_all.py")),
     Check("pytest", (sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider")),
-    Check(
-        "ci_guard",
-        (sys.executable, "tools/ci_guard.py"),
-        (("BASE_REF", "origin/main"),),
-    ),
-    Check("readme", (sys.executable, "tools/make_readme_demo.py", "--check")),
     Check("diff_check", ("git", "diff", "--check")),
     Check("staged_diff_check", ("git", "diff", "--cached", "--check")),
 )

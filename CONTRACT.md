@@ -146,7 +146,9 @@ Validierung behauptet (D34).
   das schwächste Eingangsglied bestimmt das Ergebnis. `origin` = measured | computed.
   `u_kind` = none | band | envelope. u = 0 heißt „nicht bewertet“, außer ausdrücklich
   anders angegeben.
-- Bis zur Entscheidung gilt das Vokabular der bestehenden `registry.py` unverändert.
+- Bis zur Entscheidung gilt der Status in `plant/<gerät>.toml` (1:1 aus der alten Registry).
+- [E] Für die meisten Werte fehlen noch Fundstelle und wörtliches Zitat; das ist offener
+  Arbeitsbestand, keine Bestätigung der Werte.
 - [E] Die Schlüssel `comp.*` (falsches Gerät Maximator DLE 30-2) dürfen in neuem Code nie
   verwendet werden (D11).
 

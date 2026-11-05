@@ -1,7 +1,7 @@
 """comp.* is REJECTED (DECISIONS D11) and must not feed the new core.
 
-Weak text guard: the new-core packages do not exist yet and models/params.py is not
-built, so this only scans source text. It passes vacuously while no new-core file exists.
+Text guard over the new-core source; the params adapter additionally blocks REJECTED
+entries at runtime (test_40). The keys live in plant/blocked_keys.toml.
 """
 import os
 import re
