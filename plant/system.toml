@@ -1,0 +1,20 @@
+# plant/system.toml - Systemweite Groessen ohne eigenes Geraet
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "system"
+title = "Systemweite Groessen ohne eigenes Geraet"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== MEASUREMENT CHAIN ====================='''
+
+[param."meas.power_rel_unc"]
+value = 0.02
+unit = "-"
+status = "GUESS"
+uncertainty = 0.5
+source = "ASSUMPTION: device-reported power (Enapter (EL) and legacy building-array telemetry), no independent power analyser yet"
+effect = "floor of every efficiency's uncertainty"

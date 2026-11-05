@@ -1,0 +1,60 @@
+# plant/water_ro.toml - Wasseraufbereitung RO (BWT bestaqua 14ROC COFFEE)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "water_ro"
+title = "Wasseraufbereitung RO (BWT bestaqua 14ROC COFFEE)"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== WATER SYSTEM (RO + filter train) ====================='''
+
+[param."water.ro_perm_Lh"]
+value = 120.0
+unit = "L/h"
+status = "DATASHEET"
+uncertainty = 0.05
+source = "BWT bestaqua 14ROC COFFEE EBA sec. 2.2 (2 L/min at 15 C)"
+effect = "RO production capacity; sets RO duty for the EL water demand"
+
+[param."water.ro_power_op_W"]
+value = 200.0
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.02
+source = "14ROC COFFEE nameplate 'Leistung 200 W' + EBA sec. 2"
+effect = "water-system energy bar, production share"
+
+[param."water.ro_power_standby_W"]
+value = 3.0
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.33
+source = "BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load"
+effect = "water-system energy bar, standby share"
+
+[param."water.wcf"]
+value = 0.5
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "BWT EBA sec. 2.2: Water Conversion Factor, factory setting approx. 50%"
+effect = "raw feed = permeate / WCF; concentrate = feed - permeate"
+
+[param."water.spec_water_L_per_NL"]
+value = 0.0008037
+unit = "L/NL"
+status = "DATASHEET"
+uncertainty = 0.1
+source = "EL 2.1 datasheet '~400 mL/h' at 500 NL/h nominal, rounded to 0.4 L/h; exact value = stoichiometric minimum 9.0 g H2O / g H2 (same ratio as hydrogen/route4_water.py: 0.4019 L/h at 500 NL/h)"
+effect = "scales the water demand with the ACTUAL H2 production (part load)"
+
+[param."water.spec_water_L_per_NL_stoich"]
+value = 0.0008037
+unit = "L/NL"
+status = "DERIVED"
+uncertainty = 0.001
+source = "DERIVED from M_H2O/M_H2 x molar volume (18.015/2.016/22.414); cross-check for the datasheet value"
+effect = "stoichiometric water demand per NL H2 (route4_water.py ratio)"

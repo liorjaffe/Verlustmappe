@@ -1,0 +1,1130 @@
+{
+ "registry": {
+  "el.production_rate_NLh": {
+   "value": 500,
+   "unit": "NL/h",
+   "source": "Enapter EL 2.1 datasheet (ELE21-DTS-COM02)",
+   "status": "DATASHEET",
+   "uncertainty": 0.02,
+   "effect": "nominal H2 output; cross-check for Faraday route"
+  },
+  "el.power_operative_W": {
+   "value": 2400,
+   "unit": "W",
+   "source": "Enapter EL 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.02,
+   "effect": "nominal AC input; steady-state expectation"
+  },
+  "el.power_standby_W": {
+   "value": 15,
+   "unit": "W",
+   "source": "Enapter EL 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.05,
+   "effect": "standby loss bar in the loss map"
+  },
+  "el.spec_energy_kWh_per_Nm3": {
+   "value": 4.8,
+   "unit": "kWh/Nm3",
+   "source": "Enapter EL 2.1 datasheet, beginning of life",
+   "status": "DATASHEET",
+   "uncertainty": 0.03,
+   "effect": "FALLBACK H2 estimate when no stack current is logged; WARNING: makes EL efficiency a constant 62.4% by construction"
+  },
+  "el.output_pressure_barg": {
+   "value": 35,
+   "unit": "barg",
+   "source": "Enapter EL 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "compressor inlet pressure"
+  },
+  "el.h2_purity": {
+   "value": 0.999,
+   "unit": "mol fraction",
+   "source": "Enapter EL 2.1 datasheet (35 bar)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0005,
+   "effect": "mass bookkeeping: impurities are not H2"
+  },
+  "el.water_consumption_mLh": {
+   "value": 400,
+   "unit": "mL/h",
+   "source": "Enapter EL 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.1,
+   "effect": "Route 4 (water balance) expectation"
+  },
+  "el.n_cells": {
+   "value": 120,
+   "unit": "-",
+   "source": "ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public)",
+   "status": "GUESS",
+   "uncertainty": 0.05,
+   "effect": "Faraday route scales linearly with this number"
+  },
+  "el.faradaic_efficiency": {
+   "value": 0.98,
+   "unit": "-",
+   "source": "ASSUMPTION: PEM literature current efficiency >96% (Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792). CAVEAT: the paper is PEM; our device is AEM with 35 bar output pressure, where crossover raises faradaic losses; 0.98 is carried as an extrapolation and must be validated from the stack-current route",
+   "status": "GUESS",
+   "uncertainty": 0.03,
+   "effect": "Faraday route H2 mass; blind to shunt current and crossover"
+  },
+  "el.startup_duration_s": {
+   "value": 990,
+   "unit": "s",
+   "source": "UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s",
+   "status": "DERIVED",
+   "uncertainty": 0.15,
+   "effect": "operating-mode partition: startup window length"
+  },
+  "dry.power_operative_W": {
+   "value": 200,
+   "unit": "W",
+   "source": "DRY 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.02,
+   "effect": "dryer electrical loss bar; NOTE datasheet also states 0.045 kWh/Nm3 at 2.5 Nm3/h = 112 W average, so 200 W is an UPPER envelope"
+  },
+  "dry.power_standby_W": {
+   "value": 10,
+   "unit": "W",
+   "source": "DRY 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.05,
+   "effect": "standby loss"
+  },
+  "dry.rate_Nm3h": {
+   "value": 2.5,
+   "unit": "Nm3/h",
+   "source": "DRY 2.1 datasheet (35 bar version)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "capacity check"
+  },
+  "dry.spec_energy_kWh_Nm3": {
+   "value": 0.045,
+   "unit": "kWh/Nm3",
+   "source": "DRY 2.1 datasheet",
+   "status": "DATASHEET",
+   "uncertainty": 0.03,
+   "effect": "alternative dryer energy estimate: flow-proportional"
+  },
+  "dry.max_h2_content_NL": {
+   "value": 47,
+   "unit": "NL",
+   "source": "DRY 2.1 datasheet (safety: max H2 in device)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "upper bound of H2 lost per regeneration blow-down"
+  },
+  "dry.vent_fraction": {
+   "value": 0.04,
+   "unit": "fraction of throughput",
+   "source": "ASSUMPTION: TSA/PSA regeneration vents the cartridge hold-up; unmeasured",
+   "status": "GUESS",
+   "uncertainty": 0.5,
+   "effect": "gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual"
+  },
+  "water.ro_perm_Lh": {
+   "value": 120.0,
+   "unit": "L/h",
+   "source": "BWT bestaqua 14ROC COFFEE EBA sec. 2.2 (2 L/min at 15 C)",
+   "status": "DATASHEET",
+   "uncertainty": 0.05,
+   "effect": "RO production capacity; sets RO duty for the EL water demand"
+  },
+  "water.ro_power_op_W": {
+   "value": 200.0,
+   "unit": "W",
+   "source": "14ROC COFFEE nameplate 'Leistung 200 W' + EBA sec. 2",
+   "status": "DATASHEET",
+   "uncertainty": 0.02,
+   "effect": "water-system energy bar, production share"
+  },
+  "water.ro_power_standby_W": {
+   "value": 3.0,
+   "unit": "W",
+   "source": "BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load",
+   "status": "DATASHEET",
+   "uncertainty": 0.33,
+   "effect": "water-system energy bar, standby share"
+  },
+  "water.wcf": {
+   "value": 0.5,
+   "unit": "-",
+   "source": "BWT EBA sec. 2.2: Water Conversion Factor, factory setting approx. 50%",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "raw feed = permeate / WCF; concentrate = feed - permeate"
+  },
+  "water.spec_water_L_per_NL": {
+   "value": 0.0008037,
+   "unit": "L/NL",
+   "source": "EL 2.1 datasheet '~400 mL/h' at 500 NL/h nominal, rounded to 0.4 L/h; exact value = stoichiometric minimum 9.0 g H2O / g H2 (same ratio as hydrogen/route4_water.py: 0.4019 L/h at 500 NL/h)",
+   "status": "DATASHEET",
+   "uncertainty": 0.1,
+   "effect": "scales the water demand with the ACTUAL H2 production (part load)"
+  },
+  "water.spec_water_L_per_NL_stoich": {
+   "value": 0.0008037,
+   "unit": "L/NL",
+   "source": "DERIVED from M_H2O/M_H2 x molar volume (18.015/2.016/22.414); cross-check for the datasheet value",
+   "status": "DERIVED",
+   "uncertainty": 0.001,
+   "effect": "stoichiometric water demand per NL H2 (route4_water.py ratio)"
+  },
+  "water.filter_train_power_W": {
+   "value": 0.0,
+   "unit": "W",
+   "source": "ASSUMPTION: Popular Filtros cartridge train is purely hydraulic; BUT a pump control panel (bomba) was photographed in the water path - verify on site",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "pre-treatment energy bar; NOT 0 if the pump feeds the RO"
+  },
+  "comp.pressure_ratio": {
+   "value": 60,
+   "unit": "-",
+   "source": "Maximator DLE 30-2 TDS",
+   "status": "REJECTED",
+   "uncertainty": 0.0,
+   "effect": "stall pressure check"
+  },
+  "comp.stroke_volume_cm3": {
+   "value": 120,
+   "unit": "cm3/double stroke",
+   "source": "Maximator DLE 30-2 TDS",
+   "status": "REJECTED",
+   "uncertainty": 0.0,
+   "effect": "flow capacity check"
+  },
+  "comp.max_cycles_per_min": {
+   "value": 100,
+   "unit": "1/min",
+   "source": "Maximator DLE 30-2 TDS",
+   "status": "REJECTED",
+   "uncertainty": 0.0,
+   "effect": "flow capacity check"
+  },
+  "comp.min_suction_bar": {
+   "value": 20,
+   "unit": "bar",
+   "source": "Maximator DLE 30-2 TDS",
+   "status": "REJECTED",
+   "uncertainty": 0.0,
+   "effect": "storage lower pressure limit"
+  },
+  "comp.overall_efficiency": {
+   "value": 0.03,
+   "unit": "-",
+   "source": "Bovo IJHE 48 (2023) part 1, Tab. 3: 56.36 / 100.2 kWh compression for 33.22 Nm3 (full / half load), 10-bar booster inlet, fill-integral ideal work -> overall 1.9-4.3%; decision 2026-10-21: 0.03 +-40%. Our Kaeser+Maximator chain may differ. MEASURE it.",
+   "status": "REJECTED",
+   "uncertainty": 0.4,
+   "effect": "compression loss bar; MUST be replaced by Kaeser energy measurement"
+  },
+  "comp.specific_energy_kWh_per_Nm3": {
+   "value": 2.3,
+   "unit": "kWh/Nm3",
+   "source": "Bovo IJHE 2023 Tab. 3: 60.28/56.36/100.2 kWh per 33.22 Nm3 -> 1.81/1.70/3.02; midpoint of full/half power. Cross-check only; the model uses comp.overall_efficiency",
+   "status": "REJECTED",
+   "uncertainty": 0.4,
+   "effect": "pressure-independent sanity check of the compression bar"
+  },
+  "sys.n_rotex": {
+   "value": 4,
+   "unit": "-",
+   "source": "owner decision 2026-10-27, SOURCES.md",
+   "status": "OWNER_DECISION",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "sys.p_h2_out_project_barg": {
+   "value": 300,
+   "unit": "barg",
+   "source": "owner decision 2026-10-27 (D12), SOURCES.md",
+   "status": "OWNER_DECISION",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "sys.p_h2_out_nameplate_barg": {
+   "value": 400,
+   "unit": "barg",
+   "source": "HULC system nameplate, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "sys.p_h2_in_barg": {
+   "value": 35,
+   "unit": "barg",
+   "source": "HydroHulc TDS p.2, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.mod.q_h2_max_nm3h": {
+   "value": 5,
+   "unit": "Nm3/h",
+   "source": "HydroHulc TDS p.2 ('up to'), SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.m140.limits": {
+   "value": 140,
+   "unit": "barg",
+   "source": "HydroHulc TDS p.2, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.m400.limits": {
+   "value": 400,
+   "unit": "barg",
+   "source": "HydroHulc TDS p.2, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.pl_max_barg": {
+   "value": 10,
+   "unit": "barg",
+   "source": "Maximator catalog, upper end of range 1-10, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s1.i": {
+   "value": 15,
+   "unit": "-",
+   "source": "DLE 15 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s1.v_disp_cm3": {
+   "value": 244,
+   "unit": "cm3",
+   "source": "DLE 15 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s1.f_max_min": {
+   "value": 120,
+   "unit": "1/min",
+   "source": "DLE 15 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s1.pa_min_barg": {
+   "value": 7,
+   "unit": "barg",
+   "source": "DLE 15 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s1.pb_max_barg": {
+   "value": 300,
+   "unit": "barg",
+   "source": "DLE 15 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s2.i": {
+   "value": 30,
+   "unit": "-",
+   "source": "DLE 30 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s2.v_disp_cm3": {
+   "value": 120,
+   "unit": "cm3",
+   "source": "DLE 30 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s2.f_max_min": {
+   "value": 120,
+   "unit": "1/min",
+   "source": "DLE 30 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s2.pa_min_barg": {
+   "value": 15,
+   "unit": "barg",
+   "source": "DLE 30 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "hulc.s2.pb_max_barg": {
+   "value": 600,
+   "unit": "barg",
+   "source": "DLE 30 base type, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "kaeser.p_rated_nameplate_kw": {
+   "value": 5.85,
+   "unit": "kW",
+   "source": "Kaeser SXC 8 nameplate 5.5 + 0.35 kW (sum, assignment open), SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "kaeser.ps_barg": {
+   "value": 11,
+   "unit": "barg",
+   "source": "Kaeser SXC 8 nameplate, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "kaeser.q_fad_m3min": {
+   "value": 0.67,
+   "unit": "m3/min FAD",
+   "source": "Kaeser brochure P-651/26D, 10 bar working pressure, SOURCES.md",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "none yet"
+  },
+  "kaeser.p_package_dealer_kw": {
+   "value": 6.2,
+   "unit": "kW",
+   "source": "dealer listing, conflicting pressure basis, SOURCES.md",
+   "status": "DATASHEET_SECONDARY",
+   "uncertainty": 0.0,
+   "effect": "none yet; uncertainty NOT assessed (owner to set)"
+  },
+  "stor.volume_L": {
+   "value": 800,
+   "unit": "L",
+   "source": "VITKOVICE cylinder nameplate (photo 20261001_083001): water volume 800 L. Status DATASHEET, not MEASURED: a nameplate is a manufacturer claim per this project's own status definitions. Hydrostatic or geometric confirmation still open",
+   "status": "DATASHEET",
+   "uncertainty": 0.005,
+   "effect": "Route 2 (tank pV) mass scales linearly with this"
+  },
+  "stor.type": {
+   "value": "2 bundles x 16 x 50 L steel cylinders (Type I equivalent); sensors on bundle 1",
+   "unit": "-",
+   "source": "nameplate + visual inspection",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "thermal behaviour: steel = high wall conductivity, less gas stratification than Type III/IV (de Miguel IJHE 2015)"
+  },
+  "stor.steel_mass_kg": {
+   "value": 1430,
+   "unit": "kg",
+   "source": "nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature",
+   "status": "DATASHEET",
+   "uncertainty": 0.2,
+   "effect": "thermal mass of the tank in the GS fit"
+  },
+  "stor.p_max_barg": {
+   "value": 300,
+   "unit": "barg",
+   "source": "VITKOVICE nameplate: maximum allowable pressure PS 300 bar at 65 C; safety valve 330 bar",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "range check; working pressure set by the process (see stor.p_work_barg)"
+  },
+  "stor.p_work_barg": {
+   "value": 200,
+   "unit": "barg",
+   "source": "installer H2 Core Systems: stored at 200 bar (UFSC paper confirms operation at 200 bar, DoD 80% analogon)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "working upper pressure for cycles"
+  },
+  "stor.T_max_C": {
+   "value": 65,
+   "unit": "degC",
+   "source": "VITKOVICE nameplate TS max +65 C (STRICTER than the 85 C SAE J2601 vehicle-tank limit)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "fast-fill safety limit for Route 2 temperature checks"
+  },
+  "stor.T_min_C": {
+   "value": -20,
+   "unit": "degC",
+   "source": "VITKOVICE nameplate TS min -20 C",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "low-temperature limit"
+  },
+  "meas.p_sensor_model": {
+   "value": "DCT 541, RS485 Modbus RTU, 316L, H2-rated (ISO 15001 oil/grease free)",
+   "unit": "-",
+   "source": "BD Sensors DCT 541 datasheet in the Storage H2 folder",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "Route 2 pressure input"
+  },
+  "meas.p_sensor_fso_rel": {
+   "value": 0.005,
+   "unit": "-",
+   "source": "DCT 541 datasheet: accuracy per IEC 61298-2 (limit point adjustment: non-linearity, hysteresis, repeatability)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "Route 2 pressure uncertainty: 0.5% of FULL SCALE (FSO), not of reading"
+  },
+  "meas.p_sensor_range_bar": {
+   "value": 400,
+   "unit": "bar gauge",
+   "source": "DCT 541, 0...400 bar gauge, ordered per plan 2026-10-08",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "Route 2 pressure input; confirm against the delivered sensor label"
+  },
+  "meas.p_sensor_fso_bar": {
+   "value": 2.0,
+   "unit": "bar",
+   "source": "0.5% FSO x 400 bar (IEC 61298-2), derived from range and accuracy",
+   "status": "DERIVED",
+   "uncertainty": 0.0,
+   "effect": "absolute pressure error per reading"
+  },
+  "meas.p_sensor_thermal_bar_per_10K": {
+   "value": 0.8,
+   "unit": "bar/10K",
+   "source": "0.2% FSO / 10 K x 400 bar, derived",
+   "status": "DERIVED",
+   "uncertainty": 0.0,
+   "effect": "pressure error during fast fills (not yet in the Route 2 budget)"
+  },
+  "meas.p_sensor_thermal_rel": {
+   "value": 0.002,
+   "unit": "-",
+   "source": "DCT 541 datasheet: thermal error +-0.2% FSO / 10 K in compensated range -20..80 C",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "extra pressure error during fast fills (gas temperature swing)"
+  },
+  "meas.p_sensor_drift_rel": {
+   "value": 0.001,
+   "unit": "-",
+   "source": "DCT 541 datasheet: long-term stability <= +-0.1% FSO / year",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "annual recalibration budget"
+  },
+  "meas.p_sensor_rate_Hz": {
+   "value": 500,
+   "unit": "Hz",
+   "source": "DCT 541 datasheet: measuring rate 500 Hz, delay 500 ms",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "far above the 20 Hz fast-log requirement; latency budget"
+  },
+  "stor.temp_sensor_planned": {
+   "value": "multi-point (top + bottom) PT100 class A or type-K, surface + gas-well; papers recommend bottom-pipe region as closest to mean gas temp (Nexo study: T3) and top/bottom pair for stratification (de Miguel IJHE 2015)",
+   "unit": "-",
+   "source": "see handbook card C and docs/05_tank_thermal_sensing.md",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "Route 2 temperature input; replaces the ambient-T assumption"
+  },
+  "fc.rated_power_W": {
+   "value": 2500,
+   "unit": "W at 48 V",
+   "source": "IE-LIFT 802 nameplate",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "load-bin normalisation"
+  },
+  "fc.h2_consumption_g_per_kWh": {
+   "value": 70,
+   "unit": "g/kWh",
+   "source": "IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life",
+   "status": "DATASHEET",
+   "uncertainty": 0.05,
+   "effect": "nameplate H2 route. NOTE: it is an UPPER BOUND on consumption, hence a LOWER BOUND on efficiency (42.9% LHV), and makes FC efficiency a constant by construction. Load dependence needs the stack-current route."
+  },
+  "fc.n_cells": {
+   "value": 120,
+   "unit": "-",
+   "source": "ASSUMPTION (IE-LIFT stack spec not public); CONFIRM",
+   "status": "GUESS",
+   "uncertainty": 0.05,
+   "effect": "reverse-Faraday route"
+  },
+  "fc.faradaic_efficiency": {
+   "value": 1.0,
+   "unit": "-",
+   "source": "ASSUMPTION: all stack current from H2 oxidation (no crossover)",
+   "status": "GUESS",
+   "uncertainty": 0.02,
+   "effect": "reverse-Faraday route"
+  },
+  "fc.control_input_W_max": {
+   "value": 150,
+   "unit": "W",
+   "source": "IE-LIFT 802 nameplate 'Rated Input 150 W max'",
+   "status": "DATASHEET",
+   "uncertainty": 0.05,
+   "effect": "auxiliary/control energy on discharge; nameplate MAX, so an upper envelope"
+  },
+  "fc.poc_max_duration_s": {
+   "value": 12,
+   "unit": "s",
+   "source": "FCM802_Test research plan / user manual",
+   "status": "DERIVED",
+   "uncertainty": 0.0,
+   "effect": "POC event window"
+  },
+  "fc.has_internal_dcdc": {
+   "value": true,
+   "unit": "bool",
+   "source": "IE-LIFT 802 telemetry exposes 'DC/DC Voltage Set Point' and 'DC/DC Current Limit'; output 20-56 V follows the bus",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "Terminal V/I is NOT stack V/I. Terminal V-I curve is a converter characteristic, not a polarisation curve."
+  },
+  "bat.capacity_Ah": {
+   "value": 100,
+   "unit": "Ah",
+   "source": "PLACEHOLDER - enter the real battery capacity",
+   "status": "BACKLOG",
+   "uncertainty": 0.05,
+   "effect": "SoC bookkeeping route for the battery branch"
+  },
+  "bat.nominal_V": {
+   "value": 52,
+   "unit": "V",
+   "source": "Regatron README (tested): FCM-802 regulates the bus to 52 V; 48 V is only the factory default. CONFLICTS with the earlier 48 V assumption - CONFIRM at the plant",
+   "status": "DERIVED",
+   "uncertainty": 0.02,
+   "effect": "battery SoC energy conversion; P=V*I bookkeeping"
+  },
+  "pv.module_model": {
+   "value": "BYD455MGEK-36",
+   "unit": "-",
+   "source": "Nameplate photos; technical basis BYD MGK-36 series datasheet DS.PD.E.003 Rev.06 (2024) until the official MGEK-36 datasheet is obtained from BYD Energy do Brasil (proxy)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "identifies the F8 module; all pv.* values below follow it"
+  },
+  "pv.n_modules": {
+   "value": 28,
+   "unit": "-",
+   "source": "user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "array power = n_modules x 455 Wp"
+  },
+  "pv.string_config": {
+   "value": "2 strings x 7 modules per inverter (assumed; verify at the DC junction boxes)",
+   "unit": "-",
+   "source": "ASSUMPTION from array design 2026-10-21",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "string design checks only (Voc cold, Vmp window)"
+  },
+  "pv.module_efficiency_STC": {
+   "value": 0.209,
+   "unit": "-",
+   "source": "BYD MGK-36 datasheet Rev.06 (2024), 455 W class; Inmetro 006667/2021 class A 20.90 %. Superseded PRELIM: 0.220 (typical TOPCon)",
+   "status": "DATASHEET",
+   "uncertainty": 0.01,
+   "effect": "nominal DC power per m2 of array"
+  },
+  "pv.p_dc_stc_W": {
+   "value": 12740,
+   "unit": "W",
+   "source": "28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the removed legacy ~184 kWp building array)"
+  },
+  "pv.p_tc_pmax_per_K": {
+   "value": -0.0038,
+   "unit": "1/K",
+   "source": "BYD MGK-36 datasheet Rev.06: -0.380 %/degC (2021 brochure lists -0.352; Rev.06 is the newer official document). Superseded PRELIM: -0.0029",
+   "status": "DATASHEET",
+   "uncertainty": 0.03,
+   "effect": "cell-temperature derating"
+  },
+  "pv.noct_C": {
+   "value": 45,
+   "unit": "degC",
+   "source": "BYD MGK-36 datasheet Rev.06: 45 +-2 degC. Superseded PRELIM: 43",
+   "status": "DATASHEET",
+   "uncertainty": 0.05,
+   "effect": "cell temperature model: T_cell = T_amb + (NOCT-20)/800 * G"
+  },
+  "pv.bifacial_gain_frac": {
+   "value": 0.0,
+   "unit": "-",
+   "source": "MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "DC energy bonus; 0 while monofacial (pending confirmation)"
+  },
+  "pv.degradation_per_year": {
+   "value": 0.0071,
+   "unit": "1/year",
+   "source": "BYD MGK-36 datasheet Rev.06 linear power warranty -0.71 %/yr. Superseded PRELIM: 0.004",
+   "status": "DATASHEET",
+   "uncertainty": 0.1,
+   "effect": "multi-year studies only"
+  },
+  "pv.soi_uncertainty_rel": {
+   "value": 0.03,
+   "unit": "-",
+   "source": "PRELIMINARY: irradiance-sensor uncertainty on capture-ratio (thermopile/pyranometer class)",
+   "status": "PRELIM",
+   "uncertainty": 0.5,
+   "effect": "capture-ratio bar once a pyranometer exists"
+  },
+  "inv_pv.model": {
+   "value": "2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009)",
+   "unit": "-",
+   "source": "SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "identifies the F8 inverters"
+  },
+  "inv_pv.eta_pv_ac_peak": {
+   "value": 0.966,
+   "unit": "-",
+   "source": "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
+  },
+  "inv_pv.eta_manual_range": {
+   "value": "0.93-0.95",
+   "unit": "-",
+   "source": "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
+  },
+  "inv_pv.eta_euro": {
+   "value": 0.98,
+   "unit": "-",
+   "source": "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters; no F8-specific datasheet yet (D6 open). F8 cross-checks must come from Solis data (f8_day_balance)",
+   "status": "PRELIM",
+   "uncertainty": 0.01,
+   "effect": "PV DC->AC conversion bar"
+  },
+  "inv_pv.eta_peak": {
+   "value": 0.985,
+   "unit": "-",
+   "source": "PRELIMINARY: typical max efficiency 98-98.5%",
+   "status": "PRELIM",
+   "uncertainty": 0.005,
+   "effect": "peak reference only, NOT for energy accounting"
+  },
+  "inv_pv.standby_W": {
+   "value": 5,
+   "unit": "W",
+   "source": "PRELIMINARY: typical standby/night consumption 1-10 W",
+   "status": "PRELIM",
+   "uncertainty": 0.5,
+   "effect": "PV inverter standby bar"
+  },
+  "inv_pv.mppt_efficiency": {
+   "value": 0.995,
+   "unit": "-",
+   "source": "PRELIMINARY: typical MPPT efficiency >99%",
+   "status": "PRELIM",
+   "uncertainty": 0.005,
+   "effect": "folded into conversion bar unless measured separately"
+  },
+  "inv_fc.model": {
+   "value": "Solis S5-EO1P5K-48 off-grid, 230 V, pure sine, CAN/BMS comm",
+   "unit": "-",
+   "source": "Solis datasheet + nameplate photo (S/N 2051010224220020)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "the real FC-side inverter"
+  },
+  "inv_fc.nominal_power_W": {
+   "value": 5000,
+   "unit": "W",
+   "source": "Solis datasheet: rated output 5 kVA / 5 kW (+-1%)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "matches the 2x 2.5 kW FC bank; load-bin normalisation"
+  },
+  "inv_fc.battery_V_range": {
+   "value": "40-60",
+   "unit": "V",
+   "source": "Solis datasheet + nameplate (battery voltage range)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "bus compatibility: FCM-regulated 52 V bus sits inside"
+  },
+  "inv_fc.eta_peak_pv_ac": {
+   "value": 0.966,
+   "unit": "-",
+   "source": "Solis datasheet: peak efficiency PV-AC path (MPPT + inverter)",
+   "status": "DATASHEET",
+   "uncertainty": 0.01,
+   "effect": "PV-AC peak reference; NOT the battery-discharge path"
+  },
+  "inv_fc.eta_manual_range": {
+   "value": "0.93-0.95",
+   "unit": "-",
+   "source": "Solis instruction manual series table: peak efficiency PV-AC 93-95% (differs from the datasheet 96.6% - discrepancy documented, both quoted)",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "bracket for the discharge-path estimate"
+  },
+  "inv_fc.eta": {
+   "value": 0.94,
+   "unit": "-",
+   "source": "DERIVED: midpoint of the instruction-manual range (93-95%) as the battery->AC discharge efficiency; the datasheet 96.6% refers to the PV-AC path which we do NOT use for the FC discharge. MEASURE on the installed unit",
+   "status": "DERIVED",
+   "uncertainty": 0.02,
+   "effect": "FC DC->AC conversion bar (discharge side)"
+  },
+  "inv_fc.standby_W": {
+   "value": 20,
+   "unit": "W",
+   "source": "ASSUMPTION: datasheet/manual do not publish idle consumption; 20-50 W typical for 48 V off-grid class",
+   "status": "GUESS",
+   "uncertainty": 0.5,
+   "effect": "FC inverter standby bar"
+  },
+  "inv_fc.transfer_time_ms": {
+   "value": 10,
+   "unit": "ms",
+   "source": "Solis datasheet: transfer time 10 ms typical, 20 ms max",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "UPS-like transfer behaviour, relevant to POC analysis context"
+  },
+  "cable.dc_loss_rel": {
+   "value": 0.01,
+   "unit": "-",
+   "source": "PRELIMINARY: typical DC-side wiring loss 1-2% for short, well-sized runs; DISTANCES UNKNOWN - placeholder until real lengths/gauges exist",
+   "status": "PRELIM",
+   "uncertainty": 0.5,
+   "effect": "DC cable bar"
+  },
+  "cable.ac_loss_rel": {
+   "value": 0.005,
+   "unit": "-",
+   "source": "PRELIMINARY: typical AC-side loss 0.5-1% for short runs",
+   "status": "PRELIM",
+   "uncertainty": 0.5,
+   "effect": "AC cable bar"
+  },
+  "cable.distance_pv_inverter_m": {
+   "value": null,
+   "unit": "m",
+   "source": "UNKNOWN - to be measured once layout exists",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "drives cable losses"
+  },
+  "cable.distance_inverter_EL_m": {
+   "value": null,
+   "unit": "m",
+   "source": "UNKNOWN - to be measured once layout exists",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "drives cable losses"
+  },
+  "pv.soiling_rel": {
+   "value": 0.02,
+   "unit": "-",
+   "source": "PRELIMINARY: typical soiling 1-4% (rainy coastal climate, no cleaning contract); Florianopolis is coastal+rains, low end plausible",
+   "status": "PRELIM",
+   "uncertainty": 0.5,
+   "effect": "soiling bar"
+  },
+  "pv.mismatch_rel": {
+   "value": 0.01,
+   "unit": "-",
+   "source": "PRELIMINARY: module mismatch 0.5-2%",
+   "status": "PRELIM",
+   "uncertainty": 0.5,
+   "effect": "mismatch bar"
+  },
+  "pv.shading_rel": {
+   "value": 0.02,
+   "unit": "-",
+   "source": "PRELIMINARY: shading/snow/edge 0-5%, site-specific, UNKNOWN until layout exists",
+   "status": "PRELIM",
+   "uncertainty": 0.8,
+   "effect": "shading bar"
+  },
+  "meas.power_rel_unc": {
+   "value": 0.02,
+   "unit": "-",
+   "source": "ASSUMPTION: device-reported power (Enapter (EL) and legacy building-array telemetry), no independent power analyser yet",
+   "status": "GUESS",
+   "uncertainty": 0.5,
+   "effect": "floor of every efficiency's uncertainty"
+  }
+ },
+ "sources": {
+  "sys.n_rotex": {
+   "value_and_unit": "`4` (-)",
+   "source": "owner statement, Air Valve chat 2026-10-27 [S26]",
+   "location": "workbook Master row 4",
+   "verbatim_quote": "BACKLOG (owner statement, no document)",
+   "source_conditions": "equal type, pressure and switching of all four not yet confirmed",
+   "transferability": "same plant",
+   "registry_status_and_uncertainty": "OWNER_DECISION, 0.0",
+   "used_by": "none yet (registry input only)",
+   "reviewer_date": "owner, pending"
+  },
+  "sys.p_h2_out_project_barg": {
+   "value_and_unit": "`300` barg",
+   "source": "owner decision, this chat 2026-10-27 [S26]",
+   "location": "workbook Master row 5; D12",
+   "verbatim_quote": "BACKLOG (owner decision)",
+   "source_conditions": "project case 35 -> 300 barg; storage limit 300 bar",
+   "transferability": "same plant; differs from `stor.p_work_barg` = 200 (legacy-1.0), see D12",
+   "registry_status_and_uncertainty": "OWNER_DECISION, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "sys.p_h2_out_nameplate_barg": {
+   "value_and_unit": "`400` barg (workbook unit \"bar\", gauge assumed, P-2)",
+   "source": "HULC system nameplate photos [S1]",
+   "location": "workbook Master row 6",
+   "verbatim_quote": "\"HULC Compressor system for compression of hydrogen from 35bar to 400bar\" (nameplate field \"Benennung/ Designation\"; original spelling without space before \"bar\"; owner transcription 2026-10-28 from two photos, identical)",
+   "source_conditions": "system nameplate, not a storage fill permission",
+   "transferability": "same plant",
+   "registry_status_and_uncertainty": "DATASHEET (nameplate), 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "sys.p_h2_in_barg": {
+   "value_and_unit": "`35` barg",
+   "source": "HydroHulc TDS [S5] and owner statement [S26]",
+   "location": "TDS p.2; workbook Master row 7",
+   "verbatim_quote": "TDS `HydroHulc_TDS_0012_9A-2` p.2, table row \"Inlet pressure\", column \"Hulc 140\": \"<=35 bar\"; nameplate: \"from 35bar to 400bar\" (owner transcription 2026-10-28)",
+   "source_conditions": "dryer DRY 2.1 output up to 35 barg; equal to the Hulc 140 inlet limit (workbook statement)",
+   "transferability": "same plant; gauge convention assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.mod.q_h2_max_nm3h": {
+   "value_and_unit": "`5` Nm3/h (= 83.3 NL/min)",
+   "source": "HydroHulc TDS [S5]",
+   "location": "TDS p.2 module table; workbook Master row 75",
+   "verbatim_quote": "TDS p.2 table row \"Mass flow H2\": \"up to 5 Nm³/h\" (identical in all four columns); body text: \"This configuration will provide a gas outlet flow of 5Nm³/h Hydrogen per hour.\" (owner transcription 2026-10-28)",
+   "source_conditions": "\"up to\"; conditions not stated",
+   "transferability": "same product, conditions open; maximum, not an operating point",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.m140.limits": {
+   "value_and_unit": "`140` barg (outlet limit only; inlet limit is `sys.p_h2_in_barg`)",
+   "source": "HydroHulc TDS [S5]",
+   "location": "TDS p.2; workbook Master row 77",
+   "verbatim_quote": "TDS p.2, column \"Hulc 140\": row \"Pressure class\" \"up to 140 bar\"; row \"Inlet pressure\" \"<=35 bar\" (columns are positional in the extracted table; owner transcription 2026-10-28)",
+   "source_conditions": "module limit",
+   "transferability": "same product; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.m400.limits": {
+   "value_and_unit": "`400` barg (outlet limit only)",
+   "source": "HydroHulc TDS [S5]",
+   "location": "TDS p.2; workbook Master row 78",
+   "verbatim_quote": "TDS p.2, column \"Hulc 400\": row \"Pressure class\" \"up to 400 bar\"; row \"Inlet pressure\" \"<=140 bar\" (columns are positional in the extracted table; owner transcription 2026-10-28)",
+   "source_conditions": "module limit",
+   "transferability": "same product; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.pl_max_barg": {
+   "value_and_unit": "`10` barg (upper end of \"1 - 10 bar\", a range, not a setpoint)",
+   "source": "Maximator gas boosters catalog [S7]",
+   "location": "workbook Master row 108; catalog pages per Sources sheet (p.7-8, 16-19, 28-29)",
+   "verbatim_quote": "Maximator catalog p.16 (also p.18, \"DLE...-2\" section), list item above the base-type table: \"Suitable for air drive pressures (pL) from 1 to 10 bar (14.5 to 145 psi)\"; DLE 15 datasheet DB 01.02.02.02 p.1: \"Air drive pressure pL: 1-10 bar / 14,5 - 145psi\"; DLE 30 datasheet DB-01.02.02.26 p.1: \"Air drive pressure pL: 1 - 10 bar / 14.5 - 145 psi\" (owner transcription 2026-10-28)",
+   "source_conditions": "drive air pressure range",
+   "transferability": "catalog value of the base type; gauge assumed (P-2); lower end (1 bar) not registered. Type-related permitted range, not a setpoint: DLE manual Tab. 3-4 leaves \"Drive pressure pL\" empty with footnote \"a. Dependent on the gas booster design. Refer to the general drawing provided or rating plate.\"",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s1.i": {
+   "value_and_unit": "`15` (ratio 1:15)",
+   "source": "Maximator catalog [S7], datasheet DLE 15 [S8]",
+   "location": "workbook Master row 86",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"Pressure ratio i\": \"1:15\"; DLE 15 datasheet: \"Pressure ratio i: 1:15\" (owner transcription 2026-10-28)",
+   "source_conditions": "DLE 15 base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s1.v_disp_cm3": {
+   "value_and_unit": "`244` cm3",
+   "source": "[S7], [S8]",
+   "location": "workbook Master row 87",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"Stroke volume** [cm³]\": \"244\" (footnote: \"Calculated stroke volume\"); datasheet: \"Displacement volume/double stroke: 244cm³\" (owner transcription 2026-10-28)",
+   "source_conditions": "geometric, calculated by Maximator",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s1.f_max_min": {
+   "value_and_unit": "`120` 1/min",
+   "source": "DLE 15 datasheet [S8]",
+   "location": "workbook Master row 88",
+   "verbatim_quote": "DLE 15 datasheet, \"Technical Data\": \"Maximum cycles: 120 / min\" (owner transcription 2026-10-28)",
+   "source_conditions": "maximum cycle rate, base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s1.pa_min_barg": {
+   "value_and_unit": "`7` barg (workbook \"7 / 300 bar\": minimum gas inlet pressure; the 300 is not registered)",
+   "source": "[S7]",
+   "location": "workbook Master row 89",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"min. gas inlet pressure pAmin [bar]\": \"7\" (psi: \"102\"); datasheet: \"Minimum suction pressure pA: 7\" (owner transcription 2026-10-28)",
+   "source_conditions": "base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s1.pb_max_barg": {
+   "value_and_unit": "`300` barg",
+   "source": "[S7]",
+   "location": "workbook Master row 90",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"max. working pressure pB*** [bar]\": \"300\" (psi: \"4350\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 300 bar\" (owner transcription 2026-10-28)",
+   "source_conditions": "base-type limit; the module limits stage 1 to 140 bar",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s2.i": {
+   "value_and_unit": "`30` (ratio 1:30)",
+   "source": "[S7], DLE 30 datasheet [S9]",
+   "location": "workbook Master row 97",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"Pressure ratio i\": \"1:30\"; DLE 30 datasheet: \"Pressure ratio i: 1:30\" (owner transcription 2026-10-28)",
+   "source_conditions": "DLE 30 base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s2.v_disp_cm3": {
+   "value_and_unit": "`120` cm3",
+   "source": "[S7], [S9]",
+   "location": "workbook Master row 98",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"Stroke volume** [cm³]\": \"120\" (in³: \"7,3\"); datasheet: \"Displacement volume/double stroke: 120 cm³ 7.3 in³\" (owner transcription 2026-10-28)",
+   "source_conditions": "base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s2.f_max_min": {
+   "value_and_unit": "`120` 1/min",
+   "source": "DLE 30 datasheet [S9]",
+   "location": "workbook Master row 99",
+   "verbatim_quote": "DLE 30 datasheet, \"Technical Data\": \"Maximum cycles: 120 / min\" (owner transcription 2026-10-28)",
+   "source_conditions": "maximum cycle rate, base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s2.pa_min_barg": {
+   "value_and_unit": "`15` barg (workbook \"15 / 600 bar\": minimum gas inlet pressure)",
+   "source": "[S7], [S9]",
+   "location": "workbook Master row 100",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"min. gas inlet pressure pAmin [bar]\": \"15\" (psi: \"218\"); datasheet: \"Minimum suction pressure pA: 15 bar / 220 psi\" (owner transcription 2026-10-28)",
+   "source_conditions": "base type",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "hulc.s2.pb_max_barg": {
+   "value_and_unit": "`600` barg",
+   "source": "[S7]",
+   "location": "workbook Master row 101",
+   "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"max. working pressure pB*** [bar]\": \"600\" (psi: \"8700\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 600 bar / 8700 psi\" (owner transcription 2026-10-28)",
+   "source_conditions": "base-type limit; the module limits stage 2 to 400 bar",
+   "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "kaeser.p_rated_nameplate_kw": {
+   "value_and_unit": "`5.85` kW (workbook text \"5.5 + 0.35 kW\")",
+   "source": "Kaeser SXC 8 nameplate photo [S10]",
+   "location": "workbook Master row 19",
+   "verbatim_quote": "nameplate field \"Bemessungsleistung 5,5 + 0,35 kW\" (SXC 8, Material-Nr. 100692.11); the nameplate does not say what the 0,35 kW belong to (owner transcription 2026-10-28)",
+   "source_conditions": "assignment of the 0.35 kW is not documented; the sum is the registered value",
+   "transferability": "same plant; the sum is an owner reading, to be confirmed",
+   "registry_status_and_uncertainty": "DATASHEET (nameplate), 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "kaeser.ps_barg": {
+   "value_and_unit": "`11` barg",
+   "source": "Kaeser nameplate photo [S10]",
+   "location": "workbook Master row 35",
+   "verbatim_quote": "nameplate field \"Max. Betriebsüberdruck PS 11,00 bar\" (limit, not an operating point) (owner transcription 2026-10-28)",
+   "source_conditions": "nameplate pressure; observed line pressure is 8.1 bar (not registered)",
+   "transferability": "same plant; gauge assumed (P-2)",
+   "registry_status_and_uncertainty": "DATASHEET (nameplate), 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "kaeser.q_fad_m3min": {
+   "value_and_unit": "`0.67` m3/min FAD",
+   "source": "Kaeser SXC compact brochure P-651/26D [S15]",
+   "location": "workbook Master row 36",
+   "verbatim_quote": "Kaeser brochure P-651/26D (.10/24), technical data table (PDF p.6/7), row \"SXC 8\": \"SXC 8 | 10 | 0,67 | 11 | 5,5 | CT 8 | +6 | 0,2 | 215 | 620 x 980 x 1480 | 69 | 300\" (columns: Betriebsüberdruck 10, Volumenstrom Gesamtanlage 0,67, max. Überdruck 11); footnote: \"*) Volumenstrom Gesamtanlage nach ISO 1217: 2009, Annex C/E, Ansaugdruck 1 bar (abs), Kühl- und Luftansaugtemperatur + 20 °C\" (owner transcription 2026-10-28)",
+   "source_conditions": "10 bar working pressure, 11 bar version, ISO 1217:2009 Annex C/E, inlet 1 bar abs, 20 degC",
+   "transferability": "same type; ISO 1217 tolerance not stated; dealer lists the same flow at 11 bar",
+   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "used_by": "none yet",
+   "reviewer_date": "owner, pending"
+  },
+  "kaeser.p_package_dealer_kw": {
+   "value_and_unit": "`6.2` kW",
+   "source": "dealer listing 100692.11 [S16]",
+   "location": "workbook Master row 28",
+   "verbatim_quote": "dealer listing (grobmotorik.org, \"Schraubenkompressor Sxc 8 | 100692.11\"): \"Elektr. Leistungsaufnahme der Gesamtanlage bei 11,0 bar: 6,2 kW\"; same listing: \"Volumenstrom bei 11,0 bar: 0,67 m³/min (670 l/min.)\"; \"Ausführung mit SIGMA CONTROL Basic\"; \"Kältetrockner 0,28 kW\" (owner transcription 2026-10-28)",
+   "source_conditions": "at 11 bar; dryer inclusion not stated. CONFLICT: the same listing gives 0.67 m3/min at 11 bar, the manufacturer gives 0.67 at 10 bar",
+   "transferability": "secondary source with a known conflict; replace by measurement (SC2 kWh counter). Dealer attributes 0.67 m3/min and 6.2 kW both to 11.0 bar, manufacturer attributes 0.67 m3/min to 10 bar working pressure (11 bar = max. overpressure). Dealer controller variant (\"SIGMA CONTROL Basic\") conflicts with the installed SC2 (option C48, MCSIO); the photo governs. Inclusion of the refrigeration dryer in 6.2 kW not stated",
+   "registry_status_and_uncertainty": "DATASHEET_SECONDARY, 0.0 (uncertainty to be set by owner)",
+   "used_by": "none yet; basis of the derived Kaeser energy figure, which is workbook-only",
+   "reviewer_date": "owner, pending"
+  }
+ },
+ "source_blocks": {
+  "pv_inverter": {
+   "title": "F8 SolisCloud portal chart cadence (docs/03; D32)",
+   "text": "- **Value and unit:** `300 s` minimum observed interval; nominal grid derived under D32(a), not a registry parameter.\n- **Source:** SolisCloud portal, `data/raw/Daily+Power+Station+Chart_29-10-2026.xls`, owner-provided export; SHA-256 `754740b3eb2e8f119bfa1b200fa2f0ae2c66b872c28bdc3166d416281d742621`.\n- **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.\n- **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.\n- **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.\n- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the F8 nameplate capacity remains 12.74 kWp (28 x 455 W) per the registry, pending a separate owner decision on the discrepancy.\n- **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).\n- **Used by:** docs/03 nominal-sampling table.\n- **Reviewer/date:** owner approved 2026-10-29."
+  },
+  "booster": {
+   "title": "P05 workbook v2 entries (2026-10-27)",
+   "text": "All entries below are transcribed from the owner workbook `Compressor_System_Specs_Master_v2.xlsx`\n(SHA-256 `0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd942ae`), Master and Sources\nsheets. The workbook carries document and page only, no verbatim quotes. Every quote field is\n`BACKLOG`: the owner supplies it from the original PDF/photo. Uncertainty 0.0 follows existing\ndatasheet entries; transfer risk is stated per entry. Pressures: convention assumed gauge (barg),\nsee open point P-2.\n\nOpen points: (P-1) Maximator / H2 Core Systems: conditions of the TDS air-consumption chart\n(gas pressures, booster version, purge/control air, volume basis, continuous vs intermittent).\n(P-3) Same inquiry: an older Maximator repair manual (drawings dated 1985/1996) lists lower maximum pressures for the base types (DLE 15: 150 bar, DLE 30: 300 bar, instead of 300/600 in the current catalog); which limits apply to part numbers 3630.3019 / 3630.2374 (installed 2021)? (P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status\nof the affected keys changes by decision."
+  }
+ }
+}

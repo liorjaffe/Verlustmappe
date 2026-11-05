@@ -1,0 +1,146 @@
+# plant/storage.toml - H2-Speicher (VITKOVICE) inkl. Drucksensor DCT 541
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "storage"
+title = "H2-Speicher (VITKOVICE) inkl. Drucksensor DCT 541"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== STORAGE =====================
+# Tank identity from the nameplate photo (VITKOVICE CYLINDERS S-16-50-22-27):
+# UN 1049 compressed hydrogen, PS 300 bar / 65 C, safety valve 330 bar,
+# permissible temperature -20/+65 C, water volume 800 L, steel cylinder.
+# This RESOLVES the former BACKLOG on tank volume and the 200/300 bar conflict.
+# ---- pressure sensor: BD Sensors DCT 541 (folder: DCT 541 datasheet) ----
+# ---- temperature sensing on the tank (PLANNED, option prepared) ----'''
+
+[param."stor.volume_L"]
+value = 800
+unit = "L"
+status = "DATASHEET"
+uncertainty = 0.005
+source = "VITKOVICE cylinder nameplate (photo 20261001_083001): water volume 800 L. Status DATASHEET, not MEASURED: a nameplate is a manufacturer claim per this project's own status definitions. Hydrostatic or geometric confirmation still open"
+effect = "Route 2 (tank pV) mass scales linearly with this"
+
+[param."stor.type"]
+value = "2 bundles x 16 x 50 L steel cylinders (Type I equivalent); sensors on bundle 1"
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "nameplate + visual inspection"
+effect = "thermal behaviour: steel = high wall conductivity, less gas stratification than Type III/IV (de Miguel IJHE 2015)"
+
+[param."stor.steel_mass_kg"]
+value = 1430
+unit = "kg"
+status = "DATASHEET"
+uncertainty = 0.2
+source = "nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature"
+effect = "thermal mass of the tank in the GS fit"
+
+[param."stor.p_max_barg"]
+value = 300
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "VITKOVICE nameplate: maximum allowable pressure PS 300 bar at 65 C; safety valve 330 bar"
+effect = "range check; working pressure set by the process (see stor.p_work_barg)"
+
+[param."stor.p_work_barg"]
+value = 200
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "installer H2 Core Systems: stored at 200 bar (UFSC paper confirms operation at 200 bar, DoD 80% analogon)"
+effect = "working upper pressure for cycles"
+
+[param."stor.T_max_C"]
+value = 65
+unit = "degC"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "VITKOVICE nameplate TS max +65 C (STRICTER than the 85 C SAE J2601 vehicle-tank limit)"
+effect = "fast-fill safety limit for Route 2 temperature checks"
+
+[param."stor.T_min_C"]
+value = -20
+unit = "degC"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "VITKOVICE nameplate TS min -20 C"
+effect = "low-temperature limit"
+
+[param."meas.p_sensor_model"]
+value = "DCT 541, RS485 Modbus RTU, 316L, H2-rated (ISO 15001 oil/grease free)"
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "BD Sensors DCT 541 datasheet in the Storage H2 folder"
+effect = "Route 2 pressure input"
+
+[param."meas.p_sensor_fso_rel"]
+value = 0.005
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DCT 541 datasheet: accuracy per IEC 61298-2 (limit point adjustment: non-linearity, hysteresis, repeatability)"
+effect = "Route 2 pressure uncertainty: 0.5% of FULL SCALE (FSO), not of reading"
+
+[param."meas.p_sensor_range_bar"]
+value = 400
+unit = "bar gauge"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DCT 541, 0...400 bar gauge, ordered per plan 2026-10-08"
+effect = "Route 2 pressure input; confirm against the delivered sensor label"
+
+[param."meas.p_sensor_fso_bar"]
+value = 2.0
+unit = "bar"
+status = "DERIVED"
+uncertainty = 0.0
+source = "0.5% FSO x 400 bar (IEC 61298-2), derived from range and accuracy"
+effect = "absolute pressure error per reading"
+
+[param."meas.p_sensor_thermal_bar_per_10K"]
+value = 0.8
+unit = "bar/10K"
+status = "DERIVED"
+uncertainty = 0.0
+source = "0.2% FSO / 10 K x 400 bar, derived"
+effect = "pressure error during fast fills (not yet in the Route 2 budget)"
+
+[param."meas.p_sensor_thermal_rel"]
+value = 0.002
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DCT 541 datasheet: thermal error +-0.2% FSO / 10 K in compensated range -20..80 C"
+effect = "extra pressure error during fast fills (gas temperature swing)"
+
+[param."meas.p_sensor_drift_rel"]
+value = 0.001
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DCT 541 datasheet: long-term stability <= +-0.1% FSO / year"
+effect = "annual recalibration budget"
+
+[param."meas.p_sensor_rate_Hz"]
+value = 500
+unit = "Hz"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DCT 541 datasheet: measuring rate 500 Hz, delay 500 ms"
+effect = "far above the 20 Hz fast-log requirement; latency budget"
+
+[param."stor.temp_sensor_planned"]
+value = "multi-point (top + bottom) PT100 class A or type-K, surface + gas-well; papers recommend bottom-pipe region as closest to mean gas temp (Nexo study: T3) and top/bottom pair for stratification (de Miguel IJHE 2015)"
+unit = "-"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "see handbook card C and docs/05_tank_thermal_sensing.md"
+effect = "Route 2 temperature input; replaces the ambient-T assumption"

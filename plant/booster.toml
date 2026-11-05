@@ -1,0 +1,350 @@
+# plant/booster.toml - H2-Booster HULC (zweistufig, DLE15-H2 + DLE30-H2)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "booster"
+title = "H2-Booster HULC (zweistufig, DLE15-H2 + DLE30-H2)"
+
+[open]
+questions = [
+  "Offene Herstellerfragen P-1 bis P-3 (Maximator / H2 Core Systems): siehe [source_block].",
+]
+
+[source_block]
+title = "P05 workbook v2 entries (2026-10-27)"
+text = '''
+All entries below are transcribed from the owner workbook `Compressor_System_Specs_Master_v2.xlsx`
+(SHA-256 `0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd942ae`), Master and Sources
+sheets. The workbook carries document and page only, no verbatim quotes. Every quote field is
+`BACKLOG`: the owner supplies it from the original PDF/photo. Uncertainty 0.0 follows existing
+datasheet entries; transfer risk is stated per entry. Pressures: convention assumed gauge (barg),
+see open point P-2.
+
+Open points: (P-1) Maximator / H2 Core Systems: conditions of the TDS air-consumption chart
+(gas pressures, booster version, purge/control air, volume basis, continuous vs intermittent).
+(P-3) Same inquiry: an older Maximator repair manual (drawings dated 1985/1996) lists lower maximum pressures for the base types (DLE 15: 150 bar, DLE 30: 300 bar, instead of 300/600 in the current catalog); which limits apply to part numbers 3630.3019 / 3630.2374 (installed 2021)? (P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status
+of the affected keys changes by decision.'''
+
+[param."sys.p_h2_out_project_barg"]
+value = 300
+unit = "barg"
+status = "OWNER_DECISION"
+uncertainty = 0.0
+source = "owner decision 2026-10-27 (D12), SOURCES.md"
+effect = "none yet"
+
+[param."sys.p_h2_out_project_barg".sources_md]
+value_and_unit = "`300` barg"
+source = "owner decision, this chat 2026-10-27 [S26]"
+location = "workbook Master row 5; D12"
+verbatim_quote = "BACKLOG (owner decision)"
+source_conditions = "project case 35 -> 300 barg; storage limit 300 bar"
+transferability = "same plant; differs from `stor.p_work_barg` = 200 (legacy-1.0), see D12"
+registry_status_and_uncertainty = "OWNER_DECISION, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."sys.p_h2_out_nameplate_barg"]
+value = 400
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "HULC system nameplate, SOURCES.md"
+effect = "none yet"
+
+[param."sys.p_h2_out_nameplate_barg".sources_md]
+value_and_unit = "`400` barg (workbook unit \"bar\", gauge assumed, P-2)"
+source = "HULC system nameplate photos [S1]"
+location = "workbook Master row 6"
+verbatim_quote = "\"HULC Compressor system for compression of hydrogen from 35bar to 400bar\" (nameplate field \"Benennung/ Designation\"; original spelling without space before \"bar\"; owner transcription 2026-10-28 from two photos, identical)"
+source_conditions = "system nameplate, not a storage fill permission"
+transferability = "same plant"
+registry_status_and_uncertainty = "DATASHEET (nameplate), 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."sys.p_h2_in_barg"]
+value = 35
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "HydroHulc TDS p.2, SOURCES.md"
+effect = "none yet"
+
+[param."sys.p_h2_in_barg".sources_md]
+value_and_unit = "`35` barg"
+source = "HydroHulc TDS [S5] and owner statement [S26]"
+location = "TDS p.2; workbook Master row 7"
+verbatim_quote = "TDS `HydroHulc_TDS_0012_9A-2` p.2, table row \"Inlet pressure\", column \"Hulc 140\": \"<=35 bar\"; nameplate: \"from 35bar to 400bar\" (owner transcription 2026-10-28)"
+source_conditions = "dryer DRY 2.1 output up to 35 barg; equal to the Hulc 140 inlet limit (workbook statement)"
+transferability = "same plant; gauge convention assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.mod.q_h2_max_nm3h"]
+value = 5
+unit = "Nm3/h"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "HydroHulc TDS p.2 ('up to'), SOURCES.md"
+effect = "none yet"
+
+[param."hulc.mod.q_h2_max_nm3h".sources_md]
+value_and_unit = "`5` Nm3/h (= 83.3 NL/min)"
+source = "HydroHulc TDS [S5]"
+location = "TDS p.2 module table; workbook Master row 75"
+verbatim_quote = "TDS p.2 table row \"Mass flow H2\": \"up to 5 Nm³/h\" (identical in all four columns); body text: \"This configuration will provide a gas outlet flow of 5Nm³/h Hydrogen per hour.\" (owner transcription 2026-10-28)"
+source_conditions = "\"up to\"; conditions not stated"
+transferability = "same product, conditions open; maximum, not an operating point"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.m140.limits"]
+value = 140
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "HydroHulc TDS p.2, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.m140.limits".sources_md]
+value_and_unit = "`140` barg (outlet limit only; inlet limit is `sys.p_h2_in_barg`)"
+source = "HydroHulc TDS [S5]"
+location = "TDS p.2; workbook Master row 77"
+verbatim_quote = "TDS p.2, column \"Hulc 140\": row \"Pressure class\" \"up to 140 bar\"; row \"Inlet pressure\" \"<=35 bar\" (columns are positional in the extracted table; owner transcription 2026-10-28)"
+source_conditions = "module limit"
+transferability = "same product; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.m400.limits"]
+value = 400
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "HydroHulc TDS p.2, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.m400.limits".sources_md]
+value_and_unit = "`400` barg (outlet limit only)"
+source = "HydroHulc TDS [S5]"
+location = "TDS p.2; workbook Master row 78"
+verbatim_quote = "TDS p.2, column \"Hulc 400\": row \"Pressure class\" \"up to 400 bar\"; row \"Inlet pressure\" \"<=140 bar\" (columns are positional in the extracted table; owner transcription 2026-10-28)"
+source_conditions = "module limit"
+transferability = "same product; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.pl_max_barg"]
+value = 10
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Maximator catalog, upper end of range 1-10, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.pl_max_barg".sources_md]
+value_and_unit = "`10` barg (upper end of \"1 - 10 bar\", a range, not a setpoint)"
+source = "Maximator gas boosters catalog [S7]"
+location = "workbook Master row 108; catalog pages per Sources sheet (p.7-8, 16-19, 28-29)"
+verbatim_quote = "Maximator catalog p.16 (also p.18, \"DLE...-2\" section), list item above the base-type table: \"Suitable for air drive pressures (pL) from 1 to 10 bar (14.5 to 145 psi)\"; DLE 15 datasheet DB 01.02.02.02 p.1: \"Air drive pressure pL: 1-10 bar / 14,5 - 145psi\"; DLE 30 datasheet DB-01.02.02.26 p.1: \"Air drive pressure pL: 1 - 10 bar / 14.5 - 145 psi\" (owner transcription 2026-10-28)"
+source_conditions = "drive air pressure range"
+transferability = "catalog value of the base type; gauge assumed (P-2); lower end (1 bar) not registered. Type-related permitted range, not a setpoint: DLE manual Tab. 3-4 leaves \"Drive pressure pL\" empty with footnote \"a. Dependent on the gas booster design. Refer to the general drawing provided or rating plate.\""
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s1.i"]
+value = 15
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 15 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s1.i".sources_md]
+value_and_unit = "`15` (ratio 1:15)"
+source = "Maximator catalog [S7], datasheet DLE 15 [S8]"
+location = "workbook Master row 86"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"Pressure ratio i\": \"1:15\"; DLE 15 datasheet: \"Pressure ratio i: 1:15\" (owner transcription 2026-10-28)"
+source_conditions = "DLE 15 base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s1.v_disp_cm3"]
+value = 244
+unit = "cm3"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 15 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s1.v_disp_cm3".sources_md]
+value_and_unit = "`244` cm3"
+source = "[S7], [S8]"
+location = "workbook Master row 87"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"Stroke volume** [cm³]\": \"244\" (footnote: \"Calculated stroke volume\"); datasheet: \"Displacement volume/double stroke: 244cm³\" (owner transcription 2026-10-28)"
+source_conditions = "geometric, calculated by Maximator"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s1.f_max_min"]
+value = 120
+unit = "1/min"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 15 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s1.f_max_min".sources_md]
+value_and_unit = "`120` 1/min"
+source = "DLE 15 datasheet [S8]"
+location = "workbook Master row 88"
+verbatim_quote = "DLE 15 datasheet, \"Technical Data\": \"Maximum cycles: 120 / min\" (owner transcription 2026-10-28)"
+source_conditions = "maximum cycle rate, base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s1.pa_min_barg"]
+value = 7
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 15 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s1.pa_min_barg".sources_md]
+value_and_unit = "`7` barg (workbook \"7 / 300 bar\": minimum gas inlet pressure; the 300 is not registered)"
+source = "[S7]"
+location = "workbook Master row 89"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"min. gas inlet pressure pAmin [bar]\": \"7\" (psi: \"102\"); datasheet: \"Minimum suction pressure pA: 7\" (owner transcription 2026-10-28)"
+source_conditions = "base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s1.pb_max_barg"]
+value = 300
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 15 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s1.pb_max_barg".sources_md]
+value_and_unit = "`300` barg"
+source = "[S7]"
+location = "workbook Master row 90"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"max. working pressure pB*** [bar]\": \"300\" (psi: \"4350\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 300 bar\" (owner transcription 2026-10-28)"
+source_conditions = "base-type limit; the module limits stage 1 to 140 bar"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s2.i"]
+value = 30
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 30 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s2.i".sources_md]
+value_and_unit = "`30` (ratio 1:30)"
+source = "[S7], DLE 30 datasheet [S9]"
+location = "workbook Master row 97"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"Pressure ratio i\": \"1:30\"; DLE 30 datasheet: \"Pressure ratio i: 1:30\" (owner transcription 2026-10-28)"
+source_conditions = "DLE 30 base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s2.v_disp_cm3"]
+value = 120
+unit = "cm3"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 30 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s2.v_disp_cm3".sources_md]
+value_and_unit = "`120` cm3"
+source = "[S7], [S9]"
+location = "workbook Master row 98"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"Stroke volume** [cm³]\": \"120\" (in³: \"7,3\"); datasheet: \"Displacement volume/double stroke: 120 cm³ 7.3 in³\" (owner transcription 2026-10-28)"
+source_conditions = "base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s2.f_max_min"]
+value = 120
+unit = "1/min"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 30 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s2.f_max_min".sources_md]
+value_and_unit = "`120` 1/min"
+source = "DLE 30 datasheet [S9]"
+location = "workbook Master row 99"
+verbatim_quote = "DLE 30 datasheet, \"Technical Data\": \"Maximum cycles: 120 / min\" (owner transcription 2026-10-28)"
+source_conditions = "maximum cycle rate, base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s2.pa_min_barg"]
+value = 15
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 30 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s2.pa_min_barg".sources_md]
+value_and_unit = "`15` barg (workbook \"15 / 600 bar\": minimum gas inlet pressure)"
+source = "[S7], [S9]"
+location = "workbook Master row 100"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"min. gas inlet pressure pAmin [bar]\": \"15\" (psi: \"218\"); datasheet: \"Minimum suction pressure pA: 15 bar / 220 psi\" (owner transcription 2026-10-28)"
+source_conditions = "base type"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."hulc.s2.pb_max_barg"]
+value = 600
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DLE 30 base type, SOURCES.md"
+effect = "none yet"
+
+[param."hulc.s2.pb_max_barg".sources_md]
+value_and_unit = "`600` barg"
+source = "[S7]"
+location = "workbook Master row 101"
+verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"max. working pressure pB*** [bar]\": \"600\" (psi: \"8700\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 600 bar / 8700 psi\" (owner transcription 2026-10-28)"
+source_conditions = "base-type limit; the module limits stage 2 to 400 bar"
+transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"

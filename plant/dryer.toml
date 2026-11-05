@@ -1,0 +1,60 @@
+# plant/dryer.toml - H2-Trockner Enapter DRY 2.1
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "dryer"
+title = "H2-Trockner Enapter DRY 2.1"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== DRYER: Enapter DRY 2.1 (35 bar) ====================='''
+
+[param."dry.power_operative_W"]
+value = 200
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.02
+source = "DRY 2.1 datasheet"
+effect = "dryer electrical loss bar; NOTE datasheet also states 0.045 kWh/Nm3 at 2.5 Nm3/h = 112 W average, so 200 W is an UPPER envelope"
+
+[param."dry.power_standby_W"]
+value = 10
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.05
+source = "DRY 2.1 datasheet"
+effect = "standby loss"
+
+[param."dry.rate_Nm3h"]
+value = 2.5
+unit = "Nm3/h"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DRY 2.1 datasheet (35 bar version)"
+effect = "capacity check"
+
+[param."dry.spec_energy_kWh_Nm3"]
+value = 0.045
+unit = "kWh/Nm3"
+status = "DATASHEET"
+uncertainty = 0.03
+source = "DRY 2.1 datasheet"
+effect = "alternative dryer energy estimate: flow-proportional"
+
+[param."dry.max_h2_content_NL"]
+value = 47
+unit = "NL"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "DRY 2.1 datasheet (safety: max H2 in device)"
+effect = "upper bound of H2 lost per regeneration blow-down"
+
+[param."dry.vent_fraction"]
+value = 0.04
+unit = "fraction of throughput"
+status = "GUESS"
+uncertainty = 0.5
+source = "ASSUMPTION: TSA/PSA regeneration vents the cartridge hold-up; unmeasured"
+effect = "gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual"

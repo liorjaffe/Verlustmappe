@@ -1,0 +1,23 @@
+# plant/ac_cable.toml - AC-Leitungen PV-Wechselrichter -> EL
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "ac_cable"
+title = "AC-Leitungen PV-Wechselrichter -> EL"
+
+[param."cable.ac_loss_rel"]
+value = 0.005
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.5
+source = "PRELIMINARY: typical AC-side loss 0.5-1% for short runs"
+effect = "AC cable bar"
+
+[param."cable.distance_inverter_EL_m"]
+# value: MISSING
+unit = "m"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "UNKNOWN - to be measured once layout exists"
+effect = "drives cable losses"

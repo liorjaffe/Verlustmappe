@@ -1,0 +1,33 @@
+# plant/fc_battery.toml - H2Core-Batterie am FC-DC-Bus
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "fc_battery"
+title = "H2Core-Batterie am FC-DC-Bus"
+
+[open]
+questions = [
+  "D10: Registry 100 Ah (BACKLOG) / 52 V gegen Datenblatt GTEM-48V5000-E 105 Ah / 5 kWh / 48 V (52 V ist der Regatron-Bus-Sollwert). Owner entscheidet.",
+]
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== BATTERY (no sensor) ====================='''
+
+[param."bat.capacity_Ah"]
+value = 100
+unit = "Ah"
+status = "BACKLOG"
+uncertainty = 0.05
+source = "PLACEHOLDER - enter the real battery capacity"
+effect = "SoC bookkeeping route for the battery branch"
+
+[param."bat.nominal_V"]
+value = 52
+unit = "V"
+status = "DERIVED"
+uncertainty = 0.02
+source = "Regatron README (tested): FCM-802 regulates the bus to 52 V; 48 V is only the factory default. CONFLICTS with the earlier 48 V assumption - CONFIRM at the plant"
+effect = "battery SoC energy conversion; P=V*I bookkeeping"

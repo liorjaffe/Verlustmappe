@@ -1,0 +1,68 @@
+# plant/fc.toml - Brennstoffzelle 2 x Intelligent Energy IE-LIFT 802
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "fc"
+title = "Brennstoffzelle 2 x Intelligent Energy IE-LIFT 802"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ============ FUEL CELL: Intelligent Energy IE-LIFT 802 (x2) ============'''
+
+[param."fc.rated_power_W"]
+value = 2500
+unit = "W at 48 V"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "IE-LIFT 802 nameplate"
+effect = "load-bin normalisation"
+
+[param."fc.h2_consumption_g_per_kWh"]
+value = 70
+unit = "g/kWh"
+status = "DATASHEET"
+uncertainty = 0.05
+source = "IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life"
+effect = "nameplate H2 route. NOTE: it is an UPPER BOUND on consumption, hence a LOWER BOUND on efficiency (42.9% LHV), and makes FC efficiency a constant by construction. Load dependence needs the stack-current route."
+
+[param."fc.n_cells"]
+value = 120
+unit = "-"
+status = "GUESS"
+uncertainty = 0.05
+source = "ASSUMPTION (IE-LIFT stack spec not public); CONFIRM"
+effect = "reverse-Faraday route"
+
+[param."fc.faradaic_efficiency"]
+value = 1.0
+unit = "-"
+status = "GUESS"
+uncertainty = 0.02
+source = "ASSUMPTION: all stack current from H2 oxidation (no crossover)"
+effect = "reverse-Faraday route"
+
+[param."fc.control_input_W_max"]
+value = 150
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.05
+source = "IE-LIFT 802 nameplate 'Rated Input 150 W max'"
+effect = "auxiliary/control energy on discharge; nameplate MAX, so an upper envelope"
+
+[param."fc.poc_max_duration_s"]
+value = 12
+unit = "s"
+status = "DERIVED"
+uncertainty = 0.0
+source = "FCM802_Test research plan / user manual"
+effect = "POC event window"
+
+[param."fc.has_internal_dcdc"]
+value = true
+unit = "bool"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "IE-LIFT 802 telemetry exposes 'DC/DC Voltage Set Point' and 'DC/DC Current Limit'; output 20-56 V follows the bus"
+effect = "Terminal V/I is NOT stack V/I. Terminal V-I curve is a converter characteristic, not a polarisation curve."

@@ -1,0 +1,88 @@
+# plant/fc_inverter.toml - FC-Wechselrichter (Solis, Inselbetrieb)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "fc_inverter"
+title = "FC-Wechselrichter (Solis, Inselbetrieb)"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# FC-side inverter: CHOSEN DEVICE - Solis S5-EO1P5K-48 off-grid inverter
+# (datasheet + instruction manual in the "Inverter 2" folder; nameplate photo
+# with S/N 2051010224220020 confirms the physical unit is on site).
+# Rated battery voltage 48 V (range 40-60 V) matches the FC bus; the tested
+# Regatron README says the FCM-802 regulates the bus to 52 V - inside range.
+# Rated 5 kVA/5 kW matches the 2x 2.5 kW FC bank exactly.
+# EFFICIENCY - two sources disagree, registered separately (honest handling):
+#   datasheet: peak efficiency (PV-AC path) 96.6%
+#   instruction manual (series table): peak efficiency (PV-AC) 93-95%
+# Both numbers refer to the PV->AC path (MPPT boost + inverter). The
+# BATTERY->AC (discharge) path efficiency is NOT explicitly published.
+# Working value: 0.94 (middle of the manual range), DERIVED status, to be
+# replaced by measurement on the installed unit.'''
+
+[param."inv_fc.model"]
+value = "Solis S5-EO1P5K-48 off-grid, 230 V, pure sine, CAN/BMS comm"
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Solis datasheet + nameplate photo (S/N 2051010224220020)"
+effect = "the real FC-side inverter"
+
+[param."inv_fc.nominal_power_W"]
+value = 5000
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Solis datasheet: rated output 5 kVA / 5 kW (+-1%)"
+effect = "matches the 2x 2.5 kW FC bank; load-bin normalisation"
+
+[param."inv_fc.battery_V_range"]
+value = "40-60"
+unit = "V"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Solis datasheet + nameplate (battery voltage range)"
+effect = "bus compatibility: FCM-regulated 52 V bus sits inside"
+
+[param."inv_fc.eta_peak_pv_ac"]
+value = 0.966
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.01
+source = "Solis datasheet: peak efficiency PV-AC path (MPPT + inverter)"
+effect = "PV-AC peak reference; NOT the battery-discharge path"
+
+[param."inv_fc.eta_manual_range"]
+value = "0.93-0.95"
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Solis instruction manual series table: peak efficiency PV-AC 93-95% (differs from the datasheet 96.6% - discrepancy documented, both quoted)"
+effect = "bracket for the discharge-path estimate"
+
+[param."inv_fc.eta"]
+value = 0.94
+unit = "-"
+status = "DERIVED"
+uncertainty = 0.02
+source = "DERIVED: midpoint of the instruction-manual range (93-95%) as the battery->AC discharge efficiency; the datasheet 96.6% refers to the PV-AC path which we do NOT use for the FC discharge. MEASURE on the installed unit"
+effect = "FC DC->AC conversion bar (discharge side)"
+
+[param."inv_fc.standby_W"]
+value = 20
+unit = "W"
+status = "GUESS"
+uncertainty = 0.5
+source = "ASSUMPTION: datasheet/manual do not publish idle consumption; 20-50 W typical for 48 V off-grid class"
+effect = "FC inverter standby bar"
+
+[param."inv_fc.transfer_time_ms"]
+value = 10
+unit = "ms"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Solis datasheet: transfer time 10 ms typical, 20 ms max"
+effect = "UPS-like transfer behaviour, relevant to POC analysis context"

@@ -1,0 +1,65 @@
+# plant/blocked_keys.toml - Gesperrte Schluessel (duerfen im neuen Kern nie verwendet werden)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "blocked_keys"
+title = "Gesperrte Schluessel (duerfen im neuen Kern nie verwendet werden)"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ============ COMPRESSOR: Maximator DLE 30-2 air-driven gas booster ============
+# D11 (2026-10-27): the six comp.* keys below are REJECTED (wrong device basis, DLE 30-2).
+# Values stay ONLY so the frozen legacy-1.0 chain reproduces; the new core never reads them.
+# NOTE on the paper's own eta_CSU = 54.5%: that is H2 energy / (H2 energy +
+# compression electricity), a DIFFERENT quantity, not a contradiction.
+# The paper's booster (Hydraulics Int.) is rated for up to 220 bar like ours.'''
+
+[param."comp.pressure_ratio"]
+value = 60
+unit = "-"
+status = "REJECTED"
+uncertainty = 0.0
+source = "Maximator DLE 30-2 TDS"
+effect = "stall pressure check"
+
+[param."comp.stroke_volume_cm3"]
+value = 120
+unit = "cm3/double stroke"
+status = "REJECTED"
+uncertainty = 0.0
+source = "Maximator DLE 30-2 TDS"
+effect = "flow capacity check"
+
+[param."comp.max_cycles_per_min"]
+value = 100
+unit = "1/min"
+status = "REJECTED"
+uncertainty = 0.0
+source = "Maximator DLE 30-2 TDS"
+effect = "flow capacity check"
+
+[param."comp.min_suction_bar"]
+value = 20
+unit = "bar"
+status = "REJECTED"
+uncertainty = 0.0
+source = "Maximator DLE 30-2 TDS"
+effect = "storage lower pressure limit"
+
+[param."comp.overall_efficiency"]
+value = 0.03
+unit = "-"
+status = "REJECTED"
+uncertainty = 0.4
+source = "Bovo IJHE 48 (2023) part 1, Tab. 3: 56.36 / 100.2 kWh compression for 33.22 Nm3 (full / half load), 10-bar booster inlet, fill-integral ideal work -> overall 1.9-4.3%; decision 2026-10-21: 0.03 +-40%. Our Kaeser+Maximator chain may differ. MEASURE it."
+effect = "compression loss bar; MUST be replaced by Kaeser energy measurement"
+
+[param."comp.specific_energy_kWh_per_Nm3"]
+value = 2.3
+unit = "kWh/Nm3"
+status = "REJECTED"
+uncertainty = 0.4
+source = "Bovo IJHE 2023 Tab. 3: 60.28/56.36/100.2 kWh per 33.22 Nm3 -> 1.81/1.70/3.02; midpoint of full/half power. Cross-check only; the model uses comp.overall_efficiency"
+effect = "pressure-independent sanity check of the compression bar"

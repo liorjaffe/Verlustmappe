@@ -1,0 +1,109 @@
+# plant/kaeser.toml - Kompressor Kaeser SXC 8 (versorgt HULC und vier Rotex)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "kaeser"
+title = "Kompressor Kaeser SXC 8 (versorgt HULC und vier Rotex)"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===== P05 workbook v2: primary data (D11-D15; details in SOURCES.md) =====
+# Pressures are gauge by assumption (SOURCES open point P-2). '(base type)' rows are DLE15/DLE30
+# catalog values transferred to the -H2 units, not verified against the -H2 datasheet.'''
+
+[param."sys.n_rotex"]
+value = 4
+unit = "-"
+status = "OWNER_DECISION"
+uncertainty = 0.0
+source = "owner decision 2026-10-27, SOURCES.md"
+effect = "none yet"
+
+[param."sys.n_rotex".sources_md]
+value_and_unit = "`4` (-)"
+source = "owner statement, Air Valve chat 2026-10-27 [S26]"
+location = "workbook Master row 4"
+verbatim_quote = "BACKLOG (owner statement, no document)"
+source_conditions = "equal type, pressure and switching of all four not yet confirmed"
+transferability = "same plant"
+registry_status_and_uncertainty = "OWNER_DECISION, 0.0"
+used_by = "none yet (registry input only)"
+reviewer_date = "owner, pending"
+
+[param."kaeser.p_rated_nameplate_kw"]
+value = 5.85
+unit = "kW"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Kaeser SXC 8 nameplate 5.5 + 0.35 kW (sum, assignment open), SOURCES.md"
+effect = "none yet"
+
+[param."kaeser.p_rated_nameplate_kw".sources_md]
+value_and_unit = "`5.85` kW (workbook text \"5.5 + 0.35 kW\")"
+source = "Kaeser SXC 8 nameplate photo [S10]"
+location = "workbook Master row 19"
+verbatim_quote = "nameplate field \"Bemessungsleistung 5,5 + 0,35 kW\" (SXC 8, Material-Nr. 100692.11); the nameplate does not say what the 0,35 kW belong to (owner transcription 2026-10-28)"
+source_conditions = "assignment of the 0.35 kW is not documented; the sum is the registered value"
+transferability = "same plant; the sum is an owner reading, to be confirmed"
+registry_status_and_uncertainty = "DATASHEET (nameplate), 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."kaeser.ps_barg"]
+value = 11
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Kaeser SXC 8 nameplate, SOURCES.md"
+effect = "none yet"
+
+[param."kaeser.ps_barg".sources_md]
+value_and_unit = "`11` barg"
+source = "Kaeser nameplate photo [S10]"
+location = "workbook Master row 35"
+verbatim_quote = "nameplate field \"Max. Betriebsüberdruck PS 11,00 bar\" (limit, not an operating point) (owner transcription 2026-10-28)"
+source_conditions = "nameplate pressure; observed line pressure is 8.1 bar (not registered)"
+transferability = "same plant; gauge assumed (P-2)"
+registry_status_and_uncertainty = "DATASHEET (nameplate), 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."kaeser.q_fad_m3min"]
+value = 0.67
+unit = "m3/min FAD"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Kaeser brochure P-651/26D, 10 bar working pressure, SOURCES.md"
+effect = "none yet"
+
+[param."kaeser.q_fad_m3min".sources_md]
+value_and_unit = "`0.67` m3/min FAD"
+source = "Kaeser SXC compact brochure P-651/26D [S15]"
+location = "workbook Master row 36"
+verbatim_quote = "Kaeser brochure P-651/26D (.10/24), technical data table (PDF p.6/7), row \"SXC 8\": \"SXC 8 | 10 | 0,67 | 11 | 5,5 | CT 8 | +6 | 0,2 | 215 | 620 x 980 x 1480 | 69 | 300\" (columns: Betriebsüberdruck 10, Volumenstrom Gesamtanlage 0,67, max. Überdruck 11); footnote: \"*) Volumenstrom Gesamtanlage nach ISO 1217: 2009, Annex C/E, Ansaugdruck 1 bar (abs), Kühl- und Luftansaugtemperatur + 20 °C\" (owner transcription 2026-10-28)"
+source_conditions = "10 bar working pressure, 11 bar version, ISO 1217:2009 Annex C/E, inlet 1 bar abs, 20 degC"
+transferability = "same type; ISO 1217 tolerance not stated; dealer lists the same flow at 11 bar"
+registry_status_and_uncertainty = "DATASHEET, 0.0"
+used_by = "none yet"
+reviewer_date = "owner, pending"
+
+[param."kaeser.p_package_dealer_kw"]
+value = 6.2
+unit = "kW"
+status = "DATASHEET_SECONDARY"
+uncertainty = 0.0
+source = "dealer listing, conflicting pressure basis, SOURCES.md"
+effect = "none yet; uncertainty NOT assessed (owner to set)"
+
+[param."kaeser.p_package_dealer_kw".sources_md]
+value_and_unit = "`6.2` kW"
+source = "dealer listing 100692.11 [S16]"
+location = "workbook Master row 28"
+verbatim_quote = "dealer listing (grobmotorik.org, \"Schraubenkompressor Sxc 8 | 100692.11\"): \"Elektr. Leistungsaufnahme der Gesamtanlage bei 11,0 bar: 6,2 kW\"; same listing: \"Volumenstrom bei 11,0 bar: 0,67 m³/min (670 l/min.)\"; \"Ausführung mit SIGMA CONTROL Basic\"; \"Kältetrockner 0,28 kW\" (owner transcription 2026-10-28)"
+source_conditions = "at 11 bar; dryer inclusion not stated. CONFLICT: the same listing gives 0.67 m3/min at 11 bar, the manufacturer gives 0.67 at 10 bar"
+transferability = "secondary source with a known conflict; replace by measurement (SC2 kWh counter). Dealer attributes 0.67 m3/min and 6.2 kW both to 11.0 bar, manufacturer attributes 0.67 m3/min to 10 bar working pressure (11 bar = max. overpressure). Dealer controller variant (\"SIGMA CONTROL Basic\") conflicts with the installed SC2 (option C48, MCSIO); the photo governs. Inclusion of the refrigeration dryer in 6.2 kW not stated"
+registry_status_and_uncertainty = "DATASHEET_SECONDARY, 0.0 (uncertainty to be set by owner)"
+used_by = "none yet; basis of the derived Kaeser energy figure, which is workbook-only"
+reviewer_date = "owner, pending"

@@ -1,0 +1,92 @@
+# plant/el.toml - Elektrolyseur Enapter AEM EL 2.1
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "el"
+title = "Elektrolyseur Enapter AEM EL 2.1"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== ELECTROLYSER: Enapter AEM EL 2.1 ====================='''
+
+[param."el.production_rate_NLh"]
+value = 500
+unit = "NL/h"
+status = "DATASHEET"
+uncertainty = 0.02
+source = "Enapter EL 2.1 datasheet (ELE21-DTS-COM02)"
+effect = "nominal H2 output; cross-check for Faraday route"
+
+[param."el.power_operative_W"]
+value = 2400
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.02
+source = "Enapter EL 2.1 datasheet"
+effect = "nominal AC input; steady-state expectation"
+
+[param."el.power_standby_W"]
+value = 15
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.05
+source = "Enapter EL 2.1 datasheet"
+effect = "standby loss bar in the loss map"
+
+[param."el.spec_energy_kWh_per_Nm3"]
+value = 4.8
+unit = "kWh/Nm3"
+status = "DATASHEET"
+uncertainty = 0.03
+source = "Enapter EL 2.1 datasheet, beginning of life"
+effect = "FALLBACK H2 estimate when no stack current is logged; WARNING: makes EL efficiency a constant 62.4% by construction"
+
+[param."el.output_pressure_barg"]
+value = 35
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet"
+effect = "compressor inlet pressure"
+
+[param."el.h2_purity"]
+value = 0.999
+unit = "mol fraction"
+status = "DATASHEET"
+uncertainty = 0.0005
+source = "Enapter EL 2.1 datasheet (35 bar)"
+effect = "mass bookkeeping: impurities are not H2"
+
+[param."el.water_consumption_mLh"]
+value = 400
+unit = "mL/h"
+status = "DATASHEET"
+uncertainty = 0.1
+source = "Enapter EL 2.1 datasheet"
+effect = "Route 4 (water balance) expectation"
+
+[param."el.n_cells"]
+value = 120
+unit = "-"
+status = "GUESS"
+uncertainty = 0.05
+source = "ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public)"
+effect = "Faraday route scales linearly with this number"
+
+[param."el.faradaic_efficiency"]
+value = 0.98
+unit = "-"
+status = "GUESS"
+uncertainty = 0.03
+source = "ASSUMPTION: PEM literature current efficiency >96% (Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792). CAVEAT: the paper is PEM; our device is AEM with 35 bar output pressure, where crossover raises faradaic losses; 0.98 is carried as an extrapolation and must be validated from the stack-current route"
+effect = "Faraday route H2 mass; blind to shunt current and crossover"
+
+[param."el.startup_duration_s"]
+value = 990
+unit = "s"
+status = "DERIVED"
+uncertainty = 0.15
+source = "UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s"
+effect = "operating-mode partition: startup window length"

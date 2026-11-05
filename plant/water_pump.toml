@@ -1,0 +1,20 @@
+# plant/water_pump.toml - Filterstrang mit Pumpe (Popular Filtros)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "water_pump"
+title = "Filterstrang mit Pumpe (Popular Filtros)"
+
+[open]
+questions = [
+  "Owner (2026-11-05): Pumpe existiert und haengt am Hausnetz. Registry fuehrt 0 W (GUESS, 'rein hydraulisch'). Wert, Leistung und Laufzeit: Owner entscheidet.",
+]
+
+[param."water.filter_train_power_W"]
+value = 0.0
+unit = "W"
+status = "GUESS"
+uncertainty = 0.0
+source = "ASSUMPTION: Popular Filtros cartridge train is purely hydraulic; BUT a pump control panel (bomba) was photographed in the water path - verify on site"
+effect = "pre-treatment energy bar; NOT 0 if the pump feeds the RO"

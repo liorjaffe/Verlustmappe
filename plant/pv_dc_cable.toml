@@ -1,0 +1,28 @@
+# plant/pv_dc_cable.toml - DC-Leitungen PV-Feld -> PV-Wechselrichter
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "pv_dc_cable"
+title = "DC-Leitungen PV-Feld -> PV-Wechselrichter"
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# --- cables and wiring (DC side PV->inverter, AC side inverter->EL bus) ---'''
+
+[param."cable.dc_loss_rel"]
+value = 0.01
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.5
+source = "PRELIMINARY: typical DC-side wiring loss 1-2% for short, well-sized runs; DISTANCES UNKNOWN - placeholder until real lengths/gauges exist"
+effect = "DC cable bar"
+
+[param."cable.distance_pv_inverter_m"]
+# value: MISSING
+unit = "m"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "UNKNOWN - to be measured once layout exists"
+effect = "drives cable losses"

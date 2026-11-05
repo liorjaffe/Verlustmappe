@@ -1,0 +1,137 @@
+# plant/pv_array.toml - PV-Feld F8 (BYD455MGEK-36, Ostfassade)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "pv_array"
+title = "PV-Feld F8 (BYD455MGEK-36, Ostfassade)"
+
+[open]
+questions = [
+  "Nennleistung: 12,74 kWp (28 x 455 W) gegen 12,78 kWp in der Solis-Stationsliste. Owner entscheidet.",
+]
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# ===================== PV / INVERTER =====================
+# PRELIMINARY VERSION ("vorerst"): no real hardware chosen yet. Every entry
+# here is a TYPICAL-MARKET value, not a datasheet claim, and is marked
+# status PRELIM so it is visually distinct from DATASHEET. When real
+# modules/inverters/cables are selected, replace each entry and flip its
+# status. The pv_account() function computes the same loss bars regardless
+# of which tier of inputs it receives.
+# --- module: typical 2025/26 N-type TOPCon monocrystalline, bifacial dual glass ---
+# (market anchors: Trina Vertex N series, 21.0-23.3% module efficiency,
+#  temp coefficient of Pmax -0.29%/K, NOCT ~43 C - datasheets in web search
+#  2025; NOT a commitment to Trina)
+# F8 integration 2026-10-21: the entries below were flipped from PRELIM to
+# DATASHEET with the real BYD455MGEK-36 data (PV_F8_System_Specs_Master.xlsx).
+# The superseded PRELIM values stay reproducible as PLANT_PROFILES
+# "reference_184kWp" in devices/pv_prelim_channel.py (eta 0.220, gamma -0.0029,
+# NOCT 43, bifacial 0.05, degradation 0.004) and are listed in docs/06.
+# --- soiling / mismatch / availability (site loss family) ---'''
+
+[param."pv.module_model"]
+value = "BYD455MGEK-36"
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Nameplate photos; technical basis BYD MGK-36 series datasheet DS.PD.E.003 Rev.06 (2024) until the official MGEK-36 datasheet is obtained from BYD Energy do Brasil (proxy)"
+effect = "identifies the F8 module; all pv.* values below follow it"
+
+[param."pv.n_modules"]
+value = 28
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm"
+effect = "array power = n_modules x 455 Wp"
+
+[param."pv.string_config"]
+value = "2 strings x 7 modules per inverter (assumed; verify at the DC junction boxes)"
+unit = "-"
+status = "GUESS"
+uncertainty = 0.0
+source = "ASSUMPTION from array design 2026-10-21"
+effect = "string design checks only (Voc cold, Vmp window)"
+
+[param."pv.module_efficiency_STC"]
+value = 0.209
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.01
+source = "BYD MGK-36 datasheet Rev.06 (2024), 455 W class; Inmetro 006667/2021 class A 20.90 %. Superseded PRELIM: 0.220 (typical TOPCon)"
+effect = "nominal DC power per m2 of array"
+
+[param."pv.p_dc_stc_W"]
+value = 12740
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None"
+effect = "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the removed legacy ~184 kWp building array)"
+
+[param."pv.p_tc_pmax_per_K"]
+value = -0.0038
+unit = "1/K"
+status = "DATASHEET"
+uncertainty = 0.03
+source = "BYD MGK-36 datasheet Rev.06: -0.380 %/degC (2021 brochure lists -0.352; Rev.06 is the newer official document). Superseded PRELIM: -0.0029"
+effect = "cell-temperature derating"
+
+[param."pv.noct_C"]
+value = 45
+unit = "degC"
+status = "DATASHEET"
+uncertainty = 0.05
+source = "BYD MGK-36 datasheet Rev.06: 45 +-2 degC. Superseded PRELIM: 43"
+effect = "cell temperature model: T_cell = T_amb + (NOCT-20)/800 * G"
+
+[param."pv.bifacial_gain_frac"]
+value = 0.0
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05"
+effect = "DC energy bonus; 0 while monofacial (pending confirmation)"
+
+[param."pv.degradation_per_year"]
+value = 0.0071
+unit = "1/year"
+status = "DATASHEET"
+uncertainty = 0.1
+source = "BYD MGK-36 datasheet Rev.06 linear power warranty -0.71 %/yr. Superseded PRELIM: 0.004"
+effect = "multi-year studies only"
+
+[param."pv.soi_uncertainty_rel"]
+value = 0.03
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.5
+source = "PRELIMINARY: irradiance-sensor uncertainty on capture-ratio (thermopile/pyranometer class)"
+effect = "capture-ratio bar once a pyranometer exists"
+
+[param."pv.soiling_rel"]
+value = 0.02
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.5
+source = "PRELIMINARY: typical soiling 1-4% (rainy coastal climate, no cleaning contract); Florianopolis is coastal+rains, low end plausible"
+effect = "soiling bar"
+
+[param."pv.mismatch_rel"]
+value = 0.01
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.5
+source = "PRELIMINARY: module mismatch 0.5-2%"
+effect = "mismatch bar"
+
+[param."pv.shading_rel"]
+value = 0.02
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.8
+source = "PRELIMINARY: shading/snow/edge 0-5%, site-specific, UNKNOWN until layout exists"
+effect = "shading bar"

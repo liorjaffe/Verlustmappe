@@ -1,0 +1,95 @@
+# plant/pv_inverter.toml - PV-Wechselrichter (2 x Solis, F8)
+# Werte, Status und Quellen 1:1 aus registry.py und SOURCES.md uebernommen (2026-11-05).
+# Werte aendert nur der Owner. Fehlender Wert = kein 'value'-Feld (MISSING).
+
+[device]
+name = "pv_inverter"
+title = "PV-Wechselrichter (2 x Solis, F8)"
+
+[open]
+questions = [
+  "D6: Datenblatt S6-GR1P6K fehlt.",
+]
+
+[source_block]
+title = "F8 SolisCloud portal chart cadence (docs/03; D32)"
+text = '''
+- **Value and unit:** `300 s` minimum observed interval; nominal grid derived under D32(a), not a registry parameter.
+- **Source:** SolisCloud portal, `data/raw/Daily+Power+Station+Chart_29-10-2026.xls`, owner-provided export; SHA-256 `754740b3eb2e8f119bfa1b200fa2f0ae2c66b872c28bdc3166d416281d742621`.
+- **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.
+- **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.
+- **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.
+- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the F8 nameplate capacity remains 12.74 kWp (28 x 455 W) per the registry, pending a separate owner decision on the discrepancy.
+- **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).
+- **Used by:** docs/03 nominal-sampling table.
+- **Reviewer/date:** owner approved 2026-10-29.'''
+
+[notes]
+# Kommentare aus registry.py, wortgleich, ungeprueft:
+registry_comments = '''
+# --- TWO SEPARATE INVERTERS (kept apart, they are different devices and
+#     must stay separately analysable: PV-side vs FC-side) ---
+# NOTE F8: inv_pv.eta_euro below remains PRELIM; no S6-GR1P6K efficiency
+# datasheet is registered. The previous S5-EO1P5K-48 values belong to the
+# FC-side inverter and are not valid for this PV boundary.
+# PV-side inverter: string inverter, PV DC -> AC bus.
+# F8 PV-side inverters are S6-GR1P6K string inverters, distinct from inv_fc.
+# TODO(owner): record device-identity correction in 00 CURRENT STATE.
+# F8 full-production-day cross-check: after removing the +3-4% DC-channel
+# bias, eta_dc_ac ~1.00 is consistent with true eta ~0.97-0.98.'''
+
+[param."inv_pv.model"]
+value = "2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009)"
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206"
+effect = "identifies the F8 inverters"
+
+[param."inv_pv.eta_pv_ac_peak"]
+value = 0.966
+unit = "-"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter"
+effect = "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
+
+[param."inv_pv.eta_manual_range"]
+value = "0.93-0.95"
+unit = "-"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter"
+effect = "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
+
+[param."inv_pv.eta_euro"]
+value = 0.98
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.01
+source = "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters; no F8-specific datasheet yet (D6 open). F8 cross-checks must come from Solis data (f8_day_balance)"
+effect = "PV DC->AC conversion bar"
+
+[param."inv_pv.eta_peak"]
+value = 0.985
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.005
+source = "PRELIMINARY: typical max efficiency 98-98.5%"
+effect = "peak reference only, NOT for energy accounting"
+
+[param."inv_pv.standby_W"]
+value = 5
+unit = "W"
+status = "PRELIM"
+uncertainty = 0.5
+source = "PRELIMINARY: typical standby/night consumption 1-10 W"
+effect = "PV inverter standby bar"
+
+[param."inv_pv.mppt_efficiency"]
+value = 0.995
+unit = "-"
+status = "PRELIM"
+uncertainty = 0.005
+source = "PRELIMINARY: typical MPPT efficiency >99%"
+effect = "folded into conversion bar unless measured separately"
