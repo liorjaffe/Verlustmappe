@@ -58,9 +58,10 @@ def main():
     assert a["water_status"].startswith("DATASHEET")
     assert any("fallback" in w.lower() or "h2" in w.lower() for w in a["warnings"]), a["warnings"]
 
-    # 6. filter train booked at 0 W (GUESS status) with a warning
-    assert af["filter_train_energy_kWh"] == 0.0
-    assert any("filter-train pump" in w for w in af["warnings"])
+    # 6. unknown pump energy remains open and carries its reason
+    assert af["filter_train_energy_kWh"] is None
+    assert af["filter_train_status"] == "BACKLOG"
+    assert any("BACKLOG" in w and "CONTRACT sec. 7" in w for w in af["warnings"])
 
     # 7. measured energy/water replace the model, model stays visible
     am = WaterSystem().account(duration_h=10.0, measured_kWh=0.05, measured_water_L=4.0)
@@ -72,7 +73,7 @@ def main():
     asw = WaterSystem().account(duration_h=1.0, h2_produced_NL=500.0, ro_standby_always_on=False)
     assert abs(asw["energy_kWh_model"] - (wf / 120.0 * 0.2 + wf / 120.0 * 0.003)) < 1e-12
 
-    # 9. annual extrapolation matches the workbook: 7566 FLH -> 27.7 kWh/yr
+    # 9. illustrative annual extrapolation with standby over the same window
     a_y = WaterSystem().account(duration_h=7566.0, h2_produced_NL=500.0 * 7566.0)
     assert abs(a_y["energy_kWh_model"] - (wf * 7566 / 120.0 * 0.2 + 7566 * 0.003)) < 1e-6
     assert abs(a_y["energy_kWh_model"] - 27.742) < 0.05, a_y["energy_kWh_model"]

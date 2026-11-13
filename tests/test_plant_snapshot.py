@@ -1,6 +1,7 @@
-"""N2 migration proof: plant/*.toml carries every registry entry and SOURCES.md entry
-of 2026-11-05 unchanged. Expected values come from a snapshot written from the old files
-before the migration, not from the code under test."""
+"""N2 migration proof, with the approved open pump correction.
+
+Other expected values come from the snapshot written before the migration.
+"""
 import json
 import sys
 import tomllib
@@ -35,6 +36,15 @@ def test_every_field_identical_including_type():
     from verlustmappe import registry as R
     for key, expected in SNAPSHOT["registry"].items():
         actual = R.REGISTRY[key]
+        if key == "water.filter_train_power_W":
+            expected = {
+                "value": None,
+                "unit": "W",
+                "status": "BACKLOG",
+                "uncertainty": 0.0,
+                "source": "Water_System_Specs_Master.xlsx, Inputs B9 and Water System row 28: pump wattage not documented; site nameplate or measurement required",
+                "effect": "pump energy remains open until power and operating time are established",
+            }
         for field in FIELDS:
             assert actual[field] == expected[field], (key, field)
             assert type(actual[field]) is type(expected[field]), (key, field)
