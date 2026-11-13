@@ -11,9 +11,13 @@ temperature inside an 800 L steel tank is NOT ambient for hours after a fill
 bracket, heat-exchange model is the tightest).
 
 Tiers (see tank_thermal.py and handbook card C):
-  tier 1: T = ambient, +-3 K placement/systematic, +-15 K fast-fill bias
+  tier 1: provisional registered temperature assumption (GUESS), no measured T;
+          rectangular-band standard uncertainty plus separate existing 3 K allowance;
+          +-15 K fast-fill scenario
           -> the isothermal/adiabatic bracket quantifies the latter
-  tier 2: measured (top+bottom mean, or bottom-pipe), +-2 K placement
+  tier 2: explicitly supplied synthetic/future temperature inputs, +-2 K placement
+          (existing assumption, not validated for the planned shell sensor).
+          Pt100 data path suspended; future shell concept retained as BACKLOG.
   tier 3: model T from the GS_tank fit (pressure-decay calibration)
 """
 import numpy as np
@@ -22,12 +26,17 @@ from ..physics import constants as C
 from .. import registry as R
 from .z_realgas import z_h2, Z_TABLE_UNCERTAINTY_REL
 from .temperature_model import hot_end_fill_bracket, tier1_temperature, tier2_temperature
+from .temperature_model import assumed_temperature_standard_uncertainty_K
+from ..accounting.status import weakest
 
 def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None,
                           tier=1, T_top_C=None, T_bottom_C=None, return_bracket=False,
-                          bundle_isolated=None):
-    """tier 1: T from ambient assumption (registry-free, +-3 K + fast-fill bias)
-    tier 2: T from measured sensors (pass T_top_C / T_bottom_C)
+                          bundle_isolated=None, *, analyze_temperature_uncertainty=False):
+    """tier 1: T from registered provisional assumption unless explicitly supplied.
+    tier 2: explicitly supplied synthetic/future inputs (T_top_C / T_bottom_C).
+    The interface does not imply installed top/bottom sensors.
+    The +/-10 K band is analyzed only on explicit request. The main calculation
+    models the stated temperatures; existing route uncertainty terms are retained.
     """
     if bundle_isolated is None:
         raise ValueError("bundle_isolated is required: stor.volume_L = 800 L holds only while the "
@@ -36,10 +45,16 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
                          "volume and pass False.")
     if tier == 3:
         raise NotImplementedError("tier 3 (GS_tank model) is not wired in yet")
+    if tier == 2 and T_top_C is None and T_bottom_C is None:
+        raise ValueError("tier=2 requires explicit T_top_C or T_bottom_C; "
+                         "Pt100 data path is suspended; no ambient fallback is allowed")
 
     V = R.get("stor.volume_L") / 1000.0
     p1, p2 = p_start_barg + C.P_ATM_BAR, p_end_barg + C.P_ATM_BAR
-    if tier == 2 and (T_top_C is not None or T_bottom_C is not None):
+    temperature_is_assumed = tier != 2 and (T_start_C is None or T_end_C is None)
+    both_temperatures_assumed = tier != 2 and T_start_C is None and T_end_C is None
+    mixed_temperature_sources = temperature_is_assumed and not both_temperatures_assumed
+    if tier == 2:
         T_start, u_T_start = tier2_temperature(T_top_C if T_top_C is not None else T_bottom_C,
                                                T_bottom_C)
         T_end, u_T_end = T_start, u_T_start
@@ -60,6 +75,13 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     fso_abs = R.get("meas.p_sensor_fso_bar")
     amp = max(p1, p2) / max(abs(p2 - p1), 1e-9)
     u_T_frac = u_T_start / max(T_start_C + 273.15, 1.0)
+    analyze_assumption = analyze_temperature_uncertainty and temperature_is_assumed
+    u_assumed_temperature_K = assumed_temperature_standard_uncertainty_K() if analyze_assumption else None
+    # Owner-approved fixed-Z approximation: a common offset on two assumed
+    # states contributes u_T/T, not independent per-reading sqrt(2) terms.
+    u_assumed_temperature_rel = (
+        u_assumed_temperature_K / (T_start_C + 273.15) if analyze_assumption and both_temperatures_assumed
+        else None if not analyze_temperature_uncertainty or mixed_temperature_sources else 0.0)
     # Propagation (GUM, independent contributions):
     #  - pressure: the sensor error is ABSOLUTE (FSO-based, +-2.0 bar per
     #    reading, independent) -> sigma(dp) = fso_abs*sqrt(2), relative to the
@@ -75,10 +97,40 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
     u = float(np.sqrt((fso_abs * np.sqrt(2) / max(abs(p2 - p1), 1e-9))**2 +
                       R.entry("stor.volume_L")["uncertainty"]**2 +
                       (Z_TABLE_UNCERTAINTY_REL * amp)**2 +
-                      u_T_frac**2))
+                      u_T_frac**2 +
+                      (u_assumed_temperature_rel**2
+                       if analyze_assumption and both_temperatures_assumed else 0.0)))
     out = dict(route="tank_pv", mol=dmol, kg=kg, NL=mol_to_NL(dmol), kWh_LHV=kg_to_kWh_LHV(kg),
                uncertainty_rel=u, temperature_tier=tier,
                T_used_C=(T_start_C, T_end_C),
+               temperature_is_assumed=temperature_is_assumed,
+               temperature_status="GUESS" if temperature_is_assumed else None,
+               evidence_status=weakest(("DATASHEET", R.entry("stor.T_assumed_C")["status"]))
+               if temperature_is_assumed else None,
+               origin="computed",
+               temperature_uncertainty_analysis_requested=analyze_temperature_uncertainty,
+               temperature_standard_uncertainty_K=u_assumed_temperature_K,
+               temperature_assumption_uncertainty_rel=u_assumed_temperature_rel,
+               temperature_model_allowance_K=u_T_start,
+               temperature_model_allowance_rel=u_T_frac,
+               temperature_correlation_assumption="fully common offset; owner model choice"
+               if analyze_assumption and both_temperatures_assumed else "not assessed for mixed sources"
+               if analyze_assumption and mixed_temperature_sources else "band analysis not performed"
+               if not analyze_temperature_uncertainty else "no registered temperature assumption used",
+               temperature_source=R.entry("stor.T_assumed_C")["source"]
+               if temperature_is_assumed else "explicitly supplied; not automatically measured",
+               uncertainty_incomplete=analyze_assumption and mixed_temperature_sources,
+               uncertainty_note=("mixed explicit/assumed temperatures: correlation and difference "
+                                 "propagation require reassessment; total shown is partial")
+               if analyze_assumption and mixed_temperature_sources else
+               ("GUESS rectangular band propagated as common-offset fixed-Z first-order u_T/T; "
+                "3 K allowance separate; model uncertainty only, volume confirmation and measurement "
+                "validation remain open")
+               if analyze_assumption and both_temperatures_assumed else
+               "defined model temperatures; no +/-10 K band analysis performed; "
+               "existing route uncertainty terms are not measurement validation"
+               if not analyze_temperature_uncertainty else
+               "existing temperature allowance is not sensor validation",
                independent_of=["faraday", "telemetry", "water", "nameplate"],
                blind_to=["nothing upstream; only sees net change in the tank"],
                note=("pressure uncertainty from DCT 541 (0.5%% FSO), amplification %.1f; "

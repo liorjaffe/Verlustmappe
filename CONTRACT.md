@@ -105,6 +105,9 @@ layer 3 (D34).
   computed separately.
 - [E] State quantities of an operating point are inputs: tank pressure, gas temperature,
   battery SoC, connected storage volume (800 L isolated, otherwise 1600 L).
+- [E] Storage has no working-pressure constant or default setpoint: tank pressure is an
+  explicit input, measured for validation. The withdrawn installer value is not a fallback;
+  300 barg PS remains a permissible limit only.
 
 ## 6 Balance rules
 
@@ -120,9 +123,10 @@ layer 3 (D34).
 - [E] For the gas lines from EL via HULC to storage, assume zero line pressure and
   enthalpy losses. This is a model assumption, not a measured result or a zero-leakage
   assumption; it does not cover device losses.
-- [E] A residual R is only a diagnostic: where the same quantity is determined twice
-  independently. In a model case only as EL consistency (AC versus V(I,T)·I plus rectifier
-  loss).
+- [E] Residuals are diagnostic only and never booked as losses. Production minus delivered
+  H₂ may be reported as `production_minus_delivered_residual`; its cause is NOT established
+  (purge, vent and leakage are candidates, not findings). In a model case, EL consistency
+  (AC versus V(I,T)·I plus rectifier loss) is another diagnostic residual.
 - [E] Heat is an output in a full energy balance and part of the conversion loss in a
   useful-energy account – never both.
 - [E] A consumption already contained in a higher-level reading is not added again
@@ -169,11 +173,11 @@ layer 3 (D34).
 - [V] New scheme: `status` = MEASURED > DATASHEET > SECONDARY > ASSUMED > MISSING; the
   weakest input determines the result. `origin` = measured | computed.
   `u_kind` = none | band | envelope. u = 0 means "not assessed" unless stated otherwise.
-- Until decided, the status recorded in `plant/<device>.toml` applies. The Python
-  registry loads the TOML parameters; it does not import the source workbooks.
-  The original migration copied the old registry, but later changes are not
-  required to remain identical to that historical snapshot. Source workbooks
-  and their evidence status must be checked when updating plant data.
+- `plant/<device>.toml` is the current project/runtime source of truth for plant parameters;
+  Python loads it and does not import workbooks. XLSX files and referenced documents are
+  evidence/input sources, not immutable truth. Transfers may be corrected or sources
+  replaced with owner approval. Check provenance, transfer accuracy and physical plausibility;
+  raise conflicts or unsupported values for owner review rather than silently accepting them.
 - [E] Most values still lack a page reference and verbatim quote; that is open work, not a
   confirmation of the values.
 - [E] The `comp.*` keys (wrong device, Maximator DLE 30-2) must never be used in new code
@@ -190,6 +194,32 @@ layer 3 (D34).
   only this verdict, not calibration; until the repeatability test, measured closure is
   NOT VERIFIABLE (D20, D8).
 - Tank pressure and gas temperature are simulated states until the retrofit (D8).
+- [E] Storage temperature concept: one Pt100, 4-wire, class A on the insulated cylinder
+  shell (lower/middle near outlet valve), a gas-temperature proxy only at equilibrium.
+  Not installed, no hardware ordered, no measured tank temperature exists; inline well open.
+  Pt100 data path is suspended: no data integration or required Pt100 channels. Planning
+  remains BACKLOG. Enapter telemetry belongs only to its actual measurement points, not the tank.
+- [E] Provisional storage/booster calculations without explicit temperature use registered
+  `stor.T_assumed_C` = 20 degC, GUESS, owner-chosen rectangular band +/-10 K,
+  u_T = 10/sqrt(3) K; registry uncertainty is relative to 293.15 K, not to degC.
+  Static main runs calculate at defined scenario temperatures; no seasonal coverage,
+  measured temperature or validation is claimed. The band is a separate optional analysis,
+  requested by `analyze_temperature_uncertainty=True` in storage and Route 2, using
+  fixed-Z first-order u_T/T. Default runs do not include this term or use its unknown
+  correlation as an incompleteness gate. Route 2's other existing uncertainty terms,
+  including its 3 K allowance, stay unchanged. In the optional analysis two assumed states
+  use a fully common offset by model choice; mixed explicit/assumed states require
+  reassessment and make that analysis uncertainty-incomplete. Numeric completeness is
+  not volume confirmation or measurement validation; other uncertainty inputs are unchanged.
+  Local project Z(T) mass sensitivity at 300 bar absolute / 20 degC is -0.286176 %/K;
+  fixed-Z context is -0.341122 %/K. These are calculated references, not model inputs.
+  For real-state/measurement evaluation replace the scenario assumption with an approved
+  real tank-temperature source; other device temperatures
+  are unchanged. Generic temperature functions and synthetic tests remain available;
+  Route 2 tier=2 without explicit sensor-temperature input raises an error.
+- [E] Storage 1430 kg is nameplate TARA including the frame, not effective thermal mass.
+  Effective thermal mass is open; GS fitting may run gas-only. TARA in a thermal fit requires
+  an explicit upper-bound assumption.
 - First calibration candidate: FC terminal characteristic from Regatron sweeps (D4). The
   Regatron current is bus/load side, never FC output.
 
@@ -197,3 +227,9 @@ layer 3 (D34).
 
 Every number appears with status, layer and assumptions. A computed value must never look
 like a measured one. "Validated" only from layer 3 and only for the checked windows.
+
+## 11 Agent workflow
+
+Agent workflow, scope, approvals, verification and reporting are governed by `AGENTS.md`.
+Project-specific requirements in this contract remain binding. If they conflict, pause the
+affected work and ask the owner.

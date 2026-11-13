@@ -1,21 +1,32 @@
 # plant/storage.toml - H2 storage (VITKOVICE) incl. pressure sensor DCT 541
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
-# Only the owner changes values. Missing value = no 'value' field (MISSING).
+# Current runtime record; supporting workbook reviewed 2026-11-13.
+# Only owner-approved corrections applied. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "storage"
 title = "H2 storage (VITKOVICE) incl. pressure sensor DCT 541"
 
+[open]
+questions = [
+  "BACKLOG: thermally effective steel mass is unknown; bundle TARA includes the frame.",
+  "BACKLOG: Pt100 data path suspended; hardware is not installed or ordered; no measured tank temperature exists. Keep the decided future concept for procurement.",
+  "BACKLOG: inline thermowell remains an option only; supplier cannot fit a well directly on the 3/8 in line.",
+]
+
 [notes]
-# Comments from registry.py, verbatim, unchecked:
-registry_comments = '''
-# ===================== STORAGE =====================
-# Tank identity from the nameplate photo (VITKOVICE CYLINDERS S-16-50-22-27):
-# UN 1049 compressed hydrogen, PS 300 bar / 65 C, safety valve 330 bar,
-# permissible temperature -20/+65 C, water volume 800 L, steel cylinder.
-# This RESOLVES the former BACKLOG on tank volume and the 200/300 bar conflict.
-# ---- pressure sensor: BD Sensors DCT 541 (folder: DCT 541 datasheet) ----
-# ---- temperature sensing on the tank (PLANNED, option prepared) ----'''
+workbook = "plant/sources/Storage_H2_System_Specs_Master.xlsx"
+owner_decision = "decisions/2026-11-13-storage-data.md"
+working_pressure = "Owner 2026-11-13 withdraws stor.p_work_barg: Master row 6 / [S7] is an installer statement, not a valid working-pressure source for this plant. No replacement setpoint or fallback; tank pressure is an explicit input. PS is a permissible limit only."
+transfer_scope = "Owner-approved working-pressure removal, TARA clarification, retained future temperature concept, Pt100 data-path suspension and provisional temperature assumption. Workbook calculated/EOS values are not imported; other parameters and uncertainties remain unchanged."
+temperature_policy = "Owner 2026-11-13: Pt100 data path suspended, planning remains BACKLOG. Static main runs model a defined temperature, using stor.T_assumed_C when none is supplied. The +/-10 K band is a separate optional analysis, never an automatic main-run term or measurement-validity gate. Enapter telemetry belongs to its own measurement points, never the tank."
+
+[param."stor.T_assumed_C"]
+value = 20.0
+unit = "degC"
+status = "GUESS"
+uncertainty = 0.019694704731012306
+source = "Owner decision 2026-11-13 (decisions/2026-11-13-storage-data.md): 20 degC GUESS for provisional storage/booster calculations; rectangular band +/-10 K, standard u_T=10/sqrt(3) K. The uncertainty field is relative to ABSOLUTE temperature 293.15 K, not to 20 degC. Transferability: deliberate model convention for this plant, not measured/validated; no claimed seasonal coverage."
+effect = "defined model temperature for static main runs, not a measured state. Rectangular-band uncertainty is used only with analyze_temperature_uncertainty=True: fixed-Z first-order u_T/T, separate from Route 2's existing 3 K allowance. Common-offset correlation is an optional-analysis model choice; mixed sources make only that analysis incomplete. Actual Z(T) local mass sensitivity at 300 bar absolute / 20 degC is -0.286176%/K; fixed-Z context -0.341122%/K. Sensitivities are references, not model inputs."
 
 [param."stor.volume_L"]
 value = 800
@@ -38,8 +49,8 @@ value = 1430
 unit = "kg"
 status = "DATASHEET"
 uncertainty = 0.2
-source = "nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature"
-effect = "thermal mass of the tank in the GS fit"
+source = "Storage_H2_System_Specs_Master.xlsx, Master C28/O28, Sources S1 (row 2): VITKOVICE nameplate photo 20261001_083001, 'TARA' 1430 kg incl. frame; NOT thermally effective steel mass. Transferability: same plant bundle; effective thermal mass OPEN."
+effect = "bundle TARA only; GS fit runs gas-only without steel_mass_kg. Any use of 1430 kg as thermally effective mass requires an explicit upper-bound assumption, not a measured thermal mass."
 
 [param."stor.p_max_barg"]
 value = 300
@@ -47,15 +58,7 @@ unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
 source = "VITKOVICE nameplate: maximum allowable pressure PS 300 bar at 65 C; safety valve 330 bar"
-effect = "range check; working pressure set by the process (see stor.p_work_barg)"
-
-[param."stor.p_work_barg"]
-value = 200
-unit = "barg"
-status = "DATASHEET"
-uncertainty = 0.0
-source = "installer H2 Core Systems: stored at 200 bar (UFSC paper confirms operation at 200 bar, DoD 80% analogon)"
-effect = "working upper pressure for cycles"
+effect = "permissible pressure limit only; tank pressure is an explicit input, never a working-pressure fallback"
 
 [param."stor.T_max_C"]
 value = 65
@@ -138,9 +141,9 @@ source = "DCT 541 datasheet: measuring rate 500 Hz, delay 500 ms"
 effect = "far above the 20 Hz fast-log requirement; latency budget"
 
 [param."stor.temp_sensor_planned"]
-value = "multi-point (top + bottom) PT100 class A or type-K, surface + gas-well; papers recommend bottom-pipe region as closest to mean gas temp (Nexo study: T3) and top/bottom pair for stratification (de Miguel IJHE 2015)"
+value = "1 x Pt100, 4-wire, class A on the insulated cylinder shell (lower/middle, near outlet valve); wall temperature as gas-temperature proxy only in equilibrated states. Decided concept 2026-10-08; NOT installed, no hardware ordered, no measured tank temperature exists. Inline thermowell remains an open option."
 unit = "-"
 status = "BACKLOG"
 uncertainty = 0.0
-source = "see handbook card C and docs/05_tank_thermal_sensing.md"
-effect = "Route 2 temperature input; replaces the ambient-T assumption"
+source = "Storage_H2_System_Specs_Master.xlsx, Master row 56, Corrections row 8, Sources S7 (row 8): '00 CURRENT STATE' decision 2026-10-08, '1 x Pt100 4-wire class A on the cylinder shell'; owner confirmation 2026-11-13: not installed or ordered. Transferability: intended for this plant; no measurement evidence."
+effect = "future concept retained as BACKLOG; Pt100 data path suspended by owner 2026-11-13. No expected Pt100 channels or measurement dependency; provisional calculations use the registered assumption, not this concept."

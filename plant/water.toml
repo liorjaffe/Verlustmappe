@@ -1,7 +1,6 @@
-# plant/water.toml - Water system: RO unit (BWT bestaqua 14ROC COFFEE) and filter train with pump (Popular Filtros)
-# Existing values originated in the 2026-11-05 registry snapshot.
-# Water-system details checked against Water_System_Specs_Master.xlsx (2026-11-12).
-# Missing value = no 'value' field (BACKLOG).
+# Water-system project parameters: BWT bestaqua 14ROC COFFEE and filter train/pump.
+# This TOML is the current project/runtime record. Workbooks and documents below are
+# supporting inputs/evidence; transfers and physical plausibility remain reviewable.
 
 [device]
 name = "water"
@@ -15,9 +14,6 @@ questions = [
 ]
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
-registry_comments = '''
-# ===================== WATER SYSTEM (RO + filter train) ====================='''
 workbook = "plant/sources/Water_System_Specs_Master.xlsx"
 identification = "Workbook Water System rows 4-6 and 26-28: BWT bestaqua 14ROC COFFEE, serial 187716-0073, part 821041; the photographed filter housing/panel is identified as Marte Cientifica Purimarte ORM-type. Exact model and hydraulic connection remain unverified."
 filter_train = "Workbook Water System row 27: photographed labels RESINA, CARVAO, 1 MICRA, 5 MICRAS; stage functions are not documented by the photos. The workbook describes the ORM sequence separately; do not infer the installed flow direction."

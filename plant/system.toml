@@ -1,20 +1,13 @@
-# plant/system.toml - System-wide quantities without a device of their own
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
-# Only the owner changes values. Missing value = no 'value' field (MISSING).
+# System-wide project parameters without a device of their own.
+# This TOML is the current project/runtime record; cited evidence may be reviewed or replaced.
 
 [device]
 name = "system"
 title = "System-wide quantities without a device of their own"
 
-[notes]
-# Comments from registry.py, verbatim, unchecked:
-registry_comments = '''
-# ===================== MEASUREMENT CHAIN ====================='''
-
-[param."meas.power_rel_unc"]
-value = 0.02
+[param."meas.current_rel_unc"]
 unit = "-"
-status = "GUESS"
-uncertainty = 0.5
-source = "ASSUMPTION: device-reported power (Enapter (EL) and legacy building-array telemetry), no independent power analyser yet"
-effect = "floor of every efficiency's uncertainty"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "BACKLOG: stack-current measurement uncertainty is not documented; obtain a sourced value before owner-approved wiring"
+effect = "candidate input for route1 uncertainty once a sourced value exists and the owner approves wiring; never use in quadrature before then"

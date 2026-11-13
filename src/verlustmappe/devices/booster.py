@@ -25,7 +25,7 @@ from ..physics.conversions import isothermal_work_kWh, NL_to_mol
 from ..hydrogen.temperature_model import isothermal_work_mol_integral
 
 class AirDrivenBooster:
-    def account(self, throughput_NL, p_in_barg, p_out_barg, T_C=20.0, air_compressor_kWh=None,
+    def account(self, throughput_NL, p_in_barg, p_out_barg, T_C=None, air_compressor_kWh=None,
                 p_tank_start_barg=None, p_tank_end_barg=None):
         """Compressor work for moving throughput_NL of gas into storage.
 
@@ -36,7 +36,16 @@ class AirDrivenBooster:
         Pass p_tank_start_barg / p_tank_end_barg (the storage window) and the
         integral runs against the suction pressure p_in_barg (EL output).
         Without a window the single-shot form at (p_in -> p_out) is kept, which
-        is the correct assumption when all gas is compressed at once."""
+        is the correct assumption when all gas is compressed at once.
+        Missing temperature uses stor.T_assumed_C (GUESS), not Pt100/telemetry."""
+        temperature_is_assumed = T_C is None
+        if temperature_is_assumed:
+            T_C = R.get("stor.T_assumed_C")
+        temperature = dict(
+            T_used_C=T_C, temperature_is_assumed=temperature_is_assumed,
+            temperature_source=R.entry("stor.T_assumed_C")["source"]
+            if temperature_is_assumed else "explicitly supplied; not automatically measured",
+            temperature_status="GUESS" if temperature_is_assumed else None)
         mol = NL_to_mol(throughput_NL)
         p_in_abs = p_in_barg + C.P_ATM_BAR
         p_out_abs = p_out_barg + C.P_ATM_BAR
@@ -66,9 +75,10 @@ class AirDrivenBooster:
         if air_compressor_kWh is not None:
             return dict(unit="CSU", ideal_work_kWh=w_ideal, energy_kWh=air_compressor_kWh,
                         overall_efficiency=w_ideal / air_compressor_kWh if air_compressor_kWh else None,
-                        energy_is_measured=True, warning=None)
+                        energy_is_measured=True, warning=None, **temperature)
         eta = R.get("comp.overall_efficiency")
         return dict(unit="CSU", ideal_work_kWh=w_ideal, energy_kWh=w_ideal / eta,
                     overall_efficiency=eta, energy_is_measured=False,
                     uncertainty_rel=R.entry("comp.overall_efficiency")["uncertainty"],
-                    warning="compression energy = ideal work / REJECTED legacy efficiency (D11); meter the Kaeser (D14)")
+                    warning="compression energy = ideal work / REJECTED legacy efficiency (D11); meter the Kaeser (D14)",
+                    **temperature)

@@ -13,14 +13,21 @@ for hours after a fill.
 THREE-TIER TEMPERATURE MODEL (used by tank_pv.py when Tier 2/3 data exists):
 
 Tier 1 (today, no tank temperature sensor):
-    T_gas = T_ambient, uncertainty +1 K per reading (registered).
+    Provisional gas temperature from stor.T_assumed_C (GUESS), not measurement.
+    Its rectangular-band standard uncertainty is separate from the existing
+    3 K model allowance; neither is a measured tank temperature.
     Literature warning: on fast fills the gas heats by 60-90 K (de Miguel:
     Delta T_avg = 64-96 K for Type IV, 64-77 K for Type III steel); the ambient
     assumption is then WRONG BY TENS OF KELVIN on a per-mass basis ~ (deltaT/T).
     Valid ONLY for slow cycles with long rest periods (hours).
 
-Tier 2 (future, planned sensors - registry stor.temp_sensor_planned):
-    Direct gas or boss measurement. Literature guidance:
+Tier 2 (generic explicit inputs; Pt100 data path suspended):
+    Decided concept: one Pt100, 4-wire, class A on the insulated cylinder shell,
+    lower/middle near the outlet valve (registry stor.temp_sensor_planned).
+    Wall temperature is a gas-temperature proxy only in equilibrated states.
+    Inline thermowell remains an open option. No measured tank temperature exists.
+    The helper accepts explicitly supplied synthetic or future measurements;
+    its top/bottom interface is not the decided hardware layout. Literature guidance:
       - during FILLING the gas is almost perfectly uniform (forced convection
         by the jet) -> ONE sensor anywhere in the gas is representative;
       - during HOLD/EMPTY the gas stratifies vertically -> top + bottom pair
@@ -29,8 +36,8 @@ Tier 2 (future, planned sensors - registry stor.temp_sensor_planned):
         mean gas temperature best; surface temps lag with wall inertia.
     Uncertainty budget: PT100 class A = +-0.15 K + 0.002*|T| (IEC 60751);
     placement bias 1-3 K (boss/pipe vs gas mean, from de Miguel Fig. 4/6
-    lag behaviour). Sensor choice is an option in the registry, not a purchase
-    decision yet - the module takes whatever T series it is given.
+    lag behaviour). These existing uncertainty assumptions are not validated
+    for the planned shell sensor.
 
 Tier 3 (model-based, no internal sensor):
     Lumped energy balance as in the Nexo paper (their eqs 2-3):
@@ -50,11 +57,22 @@ from ..physics import constants as C
 from .. import registry as R
 from .z_realgas import z_h2
 
-def tier1_temperature(T_ambient_C=20.0):
-    """Tier 1: gas = ambient. Returns temperature and an honest uncertainty (K)."""
+def tier1_temperature(T_ambient_C=None):
+    """Provisional temperature: registered assumption unless explicitly supplied.
+
+    Returns the existing 3 K model allowance, separate from the registered
+    rectangular-band uncertainty of the GUESS assumption.
+    """
+    if T_ambient_C is None:
+        T_ambient_C = R.get("stor.T_assumed_C")
     # 1 K instrument/reading; +placement/systematic term because the gas is NOT
     # guaranteed at ambient (thermal inertia of an 800 L steel tank)
     return T_ambient_C, 3.0
+
+def assumed_temperature_standard_uncertainty_K():
+    """Registry uncertainty is relative to absolute temperature, never to degC."""
+    entry = R.entry("stor.T_assumed_C")
+    return entry["uncertainty"] * (entry["value"] + 273.15)
 
 def tier2_temperature(T_top_C, T_bottom_C=None, method="mean"):
     """Tier 2: measured. Mean of top/bottom if both exist (stratification),
@@ -79,6 +97,9 @@ def gs_fit_from_pressure_decay(t_s, p_abs_bar, T_amb_C=20.0, V_L=None, Z_at=None
     Returns (GS_tank_W_per_K, tau_s, fit_quality_r2); GS is the combined value
     when steel_mass_kg is given, otherwise gas-only. return_detail=True returns
     a dict with gas-only and combined GS.
+    No registry steel mass is loaded: stor.steel_mass_kg is bundle TARA including
+    the frame, NOT thermally effective mass. Passing that value requires an
+    explicit upper-bound assumption; effective thermal mass remains open.
     Method: Nexo paper - same idea, they fitted GS = 70 W/K on a vehicle tank
     from resting-period pressure data.
     """
@@ -171,17 +192,22 @@ def isothermal_work_mol_integral(mol, p1_abs_bar, p2_abs_bar, T_K, p_suction_abs
     return float(mol * w_per_mol / C.J_PER_KWH)
 
 
-def hot_end_fill_bracket(p1_abs_bar, p2_abs_bar, V_L, T_ambient_C=20.0, delta_T_K=15.0):
+def hot_end_fill_bracket(p1_abs_bar, p2_abs_bar, V_L, T_ambient_C=None, delta_T_K=15.0):
     """Tier-1 honesty bracket for a fast fill: the gas starts at ambient and is
     hot (ambient + delta_T) only at the END of the fill. The mass change
     assumed at ambient throughout (m_cold) is compared with the real one
     (start ambient, end hot). relative_spread = bias of the ambient assumption
-    relative to the real mass change."""
+    relative to the hot-end scenario (not a measured mass change).
+    Missing base temperature uses stor.T_assumed_C."""
+    temperature_is_assumed = T_ambient_C is None
+    if temperature_is_assumed:
+        T_ambient_C = R.get("stor.T_assumed_C")
     m_cold = (temperature_corrected_mass(p2_abs_bar, V_L, T_ambient_C)
               - temperature_corrected_mass(p1_abs_bar, V_L, T_ambient_C))
     m_hot_end = (temperature_corrected_mass(p2_abs_bar, V_L, T_ambient_C + delta_T_K)
                  - temperature_corrected_mass(p1_abs_bar, V_L, T_ambient_C))
     return dict(mass_cold_assumption_kg=m_cold, mass_hot_end_kg=m_hot_end,
+                T_base_C=T_ambient_C, temperature_is_assumed=temperature_is_assumed,
                 relative_spread=(m_cold - m_hot_end) / m_hot_end if m_hot_end else None,
                 note=("bias of the ambient-T assumption for a fast fill (start ambient, "
                       "hot only at the end); delta_T_K should reflect the fill rate (papers: "

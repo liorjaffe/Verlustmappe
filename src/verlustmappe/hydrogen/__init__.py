@@ -4,14 +4,14 @@ Route 3 (telemetry), Route 4 (water), Route N (nameplate bound).
 
 No hydrogen flow meter exists in this plant. Hydrogen mass is never "measured";
 it is ESTIMATED by several routes and the routes are compared (z_closure.py).
-Route disagreement IS the reported hydrogen uncertainty; production-minus-
-delivered is a physical gas-loss estimate.
+Only complete, same-quantity routes contribute to an agreement uncertainty.
+Production-minus-delivered is a diagnostic residual, not an established loss.
 
 Support modules (z_ prefix, alphabetical after the routes):
   z_realgas.py         compressibility factor Z (NIST/Leachman table)
   temperature_model.py three-tier tank gas temperature (ambient / sensors /
                        GS-fit model, from the Nexo + de Miguel papers)
-  z_closure.py         route agreement + gas-loss estimate
+  z_closure.py         route agreement + diagnostic residual
 """
 from .route1_faraday import h2_from_stack_current
 from .route2_tank_pv import h2_from_tank_pressure

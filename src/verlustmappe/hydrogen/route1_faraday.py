@@ -16,13 +16,11 @@ fuel-cell side it underestimates consumed gas.
 """
 import numpy as np
 from ..physics.conversions import mol_from_charge, mol_to_kg, mol_to_NL, kg_to_kWh_LHV
-from .. import registry as R
 
 def h2_from_stack_current(I_stack_paths, dt_s, n_cells, faradaic_eff, device="el"):
     """I_stack_paths: list of 1-D arrays, one per parallel stack. dt_s: sample
     intervals [s] (array or scalar). device: 'el' (production) or 'fc'
-    (consumption) - selects the direction of the efficiency correction and the
-    registry entries used for the uncertainty."""
+    (consumption) - selects the direction of the efficiency correction."""
     if device not in ("el", "fc"):
         raise ValueError(device)
     paths = I_stack_paths if isinstance(I_stack_paths, (list, tuple)) else [I_stack_paths]
@@ -34,12 +32,11 @@ def h2_from_stack_current(I_stack_paths, dt_s, n_cells, faradaic_eff, device="el
     else:
         mol = mol_faraday / max(faradaic_eff, 1e-3)
     kg = mol_to_kg(mol)
-    u_n = R.entry(f"{device}.n_cells")["uncertainty"]
-    u_f = R.entry(f"{device}.faradaic_efficiency")["uncertainty"]
-    u_p = R.get("meas.power_rel_unc")
-    u = float(np.sqrt(u_n**2 + u_f**2 + u_p**2))
     return dict(route=f"faraday_{device}", mol=mol, kg=kg, NL=mol_to_NL(mol),
-                kWh_LHV=kg_to_kWh_LHV(kg), uncertainty_rel=u,
+                kWh_LHV=kg_to_kWh_LHV(kg), uncertainty_rel=None,
+                uncertainty_incomplete=True,
+                uncertainty_note=("MISSING: stack-current measurement uncertainty is unsourced "
+                                  "(registry key meas.current_rel_unc); wiring remains incomplete"),
                 independent_of=["tank_pv", "water"],
                 blind_to=["shunt current", "crossover", "leaks",
                           "purge/vent losses", "device-internal losses downstream of the stack"],
