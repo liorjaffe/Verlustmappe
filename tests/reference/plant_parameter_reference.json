@@ -691,58 +691,42 @@
   "inv_pv.model": {
    "value": "2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009)",
    "unit": "-",
-   "source": "SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206",
+   "source": "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master rows 3-7, Sources rows 5-6: nameplate quote 'Model: S6-GR1P6K', 'S/N: 1802060225250009' (unit B); SolisCloud API inveterList 2026-10-22 identifies unit A 1802060225250007 and two F8 units. Unit A has no reviewed nameplate; workbook numbering is not identity.",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "identifies the F8 inverters"
   },
-  "inv_pv.eta_pv_ac_peak": {
-   "value": 0.966,
-   "unit": "-",
-   "source": "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter",
-   "status": "BACKLOG",
-   "uncertainty": 0.0,
-   "effect": "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
-  },
-  "inv_pv.eta_manual_range": {
-   "value": "0.93-0.95",
-   "unit": "-",
-   "source": "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter",
-   "status": "BACKLOG",
-   "uncertainty": 0.0,
-   "effect": "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
-  },
   "inv_pv.eta_euro": {
-   "value": 0.98,
+   "value": 0.971,
    "unit": "-",
-   "source": "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters; no F8-specific datasheet yet (D6 open). F8 cross-checks must come from Solis data (f8_day_balance)",
-   "status": "PRELIM",
-   "uncertainty": 0.01,
-   "effect": "PV DC->AC conversion bar"
+   "source": "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master row 30, Sources row 3: Solis datasheet S6-GR1P(2.5-6)K GBR V1.5 202507, p.2, column 6K, row 'EU efficiency': '97.1%'. Transferability: per-unit manufacturer anchor for S6-GR1P6K, not measured F8 efficiency.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "PV DC->AC conversion bar; INTERIM DERIVED constant-use decision pending eta(P), curve BACKLOG (decisions/2026-11-13_pv-inverter-efficiency.md); no part-load coverage claimed, replacement path F8 DC/AC measurement"
   },
   "inv_pv.eta_peak": {
-   "value": 0.985,
+   "value": 0.977,
    "unit": "-",
-   "source": "PRELIMINARY: typical max efficiency 98-98.5%",
-   "status": "PRELIM",
-   "uncertainty": 0.005,
+   "source": "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master row 29, Sources row 3: Solis datasheet S6-GR1P(2.5-6)K GBR V1.5 202507, p.2, column 6K, row 'Max. efficiency': '97.7%'. Transferability: per-unit manufacturer peak for S6-GR1P6K, not a constant operating efficiency.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
    "effect": "peak reference only, NOT for energy accounting"
   },
   "inv_pv.standby_W": {
-   "value": 5,
+   "value": null,
    "unit": "W",
-   "source": "PRELIMINARY: typical standby/night consumption 1-10 W",
-   "status": "PRELIM",
-   "uncertainty": 0.5,
-   "effect": "PV inverter standby bar"
+   "source": "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master row 35, Sources row 3: Solis datasheet GBR V1.5 202507, p.2, row 'Self-consumption (night)': '<1 W'. Transferability: per S6-GR1P6K unit at night; bound, not exact power, no uncertainty distribution given.",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "Exact PV inverter standby power/energy missing; <1 W is a manufacturer bound only, not a point estimate or zero; auxiliary consumption belongs to account B"
   },
   "inv_pv.mppt_efficiency": {
-   "value": 0.995,
+   "value": null,
    "unit": "-",
-   "source": "PRELIMINARY: typical MPPT efficiency >99%",
-   "status": "PRELIM",
-   "uncertainty": 0.005,
-   "effect": "folded into conversion bar unless measured separately"
+   "source": "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx: no independently sourced separate MPPT efficiency; Master rows 29-31 give total efficiency anchors and an open eta(P) curve only.",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "Separate MPPT efficiency missing; do not invent or multiply an additional MPPT factor into the total conversion efficiency"
   },
   "inv_fc.model": {
    "value": "Solis S5-EO1P5K-48 off-grid, 230 V, pure sine, CAN/BMS comm",
