@@ -3,9 +3,8 @@
 
 Why this is in the energy balance: the water chain is a REAL electrical
 consumer. The RO unit draws 200 W in operation and <3 W standby, and the
-standby is continuous (the unit stays powered). The cartridge train itself is
-purely hydraulic (0 W), but a pump in the water path is NOT excluded (control
-panel observed on site, power unmeasured) and is carried as an open item.
+standby is continuous (the unit stays powered). The cartridge media themselves
+are hydraulic; pump power and its connection to the RO are open items.
 
 Physics:
   - Water demand comes from the electrolyser, NOT from the water system: the
@@ -30,12 +29,15 @@ Stoichiometric consistency: water_L * (M_H2 / M_H2O) is the H2 mass the water
 route implies; h2_from_water() in hydrogen/route4_water.py does exactly this.
 This module supplies the water side of Route 4.
 """
+import math
+from numbers import Real
+
 from .. import registry as R
 
 class WaterSystem:
     def account(self, duration_h, water_consumed_L=None, measured_kWh=None,
                 measured_water_L=None, ro_standby_always_on=True, h2_produced_NL=None):
-        """Energy and water account of the water system over a window.
+        """RO energy, separate pump energy and water account over a window.
 
         duration_h           window length [h] (wall-clock, incl. idle time)
         water_consumed_L     EL water demand over the window (caller override)
@@ -86,20 +88,31 @@ class WaterSystem:
         feed_L = water_L / wcf
         conc_L = feed_L - water_L
 
-        # upstream cartridge train: 0 W until a pump is proven in the water path
-        p_filter_W = R.get("water.filter_train_power_W")
-        e_filter = p_filter_W / 1000.0 * duration_h
+        pump_entry = R.REGISTRY.get("water.filter_train_power_W")
+        p_filter_W = pump_entry["value"] if pump_entry is not None else None
+        pump_status = pump_entry["status"] if pump_entry is not None else "BACKLOG"
+        if p_filter_W is not None and (
+                isinstance(p_filter_W, bool) or not isinstance(p_filter_W, Real)
+                or not math.isfinite(p_filter_W)):
+            raise ValueError("water.filter_train_power_W must be a finite number or missing")
+        if p_filter_W is None or pump_status == "BACKLOG":
+            e_filter = None
+            pump_status = "BACKLOG"
+        else:
+            e_filter = p_filter_W / 1000.0 * duration_h
 
         energy_is_measured = measured_kWh is not None
         warnings = []
         if fallback_warning:
             warnings.append(fallback_warning)
         if not energy_is_measured:
-            warnings.append("water-system energy is modelled (duty x 200 W + "
+            warnings.append("RO-unit energy is modelled (duty x 200 W + "
                             "continuous <3 W standby); meter the RO unit for a MEASURED bar")
-        if R.entry("water.filter_train_power_W")["status"] == "GUESS":
-            warnings.append("filter-train pump power is an open item (control panel "
-                            "observed, no nameplate); 0 W booked until verified")
+        if pump_status == "BACKLOG":
+            warnings.append("filter-train pump energy OPEN (BACKLOG): missing value; "
+                            "dependent sums stay open per CONTRACT sec. 7")
+        elif pump_status == "GUESS":
+            warnings.append("filter-train pump power is a GUESS, not a measured value")
 
         return dict(unit="WATER", duration_h=duration_h,
                     water_consumed_L=water_L, water_status=water_status, water_basis=water_basis,
@@ -111,6 +124,7 @@ class WaterSystem:
                     energy_kWh_production=t_prod_h * p_op_W / 1000.0,
                     energy_kWh_standby=t_on_h * p_stb_W / 1000.0,
                     filter_train_energy_kWh=e_filter,
+                    filter_train_status=pump_status,
                     uncertainty_rel=R.entry("water.ro_power_op_W")["uncertainty"]
                         if not energy_is_measured else 0.02,
                     warnings=warnings if warnings else None)

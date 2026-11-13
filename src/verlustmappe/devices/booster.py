@@ -1,8 +1,12 @@
-"""Air-driven gas booster (Maximator DLE 30-2).
+"""Air-driven HULC hydrogen compressor: two Maximator booster stages.
 
-The booster itself consumes no electricity; it consumes COMPRESSED AIR made by
-an electric air compressor (Kaeser). The electrical loss of the compression
-stage is therefore the air compressor's energy while the booster runs.
+Stage 1 is HULC 140 / DLE15-H2; stage 2 is HULC 400 / DLE 30-H2.
+This model estimates ideal work for the overall pressure change; it does not
+model the two stages separately.
+
+The boosters are driven by compressed air supplied by the electric Kaeser.
+Kaeser electricity is an auxiliary consumption; its HULC share requires
+allocation because the compressor also supplies other consumers.
 
   W_ideal = n R T ln(p2/p1)          minimum work (isothermal, IDEAL gas)
   eta_overall = W_ideal / E_air_compressor

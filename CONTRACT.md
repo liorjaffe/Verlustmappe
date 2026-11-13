@@ -1,7 +1,7 @@
 # CONTRACT – what applies
 
 The single place for "what applies". **Rewrite on every change, never append.**
-Reasons live in `decisions/`, never here. State: 2026-11-05 (restart).
+Reasons live in `decisions/`, never here. State: 2026-11-13.
 
 **[E]** decided by the owner – applies. **[V]** proposal – applies only after an owner
 decision; until then treat it as an open question, not as a rule.
@@ -46,18 +46,32 @@ layer 3 (D34).
 
 ## 4 Accounts
 
-- **A – series path** [E]: PV DC (module/string output) → DC cable →
-  PV inverter → AC → EL → dryer → booster → storage → FC (with H₂Core battery and DC bus) →
-  FC inverter → AC out. In reality the EL is supplied from the house grid; the chain is an
-  **allocation** (a slice of PV is assigned to the path), not a claim of physical direct
-  supply.
-- **B – auxiliary consumers** [E]: devices actually supplied from the house grid or the
-  separate PV battery system, each with its supplier and phase. The separate PV battery
+- **A – series path** [E]: PV DC (module/string output) → PV DC cable →
+  PV inverters → AC distribution and cable path → EL → dryer → booster → storage →
+  FC → DC bus and H₂Core battery → DC cable → FC inverter → AC out.
+  The PV slice is an **allocation**, not proof of direct physical supply. The actual
+  EL supply route, including the house distribution and any direct cable, is open.
+  Battery throughput losses and stock change are separately visible.
+- **B – auxiliary consumers** [E]: electrical consumption outside the series conversion,
+  each with its actual supplier and phase, including consumption supplied by the house
+  grid, the separate PV battery system or an internal bus. The separate PV battery
   system is only an external supplier; its internals are not modelled. The Kaeser
   (compression) is in B.
+- [E] A case report has three named perspectives for the same case:
+  - **PV-start path:** the A series path from PV DC to FC inverter AC output.
+  - **EL-start path:** the same series path from EL AC input to FC inverter AC output.
+  - **Auxiliary energy:** the B consumption associated with all parts of the full chain,
+    including water treatment and the allocated compressed-air supply.
+  The two paths overlap and are not additive. Separately identifiable auxiliary
+  consumption is shown without double counting; embedded or inseparable consumption is
+  identified as such. Missing inputs remain open, and storage and battery contributions
+  must remain visible. Exact headline formulas are not defined by these names.
 - [E] A/B boundary: A contains energy that flows through the series conversion. B contains
   every other electrical consumption, including standby of series-path devices (EL, PV
-  inverter, FC inverter) and dryer electricity.
+  inverter, FC inverter) and dryer electricity. The FC inverter's conversion is in A;
+  its own auxiliary consumption is in B, with its source and measurement boundary
+  identified. An internally supplied B item is not also counted as external input or
+  deducted twice from the series path.
 - [E] FC control is netted in the series path per D22:
   E_out_net = (E_fc_terminal − E_ctrl) · η_inv. Assumption: drawn from the DC bus before
   the inverter; measurement point open. Booked once.
@@ -100,6 +114,12 @@ layer 3 (D34).
   not a loss.
 - [E] Mole balance first: n_start + n_EL = n_end + n_FC + n_vent + n_leak + n_purge.
   Then energy: E_in = E_out + L + ΔS, with ΔS = S_end − S_start.
+- [E] Identify H₂ purge, vent and leakage by component where applicable. Gas-line and
+  storage leakage are not assumed zero without a justified basis; keep unknown
+  contributions open. A pressure drop in a flowing line is not an H₂ leak.
+- [E] For the gas lines from EL via HULC to storage, assume zero line pressure and
+  enthalpy losses. This is a model assumption, not a measured result or a zero-leakage
+  assumption; it does not cover device losses.
 - [E] A residual R is only a diagnostic: where the same quantity is determined twice
   independently. In a model case only as EL consistency (AC versus V(I,T)·I plus rectifier
   loss).
@@ -110,10 +130,16 @@ layer 3 (D34).
 - [E] Compression is consumption (Kaeser electricity) and never part of the stored stock.
 - [E] Ideal fill work may only appear as a named ideal-gas quantity, never as electrical
   compression energy (D35).
-- [E] Kaeser (D14): supplies only the HULC and the four Rotex. Variable share by air
-  quantity (HULC / Rotex 1–4 / other); READY standby and network leakage as separate
-  items; leakage belongs to the distribution network, not to the HULC. Standby by air draw,
-  otherwise split equally (assumption). Kaeser input power open; 6.2 kW is a dealer value.
+- [E] Kaeser (D14): supplies HULC stages 1 and 2 and the four Rotex. Variable share by
+  air quantity (HULC / Rotex 1–4 / other); READY standby and network leakage as separate
+  items; network leakage belongs to the distribution network, not to the HULC. Standby
+  by air draw, otherwise split equally (assumption). Kaeser input power open; 6.2 kW is
+  a dealer value.
+- [E] HULC: distinguish HP-seal H₂ leakage from drive, check-valve, pilot and purge air.
+  The documented HP-seal service limit is an upper bound, not an operating loss or a
+  measurement; its applicability to the installed H₂ units remains open. Drive and
+  control-air losses are not H₂ losses; they are candidates when investigating the
+  unresolved air-demand discrepancy. Actual leakage needs measurement.
 - [E] HULC air demand (D13): manufacturer curve as a function of H₂ flow at the plant
   operating point; operating point open. 14.6 Nm³/Nm³ applies only at maximum flow and is
   not a bound. Geometry (4.59–6.30) is a physical lower bound.
@@ -143,7 +169,11 @@ layer 3 (D34).
 - [V] New scheme: `status` = MEASURED > DATASHEET > SECONDARY > ASSUMED > MISSING; the
   weakest input determines the result. `origin` = measured | computed.
   `u_kind` = none | band | envelope. u = 0 means "not assessed" unless stated otherwise.
-- Until decided, the status in `plant/<device>.toml` applies (1:1 from the old registry).
+- Until decided, the status recorded in `plant/<device>.toml` applies. The Python
+  registry loads the TOML parameters; it does not import the source workbooks.
+  The original migration copied the old registry, but later changes are not
+  required to remain identical to that historical snapshot. Source workbooks
+  and their evidence status must be checked when updating plant data.
 - [E] Most values still lack a page reference and verbatim quote; that is open work, not a
   confirmation of the values.
 - [E] The `comp.*` keys (wrong device, Maximator DLE 30-2) must never be used in new code
