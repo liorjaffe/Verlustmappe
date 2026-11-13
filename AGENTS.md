@@ -96,6 +96,10 @@ when necessary.
     For each new file, state in the report its purpose and why no existing file fits. Disclose
     changed tracked/new retained files, side effects and out-of-scope or indirect changes.
     Omit temporary caches/logs unless retained or relevant.
+12. Changing `AGENTS.md`, `CONTRACT.md`, `tests/test_structure.py`, or gate/CI configuration
+    requires explicit owner approval naming that change; a task that already names the exact
+    change is that approval, do not ask twice. If a task touches these files without naming
+    the change, report and ask before editing.
 
 ## Gates (from `.venv`)
 During code/data work, run focused tests as appropriate. Before completing code/data changes,
