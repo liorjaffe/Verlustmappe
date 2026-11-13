@@ -10,7 +10,7 @@ import _path
 import xlsx_reader
 from verlustmappe import registry as R
 from verlustmappe.devices import Tank
-from verlustmappe.hydrogen import h2_from_tank_pressure
+from verlustmappe.hydrogen import model_tank_pressure_change as h2_from_tank_pressure
 from verlustmappe.hydrogen.temperature_model import temperature_corrected_mass
 
 

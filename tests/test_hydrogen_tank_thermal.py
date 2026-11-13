@@ -4,7 +4,7 @@ import numpy as np
 from verlustmappe.hydrogen.temperature_model import (gs_fit_from_pressure_decay,
     hot_end_fill_bracket, tier1_temperature, tier2_temperature,
     temperature_corrected_mass)
-from verlustmappe.hydrogen import h2_from_tank_pressure
+from verlustmappe.hydrogen import model_tank_pressure_change as h2_from_tank_pressure
 
 def main():
     # GS fit on synthetic decay: tau=1800 s -> r2 ~ 1

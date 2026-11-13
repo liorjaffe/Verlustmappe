@@ -2,10 +2,13 @@
 import _path
 import numpy as np
 from verlustmappe import registry as R
-from verlustmappe.hydrogen import (h2_from_stack_current, h2_from_tank_pressure, h2_from_telemetry,
+from verlustmappe.hydrogen import (h2_from_stack_current, model_tank_pressure_change, h2_from_telemetry,
                                    h2_from_water, h2_from_energy_nameplate, compare_routes)
 from verlustmappe.hydrogen.z_realgas import z_h2
 from verlustmappe.devices import Tank
+
+# Constructed physics checks use the model, not the paused independent measurement route.
+h2_from_tank_pressure = model_tank_pressure_change
 
 def _body():
     # Z table checkpoints (NIST/Leachman EOS)
@@ -48,14 +51,11 @@ def _body():
     # the production group while Faraday current uncertainty remains open.
     assert c["n_independent"] == 0 and c["mean_kg"] is None
     assert c["max_spread_independent"] is None
-    residual = c["production_minus_delivered_residual"]
-    assert abs(residual["fraction_of_production"]) < 1e-5
-    assert residual["uncertainty_kg"] is None
-    assert residual["uncertainty_incomplete"] is True
-    assert "NOT established" in residual["note"]
-    reordered = compare_routes([r4, r2, r1])["production_minus_delivered_residual"]
-    assert reordered["kg"] == residual["kg"]
-    assert reordered["uncertainty_kg"] is None
+    assert "production_minus_delivered_residual" not in c
+    assert c["unavailable_routes"][0]["route"] == "tank_pv"
+    reordered = compare_routes([r4, r2, r1])
+    assert "production_minus_delivered_residual" not in reordered
+    assert reordered["unavailable_routes"] == c["unavailable_routes"]
     tank_peer = dict(route="tank_pv", kg=r2["kg"] * 1.01, uncertainty_rel=0.01)
     no_cross_group_fallback = compare_routes([r1, r2, tank_peer])
     assert no_cross_group_fallback["n_independent"] == 0

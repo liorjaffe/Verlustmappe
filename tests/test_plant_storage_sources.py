@@ -10,7 +10,7 @@ import xlsx_reader
 from verlustmappe import registry as R
 from verlustmappe.devices import AirDrivenBooster, Tank
 from verlustmappe.accounting.status import u_class
-from verlustmappe.hydrogen import h2_from_tank_pressure
+from verlustmappe.hydrogen import model_tank_pressure_change as h2_from_tank_pressure
 from verlustmappe.hydrogen.temperature_model import gs_fit_from_pressure_decay, hot_end_fill_bracket
 
 
