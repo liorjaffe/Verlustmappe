@@ -6,6 +6,8 @@ No hydrogen flow meter exists in this plant. Hydrogen mass is never "measured";
 it is ESTIMATED by several routes and the routes are compared (z_closure.py).
 Only complete, same-quantity routes contribute to an agreement uncertainty.
 Production-minus-delivered is a diagnostic residual, not an established loss.
+Route 2 is paused without independent tank pressure/temperature data. The separate
+synthetic tank model is not an independent comparison or validation contribution.
 
 Support modules (z_ prefix, alphabetical after the routes):
   z_realgas.py         compressibility factor Z (NIST/Leachman table)
@@ -14,7 +16,7 @@ Support modules (z_ prefix, alphabetical after the routes):
   z_closure.py         route agreement + diagnostic residual
 """
 from .route1_faraday import h2_from_stack_current
-from .route2_tank_pv import h2_from_tank_pressure
+from .route2_tank_pv import h2_from_tank_pressure, model_tank_pressure_change
 from .route3_telemetry import h2_from_telemetry
 from .route4_water import h2_from_water
 from .routen_nameplate import h2_from_energy_nameplate

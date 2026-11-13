@@ -10,10 +10,11 @@ Two DIFFERENT quantities live here and must not be conflated (external review
 
 This module therefore returns:
   mean/uncertainty only when at least two complete routes measure the same
-  quantity; a diagnostic production-minus-delivered residual when both routes
-  are present, without treating it as a loss.
+  quantity. Route 2 is currently paused: no tank contribution or
+  production-minus-delivered residual is available.
 """
 import numpy as np
+from .route2_tank_pv import ROUTE2_UNAVAILABLE_REASON
 
 def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
                                     "faraday_el_minus_vent", "nameplate_el_minus_vent")):
@@ -23,9 +24,15 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
     no longer sneak into the independent vote (external review 2026-10)."""
     def base(r):
         return r["route"].replace("_minus_vent", "").replace("_minus_losses", "")
-    # Production and delivered routes are separate groups; never combine them.
-    PRODUCTION, DELIVERED = ("faraday_el", "water"), ("tank_pv",)
-    cand = [r for r in routes if base(r) not in exclude and np.isfinite(r["kg"])]
+    # Only the production group is available while independent Route 2 is paused.
+    PRODUCTION = ("faraday_el", "water")
+    # Route 2 is paused globally; a hand-built/relabelled synthetic result cannot
+    # reactivate it. Unavailable entries must be filtered before numeric access.
+    available = [r for r in routes
+                 if base(r) not in ("tank_pv", "tank_pv_model")
+                 and r.get("availability") != "UNAVAILABLE"
+                 and r.get("validation_eligible", True)]
+    cand = [r for r in available if base(r) not in exclude and np.isfinite(r["kg"])]
 
     def has_complete_uncertainty(route):
         uncertainty_rel = route.get("uncertainty_rel")
@@ -36,14 +43,7 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
 
     complete = [r for r in cand if has_complete_uncertainty(r)]
     production_routes = [r for r in complete if base(r) in PRODUCTION]
-    delivered_routes = [r for r in complete if base(r) in DELIVERED]
-    production_present = any(base(r) in PRODUCTION for r in cand)
-    if production_present and len(production_routes) >= 2:
-        used = production_routes
-    elif not production_present and len(delivered_routes) >= 2:
-        used = delivered_routes
-    else:
-        used = []
+    used = production_routes if len(production_routes) >= 2 else []
 
     if used:
         vals = np.array([r["kg"] for r in used])
@@ -66,26 +66,5 @@ def compare_routes(routes, exclude=("telemetry", "nameplate_el", "nameplate_fc",
                    n_independent=0,
                    note="no quantity group has at least two complete routes with uncertainty")
 
-    # Production minus delivered is diagnostic only; it is not a booked loss.
-    tank = next((r for r in routes if r["route"] == "tank_pv"), None)
-    prod = next((r for r in routes if base(r) == "faraday_el"), None)
-    if prod is None:
-        prod = next((r for r in routes if base(r) == "water"), None)
-    if tank is not None and prod is not None and prod["kg"] > 0:
-        residual_kg = prod["kg"] - tank["kg"]
-        uncertainty_incomplete = not (
-            has_complete_uncertainty(prod) and has_complete_uncertainty(tank))
-        uncertainty_kg = None
-        if not uncertainty_incomplete:
-            uncertainty_kg = float(np.sqrt(
-                (prod["uncertainty_rel"] * prod["kg"])**2 +
-                (tank["uncertainty_rel"] * tank["kg"])**2))
-        out["production_minus_delivered_residual"] = dict(
-            kg=residual_kg,
-            fraction_of_production=residual_kg / prod["kg"],
-            uncertainty_kg=uncertainty_kg,
-            uncertainty_incomplete=uncertainty_incomplete,
-            note=("diagnostic residual only; cause NOT established "
-                  "(purge/vent/leakage are candidates, not findings); "
-                  "never booked as a loss"))
+    out["unavailable_routes"] = (dict(route="tank_pv", reason=ROUTE2_UNAVAILABLE_REASON),)
     return out

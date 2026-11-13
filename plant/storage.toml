@@ -1,13 +1,14 @@
-# plant/storage.toml - H2 storage (VITKOVICE) incl. pressure sensor DCT 541
+# plant/storage.toml - H2 storage (VITKOVICE)
 # Current runtime record; supporting workbook reviewed 2026-11-13.
 # Only owner-approved corrections applied. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "storage"
-title = "H2 storage (VITKOVICE) incl. pressure sensor DCT 541"
+title = "H2 storage (VITKOVICE)"
 
 [open]
 questions = [
+  "BACKLOG: independent Route 2 PAUSED; DCT 541 and Pt100 are NOT installed. No independent countercheck quantity or uncertainty available.",
   "BACKLOG: thermally effective steel mass is unknown; bundle TARA includes the frame.",
   "BACKLOG: Pt100 data path suspended; hardware is not installed or ordered; no measured tank temperature exists. Keep the decided future concept for procurement.",
   "BACKLOG: inline thermowell remains an option only; supplier cannot fit a well directly on the 3/8 in line.",
@@ -16,6 +17,8 @@ questions = [
 [notes]
 workbook = "plant/sources/Storage_H2_System_Specs_Master.xlsx"
 owner_decision = "decisions/2026-11-13-storage-data.md"
+pressure_instrumentation = "Future DCT 541 instrumentation, NOT installed per owner 2026-11-13. Datasheet parameters below describe the proposed sensor, not measured tank pressure or an existing acquisition path. Static pressure is an explicit scenario input."
+route2_policy = "Independent Route 2 is unavailable until approved independent tank pressure/temperature data, connected volume/isolation, matching time boundaries and gas-flow accounting exist. No scenario substitute, independent vote or production-minus-delivered residual. Synthetic pVT tests retain only hypothetical instrument uncertainty, never measurement evidence."
 working_pressure = "Owner 2026-11-13 withdraws stor.p_work_barg: Master row 6 / [S7] is an installer statement, not a valid working-pressure source for this plant. No replacement setpoint or fallback; tank pressure is an explicit input. PS is a permissible limit only."
 transfer_scope = "Owner-approved working-pressure removal, TARA clarification, retained future temperature concept, Pt100 data-path suspension and provisional temperature assumption. Workbook calculated/EOS values are not imported; other parameters and uncertainties remain unchanged."
 temperature_policy = "Owner 2026-11-13: Pt100 data path suspended, planning remains BACKLOG. Static main runs model a defined temperature, using stor.T_assumed_C when none is supplied. The +/-10 K band is a separate optional analysis, never an automatic main-run term or measurement-validity gate. Enapter telemetry belongs to its own measurement points, never the tank."

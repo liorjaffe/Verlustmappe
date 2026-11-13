@@ -110,3 +110,23 @@ Pt100 remains suspended with planning retained as BACKLOG. No thermal dynamics o
 measurement integration is implemented by this change. For future dynamics, scenario
 temperatures can be supplied by a time profile or approved thermal model; measurement
 evaluation remains a separate layer.
+
+## Follow-up owner approval: pause independent Route 2
+
+Owner confirms DCT 541 is not installed, like Pt100. The device title now names
+storage only; instrumentation remains separately documented as planning.
+Independent `h2_from_tank_pressure` returns UNAVAILABLE with no numerical quantities
+or uncertainty. It cannot be reactivated by supplying scenario values.
+
+Retain existing pVT and hypothetical uncertainty physics as the explicitly synthetic
+`model_tank_pressure_change`, with a distinct route identity and no validation
+eligibility. Tests use this model explicitly; no physics tolerance is changed.
+`compare_routes` excludes paused tank routes and synthetic/non-eligible entries before
+numeric access, and reports the reason for unavailability. No tank residual is formed.
+Synthetic legacy residual assertions are replaced by explicit absence assertions;
+independent same-quantity non-tank comparison tests remain active.
+
+Reactivation is a future owner-approved implementation, not an automatic hardware flag:
+independent pressures, suitable gas-temperature determination, active volume and valve
+state, aligned time windows and gas-flow accounting must be established. The shell
+Pt100 concept alone does not establish suitable transient gas temperature.

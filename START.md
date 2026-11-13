@@ -32,12 +32,12 @@ data or sources as part of this step.
   The accounting inventory keeps water and filter energy blocked until connected.
 - TOML is current plant/runtime truth; XLSX/documents are reviewable evidence and inputs.
 - Storage: working-pressure key withdrawn; PS is only a limit; effective thermal mass open;
-  TARA only; Pt100 path suspended, plan BACKLOG; static 20 degC, +/-10 K analysis opt-in only.
+  TARA only; independent Route 2 PAUSED (DCT/Pt100 absent); static pVT and synthetic tests retained.
 - Faraday mass remains computable; its uncertainty is open pending sourced, owner-approved
   stack-current uncertainty. Production-minus-delivered is diagnostic, not a booked loss.
 - EL supply/H₂ leakage open; zero line-loss assumption and FC A/B allocation not implemented.
-- Some plant values are also embedded in code; actual computation paths need checking.
-- Sensitivity/reference/status checks: 34 pass; device scripts ALL PASS; pytest 251 pass, 5 known workbook failures.
+- Planned sensor accuracy is hypothetical in synthetic tests only, never independent Route 2 evidence.
+- Route2/model/reference checks: 33 pass; device scripts ALL PASS; pytest 260 pass, 5 known workbook failures.
 
 ## Open owner decisions
 1. Remaining [V] items in `CONTRACT.md`: scope wording (§2), formula C (§4), status scheme (§8).

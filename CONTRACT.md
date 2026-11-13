@@ -194,6 +194,14 @@ layer 3 (D34).
   only this verdict, not calibration; until the repeatability test, measured closure is
   NOT VERIFIABLE (D20, D8).
 - Tank pressure and gas temperature are simulated states until the retrofit (D8).
+- [E] Independent Route 2 is PAUSED: DCT 541 and Pt100 are not installed and independent
+  tank-state data are missing. No countercheck quantity, sensor uncertainty, validation
+  contribution or production-minus-delivered residual is reported from this route.
+  Static storage modelling and synthetic pVT tests remain available, but cannot vote
+  in independent route comparison. Reactivation requires owner-approved independent
+  pressures, suitable temperature determination, connected volume/isolation, matching
+  time boundaries and accounted gas inflows/outflows. Sensor specifications are planning,
+  not installed-sensor evidence.
 - [E] Storage temperature concept: one Pt100, 4-wire, class A on the insulated cylinder
   shell (lower/middle near outlet valve), a gas-temperature proxy only at equilibrium.
   Not installed, no hardware ordered, no measured tank temperature exists; inline well open.
@@ -204,7 +212,7 @@ layer 3 (D34).
   u_T = 10/sqrt(3) K; registry uncertainty is relative to 293.15 K, not to degC.
   Static main runs calculate at defined scenario temperatures; no seasonal coverage,
   measured temperature or validation is claimed. The band is a separate optional analysis,
-  requested by `analyze_temperature_uncertainty=True` in storage and Route 2, using
+  requested by `analyze_temperature_uncertainty=True` in storage and the synthetic tank model, using
   fixed-Z first-order u_T/T. Default runs do not include this term or use its unknown
   correlation as an incompleteness gate. Route 2's other existing uncertainty terms,
   including its 3 K allowance, stay unchanged. In the optional analysis two assumed states
@@ -216,7 +224,8 @@ layer 3 (D34).
   For real-state/measurement evaluation replace the scenario assumption with an approved
   real tank-temperature source; other device temperatures
   are unchanged. Generic temperature functions and synthetic tests remain available;
-  Route 2 tier=2 without explicit sensor-temperature input raises an error.
+  The synthetic tank model's tier=2 without explicit temperature input raises an error;
+  supplying scenario temperatures does not reactivate independent Route 2.
 - [E] Storage 1430 kg is nameplate TARA including the frame, not effective thermal mass.
   Effective thermal mass is open; GS fitting may run gas-only. TARA in a thermal fit requires
   an explicit upper-bound assumption.

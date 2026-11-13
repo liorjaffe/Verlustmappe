@@ -1,14 +1,11 @@
-"""Route 2: hydrogen from storage tank pressure change, now with the
-three-tier gas-temperature model (external review + papers 2026-10).
+"""Paused independent tank route and retained synthetic pVT model.
 
+Route 2 is unavailable: DCT 541 and Pt100 are not installed and independent
+tank-state data are missing. Scenario pressures/temperatures are not evidence.
+
+model_tank_pressure_change retains synthetic physics/test calculations:
     delta n = V/R * [ p2/(Z(p2,T2) T2) - p1/(Z(p1,T1) T1) ]
-
-The temperature is the weak input, not the pressure: since the DCT 541
-transmitter replaced manual gauge readings, pressure uncertainty is
-+-0.5% FSO (IEC 61298-2), i.e. +-1.25 bar on a 250-bar range. The gas
-temperature inside an 800 L steel tank is NOT ambient for hours after a fill
-(de Miguel IJHE 2015: +64-96 K on fast fills; Nexo study: isothermal/adiabatic
-bracket, heat-exchange model is the tightest).
+Its legacy sensor-accuracy budget is hypothetical, never a validation input.
 
 Tiers (see tank_thermal.py and handbook card C):
   tier 1: provisional registered temperature assumption (GUESS), no measured T;
@@ -29,9 +26,28 @@ from .temperature_model import hot_end_fill_bracket, tier1_temperature, tier2_te
 from .temperature_model import assumed_temperature_standard_uncertainty_K
 from ..accounting.status import weakest
 
+ROUTE2_UNAVAILABLE_REASON = (
+    "Route 2 paused: independent tank pressure and suitable temperature data are missing; "
+    "DCT 541 and Pt100 are not installed. Reactivation requires approved independent "
+    "state data, connected volume/isolation, matching time boundaries and gas-flow accounting.")
+
 def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None,
                           tier=1, T_top_C=None, T_bottom_C=None, return_bracket=False,
                           bundle_isolated=None, *, analyze_temperature_uncertainty=False):
+    """Independent countercheck is paused even if scenario inputs are supplied.
+
+    No model quantity or sensor uncertainty substitutes for missing independent data.
+    The signature is retained for callers; use model_tank_pressure_change explicitly
+    for synthetic calculations, not independent route comparison.
+    """
+    return dict(route="tank_pv", availability="UNAVAILABLE", reason=ROUTE2_UNAVAILABLE_REASON,
+                mol=None, kg=None, NL=None, kWh_LHV=None, uncertainty_rel=None,
+                uncertainty_incomplete=True, independent_of=[], origin=None)
+
+
+def model_tank_pressure_change(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None,
+                              tier=1, T_top_C=None, T_bottom_C=None, return_bracket=False,
+                              bundle_isolated=None, *, analyze_temperature_uncertainty=False):
     """tier 1: T from registered provisional assumption unless explicitly supplied.
     tier 2: explicitly supplied synthetic/future inputs (T_top_C / T_bottom_C).
     The interface does not imply installed top/bottom sensors.
@@ -100,7 +116,8 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
                       u_T_frac**2 +
                       (u_assumed_temperature_rel**2
                        if analyze_assumption and both_temperatures_assumed else 0.0)))
-    out = dict(route="tank_pv", mol=dmol, kg=kg, NL=mol_to_NL(dmol), kWh_LHV=kg_to_kWh_LHV(kg),
+    out = dict(route="tank_pv_model", validation_eligible=False,
+               mol=dmol, kg=kg, NL=mol_to_NL(dmol), kWh_LHV=kg_to_kWh_LHV(kg),
                uncertainty_rel=u, temperature_tier=tier,
                T_used_C=(T_start_C, T_end_C),
                temperature_is_assumed=temperature_is_assumed,
@@ -131,9 +148,10 @@ def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None
                "existing route uncertainty terms are not measurement validation"
                if not analyze_temperature_uncertainty else
                "existing temperature allowance is not sensor validation",
-               independent_of=["faraday", "telemetry", "water", "nameplate"],
+               independent_of=[],
                blind_to=["nothing upstream; only sees net change in the tank"],
-               note=("pressure uncertainty from DCT 541 (0.5%% FSO), amplification %.1f; "
+               note=("synthetic model only, NOT an independent Route 2 countercheck; "
+                     "hypothetical planned DCT 541 accuracy (0.5%% FSO), amplification %.1f; "
                      "temperature tier %d" % (amp, tier)))
     if return_bracket and tier == 1:
         out["fast_fill_bracket"] = hot_end_fill_bracket(
