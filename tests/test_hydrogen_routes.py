@@ -21,6 +21,9 @@ def _body():
     r1 = h2_from_stack_current([I], dt, 120, 0.98, device="el")
     expected = 0.98 * 120 * 10 * 6 * 3600 / (2 * 96485.332)
     assert abs(r1["mol"] - expected) < 1e-9
+    assert r1["uncertainty_rel"] is None
+    assert r1["uncertainty_incomplete"] is True
+    assert "meas.current_rel_unc" in r1["uncertainty_note"]
     # Route 1 FC: eta_F DIVIDES (consumption rises with losses) - reviewer 2026-10
     r1fc = h2_from_stack_current([I], dt, 120, 0.98, device="fc")
     expected_fc = 120 * 10 * 6 * 3600 / (2 * 96485.332) / 0.98
@@ -41,10 +44,22 @@ def _body():
     assert abs(r4["kg"] - r1["kg"]) / r1["kg"] < 1e-9
     # closure over independent routes -> spread ~0
     c = compare_routes([r1, r2, r4])
-    # production routes (faraday, water) agree; the tank route is the delivered
-    # quantity and only enters the gas-loss estimate, not the spread
-    assert c["n_independent"] == 2 and c["max_spread_independent"] < 1e-5
-    assert abs(c["gas_loss_estimate"]["fraction_of_production"]) < 1e-5
+    # Only complete routes vote; a single complete water route cannot complete
+    # the production group while Faraday current uncertainty remains open.
+    assert c["n_independent"] == 0 and c["mean_kg"] is None
+    assert c["max_spread_independent"] is None
+    residual = c["production_minus_delivered_residual"]
+    assert abs(residual["fraction_of_production"]) < 1e-5
+    assert residual["uncertainty_kg"] is None
+    assert residual["uncertainty_incomplete"] is True
+    assert "NOT established" in residual["note"]
+    reordered = compare_routes([r4, r2, r1])["production_minus_delivered_residual"]
+    assert reordered["kg"] == residual["kg"]
+    assert reordered["uncertainty_kg"] is None
+    tank_peer = dict(route="tank_pv", kg=r2["kg"] * 1.01, uncertainty_rel=0.01)
+    no_cross_group_fallback = compare_routes([r1, r2, tank_peer])
+    assert no_cross_group_fallback["n_independent"] == 0
+    assert no_cross_group_fallback["mean_kg"] is None
     # nameplate route is a constant-efficiency bound
     rn = h2_from_energy_nameplate(14.4, "el")
     assert abs(rn["kWh_LHV"] / 14.4 - 0.624) < 0.01
@@ -64,12 +79,17 @@ def _body():
     # Bovo anchor: 33.22 Nm3, 40->200 bar, suction 40 -> ideal ~1.02 kWh
     w_bovo = isothermal_work_mol_integral(33.22/22.414*1000, 40.0, 200.0, T)
     assert 0.9 < w_bovo < 1.15, w_bovo
-    # closure now reports max(statistical, spread) as uncertainty_rel (card G)
-    r_hi = h2_from_stack_current([np.full(360, 10.0)], np.full(360, 60.0), 120, 0.98, device="el")
-    r_shift = dict(r_hi); r_shift["route"] = "water"; r_shift["kg"] = r_hi["kg"] * 1.20
+    # Complete same-quantity routes retain the weighted uncertainty/spread rule.
+    r_hi = dict(route="faraday_el", kg=1.0, uncertainty_rel=0.10)
+    r_shift = dict(route="water", kg=1.2, uncertainty_rel=0.10)
     c2 = compare_routes([r_hi, r_shift])
-    assert abs(c2["uncertainty_rel"] - c2["max_spread_independent"]) < 1e-9
-    assert c2["uncertainty_rel"] >= c2["weighted_uncertainty_rel"]
+    w1, w2 = 1 / 0.1**2, 1 / 0.12**2
+    expected_mean = (w1 * 1.0 + w2 * 1.2) / (w1 + w2)
+    expected_spread = 0.2 / expected_mean
+    assert c2["n_independent"] == 2
+    assert abs(c2["mean_kg"] - expected_mean) < 1e-12
+    assert abs(c2["max_spread_independent"] - expected_spread) < 1e-12
+    assert c2["uncertainty_rel"] == c2["max_spread_independent"]
     print("PASS 02 hydrogen routes: Z table, Faraday, tank-pV, water, closure(+max), "
           "nameplate bound, fill-integral work, Bovo anchor")
 

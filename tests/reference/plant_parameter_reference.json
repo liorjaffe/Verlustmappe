@@ -177,12 +177,12 @@
    "effect": "stoichiometric water demand per NL H2 (route4_water.py ratio)"
   },
   "water.filter_train_power_W": {
-   "value": 0.0,
+   "value": null,
    "unit": "W",
-   "source": "ASSUMPTION: Popular Filtros cartridge train is purely hydraulic; BUT a pump control panel (bomba) was photographed in the water path - verify on site",
-   "status": "GUESS",
+   "source": "Water_System_Specs_Master.xlsx, Inputs B9 and Water System row 28: pump wattage not documented; site nameplate or measurement required",
+   "status": "BACKLOG",
    "uncertainty": 0.0,
-   "effect": "pre-treatment energy bar; NOT 0 if the pump feeds the RO"
+   "effect": "pump energy remains open until power and operating time are established"
   },
   "comp.pressure_ratio": {
    "value": 60,
@@ -408,6 +408,14 @@
    "uncertainty": 0.0,
    "effect": "none yet; uncertainty NOT assessed (owner to set)"
   },
+  "stor.T_assumed_C": {
+   "value": 20.0,
+   "unit": "degC",
+   "source": "Owner decision 2026-11-13 (decisions/2026-11-13-storage-data.md): 20 degC GUESS for provisional storage/booster calculations; rectangular band +/-10 K, standard u_T=10/sqrt(3) K. The uncertainty field is relative to ABSOLUTE temperature 293.15 K, not to 20 degC. Transferability: deliberate model convention for this plant, not measured/validated; no claimed seasonal coverage.",
+   "status": "GUESS",
+   "uncertainty": 0.019694704731012306,
+   "effect": "defined model temperature for static main runs, not a measured state. Rectangular-band uncertainty is used only with analyze_temperature_uncertainty=True: fixed-Z first-order u_T/T, separate from Route 2's existing 3 K allowance. Common-offset correlation is an optional-analysis model choice; mixed sources make only that analysis incomplete. Actual Z(T) local mass sensitivity at 300 bar absolute / 20 degC is -0.286176%/K; fixed-Z context -0.341122%/K. Sensitivities are references, not model inputs."
+  },
   "stor.volume_L": {
    "value": 800,
    "unit": "L",
@@ -427,10 +435,10 @@
   "stor.steel_mass_kg": {
    "value": 1430,
    "unit": "kg",
-   "source": "nameplate TARA 1430 kg per bundle (16 cylinders + frame); upper bound, the frame is not fully at gas temperature",
+   "source": "Storage_H2_System_Specs_Master.xlsx, Master C28/O28, Sources S1 (row 2): VITKOVICE nameplate photo 20261001_083001, 'TARA' 1430 kg incl. frame; NOT thermally effective steel mass. Transferability: same plant bundle; effective thermal mass OPEN.",
    "status": "DATASHEET",
    "uncertainty": 0.2,
-   "effect": "thermal mass of the tank in the GS fit"
+   "effect": "bundle TARA only; GS fit runs gas-only without steel_mass_kg. Any use of 1430 kg as thermally effective mass requires an explicit upper-bound assumption, not a measured thermal mass."
   },
   "stor.p_max_barg": {
    "value": 300,
@@ -438,15 +446,7 @@
    "source": "VITKOVICE nameplate: maximum allowable pressure PS 300 bar at 65 C; safety valve 330 bar",
    "status": "DATASHEET",
    "uncertainty": 0.0,
-   "effect": "range check; working pressure set by the process (see stor.p_work_barg)"
-  },
-  "stor.p_work_barg": {
-   "value": 200,
-   "unit": "barg",
-   "source": "installer H2 Core Systems: stored at 200 bar (UFSC paper confirms operation at 200 bar, DoD 80% analogon)",
-   "status": "DATASHEET",
-   "uncertainty": 0.0,
-   "effect": "working upper pressure for cycles"
+   "effect": "permissible pressure limit only; tank pressure is an explicit input, never a working-pressure fallback"
   },
   "stor.T_max_C": {
    "value": 65,
@@ -529,12 +529,12 @@
    "effect": "far above the 20 Hz fast-log requirement; latency budget"
   },
   "stor.temp_sensor_planned": {
-   "value": "multi-point (top + bottom) PT100 class A or type-K, surface + gas-well; papers recommend bottom-pipe region as closest to mean gas temp (Nexo study: T3) and top/bottom pair for stratification (de Miguel IJHE 2015)",
+   "value": "1 x Pt100, 4-wire, class A on the insulated cylinder shell (lower/middle, near outlet valve); wall temperature as gas-temperature proxy only in equilibrated states. Decided concept 2026-10-08; NOT installed, no hardware ordered, no measured tank temperature exists. Inline thermowell remains an open option.",
    "unit": "-",
-   "source": "see handbook card C and docs/05_tank_thermal_sensing.md",
+   "source": "Storage_H2_System_Specs_Master.xlsx, Master row 56, Corrections row 8, Sources S7 (row 8): '00 CURRENT STATE' decision 2026-10-08, '1 x Pt100 4-wire class A on the cylinder shell'; owner confirmation 2026-11-13: not installed or ordered. Transferability: intended for this plant; no measurement evidence.",
    "status": "BACKLOG",
    "uncertainty": 0.0,
-   "effect": "Route 2 temperature input; replaces the ambient-T assumption"
+   "effect": "future concept retained as BACKLOG; Pt100 data path suspended by owner 2026-11-13. No expected Pt100 channels or measurement dependency; provisional calculations use the registered assumption, not this concept."
   },
   "fc.rated_power_W": {
    "value": 2500,
@@ -864,13 +864,13 @@
    "uncertainty": 0.8,
    "effect": "shading bar"
   },
-  "meas.power_rel_unc": {
-   "value": 0.02,
+  "meas.current_rel_unc": {
+   "value": null,
    "unit": "-",
-   "source": "ASSUMPTION: device-reported power (Enapter (EL) and legacy building-array telemetry), no independent power analyser yet",
-   "status": "GUESS",
-   "uncertainty": 0.5,
-   "effect": "floor of every efficiency's uncertainty"
+   "source": "BACKLOG: stack-current measurement uncertainty is not documented; obtain a sourced value before owner-approved wiring",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "candidate input for route1 uncertainty once a sourced value exists and the owner approves wiring; never use in quadrature before then"
   }
  },
  "sources": {

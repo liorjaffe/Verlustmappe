@@ -1,6 +1,7 @@
-"""N2 migration proof, with the approved open pump correction.
+"""Drift guard against the owner-approved parameter reference, not proof of physics.
 
-Other expected values come from the snapshot written before the migration.
+Update the reference only for approved changes; Git preserves historical versions.
+Runtime loads TOML, never this reference.
 """
 import json
 import sys
@@ -10,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 SNAPSHOT = json.loads(
-    (ROOT / "tests/reference/registry_snapshot_2026-11-05.json").read_text(encoding="utf-8"))
+    (ROOT / "tests/reference/plant_parameter_reference.json").read_text(encoding="utf-8"))
 FIELDS = ("value", "unit", "source", "status", "uncertainty", "effect")
 
 
@@ -36,15 +37,6 @@ def test_every_field_identical_including_type():
     from verlustmappe import registry as R
     for key, expected in SNAPSHOT["registry"].items():
         actual = R.REGISTRY[key]
-        if key == "water.filter_train_power_W":
-            expected = {
-                "value": None,
-                "unit": "W",
-                "status": "BACKLOG",
-                "uncertainty": 0.0,
-                "source": "Water_System_Specs_Master.xlsx, Inputs B9 and Water System row 28: pump wattage not documented; site nameplate or measurement required",
-                "effect": "pump energy remains open until power and operating time are established",
-            }
         for field in FIELDS:
             assert actual[field] == expected[field], (key, field)
             assert type(actual[field]) is type(expected[field]), (key, field)

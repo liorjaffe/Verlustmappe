@@ -6,6 +6,7 @@ entries at runtime (test_accounting_ledger). The keys live in plant/blocked_keys
 import os
 import re
 import sys
+import pytest
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
@@ -30,9 +31,11 @@ def test_all_comp_keys_are_rejected():
     assert all(R.entry(k)["status"] == "REJECTED" for k in keys), keys
 
 
-def test_stor_p_work_stays_usable():
+def test_stor_p_work_is_withdrawn():
     from verlustmappe import registry as R
-    assert R.entry("stor.p_work_barg")["status"] != "REJECTED"
+    assert "stor.p_work_barg" not in R.REGISTRY
+    with pytest.raises(KeyError, match="stor.p_work_barg"):
+        R.get("stor.p_work_barg")
 
 
 def test_new_core_does_not_read_comp_keys():
