@@ -53,4 +53,9 @@ def test_physics_is_the_lowest_layer():
 
 def test_entry_files_stay_short():
     assert len((ROOT / "START.md").read_text(encoding="utf-8").splitlines()) <= 60
-    assert len((ROOT / "AGENTS.md").read_text(encoding="utf-8").splitlines()) <= 80
+    # Owner decision 2026-11-13: fixed size and line-length budget for AGENTS.md.
+    agents_max_characters = 8_200
+    agents_max_line_characters = 100
+    agents_text = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    assert len(agents_text) <= agents_max_characters
+    assert all(len(line) <= agents_max_line_characters for line in agents_text.splitlines())
