@@ -1,14 +1,17 @@
-# plant/pv_inverter.toml - PV inverter (2 x Solis, F8)
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
-# Only the owner changes values. Missing value = no 'value' field (MISSING).
+# plant/pv_inverter.toml - PV inverter (2 x Solis S6-GR1P6K, F8)
+# Parameter evidence: sources/Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx.
+# All four sheets reviewed 2026-11-13; owner-approved XLSX-first reconstruction.
+# Missing value = no 'value' field (MISSING).
 
 [device]
 name = "pv_inverter"
-title = "PV inverter (2 x Solis, F8)"
+title = "PV inverter (2 x Solis S6-GR1P6K, F8)"
 
 [open]
 questions = [
-  "D6: S6-GR1P6K datasheet missing.",
+  "Part-load eta(P) curve at the F8 boundary is BACKLOG (Master rows 31, 47).",
+  "Exact night consumption and startup energy are missing; <1 W is a bound per unit, not a point value (Master rows 35, 50).",
+  "Separate MPPT efficiency and efficiency uncertainty are not specified by the cited workbook.",
 ]
 
 [source_block]
@@ -25,71 +28,50 @@ text = '''
 - **Reviewer/date:** owner approved 2026-10-29.'''
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
-registry_comments = '''
-# --- TWO SEPARATE INVERTERS (kept apart, they are different devices and
-#     must stay separately analysable: PV-side vs FC-side) ---
-# NOTE F8: inv_pv.eta_euro below remains PRELIM; no S6-GR1P6K efficiency
-# datasheet is registered. The previous S5-EO1P5K-48 values belong to the
-# FC-side inverter and are not valid for this PV boundary.
-# PV-side inverter: string inverter, PV DC -> AC bus.
-# F8 PV-side inverters are S6-GR1P6K string inverters, distinct from inv_fc.
-# TODO(owner): record device-identity correction in 00 CURRENT STATE.
-# F8 full-production-day cross-check: after removing the +3-4% DC-channel
-# bias, eta_dc_ac ~1.00 is consistent with true eta ~0.97-0.98.'''
+workbook = "sources/Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx"
+workbook_sha256 = "8172f7f81ab22cb3f61edea6ab5cc51fb3003b673ba3a98fda7fcf0305853f78"
+identity = "S6-GR1P6K, F8 PV-side; distinct from the S5-EO1P5K-48 FC-side device. Workbook filename numbering is not a device identifier. Master rows 3-7; Notes row 3."
+constant_use = "INTERIM owner model decision: use EU efficiency 0.971 as a constant pending eta(P), curve BACKLOG; see decisions/2026-11-13_pv-inverter-efficiency.md. The value is DATASHEET; constant-use modelling is DERIVED, not measured."
+part_load_risk = "Without an F8 eta(P) curve, constant EU efficiency may overestimate low-load efficiency and underestimate conversion loss; direction/magnitude are not verified for F8. Legacy-array curves and sample extremes are not an F8 load distribution."
+uncertainty = "No band adopted. Efficiency uncertainty is NOT ASSESSED; uncertainty = 0.0 does not mean exact or zero error. EU and maximum efficiencies are different metrics, not tolerance limits."
+night_consumption = "Master row 35: manufacturer 'Self-consumption (night)' <1 W per unit, bound not exact. Actual power and energy remain missing, never zero. Workbook interpretation of the supply boundary is not independently verified; account B applies per CONTRACT.md."
+startup = "Master row 12: 120 V start-up voltage is DATASHEET. Master rows 36, 50: startup energy OPEN; self-sufficient PV boot behaviour is an interpretation, not a manufacturer energy specification."
+transferability = "Manufacturer S6-GR1P6K / 6K-column specifications apply per unit, not as combined two-unit ratings or measured F8 performance. Unit B nameplate is cited; unit A identity is platform-only. Original PDF/photo/API responses not independently reviewed."
 
 [param."inv_pv.model"]
 value = "2 x Solis S6-GR1P6K string inverter, F8 facade PV-side (SN 1802060225250007 / 1802060225250009)"
 unit = "-"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "SolisCloud API inveterList 2026-10-22 (inverterSeries S6-GR1P(2.5-6)K, machine S6-GR1P6K); metadata CSV model code 0206"
+source = "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master rows 3-7, Sources rows 5-6: nameplate quote 'Model: S6-GR1P6K', 'S/N: 1802060225250009' (unit B); SolisCloud API inveterList 2026-10-22 identifies unit A 1802060225250007 and two F8 units. Unit A has no reviewed nameplate; workbook numbering is not identity."
 effect = "identifies the F8 inverters"
 
-[param."inv_pv.eta_pv_ac_peak"]
-value = 0.966
-unit = "-"
-status = "BACKLOG"
-uncertainty = 0.0
-source = "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter"
-effect = "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
-
-[param."inv_pv.eta_manual_range"]
-value = "0.93-0.95"
-unit = "-"
-status = "BACKLOG"
-uncertainty = 0.0
-source = "S6-GR1P6K datasheet pending - the registered 0.966 / 0.93-0.95 belong to the S5-EO1P5K-48 (FC-side inverter) and must not be used for the F8 PV inverter"
-effect = "not valid for the F8 PV inverter; retain only as historical S5-EO1P5K-48 data"
-
 [param."inv_pv.eta_euro"]
-value = 0.98
+value = 0.971
 unit = "-"
-status = "PRELIM"
-uncertainty = 0.01
-source = "PRELIMINARY: typical Euro efficiency 97-98% for modern string inverters; no F8-specific datasheet yet (D6 open). F8 cross-checks must come from Solis data (f8_day_balance)"
-effect = "PV DC->AC conversion bar"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master row 30, Sources row 3: Solis datasheet S6-GR1P(2.5-6)K GBR V1.5 202507, p.2, column 6K, row 'EU efficiency': '97.1%'. Transferability: per-unit manufacturer anchor for S6-GR1P6K, not measured F8 efficiency."
+effect = "PV DC->AC conversion bar; INTERIM DERIVED constant-use decision pending eta(P), curve BACKLOG (decisions/2026-11-13_pv-inverter-efficiency.md); no part-load coverage claimed, replacement path F8 DC/AC measurement"
 
 [param."inv_pv.eta_peak"]
-value = 0.985
+value = 0.977
 unit = "-"
-status = "PRELIM"
-uncertainty = 0.005
-source = "PRELIMINARY: typical max efficiency 98-98.5%"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master row 29, Sources row 3: Solis datasheet S6-GR1P(2.5-6)K GBR V1.5 202507, p.2, column 6K, row 'Max. efficiency': '97.7%'. Transferability: per-unit manufacturer peak for S6-GR1P6K, not a constant operating efficiency."
 effect = "peak reference only, NOT for energy accounting"
 
 [param."inv_pv.standby_W"]
-value = 5
 unit = "W"
-status = "PRELIM"
-uncertainty = 0.5
-source = "PRELIMINARY: typical standby/night consumption 1-10 W"
-effect = "PV inverter standby bar"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx, Master row 35, Sources row 3: Solis datasheet GBR V1.5 202507, p.2, row 'Self-consumption (night)': '<1 W'. Transferability: per S6-GR1P6K unit at night; bound, not exact power, no uncertainty distribution given."
+effect = "Exact PV inverter standby power/energy missing; <1 W is a manufacturer bound only, not a point estimate or zero; auxiliary consumption belongs to account B"
 
 [param."inv_pv.mppt_efficiency"]
-value = 0.995
 unit = "-"
-status = "PRELIM"
-uncertainty = 0.005
-source = "PRELIMINARY: typical MPPT efficiency >99%"
-effect = "folded into conversion bar unless measured separately"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx: no independently sourced separate MPPT efficiency; Master rows 29-31 give total efficiency anchors and an open eta(P) curve only."
+effect = "Separate MPPT efficiency missing; do not invent or multiply an additional MPPT factor into the total conversion efficiency"

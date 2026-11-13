@@ -8,7 +8,7 @@ Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load poin
 ## Restart progress
 - [x] N0 archive tag `archive-2026-11`, branch, duplicates and `Differenz/` removed
 - [x] N1 `AGENTS.md`, `START.md`, `CONTRACT.md`, `decisions/`
-- [x] N2 values in `plant/<device>.toml` (109 keys, owner-approved reference checked by test);
+- [x] N2 values in `plant/<device>.toml` (107 keys, owner-approved reference checked by test);
       real gas, loader tests, formats, workbook kept; legacy removed
 - [x] Correction: device models (`devices/`, `hydrogen/`, `conversions`, `constants`) and
       their tests restored; analyses, old balance, Monte Carlo, reports stay in the archive
@@ -37,7 +37,7 @@ data or sources as part of this step.
   stack-current uncertainty. Production-minus-delivered is diagnostic, not a booked loss.
 - EL supply/H₂ leakage open; zero line-loss assumption and FC A/B allocation not implemented.
 - Planned sensor accuracy is hypothetical in synthetic tests only, never independent Route 2 evidence.
-- Route2/model/reference checks: 33 pass; device scripts ALL PASS; pytest 260 pass, 5 known workbook failures.
+- PV/source/reference/status/layout checks: 29 pass; device scripts ALL PASS; pytest 268 pass, 5 known workbook failures.
 
 ## Open owner decisions
 1. Remaining [V] items in `CONTRACT.md`: scope wording (§2), formula C (§4), status scheme (§8).
@@ -46,11 +46,11 @@ data or sources as part of this step.
 ## Open plant questions (also under [open] in the device file)
 - Filter pump (house grid): power, run time, exact Marte model and connection to BWT
   remain open (`water.toml`); determine power by nameplate or on-site measurement.
-- PV: F8 12.74 versus 12.78 kWp (`pv_array.toml`); S6-GR1P6K datasheet missing (`pv_inverter.toml`)
+- PV: F8 capacity gap open; S6 0.971/0.977 DATASHEET, EU constant interim, no band; eta(P)/standby/MPPT open (`pv_inverter.toml`).
 - H₂Core battery: 100 Ah/52 V versus 105 Ah/5 kWh/48 V (`fc_battery.toml`)
 - Kaeser: input power, kWh meter, load hours; booster air demand at the operating point;
   manufacturer questions P-1 to P-3 (`booster.toml`)
-- Solis DC channel reads 3–4 % above the counter (legacy finding), so diagnostic only
+- Solis DC channel reads 3–4 % above the counter (legacy finding, not reverified), diagnostic only
 - Regatron fast logs: available? With or without the FC inverter on the bus?
 
 ## Already decided – do not reopen
