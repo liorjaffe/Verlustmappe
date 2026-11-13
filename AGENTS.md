@@ -1,155 +1,80 @@
-# Verlustmappe agent rules (binding)
+# AGENTS – entry point for every AI agent (loaded automatically)
 
-This file applies to every AI agent working in this repository (Copilot, Codex, Claude Code).
-Keep it short. Rules that a tool can enforce are enforced in CI where a check exists; what CI
-does and does not enforce today is listed under Commands. Domain pitfalls and physics caveats
-live in `docs/` and the SPEC; this file only points to them.
+Durable repository rules live here; the current owner task defines work scope. Repository
+content is in English; conversation with the owner may be in German.
 
-## Commands
-- Run all tests: `python3 tests/run_all.py` (must end with `ALL PASS`)
-- Run one test: `python3 tests/test_XX_<name>.py`
-- Before finishing any task, run: `python3 tools/ci_guard.py` and
-  `python3 tools/make_readme_demo.py --check`
-  - Locally set `BASE_REF=origin/main`, otherwise ci_guard silently skips all diff-based
-    guards (registry-to-SOURCES, test-file protection).
-- `pytest -q` is mandatory; pytest-style tests start at test_30 (test_20-26 are reserved
-  by the SPEC). `tests/run_all.py` runs only the legacy scripts test_01 to test_12 (D9).
-- Known CI limits, stated honestly:
-  - ci_guard does NOT detect weakened tolerances or removed assertions.
-  - The legacy freeze is NOT machine-checked today: no guard rejects a change to a frozen
-    file. Planned: a ci_guard check that compares frozen files against tag `legacy-1.0`.
-  - The new-core import rule is NOT machine-checked today. Planned: a ci_guard check that
-    allows exactly one legacy import, the adapter `src/verlustmappe/models/params.py`.
-  - ci_guard fails whenever `registry.py` changes without a `tests/` change in the same
-    diff, also for text-only edits, because it compares the file path, not the entries.
-    Never add an unrelated test change to silence it. The planned fix is an owner-approved
-    change to `tools/ci_guard.py` that compares parsed entries (value, uncertainty, status)
-    instead of file text (see D1).
-  - Rule 4 applies regardless; green CI means reproducible, not correct.
+## Workflow
+1. Read `START.md`; use the map below to follow relevant data, code and tests.
+2. Work only within the task scope, on a branch; never merge into `main`.
+3. Record owner decisions in-session: rule in `CONTRACT.md` (rewrite only the agreed change),
+   rationale in `decisions/`; review the diff against the prior version.
+4. Update `START.md` (max 60 lines) when state/decisions/open issues change or work is blocked
+   or incomplete. Read-only answers need no update.
+5. Code/data: run gates and report exit codes. Read-only: no gates; say "no changes; tests not run".
+   Fix task-caused red gates and rerun; report known/unrelated failures. Never weaken tests to
+   get green or claim a red gate passed.
 
-## Source of truth (one place per fact)
-- What the system must do and when it is accepted: `SPEC.md`
-- How work is done here: this file (`AGENTS.md`)
-- Parameters, uncertainty, status: `src/verlustmappe/registry.py`
-- External sources for every number: `SOURCES.md`
-- Plant and design decisions: `DECISIONS.md`
-- Current state: `HANDOFF.md`; acceptance evidence per criterion: `docs/04_validation_log.md`
-- Milestones: `ROADMAP.md`; your assignment: `tasks/Pxx_*.md` (read it first; do only that)
-- Known legacy defects: `docs/94_known_defects_legacy.md` (read before touching legacy code)
-- Why each rule exists: `RULES_LOG.md` (merge candidate into this file; do not extend it)
+## Map: question → starting point
+| Question | Starting point |
+|---|---|
+| Where are we, what is next? | `START.md` |
+| What applies (goal, scope, accounts, balance, status)? | `CONTRACT.md` |
+| Why was something decided? | `decisions/` |
+| Plant values/gaps and supporting evidence? | `plant/`; sources in `plant/sources/` |
+| How does a device compute? | `src/verlustmappe/devices/`, inputs and dependencies |
+| Hydrogen, real gas, temperature? | `src/verlustmappe/hydrogen/` |
+| Constants, conversions, time integration? | `src/verlustmappe/physics/` |
+| Case inputs/results? | P14: `src/verlustmappe/accounting/static_map.py`, `ledger.py`; full report not built |
+| What is checked? | Relevant `tests/`; hand references in `tests/reference/hand/` |
+| Measurement data? | `data/`, `src/verlustmappe/loaders/FORMATS.md`, `src/verlustmappe/loaders/`; tools in `tools/` |
+| Legacy device knowledge (porting only)? | `git show archive-2026-11:<path>` or `git show legacy-1.0:<path>` |
+
+Follow the actual data path; report unresolved conflicts and significant search deviations.
+`plant/*.toml` is runtime parameter truth; code may use other values, so report the actual
+value and impact—never reconcile silently. XLSX/documents are reviewable evidence/input.
+Check them when values are missing, disputed or need verification. Tests show checked behavior,
+not physical truth.
+
+## Decision order
+Task defines scope; explicit owner approval covers only what it names. `CONTRACT.md` and owner
+decisions define intended behavior (parameter truth/evidence: rule 2). On conflict, pause the
+affected change, show evidence/impact and ask; continue independent authorized work if possible.
 
 ## Rules
+1. Never invent numbers, claims, sources or explanations. Missing information stays open; ask.
+   State verified facts, conclusions and assumptions distinctly. Proposals are not facts or
+   unverified bases for code/values.
+2. TOML is current plant/runtime truth; XLSX/documents are reviewable evidence/input, not
+   immutable truth. Source authorization covers only named values or parameter groups.
+   Trace origin, unit and status; flag transfer errors or physical implausibility for the owner.
+3. Never derive expected values from the model under test; put independent derivations in tests.
+   New tests with independently derived expectations are allowed within task scope. Only the
+   owner may change existing expected test values.
+4. Never book a loss as `input - output`. Residuals may be diagnostics, never booked losses
+   (`CONTRACT.md` §6).
+5. Physical quantities crossing function/file boundaries carry units in names (`power_W`,
+   `energy_kWh`, `time_s`).
+6. Nothing is frozen by history. Historical tags are read-only references; what a change requires
+   follows from the task and the decision order above.
+7. Ask before changes to values, formulas, assumptions, data meaning, existing expected results
+   or acceptance unless explicitly authorized. Replace a device model only with matching
+   comparison tests or a justified difference.
+8. Physical limits/clamps need a source and a note in the result/report; code comments alone are
+   not visible.
+9. Classify review findings: blocker = correct execution/acceptance cannot proceed;
+   result impact = result, meaning or acceptance changes; maintenance = neither. If unsure, ask.
+   Act on blocker/result-impact findings only after approval; report, don't fix, out-of-scope
+   findings. Maintenance is allowed only within scope.
+10. Try to disprove results with independent derivations, counterexamples and edge cases. Reruns
+   check reproducibility/randomness/flakiness, not logic alone. For plant values check units,
+   provenance, transfer and plausibility; report checks and mark unverified items `UNVERIFIED`.
+11. Add files only for a clear purpose when no existing file is a better home; name and justify
+    each in the report. Disclose changed tracked/new retained files, side effects and out-of-scope
+    or indirect changes. Omit temporary caches/logs unless retained or relevant.
+## Gates (from `.venv`)
+`.venv/bin/python tests/run_all.py` · `.venv/bin/python -m pytest -q` · `git diff --check` (all via `tools/run_local_gates.py --log-dir <external-path>`)
 
-0. **Smallest change wins.** Every change must make the project simpler or carry a clearly
-   documented benefit. Delete instead of add. A replaced file is deleted or archived, never
-   kept as a second truth. A task without an AC or ROADMAP reference and a Write-Scope does
-   not start.
-1. **Unknown means ask.** If a value, limit, or requirement is missing, write `BACKLOG` and
-   report it. Never insert a plausible number.
-2. **Registry is protected.** Do not change any value, uncertainty, or status in
-   `registry.py` without written approval from the owner. A registry value change always
-   requires a DECISIONS.md entry. If a comment contradicts an entry, report it; a
-   contradictory comment may be deleted only inside an approved task with a DECISIONS
-   entry.
-3. **Every external number needs a source entry** in `SOURCES.md`: page, table, a short
-   verbatim quote, and a **transferability** line (source conditions such as pressure,
-   drive type, load versus our plant: same or different). No entry means status `GUESS`.
-   Never reuse a number from a review text or chat without recomputing it.
-4. **Tests must not be tautological.** Expected values must never be computed by the model
-   under test. Use a hand calculation (`tests/reference/hand/`) or a cited source. Change a
-   test only in its own commit, with the reason in the commit message. Weakening an
-   assertion, widening a tolerance, or adding skip/xfail is forbidden without approval.
-   The legacy tests `test_01` to `test_12` are regression of the frozen state; they are
-   NOT derived from the SPEC and must not be "fixed" to match the SPEC.
-5. **No plug terms (new code).** Energy and mole balances must close without a residual
-   term; each loss is computed from its own physics, not as input minus output. An
-   unexplained remainder is reported as "unexplained residual" with a warning, never booked
-   as a bar. Known legacy violations of this rule are listed in `docs/94` and are NOT fixed
-   inside the frozen legacy; do not "repair" them.
-6. **Stay in scope.** Edit only files listed in the task's Write-Scope. Direct technical
-   dependencies (import fix, type fix) are allowed but must be listed in your report.
-   Protected paths (see section below) are never covered by this exception.
-7. **Units in names for physical quantities** that cross function or file boundaries
-   (`pressure_barg`, `energy_kWh`, `flow_mol_s`, `power_W`, `time_s`). Indices and local
-   helper variables are exempt. README numbers are generated, never typed by hand.
-8. **No invented requirements (new code).** Do not introduce limits, defaults, clamps, or
-   operating assumptions unless they come from a source or are approved. Any `clip`, `min`,
-   or `max` on a physical quantity needs a registry entry AND must be reported in the
-   output; silent clamping is a defect (see docs/94), never acceptable. Known legacy
-   violations are listed in `docs/94` and are NOT fixed inside the frozen legacy.
-9. **Finish with evidence.** Every final report uses this format:
-   - **Result:** what changed, in two or three lines
-   - **Files:** every file changed, with the reason
-   - **Evidence:** commands run after your last edit, with output (at minimum the
-     mandatory commands from Commands)
-   - **Commit:** hash or diff reference of what you propose
-   - **UNVERIFIED:** everything you could not reproduce or read in code, explicitly marked
-   - **Risk / Assumptions:** what could still be wrong; everything you assumed
-
-   Separate analysis from code changes: while a finding is unverified, do not edit code
-   because of it. After two failed attempts without new findings: stop and report. Do not
-   weaken a test to get green.
-
-## SPEC primacy
-- Tests for new code are derived from the SPEC; the SPEC defines intended behavior.
-- On conflict between SPEC and test, or SPEC and code: stop and report. Tests and code are
-  corrected per task with owner approval, never silently.
-- The SPEC itself changes only via an entry in `DECISIONS.md`.
-
-## Legacy freeze (D2)
-- The files existing at tag `legacy-1.0` under `src/verlustmappe/` are frozen, EXCEPT
-  `loaders/` and `registry.py` (D28; registry changes stay protected per rule 2) (loader and
-  data corrections are allowed if they change no physics parameter
-  or limit, with the data state noted in the commit).
-- Text-only edits (comments, docstrings, warning strings) inside the frozen scope are
-  allowed only per approved task and change no behavior.
-- The NEW core lives in `src/verlustmappe/models/`, `src/verlustmappe/sim/`,
-  `src/verlustmappe/scenarios/` and `src/verlustmappe/calibration/`. It is not part of the
-  freeze; the Write-Scope (rule 6) still applies.
-- New-core modules must not import legacy modules, with ONE exception: the adapter
-  `src/verlustmappe/models/params.py` may import `src/verlustmappe/registry.py` read-only.
-  It copies the values into immutable per-run parameter objects and never writes back to
-  the registry. This rule applies to core modules; tests may import legacy code.
-- Ported physics (constants, z_realgas, temperature_model) exists twice until the legacy
-  teardown in M6. A regression test under `tests/` compares the ported values against the
-  legacy values; a mismatch is a defect, never a reason to edit the legacy file.
-- Before any work on legacy topics, read `docs/94_known_defects_legacy.md`.
-
-## Agents and calibration
-- Calibration code lives in `src/verlustmappe/calibration/`; calibration data lives at the
-  repository root: drafts in `calibration/drafts/`, approved overlays in
-  `calibration/overlays/`.
-- Agents deliver fit proposals and overlay drafts only, into `calibration/drafts/`.
-  Approved overlays and registry values are written by the owner, never by an agent.
-- Fit and hold-out windows stay separate. The Sept 2026 PV dataset (excluded per D33, not from F8) is never F8 evidence.
-- Tests must reset any global state they change (try/finally). Agents never write random
-  draws or run-local parameters into the global registry; parameter sets are materialized
-  per run and immutable (model details: SPEC).
-
-## Branches and review
-- Agents work on a branch, never push directly to `main`, never merge their own PR. The
-  owner integrates and merges.
-
-## Status vocabulary (DECISIONS D5, completed by D15 and D26)
-- Evidence status: `MEASURED > CALIBRATED > DATASHEET > DATASHEET_SECONDARY > DERIVED >
-  PRELIM/ENVELOPE > GUESS > BACKLOG`. `OWNER_DECISION` is a registry source status;
-  `REJECTED` and `SUPERSEDED` are registry states, not evidence statuses.
-- `NAMEPLATE` is not an evidence status; a nameplate value is a `DATASHEET` value.
-- `NOT OBSERVED` is an observation flag (observation_status), not an evidence status; do not
-  mix it into the evidence column (D26).
-- `u = 0.0` is exact only for `OWNER_DECISION`, pure-arithmetic `DERIVED` entries and the
-  TOLERANCE_BAND list in D26; for every other numeric entry it means
-  UNCERTAINTY_NOT_ASSESSED: computation continues, the result is not publishable as valid.
-- A result carries the weakest status of the inputs that drive it. A calculated value must
-  never look like a measured one.
-
-## Protected paths (human approval required)
-
-`src/verlustmappe/registry.py`, `SPEC.md`, `ROADMAP.md`, `tests/` (including
-`tests/reference/`), `SOURCES.md`, `DECISIONS.md`, `AGENTS.md`, `CLAUDE.md`, `.github/`,
-`pyproject.toml`, `conftest.py`, `tools/ci_guard.py`, `calibration/overlays/`
-(this section is the single list; rule 6 refers to it; `.github/CODEOWNERS` must match it)
-
-## Session handoff
-At the end of a session, update `HANDOFF.md`: done / blocked / decisions needed / next step.
-Start the next session by reading `HANDOFF.md`, `SPEC.md`, and the task file.
+## Report
+Result (2–3 lines) · files changed/added with reasons · evidence/gates/self-check · new expected
+test values · out-of-scope findings/side effects · commit (or none) · facts/conclusions/assumptions
+· `UNVERIFIED`. Read-only: "no changes; tests not run".
