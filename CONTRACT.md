@@ -89,6 +89,18 @@ layer 3 (D34).
   comes from the model.
 - [E] EL anchor: AC power, stack current, operating time, standby power, standby time.
   None of them is derived from another without a documented relation.
+- [E] Unit grouping: plant inventory and case operation are separate. Each static phase
+  states active, standby and off counts consistent with the installed inventory, and
+  the operating point per active unit. Identical units may be grouped under an explicit
+  identical-behaviour assumption; different operating points require separate groups.
+  The EL anchor rule applies per group: per-unit inputs and group operating/standby
+  durations remain independent inputs unless a documented relation is supplied.
+- [E] Sum unit-group contributions; compute shared infrastructure once from its associated
+  total demand, operating point and duration. Kaeser allocation remains D13/D14 (§6).
+  State actual supply and applicable capacity limits; missing curves or inputs stay open.
+  Standby of series-path devices belongs to B (§4), with actual supply and no double
+  counting. Off is not standby and implies zero only under an explicit case assumption
+  of full shutdown of the relevant supplies; otherwise residual consumption stays open.
 - [E] A chosen Solis time window shows only that enough PV **energy** was available. It
   does not prove simultaneous power or real supply. [E] The window selection rule is
   recorded beforehand.
@@ -98,7 +110,9 @@ layer 3 (D34).
 - [E] Every phase duration has a justification: operating requirement, measured
   observation or deliberate convention.
 - [E] The FC operating point is set; the FC duration follows from the mole balance
-  (otherwise the case is overdetermined).
+  (otherwise the case is overdetermined). It is a derived result, not a free case input.
+  Multiple FC groups with different durations require an explicit operating sequence or
+  gas allocation; one total mole balance alone does not determine every group duration.
 - [E] Cycle closure is a declared assumption in mol, not a measurement. Intermediate
   storage (dryer hold-up, buffer, tank) is lumped as an assumption.
 - [E] Battery: share or ΔS is declared. Net zero is not loss-free; throughput losses are

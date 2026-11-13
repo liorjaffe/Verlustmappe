@@ -21,10 +21,10 @@ Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load poin
 - [ ] N5 owner reviews the branch and decides whether to merge
 
 ## Next step
-Design the F1 case report around the PV-start path, EL-start path and auxiliary energy
-perspectives in `CONTRACT.md` §4. Then scope the connections to existing device models
-for accounts A and B; leave missing inputs visible. Do not delete or replace models,
-data or sources as part of this step.
+N4/F1: design PV-start, EL-start and auxiliary reports (§4) with unit grouping (§5).
+Implement inventory and per-phase active/standby/off groups together with the case schema;
+9 EL is OWNER_DECISION, not site-verified; numeric entry deferred to N4. FC duration is derived.
+Use D13/D14 for shared infrastructure; keep missing inputs visible, do not replace models.
 
 ## Current limitations
 - P14 is a bounded EL scenario; the A/B/C full-chain report is not implemented.
@@ -36,7 +36,7 @@ data or sources as part of this step.
 - Faraday mass remains computable; its uncertainty is open pending sourced, owner-approved
   stack-current uncertainty. Production-minus-delivered is diagnostic, not a booked loss.
 - EL supply/H₂ leakage open; zero line-loss assumption and FC A/B allocation not implemented.
-- Planned sensor accuracy is hypothetical in synthetic tests only, never independent Route 2 evidence.
+- Extra PV inverters on another array: future BACKLOG only, no current capacity/scope change.
 - PV/source/reference/status/layout checks: 29 pass; device scripts ALL PASS; pytest 268 pass, 5 known workbook failures.
 
 ## Open owner decisions
