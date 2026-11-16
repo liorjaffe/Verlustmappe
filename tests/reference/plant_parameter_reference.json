@@ -235,7 +235,7 @@
   "sys.n_rotex": {
    "value": 4,
    "unit": "-",
-   "source": "owner decision 2026-10-27, SOURCES.md",
+   "source": "owner decision 2026-10-27; compressor workbook Master row 4, source S26",
    "status": "OWNER_DECISION",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -243,7 +243,7 @@
   "sys.p_h2_out_project_barg": {
    "value": 300,
    "unit": "barg",
-   "source": "owner decision 2026-10-27 (D12), SOURCES.md",
+   "source": "owner decision 2026-10-27 (D12, decisions/2026-11-05_restart.md); compressor workbook Master row 5",
    "status": "OWNER_DECISION",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -251,7 +251,7 @@
   "sys.p_h2_out_nameplate_barg": {
    "value": 400,
    "unit": "barg",
-   "source": "HULC system nameplate, SOURCES.md",
+   "source": "HULC system nameplate; compressor workbook Master row 6, source S1",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -259,7 +259,7 @@
   "sys.p_h2_in_barg": {
    "value": 35,
    "unit": "barg",
-   "source": "HydroHulc TDS p.2, SOURCES.md",
+   "source": "HydroHulc TDS p.2 and owner statement; compressor workbook Master row 7, sources S5 and S26",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -267,7 +267,7 @@
   "hulc.mod.q_h2_max_nm3h": {
    "value": 5,
    "unit": "Nm3/h",
-   "source": "HydroHulc TDS p.2 ('up to'), SOURCES.md",
+   "source": "HydroHulc TDS p.2 ('up to'); compressor workbook Master row 75, source S5",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -275,7 +275,7 @@
   "hulc.m140.limits": {
    "value": 140,
    "unit": "barg",
-   "source": "HydroHulc TDS p.2, SOURCES.md",
+   "source": "HydroHulc TDS p.2; compressor workbook Master row 77, source S5",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -283,7 +283,7 @@
   "hulc.m400.limits": {
    "value": 400,
    "unit": "barg",
-   "source": "HydroHulc TDS p.2, SOURCES.md",
+   "source": "HydroHulc TDS p.2; compressor workbook Master row 78, source S5",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -291,7 +291,7 @@
   "hulc.pl_max_barg": {
    "value": 10,
    "unit": "barg",
-   "source": "Maximator catalog, upper end of range 1-10, SOURCES.md",
+   "source": "Maximator catalog, upper end of range 1-10; compressor workbook Master row 108, source S7",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -299,7 +299,7 @@
   "hulc.s1.i": {
    "value": 15,
    "unit": "-",
-   "source": "DLE 15 base type, SOURCES.md",
+   "source": "Maximator DLE 15 base-type catalog and datasheet; compressor workbook Master row 86, sources S7 and S8",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -307,7 +307,7 @@
   "hulc.s1.v_disp_cm3": {
    "value": 244,
    "unit": "cm3",
-   "source": "DLE 15 base type, SOURCES.md",
+   "source": "Maximator DLE 15 base-type catalog and datasheet; compressor workbook Master row 87, sources S7 and S8",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -315,7 +315,7 @@
   "hulc.s1.f_max_min": {
    "value": 120,
    "unit": "1/min",
-   "source": "DLE 15 base type, SOURCES.md",
+   "source": "Maximator DLE 15 base-type datasheet; compressor workbook Master row 88, source S8",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -323,7 +323,7 @@
   "hulc.s1.pa_min_barg": {
    "value": 7,
    "unit": "barg",
-   "source": "DLE 15 base type, SOURCES.md",
+   "source": "Maximator DLE 15 base-type catalog; compressor workbook Master row 89, source S7",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -331,7 +331,7 @@
   "hulc.s1.pb_max_barg": {
    "value": 300,
    "unit": "barg",
-   "source": "DLE 15 base type, SOURCES.md",
+   "source": "Maximator DLE 15 base-type catalog; compressor workbook Master row 90, source S7",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -339,7 +339,7 @@
   "hulc.s2.i": {
    "value": 30,
    "unit": "-",
-   "source": "DLE 30 base type, SOURCES.md",
+   "source": "Maximator DLE 30 base-type catalog and datasheet; compressor workbook Master row 97, sources S7 and S9",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -347,7 +347,7 @@
   "hulc.s2.v_disp_cm3": {
    "value": 120,
    "unit": "cm3",
-   "source": "DLE 30 base type, SOURCES.md",
+   "source": "Maximator DLE 30 base-type catalog and datasheet; compressor workbook Master row 98, sources S7 and S9",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -355,7 +355,7 @@
   "hulc.s2.f_max_min": {
    "value": 120,
    "unit": "1/min",
-   "source": "DLE 30 base type, SOURCES.md",
+   "source": "Maximator DLE 30 base-type datasheet; compressor workbook Master row 99, source S9",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -363,7 +363,7 @@
   "hulc.s2.pa_min_barg": {
    "value": 15,
    "unit": "barg",
-   "source": "DLE 30 base type, SOURCES.md",
+   "source": "Maximator DLE 30 base-type catalog and datasheet; compressor workbook Master row 100, sources S7 and S9",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -371,7 +371,7 @@
   "hulc.s2.pb_max_barg": {
    "value": 600,
    "unit": "barg",
-   "source": "DLE 30 base type, SOURCES.md",
+   "source": "Maximator DLE 30 base-type catalog; compressor workbook Master row 101, source S7",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -379,7 +379,7 @@
   "kaeser.p_rated_nameplate_kw": {
    "value": 5.85,
    "unit": "kW",
-   "source": "Kaeser SXC 8 nameplate 5.5 + 0.35 kW (sum, assignment open), SOURCES.md",
+   "source": "Kaeser SXC 8 nameplate 5.5 + 0.35 kW (sum, assignment open); compressor workbook Master row 19, source S10",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -387,7 +387,7 @@
   "kaeser.ps_barg": {
    "value": 11,
    "unit": "barg",
-   "source": "Kaeser SXC 8 nameplate, SOURCES.md",
+   "source": "Kaeser SXC 8 nameplate; compressor workbook Master row 35, source S10",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -395,7 +395,7 @@
   "kaeser.q_fad_m3min": {
    "value": 0.67,
    "unit": "m3/min FAD",
-   "source": "Kaeser brochure P-651/26D, 10 bar working pressure, SOURCES.md",
+   "source": "Kaeser brochure P-651/26D, 10 bar working pressure; compressor workbook Master row 36, source S15",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "none yet"
@@ -403,7 +403,7 @@
   "kaeser.p_package_dealer_kw": {
    "value": 6.2,
    "unit": "kW",
-   "source": "dealer listing, conflicting pressure basis, SOURCES.md",
+   "source": "dealer listing 100692.11, conflicting pressure basis; compressor workbook Master row 28, source S16",
    "status": "DATASHEET_SECONDARY",
    "uncertainty": 0.0,
    "effect": "none yet; uncertainty NOT assessed (owner to set)"
@@ -860,22 +860,22 @@
  "sources": {
   "sys.n_rotex": {
    "value_and_unit": "`4` (-)",
-   "source": "owner statement, Air Valve chat 2026-10-27 [S26]",
+   "source": "owner statement, chat 2026-10-27 [S26]",
    "location": "workbook Master row 4",
-   "verbatim_quote": "BACKLOG (owner statement, no document)",
-   "source_conditions": "equal type, pressure and switching of all four not yet confirmed",
-   "transferability": "same plant",
+   "verbatim_quote": "No verbatim quotation available; owner statement documented in workbook",
+   "source_conditions": "owner statement documented in workbook S26; original chat not independently reviewed; equal type, pressure and switching of all four not yet confirmed",
+   "transferability": "owner statement for this plant; inventory not independently verified",
    "registry_status_and_uncertainty": "OWNER_DECISION, 0.0",
    "used_by": "none yet (registry input only)",
    "reviewer_date": "owner, pending"
   },
   "sys.p_h2_out_project_barg": {
    "value_and_unit": "`300` barg",
-   "source": "owner decision, this chat 2026-10-27 [S26]",
-   "location": "workbook Master row 5; D12",
-   "verbatim_quote": "BACKLOG (owner decision)",
-   "source_conditions": "project case 35 -> 300 barg; storage limit 300 bar",
-   "transferability": "same plant; differs from `stor.p_work_barg` = 200 (legacy-1.0), see D12",
+   "source": "owner decision 2026-10-27 [S26]; D12 in decisions/2026-11-05_restart.md",
+   "location": "workbook Master row 5; decisions/2026-11-05_restart.md, D12",
+   "verbatim_quote": "No verbatim quotation available; owner decision documented in workbook and D12",
+   "source_conditions": "project case 35 -> 300 barg; storage PS is a limit, not an automatically permitted operating point",
+   "transferability": "project case for this plant; storage working pressure remains open",
    "registry_status_and_uncertainty": "OWNER_DECISION, 0.0",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
@@ -886,7 +886,7 @@
    "location": "workbook Master row 6",
    "verbatim_quote": "\"HULC Compressor system for compression of hydrogen from 35bar to 400bar\" (nameplate field \"Benennung/ Designation\"; original spelling without space before \"bar\"; owner transcription 2026-10-28 from two photos, identical)",
    "source_conditions": "system nameplate, not a storage fill permission",
-   "transferability": "same plant",
+   "transferability": "owner-transcribed plant nameplate; original photos and installed unit identity not independently reviewed",
    "registry_status_and_uncertainty": "DATASHEET (nameplate), 0.0",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
@@ -897,7 +897,7 @@
    "location": "TDS p.2; workbook Master row 7",
    "verbatim_quote": "TDS `HydroHulc_TDS_0012_9A-2` p.2, table row \"Inlet pressure\", column \"Hulc 140\": \"<=35 bar\"; nameplate: \"from 35bar to 400bar\" (owner transcription 2026-10-28)",
    "source_conditions": "dryer DRY 2.1 output up to 35 barg; equal to the Hulc 140 inlet limit (workbook statement)",
-   "transferability": "same plant; gauge convention assumed (P-2)",
+   "transferability": "owner-transcribed plant nameplate and TDS limit; original photos and installed unit identity not independently reviewed; gauge convention assumed (P-2)",
    "registry_status_and_uncertainty": "DATASHEET, 0.0",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
@@ -937,10 +937,10 @@
   },
   "hulc.pl_max_barg": {
    "value_and_unit": "`10` barg (upper end of \"1 - 10 bar\", a range, not a setpoint)",
-   "source": "Maximator gas boosters catalog [S7]",
+   "source": "Maximator gas boosters catalog [S7]; workbook Sources S9 names US DLE 30 PDF DB-01.02.02.26: https://maximatorus.com/uploads/Datasheets/DB-01.02.02.26-Booster-DLE-30-USA.pdf (internal identifier DB.01.02.02.16, release Oct-25). DLE 30 base-type PDF DB.01.02.02.16, release May-24: https://www.maximator.de/assets/mime/-UTQ3ZSbKI3rzIho3DDc4IsYmaIviJTqbXH8VDNKRltQ3PDqz/DB-01.02.02.16-Booster-DLE-30.pdf. Agent checked both PDFs and their air-drive range on 2026-11-16; owner review pending.",
    "location": "workbook Master row 108; catalog pages per Sources sheet (p.7-8, 16-19, 28-29)",
    "verbatim_quote": "Maximator catalog p.16 (also p.18, \"DLE...-2\" section), list item above the base-type table: \"Suitable for air drive pressures (pL) from 1 to 10 bar (14.5 to 145 psi)\"; DLE 15 datasheet DB 01.02.02.02 p.1: \"Air drive pressure pL: 1-10 bar / 14,5 - 145psi\"; DLE 30 datasheet DB-01.02.02.26 p.1: \"Air drive pressure pL: 1 - 10 bar / 14.5 - 145 psi\" (owner transcription 2026-10-28)",
-   "source_conditions": "drive air pressure range",
+   "source_conditions": "Drive air pressure range of the DLE base type; applicability to the installed -H2 unit remains UNVERIFIED.",
    "transferability": "catalog value of the base type; gauge assumed (P-2); lower end (1 bar) not registered. Type-related permitted range, not a setpoint: DLE manual Tab. 3-4 leaves \"Drive pressure pL\" empty with footnote \"a. Dependent on the gas booster design. Refer to the general drawing provided or rating plate.\"",
    "registry_status_and_uncertainty": "DATASHEET, 0.0",
    "used_by": "none yet",
@@ -995,7 +995,7 @@
    "source": "[S7]",
    "location": "workbook Master row 90",
    "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"max. working pressure pB*** [bar]\": \"300\" (psi: \"4350\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 300 bar\" (owner transcription 2026-10-28)",
-   "source_conditions": "base-type limit; the module limits stage 1 to 140 bar",
+   "source_conditions": "base-type catalog limit; the module limits stage 1 to 140 bar. P-3: repair manual and catalog give conflicting base-type maximum pressures; see source_block P-3. Applicability to the installed part remains UNVERIFIED.",
    "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)",
    "registry_status_and_uncertainty": "DATASHEET, 0.0",
    "used_by": "none yet",
@@ -1050,52 +1050,52 @@
    "source": "[S7]",
    "location": "workbook Master row 101",
    "verbatim_quote": "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"max. working pressure pB*** [bar]\": \"600\" (psi: \"8700\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 600 bar / 8700 psi\" (owner transcription 2026-10-28)",
-   "source_conditions": "base-type limit; the module limits stage 2 to 400 bar",
+   "source_conditions": "base-type catalog limit; the module limits stage 2 to 400 bar. P-3: repair manual and catalog give conflicting base-type maximum pressures; see source_block P-3. Applicability to the installed part remains UNVERIFIED.",
    "transferability": "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)",
    "registry_status_and_uncertainty": "DATASHEET, 0.0",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
   },
   "kaeser.p_rated_nameplate_kw": {
-   "value_and_unit": "`5.85` kW (workbook text \"5.5 + 0.35 kW\")",
-   "source": "Kaeser SXC 8 nameplate photo [S10]",
+   "value_and_unit": "`5.85` kW calculated as 5.5 + 0.35 kW from the transcribed nameplate",
+   "source": "Kaeser SXC 8 nameplate photo [S10], transcribed in workbook Master row 19; original photo not independently reviewed",
    "location": "workbook Master row 19",
    "verbatim_quote": "nameplate field \"Bemessungsleistung 5,5 + 0,35 kW\" (SXC 8, Material-Nr. 100692.11); the nameplate does not say what the 0,35 kW belong to (owner transcription 2026-10-28)",
-   "source_conditions": "assignment of the 0.35 kW is not documented; the sum is the registered value",
-   "transferability": "same plant; the sum is an owner reading, to be confirmed",
-   "registry_status_and_uncertainty": "DATASHEET (nameplate), 0.0",
+   "source_conditions": "5.85 kW is a calculated sum, not a separately read nameplate value; assignment of 0.35 kW is not documented; not established as electrical input at the operating point",
+   "transferability": "owner-transcribed plant nameplate; original photo and device identity not independently reviewed",
+   "registry_status_and_uncertainty": "DATASHEET (registry status for nameplate basis); uncertainty 0.0 NOT ASSESSED",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
   },
   "kaeser.ps_barg": {
    "value_and_unit": "`11` barg",
-   "source": "Kaeser nameplate photo [S10]",
+   "source": "Kaeser nameplate photo [S10], transcribed in workbook Master row 35; original photo not independently reviewed",
    "location": "workbook Master row 35",
    "verbatim_quote": "nameplate field \"Max. Betriebsüberdruck PS 11,00 bar\" (limit, not an operating point) (owner transcription 2026-10-28)",
-   "source_conditions": "nameplate pressure; observed line pressure is 8.1 bar (not registered)",
-   "transferability": "same plant; gauge assumed (P-2)",
+   "source_conditions": "nameplate pressure limit; workbook Master row 39 / S26 records owner's 2026-10-27 statement of approximately 8.1 bar, not a recorded curve or registered operating point",
+   "transferability": "owner-transcribed plant nameplate states Betriebsüberdruck (gauge pressure); original photo and device identity not independently reviewed",
    "registry_status_and_uncertainty": "DATASHEET (nameplate), 0.0",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
   },
   "kaeser.q_fad_m3min": {
    "value_and_unit": "`0.67` m3/min FAD",
-   "source": "Kaeser SXC compact brochure P-651/26D [S15]",
+   "source": "Kaeser SXC compact brochure P-651/26D .10/24 [S15], cited in workbook; that edition not independently reviewed. Brochure-family copy P-651/26ED .7/26: https://d15gaovuyz6h3b.cloudfront.net/asset/204664918567/document_716hk8gk857r57eng578lrit6l?content-disposition=inline ; agent checked SXC 8 flow, pressures, motor nominal power and ISO conditions against the transcription on 2026-11-16; not a check of the full edition; owner review pending.",
    "location": "workbook Master row 36",
    "verbatim_quote": "Kaeser brochure P-651/26D (.10/24), technical data table (PDF p.6/7), row \"SXC 8\": \"SXC 8 | 10 | 0,67 | 11 | 5,5 | CT 8 | +6 | 0,2 | 215 | 620 x 980 x 1480 | 69 | 300\" (columns: Betriebsüberdruck 10, Volumenstrom Gesamtanlage 0,67, max. Überdruck 11); footnote: \"*) Volumenstrom Gesamtanlage nach ISO 1217: 2009, Annex C/E, Ansaugdruck 1 bar (abs), Kühl- und Luftansaugtemperatur + 20 °C\" (owner transcription 2026-10-28)",
    "source_conditions": "10 bar working pressure, 11 bar version, ISO 1217:2009 Annex C/E, inlet 1 bar abs, 20 degC",
-   "transferability": "same type; ISO 1217 tolerance not stated; dealer lists the same flow at 11 bar",
-   "registry_status_and_uncertainty": "DATASHEET, 0.0",
+   "transferability": "SXC 8 type; installed unit identity not independently verified; ISO 1217 tolerance not stated; dealer lists the same flow at 11 bar",
+   "registry_status_and_uncertainty": "DATASHEET; uncertainty 0.0 NOT ASSESSED",
    "used_by": "none yet",
    "reviewer_date": "owner, pending"
   },
   "kaeser.p_package_dealer_kw": {
    "value_and_unit": "`6.2` kW",
-   "source": "dealer listing 100692.11 [S16]",
+   "source": "dealer listing 100692.11 [S16], as transcribed in workbook; listing not independently reviewed; direct URL and retrieval date UNVERIFIED",
    "location": "workbook Master row 28",
    "verbatim_quote": "dealer listing (grobmotorik.org, \"Schraubenkompressor Sxc 8 | 100692.11\"): \"Elektr. Leistungsaufnahme der Gesamtanlage bei 11,0 bar: 6,2 kW\"; same listing: \"Volumenstrom bei 11,0 bar: 0,67 m³/min (670 l/min.)\"; \"Ausführung mit SIGMA CONTROL Basic\"; \"Kältetrockner 0,28 kW\" (owner transcription 2026-10-28)",
    "source_conditions": "at 11 bar; dryer inclusion not stated. CONFLICT: the same listing gives 0.67 m3/min at 11 bar, the manufacturer gives 0.67 at 10 bar",
-   "transferability": "secondary source with a known conflict; replace by measurement (SC2 kWh counter). Dealer attributes 0.67 m3/min and 6.2 kW both to 11.0 bar, manufacturer attributes 0.67 m3/min to 10 bar working pressure (11 bar = max. overpressure). Dealer controller variant (\"SIGMA CONTROL Basic\") conflicts with the installed SC2 (option C48, MCSIO); the photo governs. Inclusion of the refrigeration dryer in 6.2 kW not stated",
+   "transferability": "secondary source with a known conflict; measurement (SC2 kWh counter) can validate a model. Dealer attributes 0.67 m3/min and 6.2 kW both to 11.0 bar, manufacturer attributes 0.67 m3/min to 10 bar working pressure (11 bar = max. overpressure). Dealer controller variant (\"SIGMA CONTROL Basic\") conflicts with the workbook's SC2 photo transcription (option C48, MCSIO); original photo and device identity not independently reviewed. Inclusion of the refrigeration dryer in 6.2 kW not stated",
    "registry_status_and_uncertainty": "DATASHEET_SECONDARY, 0.0 (uncertainty to be set by owner)",
    "used_by": "none yet; basis of the derived Kaeser energy figure, which is workbook-only",
    "reviewer_date": "owner, pending"
@@ -1107,8 +1107,8 @@
    "text": "- **Value and unit:** `300 s` minimum observed interval; nominal grid derived under D32(a), not a registry parameter.\n- **Source:** SolisCloud portal, `data/raw/Daily+Power+Station+Chart_29-10-2026.xls`, owner-provided export; SHA-256 `754740b3eb2e8f119bfa1b200fa2f0ae2c66b872c28bdc3166d416281d742621`.\n- **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.\n- **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.\n- **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.\n- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the owner selected 12.74 kWp (28 x 455 Wp) for the F8 array despite the station-list value 12.78 kWp (decisions/2026-11-15-pv-module-count.md).\n- **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).\n- **Used by:** docs/03 nominal-sampling table.\n- **Reviewer/date:** owner approved 2026-10-29."
   },
   "h2_compressor": {
-   "title": "P05 workbook v2 entries (2026-10-27)",
-   "text": "All entries below are transcribed from the owner workbook `Compressor_System_Specs_Master_v2.xlsx`\n(SHA-256 `0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd942ae`), Master and Sources\nsheets. The workbook carries document and page only, no verbatim quotes. Every quote field is\n`BACKLOG`: the owner supplies it from the original PDF/photo. Uncertainty 0.0 follows existing\ndatasheet entries; transfer risk is stated per entry. Pressures: convention assumed gauge (barg),\nsee open point P-2.\n\nOpen points: (P-1) Maximator / H2 Core Systems: conditions of the TDS air-consumption chart\n(gas pressures, booster version, purge/control air, volume basis, continuous vs intermittent).\n(P-3) Same inquiry: an older Maximator repair manual (drawings dated 1985/1996) lists lower maximum pressures for the base types (DLE 15: 150 bar, DLE 30: 300 bar, instead of 300/600 in the current catalog); which limits apply to part numbers 3630.3019 / 3630.2374 (installed 2021)? (P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status\nof the affected keys changes by decision."
+   "title": "HULC source conditions and open questions",
+   "text": "Evidence: sources/Compressor_System_Specs_Master_v2.xlsx, Master and Sources\nsheets; individual parameters identify the relevant rows and sources.\nWorkbook SHA-256: 839a34eb5068ba48f6ece87ebce62c535daf24966e81826e0c7c221c1dc9b755.\nThis differs from the hash pinned by the workbook identity test; the workbook\nrevision and its acceptance remain open. The test pin is not updated.\nThe workbook is evidence, not the runtime parameter source. Manufacturer data\nfor DLE base devices are not verified for the installed -H2 variants. The\npressure reference is assumed gauge where marked; uncertainty 0.0 does not\nestablish zero uncertainty.\n\nAgent checked 2026-11-16: workbook Master rows 86-91 and 97-102 against\nthe corresponding pressure ratios, inlet/outlet pressures, displacement,\ncycle rate and compression ratios in the DLE 15 Apr-24 and DLE 30 Oct-25\nbase-type datasheets, page 1; row 108 against their drive-pressure ranges.\nDLE 15: https://www.maximator.de/assets/mime/415f72351d5181b5354062839e0314ba/DB-01.02.02.02-Booster-DLE-15.pdf\nDLE 30: https://maximatorus.com/uploads/Datasheets/DB-01.02.02.26-Booster-DLE-30-USA.pdf\nThe DLE 15 copy is not the workbook's S8 copy; the DLE 30 filename differs\nfrom its internal identifier, as noted under hulc.pl_max_barg. Connections,\nH2-option ratios and applicability to installed -H2 devices were not checked\nby this comparison. H2 Core TDS p.2 module pressure classes, inlet limits and\nmaximum flow in rows 75, 77 and 78 were also checked; owner review is pending.\n\nP-1: Confirm air-consumption chart conditions, volume basis, module\nconfiguration, purge/control air and applicability to installed -H2 units.\nP-2: Confirm whether the DLE table pressures are gauge or absolute.\nP-3: Confirm applicable pressure limits for installed parts 3630.3019 and\n3630.2374. Maximator Operating, maintenance and repair instructions for DLE 15\nand DLE 30, section 4, p.5:\nhttps://highpressuretech.com/wp-content/uploads/2022/06/DLE15-DLE30.pdf\nlists maximum inlet and operating pressures of 150 and 300 bar respectively;\nthe base-type datasheets above list 300 and 600 bar respectively. Which\nlimits apply to the installed parts is UNVERIFIED.\n"
   }
  }
 }

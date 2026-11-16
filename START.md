@@ -1,8 +1,7 @@
 # START – current state (overwritten, never appended; at most 60 lines)
-State: 2026-11-13 · branch `review/zwischenstand-2026-11-13` · checkpoint; no merge into main.
+State: 2026-11-16 · branch `review/zwischenstand` · checkpoint; no merge into main.
 ## Goal
 Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load point; every number traced, gaps visible. Details: `CONTRACT.md` §1–§4.
-
 ## Restart progress
 - [x] N0 archive tag `archive-2026-11`, branch, duplicates and `Differenz/` removed
 - [x] N1 `AGENTS.md`, `START.md`, `CONTRACT.md`, `decisions/`
@@ -13,11 +12,9 @@ Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load poin
 - [ ] N3 accounts A/B/C built on existing device models; rework only with a comparison test against the existing model.
 - [ ] N4 `cases/F1.toml` and case report, immediately with MISSING items
 - [ ] N5 owner reviews the branch and decides whether to merge
-
 ## Next step
-HULC: resolve model findings with owner; review Kaeser, shared air allocation and sources before changes.
+HULC/Kaeser: review Layer 1 demand, chart interpolation and shared air allocation before modelling.
 N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-verified.
-
 ## Current limitations
 - P14 is a bounded EL scenario; the A/B/C full-chain report is not implemented.
 - Water pump energy is BACKLOG, not zero; independent RO results remain visible; accounting keeps water and filter energy blocked until connected.
@@ -28,7 +25,6 @@ N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-ve
 - EL supply/H₂ leakage open; zero line-loss assumption and FC A/B allocation not implemented.
 - Extra PV inverters on another array: future BACKLOG only, no current capacity/scope change.
 - Legacy guard scripts `tools/ci_guard.py` and `tools/make_readme_demo.py` are absent in this tree.
-
 ## Known failures
 - 2026-11-13 gate observation: device scripts ALL PASS; pytest 268 pass, 5 workbook failures:
   - `test_plant_workbook_hand_calcs.py::test_stall_formula_text_still_the_one_reviewed`: D119 empty.
@@ -50,7 +46,11 @@ N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-ve
 - PV generation modelling is an empty, non-executable placeholder: `decisions/2026-11-16-pv-generation-modelling-deferred.md`; module source review deferred.
 - PV starts provisionally at inverter DC input; cable outside boundary, not zero. Revisit with reviewed data: `decisions/2026-11-16-pv-inverter-input-boundary.md`. AC sign/boundary and residual causes remain open.
 - H₂Core battery: 100 Ah/52 V versus 105 Ah/5 kWh/48 V (`fc_battery.toml`)
-- Kaeser: input power, kWh meter, load hours; H2 compressor air demand at the operating point; manufacturer questions P-1 to P-3 (`h2_compressor.toml`)
+- Kaeser/HULC: input power, load hours and P-1 to P-3 open. Source cleanup distinguishes transcriptions, independent checks and UNVERIFIED evidence; workbook review remains separate. Conditional Path A versus lower-bound Path B remains unresolved.
+- Kaeser/HULC: original .10/24 brochure, photos/chats, installed identity and URL durability remain UNVERIFIED; agent-checked technical fields and P-3 manual cited; owner review pending.
+- Workbook review: resolve hash-change origin, authoritative version, missing Bovo/S28 revision and consolidated hash/check; D12 is recorded in `decisions/2026-11-05_restart.md`.
+- HULC: max-flow and nine-EL comparisons are illustrative; actual drive pressure, counter definition, stroke-count plausibility and P-3 limits remain open before use.
+- Deferred owner decisions: status of base-type data, representation/interpretation of zero uncertainty, FAD unit/schema and pressure references; snapshot prose design. Current values/statuses/units unchanged, not newly approved.
 - HULC: model without air energy uses REJECTED eta=0.03; no-window ideal work uses fill integral despite constant-outlet docstring. Result impact; owner decision needed.
 - HULC review: base DLE 15/30 values match manufacturer sheets, H2 variant transfer and bar/barg remain UNVERIFIED; 5 Nm3/h is a maximum, not a measured operating point.
 - `PVSystem` no longer reports reference-minus-DC as a loss. Solis 3–4% difference unverified; cause open.

@@ -1,5 +1,6 @@
 # plant/h2_compressor.toml - H2 booster HULC (two-stage, DLE15-H2 + DLE30-H2)
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Evidence: sources/Compressor_System_Specs_Master_v2.xlsx and cited sources.
+# [layer1_evidence] is provisional documentation, not a runtime input.
 # Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
@@ -11,36 +12,128 @@ questions = [
   "Open manufacturer questions P-1 to P-3 (Maximator / H2 Core Systems): see [source_block].",
 ]
 
-[source_block]
-title = "P05 workbook v2 entries (2026-10-27)"
+[layer1_evidence]
+status = "PROVISIONAL; NON-EXECUTABLE; NOT A RUNTIME PARAMETER"
+source = "Compressor_System_Specs_Master_v2.xlsx, Master rows 128-137 and 139; H2 Core Systems HydroHulc TDS_0012_9A-2, p. 2, air-consumption chart: https://www.h2coresystems.com/wp-content/uploads/HydroHulc_TDS_0012_9A-2.pdf"
 text = '''
-All entries below are transcribed from the owner workbook `Compressor_System_Specs_Master_v2.xlsx`
-(SHA-256 `0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd942ae`), Master and Sources
-sheets. The workbook carries document and page only, no verbatim quotes. Every quote field is
-`BACKLOG`: the owner supplies it from the original PDF/photo. Uncertainty 0.0 follows existing
-datasheet entries; transfer risk is stated per entry. Pressures: convention assumed gauge (barg),
-see open point P-2.
+The workbook records approximate GRAPH-READ points from the H2 Core HydroHulc
+chart, not from the separate Maximator base-device charts. At H2 flow in
+NL/min, the workbook records air demand in NL/min as:
+  Hulc 140: 10 -> 150, 50 -> 280, 80 -> 380, 100 -> 475, 200 -> 900.
+  Hulc 400: 10 -> 350, 50 -> 600, 80 -> 800, 100 -> 975, 200 -> 1750.
+The workbook estimates chart-reading uncertainty at about 25 NL/min per point.
+Gas pressures, air-volume reference, module configuration and inclusion of
+purge/control air are not established. The datasheet footnote gives an air
+consumption example at 6 bar drive pressure and 20 strokes/min; its application
+to the chart needs confirmation. Transfer to the installed -H2 variants and
+adding both module curves for the two-stage system are UNVERIFIED (P-1).
 
-Open points: (P-1) Maximator / H2 Core Systems: conditions of the TDS air-consumption chart
-(gas pressures, booster version, purge/control air, volume basis, continuous vs intermittent).
-(P-3) Same inquiry: an older Maximator repair manual (drawings dated 1985/1996) lists lower maximum pressures for the base types (DLE 15: 150 bar, DLE 30: 300 bar, instead of 300/600 in the current catalog); which limits apply to part numbers 3630.3019 / 3630.2374 (installed 2021)? (P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status
-of the affected keys changes by decision.'''
+At the illustrative 5 Nm3/h H2 maximum, not an adopted operating point, the
+workbook estimates 390 + 825 = 1215 NL/min air demand and 14.6 Nm3 air per
+Nm3 H2. These are assumptions and graphical estimates, not measured demand.
+Linear interpolation of the rounded workbook points at 83.33 NL/min H2 gives
+approximately 396 + 829 = 1225 NL/min, not 1215; re-read the chart and check
+the interpolation before using either estimate. These air-volume bases must be
+checked before comparison with Kaeser normal-volume delivery.
+
+The workbook's geometry-based Path B (rows 133-136) gives lower bounds of
+4.59 at 6 bar drive and 125 barg interstage, and 6.30 at 9 bar drive and
+140 barg interstage, in Nm3 air per Nm3 H2. It assumes base-device geometry and
+excludes pilot/purge air. The 9 bar drive is an illustrative assumption, not
+the owner's approximately 8.1 bar network-pressure statement documented in
+kaeser.toml; neither establishes the actual drive pressure. These bounds are not alternative predictions of
+actual air demand. The workbook flags Path A versus Path B in row 137
+(`hulc.air_discrepancy`), about 14.6 versus 4.6-6.3, a factor of about 2-3.
+Possible causes include chart conditions, pilot/control/purge air and gas
+delivery efficiency; none is established as the cause.
+
+Illustratively, nine EL at the registered nominal 500 NL/h each give 75 NL/min
+H2 if all run at nominal output. Nine EL is an owner-decided modelling basis,
+not site-verified; simultaneous nominal operation and delivery to HULC are not
+established. Linear interpolation of the rounded Path A chart points gives
+about 363 + 767 = 1130 NL/min air, subject to the same chart and addition
+conditions. The Path B lower-bound ratios give about 344 and 473 NL/min for
+their respective assumed pressures. These lower bounds being below the derived
+Kaeser capacity in kaeser.toml [layer1_evidence] does not establish sufficient supply: real
+demand can exceed a lower bound. Conversely Path A is not confirmed as the
+installed system's demand. The 14.6 ratio is the workbook's maximum-flow
+estimate, not a validated constant at 75 NL/min. On matching volume bases,
+the derived Kaeser capacity divided by 75 is about 8.2 NL air per NL H2.
+
+Conditional capacity finding at the illustrative HULC maximum of 5 Nm3/h,
+not the nine-EL case: if the workbook's estimated 1215 NL/min demand and the
+derived Kaeser capacity at its 10 bar datasheet point apply simultaneously
+to the same stationary full-load case and compatible normal-volume bases,
+supply/demand is approximately 0.51; HULC demand alone then exceeds supply,
+before the Rotex or other consumers. Whether the actual
+plant can run continuously at full load remains open. This ratio is not a duty
+cycle. Kaeser's delivery and conversion are documented in kaeser.toml
+[layer1_evidence].
+
+Resolve by confirming P-1 with H2 Core/Maximator, including the installed -H2
+modules and configuration; re-reading the curves at the relevant stage
+conditions; and checking SIGMA CONTROL 2 load/operating hours over a known
+period of HULC operation. Hours constrain aggregate compressor load, not HULC
+allocation or a duty cycle by themselves. Workbook row 139 records a stage-2
+counter increase of 434 from 2026-09-30 to 2026-10-27; whether counts mean
+single or double strokes is open. Without that definition and timing, the
+counter alone does not establish HULC runtime or duty cycle. No scenario,
+capacity, electrical energy, runtime parameter or operational limit is
+selected by this evidence.
+'''
+
+[source_block]
+title = "HULC source conditions and open questions"
+text = '''
+Evidence: sources/Compressor_System_Specs_Master_v2.xlsx, Master and Sources
+sheets; individual parameters identify the relevant rows and sources.
+Workbook SHA-256: 839a34eb5068ba48f6ece87ebce62c535daf24966e81826e0c7c221c1dc9b755.
+This differs from the hash pinned by the workbook identity test; the workbook
+revision and its acceptance remain open. The test pin is not updated.
+The workbook is evidence, not the runtime parameter source. Manufacturer data
+for DLE base devices are not verified for the installed -H2 variants. The
+pressure reference is assumed gauge where marked; uncertainty 0.0 does not
+establish zero uncertainty.
+
+Agent checked 2026-11-16: workbook Master rows 86-91 and 97-102 against
+the corresponding pressure ratios, inlet/outlet pressures, displacement,
+cycle rate and compression ratios in the DLE 15 Apr-24 and DLE 30 Oct-25
+base-type datasheets, page 1; row 108 against their drive-pressure ranges.
+DLE 15: https://www.maximator.de/assets/mime/415f72351d5181b5354062839e0314ba/DB-01.02.02.02-Booster-DLE-15.pdf
+DLE 30: https://maximatorus.com/uploads/Datasheets/DB-01.02.02.26-Booster-DLE-30-USA.pdf
+The DLE 15 copy is not the workbook's S8 copy; the DLE 30 filename differs
+from its internal identifier, as noted under hulc.pl_max_barg. Connections,
+H2-option ratios and applicability to installed -H2 devices were not checked
+by this comparison. H2 Core TDS p.2 module pressure classes, inlet limits and
+maximum flow in rows 75, 77 and 78 were also checked; owner review is pending.
+
+P-1: Confirm air-consumption chart conditions, volume basis, module
+configuration, purge/control air and applicability to installed -H2 units.
+P-2: Confirm whether the DLE table pressures are gauge or absolute.
+P-3: Confirm applicable pressure limits for installed parts 3630.3019 and
+3630.2374. Maximator Operating, maintenance and repair instructions for DLE 15
+and DLE 30, section 4, p.5:
+https://highpressuretech.com/wp-content/uploads/2022/06/DLE15-DLE30.pdf
+lists maximum inlet and operating pressures of 150 and 300 bar respectively;
+the base-type datasheets above list 300 and 600 bar respectively. Which
+limits apply to the installed parts is UNVERIFIED.
+'''
 
 [param."sys.p_h2_out_project_barg"]
 value = 300
 unit = "barg"
 status = "OWNER_DECISION"
 uncertainty = 0.0
-source = "owner decision 2026-10-27 (D12), SOURCES.md"
+source = "owner decision 2026-10-27 (D12, decisions/2026-11-05_restart.md); compressor workbook Master row 5"
 effect = "none yet"
 
 [param."sys.p_h2_out_project_barg".sources_md]
 value_and_unit = "`300` barg"
-source = "owner decision, this chat 2026-10-27 [S26]"
-location = "workbook Master row 5; D12"
-verbatim_quote = "BACKLOG (owner decision)"
-source_conditions = "project case 35 -> 300 barg; storage limit 300 bar"
-transferability = "same plant; differs from `stor.p_work_barg` = 200 (legacy-1.0), see D12"
+source = "owner decision 2026-10-27 [S26]; D12 in decisions/2026-11-05_restart.md"
+location = "workbook Master row 5; decisions/2026-11-05_restart.md, D12"
+verbatim_quote = "No verbatim quotation available; owner decision documented in workbook and D12"
+source_conditions = "project case 35 -> 300 barg; storage PS is a limit, not an automatically permitted operating point"
+transferability = "project case for this plant; storage working pressure remains open"
 registry_status_and_uncertainty = "OWNER_DECISION, 0.0"
 used_by = "none yet"
 reviewer_date = "owner, pending"
@@ -50,7 +143,7 @@ value = 400
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "HULC system nameplate, SOURCES.md"
+source = "HULC system nameplate; compressor workbook Master row 6, source S1"
 effect = "none yet"
 
 [param."sys.p_h2_out_nameplate_barg".sources_md]
@@ -59,7 +152,7 @@ source = "HULC system nameplate photos [S1]"
 location = "workbook Master row 6"
 verbatim_quote = "\"HULC Compressor system for compression of hydrogen from 35bar to 400bar\" (nameplate field \"Benennung/ Designation\"; original spelling without space before \"bar\"; owner transcription 2026-10-28 from two photos, identical)"
 source_conditions = "system nameplate, not a storage fill permission"
-transferability = "same plant"
+transferability = "owner-transcribed plant nameplate; original photos and installed unit identity not independently reviewed"
 registry_status_and_uncertainty = "DATASHEET (nameplate), 0.0"
 used_by = "none yet"
 reviewer_date = "owner, pending"
@@ -69,7 +162,7 @@ value = 35
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "HydroHulc TDS p.2, SOURCES.md"
+source = "HydroHulc TDS p.2 and owner statement; compressor workbook Master row 7, sources S5 and S26"
 effect = "none yet"
 
 [param."sys.p_h2_in_barg".sources_md]
@@ -78,7 +171,7 @@ source = "HydroHulc TDS [S5] and owner statement [S26]"
 location = "TDS p.2; workbook Master row 7"
 verbatim_quote = "TDS `HydroHulc_TDS_0012_9A-2` p.2, table row \"Inlet pressure\", column \"Hulc 140\": \"<=35 bar\"; nameplate: \"from 35bar to 400bar\" (owner transcription 2026-10-28)"
 source_conditions = "dryer DRY 2.1 output up to 35 barg; equal to the Hulc 140 inlet limit (workbook statement)"
-transferability = "same plant; gauge convention assumed (P-2)"
+transferability = "owner-transcribed plant nameplate and TDS limit; original photos and installed unit identity not independently reviewed; gauge convention assumed (P-2)"
 registry_status_and_uncertainty = "DATASHEET, 0.0"
 used_by = "none yet"
 reviewer_date = "owner, pending"
@@ -88,7 +181,7 @@ value = 5
 unit = "Nm3/h"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "HydroHulc TDS p.2 ('up to'), SOURCES.md"
+source = "HydroHulc TDS p.2 ('up to'); compressor workbook Master row 75, source S5"
 effect = "none yet"
 
 [param."hulc.mod.q_h2_max_nm3h".sources_md]
@@ -107,7 +200,7 @@ value = 140
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "HydroHulc TDS p.2, SOURCES.md"
+source = "HydroHulc TDS p.2; compressor workbook Master row 77, source S5"
 effect = "none yet"
 
 [param."hulc.m140.limits".sources_md]
@@ -126,7 +219,7 @@ value = 400
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "HydroHulc TDS p.2, SOURCES.md"
+source = "HydroHulc TDS p.2; compressor workbook Master row 78, source S5"
 effect = "none yet"
 
 [param."hulc.m400.limits".sources_md]
@@ -145,15 +238,15 @@ value = 10
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "Maximator catalog, upper end of range 1-10, SOURCES.md"
+source = "Maximator catalog, upper end of range 1-10; compressor workbook Master row 108, source S7"
 effect = "none yet"
 
 [param."hulc.pl_max_barg".sources_md]
 value_and_unit = "`10` barg (upper end of \"1 - 10 bar\", a range, not a setpoint)"
-source = "Maximator gas boosters catalog [S7]"
+source = "Maximator gas boosters catalog [S7]; workbook Sources S9 names US DLE 30 PDF DB-01.02.02.26: https://maximatorus.com/uploads/Datasheets/DB-01.02.02.26-Booster-DLE-30-USA.pdf (internal identifier DB.01.02.02.16, release Oct-25). DLE 30 base-type PDF DB.01.02.02.16, release May-24: https://www.maximator.de/assets/mime/-UTQ3ZSbKI3rzIho3DDc4IsYmaIviJTqbXH8VDNKRltQ3PDqz/DB-01.02.02.16-Booster-DLE-30.pdf. Agent checked both PDFs and their air-drive range on 2026-11-16; owner review pending."
 location = "workbook Master row 108; catalog pages per Sources sheet (p.7-8, 16-19, 28-29)"
 verbatim_quote = "Maximator catalog p.16 (also p.18, \"DLE...-2\" section), list item above the base-type table: \"Suitable for air drive pressures (pL) from 1 to 10 bar (14.5 to 145 psi)\"; DLE 15 datasheet DB 01.02.02.02 p.1: \"Air drive pressure pL: 1-10 bar / 14,5 - 145psi\"; DLE 30 datasheet DB-01.02.02.26 p.1: \"Air drive pressure pL: 1 - 10 bar / 14.5 - 145 psi\" (owner transcription 2026-10-28)"
-source_conditions = "drive air pressure range"
+source_conditions = "Drive air pressure range of the DLE base type; applicability to the installed -H2 unit remains UNVERIFIED."
 transferability = "catalog value of the base type; gauge assumed (P-2); lower end (1 bar) not registered. Type-related permitted range, not a setpoint: DLE manual Tab. 3-4 leaves \"Drive pressure pL\" empty with footnote \"a. Dependent on the gas booster design. Refer to the general drawing provided or rating plate.\""
 registry_status_and_uncertainty = "DATASHEET, 0.0"
 used_by = "none yet"
@@ -164,7 +257,7 @@ value = 15
 unit = "-"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 15 base type, SOURCES.md"
+source = "Maximator DLE 15 base-type catalog and datasheet; compressor workbook Master row 86, sources S7 and S8"
 effect = "none yet"
 
 [param."hulc.s1.i".sources_md]
@@ -183,7 +276,7 @@ value = 244
 unit = "cm3"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 15 base type, SOURCES.md"
+source = "Maximator DLE 15 base-type catalog and datasheet; compressor workbook Master row 87, sources S7 and S8"
 effect = "none yet"
 
 [param."hulc.s1.v_disp_cm3".sources_md]
@@ -202,7 +295,7 @@ value = 120
 unit = "1/min"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 15 base type, SOURCES.md"
+source = "Maximator DLE 15 base-type datasheet; compressor workbook Master row 88, source S8"
 effect = "none yet"
 
 [param."hulc.s1.f_max_min".sources_md]
@@ -221,7 +314,7 @@ value = 7
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 15 base type, SOURCES.md"
+source = "Maximator DLE 15 base-type catalog; compressor workbook Master row 89, source S7"
 effect = "none yet"
 
 [param."hulc.s1.pa_min_barg".sources_md]
@@ -240,7 +333,7 @@ value = 300
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 15 base type, SOURCES.md"
+source = "Maximator DLE 15 base-type catalog; compressor workbook Master row 90, source S7"
 effect = "none yet"
 
 [param."hulc.s1.pb_max_barg".sources_md]
@@ -248,7 +341,7 @@ value_and_unit = "`300` barg"
 source = "[S7]"
 location = "workbook Master row 90"
 verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 15\", column \"max. working pressure pB*** [bar]\": \"300\" (psi: \"4350\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 300 bar\" (owner transcription 2026-10-28)"
-source_conditions = "base-type limit; the module limits stage 1 to 140 bar"
+source_conditions = "base-type catalog limit; the module limits stage 1 to 140 bar. P-3: repair manual and catalog give conflicting base-type maximum pressures; see source_block P-3. Applicability to the installed part remains UNVERIFIED."
 transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)"
 registry_status_and_uncertainty = "DATASHEET, 0.0"
 used_by = "none yet"
@@ -259,7 +352,7 @@ value = 30
 unit = "-"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 30 base type, SOURCES.md"
+source = "Maximator DLE 30 base-type catalog and datasheet; compressor workbook Master row 97, sources S7 and S9"
 effect = "none yet"
 
 [param."hulc.s2.i".sources_md]
@@ -278,7 +371,7 @@ value = 120
 unit = "cm3"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 30 base type, SOURCES.md"
+source = "Maximator DLE 30 base-type catalog and datasheet; compressor workbook Master row 98, sources S7 and S9"
 effect = "none yet"
 
 [param."hulc.s2.v_disp_cm3".sources_md]
@@ -297,7 +390,7 @@ value = 120
 unit = "1/min"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 30 base type, SOURCES.md"
+source = "Maximator DLE 30 base-type datasheet; compressor workbook Master row 99, source S9"
 effect = "none yet"
 
 [param."hulc.s2.f_max_min".sources_md]
@@ -316,7 +409,7 @@ value = 15
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 30 base type, SOURCES.md"
+source = "Maximator DLE 30 base-type catalog and datasheet; compressor workbook Master row 100, sources S7 and S9"
 effect = "none yet"
 
 [param."hulc.s2.pa_min_barg".sources_md]
@@ -335,7 +428,7 @@ value = 600
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DLE 30 base type, SOURCES.md"
+source = "Maximator DLE 30 base-type catalog; compressor workbook Master row 101, source S7"
 effect = "none yet"
 
 [param."hulc.s2.pb_max_barg".sources_md]
@@ -343,7 +436,7 @@ value_and_unit = "`600` barg"
 source = "[S7]"
 location = "workbook Master row 101"
 verbatim_quote = "Maximator catalog \"Maximator Gas boosters EN\" p.16, section \"DLE... single stage, double acting, 1 air drive section\", row \"DLE 30\", column \"max. working pressure pB*** [bar]\": \"600\" (psi: \"8700\"); footnote: \"Maximum permissible static working pressure\"; datasheet: \"Maximum outlet pressure pB: 600 bar / 8700 psi\" (owner transcription 2026-10-28)"
-source_conditions = "base-type limit; the module limits stage 2 to 400 bar"
+source_conditions = "base-type catalog limit; the module limits stage 2 to 400 bar. P-3: repair manual and catalog give conflicting base-type maximum pressures; see source_block P-3. Applicability to the installed part remains UNVERIFIED."
 transferability = "(base type) transfer to -H2, not verified against the -H2 datasheet; gauge assumed (P-2)"
 registry_status_and_uncertainty = "DATASHEET, 0.0"
 used_by = "none yet"
