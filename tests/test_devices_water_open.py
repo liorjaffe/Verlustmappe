@@ -67,9 +67,50 @@ def test_known_pump_power(monkeypatch):
     assert result["filter_train_status"] == "MEASURED"
 
 
-@pytest.mark.parametrize("value", ["unknown", True, float("nan"), float("inf")])
+def test_independent_ro_calculation_hand_reference(monkeypatch):
+    for key, value in (
+            ("water.ro_perm_Lh", 120.0),
+            ("water.ro_power_op_W", 200.0),
+            ("water.wcf", 0.5)):
+        monkeypatch.setitem(registry.REGISTRY[key], "value", value)
+    result = WaterSystem().account(duration_h=1, water_consumed_L=12)
+    assert result["ro_production_h"] == pytest.approx(0.1, rel=0, abs=1e-12)
+    assert result["duty"] == pytest.approx(0.1, rel=0, abs=1e-12)
+    assert result["energy_kWh_production"] == pytest.approx(0.02, rel=0, abs=1e-12)
+    assert result["feed_L"] == pytest.approx(24, rel=0, abs=1e-12)
+    assert result["concentrate_L"] == pytest.approx(12, rel=0, abs=1e-12)
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), -1.0, True, "1"])
+@pytest.mark.parametrize("parameter", [
+    "water_consumed_L", "measured_kWh", "measured_water_L", "h2_produced_NL",
+])
+def test_invalid_nonnegative_inputs_are_rejected(parameter, value):
+    with pytest.raises(ValueError, match=f"{parameter} must be a finite non-negative number"):
+        WaterSystem().account(duration_h=1, **{parameter: value})
+
+
+@pytest.mark.parametrize("duration_h", [0, -1, float("nan"), float("inf"), True, "1"])
+def test_invalid_duration_is_rejected(duration_h):
+    with pytest.raises(ValueError, match="duration_h must"):
+        WaterSystem().account(duration_h=duration_h)
+
+
+@pytest.mark.parametrize("key,value,message", [
+    ("water.ro_perm_Lh", 0.0, "water.ro_perm_Lh must be > 0"),
+    ("water.ro_perm_Lh", -1.0, "water.ro_perm_Lh must be a finite non-negative number"),
+    ("water.wcf", 0.0, "water.wcf must be finite and in \\(0, 1\\]"),
+    ("water.wcf", 1.1, "water.wcf must be finite and in \\(0, 1\\]"),
+])
+def test_invalid_capacity_and_wcf_are_rejected(monkeypatch, key, value, message):
+    monkeypatch.setitem(registry.REGISTRY[key], "value", value)
+    with pytest.raises(ValueError, match=message):
+        WaterSystem().account(duration_h=1, water_consumed_L=1)
+
+
+@pytest.mark.parametrize("value", ["unknown", True, float("nan"), float("inf"), -1.0])
 def test_invalid_pump_power_is_rejected(monkeypatch, value):
     monkeypatch.setitem(registry.REGISTRY, "water.filter_train_power_W",
                         {"value": value, "status": "MEASURED"})
-    with pytest.raises(ValueError, match="finite number or missing"):
+    with pytest.raises(ValueError, match="finite non-negative number or missing"):
         WaterSystem().account(duration_h=2, water_consumed_L=0.4)

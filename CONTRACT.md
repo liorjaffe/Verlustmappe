@@ -29,6 +29,8 @@ market-standard devices may be black boxes with documented inputs and outputs.
   air).
 - [E] The only PV source is F8 ("F8_Fachada Leste", two Solis inverters). The Sept 2026 PV
   dataset (`pv_merged.csv`) is excluded and never evidence (D33).
+- [E] PV generation modelling from irradiance and module characteristics is deferred for
+  now; work focuses on the energy chain from available PV DC energy.
 - [E] No sun-driven production. PV surplus is not part of the calculation and is not a loss.
 - [E] The Regatron is a test bench, not a plant device. It is a measurement source (layer 3).
 - [E] The comparison with the legacy state (formerly AC8) is dropped.
@@ -46,9 +48,13 @@ layer 3 (D34).
 
 ## 4 Accounts
 
-- **A – series path** [E]: PV DC (module/string output) → PV DC cable →
-  PV inverters → AC distribution and cable path → EL → dryer → booster → storage →
+- **A – series path** [E]: PV inverter DC input → PV inverters →
+  AC distribution and cable path → EL → dryer → booster → storage →
   FC → DC bus and H₂Core battery → DC cable → FC inverter → AC out.
+  Until reviewed DC cable data is available, the PV DC cable is upstream and outside
+  this provisional boundary; its loss is not assumed to be zero. Once suitable data
+  is available, include the cable in the path with an explicitly reviewed model and
+  boundary; do not silently change the meaning of existing results.
   The PV slice is an **allocation**, not proof of direct physical supply. The actual
   EL supply route, including the house distribution and any direct cable, is open.
   Battery throughput losses and stock change are separately visible.
@@ -104,9 +110,11 @@ layer 3 (D34).
 - [E] A chosen Solis time window shows only that enough PV **energy** was available. It
   does not prove simultaneous power or real supply. [E] The window selection rule is
   recorded beforehand.
-- [E] The PV total operating point comes from the window. Inverter and DC cable are
-  computed at total power or total current; the loss is allocated pro rata to the slice
-  (a convention, named as such). No inverse function needed.
+- [E] The PV total operating point comes from the window. The inverter is computed at
+  total power or total current; its loss is allocated pro rata to the slice
+  (a convention, named as such). No inverse function is needed for this allocation.
+  Apply the same allocation to the DC cable when its
+  model and boundary have been reviewed.
 - [E] Every phase duration has a justification: operating requirement, measured
   observation or deliberate convention.
 - [E] The FC operating point is set; the FC duration follows from the mole balance
@@ -127,6 +135,14 @@ layer 3 (D34).
 
 - [E] Losses come from their own physics or from measurement, **never as a difference**
   "input minus output".
+- [E] PV inverter measured mode (owner decision 2026-11-16): the interim constant
+  EU-efficiency model may report DC × (1 − 0.971) as a modelled conversion loss;
+  its uncertainty is not assessed. DC−AC and modelled-AC−measured-AC differences
+  are separate diagnostics, never booked losses. For DC = 0 and AC ≠ 0, eta,
+  modelled loss and DC−AC diagnostic are None; preserve both readings and flag
+  `dc0_ac_nonzero`. The AC boundary and cause remain open; no tolerance is assumed.
+  For DC = AC = 0, eta is None and interim modelled loss is 0, without this flag.
+  Missing DC leaves eta and modelled loss None. This does not change the FC inverter.
 - [E] Consumption is not a loss. A storage change is not a loss. An unexplained residual is
   not a loss.
 - [E] Mole balance first: n_start + n_EL = n_end + n_FC + n_vent + n_leak + n_purge.

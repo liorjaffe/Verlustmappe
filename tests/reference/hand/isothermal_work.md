@@ -6,12 +6,12 @@ in the code; each is stated and checked on its own. They are not interchangeable
 
 ## (A) Closed system, ideal gas: W = n R T ln(p2/p1)
 Code: `conversions.isothermal_work_kWh`. Textbook form (compress a fixed amount once).
-Active consumers: NONE in the chain. `devices/booster.py` imports it but never calls it; only
+Active consumers: NONE in the chain. `devices/h2_compressor.py` imports it but never calls it; only
 `tests/test_physics_constants_conversions` uses it. It carries no result today.
 Hand value: 1 mol, 1 -> 10 bar, 293.15 K: R T ln 10 = 5612.29 J (test_physics_constants_conversions pins 5612.0).
 
 ## (B) Fill integral, suction ps = p1
-Code: `hydrogen/temperature_model.isothermal_work_mol_integral` (called from `devices/booster.py`).
+Code: `hydrogen/temperature_model.isothermal_work_mol_integral` (called from `devices/h2_compressor.py`).
 Filling a vessel from p1 to p2: only (p2 - p1) V / (R T) mol are delivered, each compressed
 from ps to the current vessel pressure p:
 
@@ -37,7 +37,7 @@ Bovo point (test_hydrogen_routes): 33.22 Nm3 = 1482.11 mol; B for 40 -> 200 bar 
 not be mistaken for a contradiction: the amount is on the 0 degC normal basis (22.41397 L/mol),
 the work is evaluated at gas temperature 293.15 K.
 The pairs from D12 are gauge pressures in the decision text; here they are converted with
-+1.01325 bar, as `booster.account()` does. They are fill pairs with ps = p1; a real stage
++1.01325 bar, as `AirDrivenBooster.account()` does. They are fill pairs with ps = p1; a real stage
 compresses against the suction of the stage, which is a modelling choice of P11/P12, not of
 this reference.
 

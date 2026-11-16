@@ -22,14 +22,14 @@ text = '''
 - **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.
 - **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.
 - **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.
-- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the F8 nameplate capacity remains 12.74 kWp (28 x 455 W) per the registry, pending a separate owner decision on the discrepancy.
+- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the owner selected 12.74 kWp (28 x 455 Wp) for the F8 array despite the station-list value 12.78 kWp (decisions/2026-11-15-pv-module-count.md).
 - **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).
 - **Used by:** docs/03 nominal-sampling table.
 - **Reviewer/date:** owner approved 2026-10-29.'''
 
 [notes]
 workbook = "sources/Inverter1_PV_Solis_S6-GR1P6K_Specs_Master.xlsx"
-workbook_sha256 = "8172f7f81ab22cb3f61edea6ab5cc51fb3003b673ba3a98fda7fcf0305853f78"
+workbook_sha256 = "d2ddd49d18ad5c9f4e2d3ee2f25abec5b9b6a17c144eb0cc53e74a89f2073d74"
 identity = "S6-GR1P6K, F8 PV-side; distinct from the S5-EO1P5K-48 FC-side device. Workbook filename numbering is not a device identifier. Master rows 3-7; Notes row 3."
 constant_use = "INTERIM owner model decision: use EU efficiency 0.971 as a constant pending eta(P), curve BACKLOG; see decisions/2026-11-13_pv-inverter-efficiency.md. The value is DATASHEET; constant-use modelling is DERIVED, not measured."
 part_load_risk = "Without an F8 eta(P) curve, constant EU efficiency may overestimate low-load efficiency and underestimate conversion loss; direction/magnitude are not verified for F8. Legacy-array curves and sample extremes are not an F8 load distribution."

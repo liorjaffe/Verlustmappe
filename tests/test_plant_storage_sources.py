@@ -9,12 +9,17 @@ import _path
 import xlsx_reader
 from verlustmappe import registry as R
 from verlustmappe.devices import AirDrivenBooster, Tank
+from verlustmappe.devices.h2_compressor import AirDrivenBooster as H2Compressor
 from verlustmappe.accounting.status import u_class
 from verlustmappe.hydrogen import model_tank_pressure_change as h2_from_tank_pressure
 from verlustmappe.hydrogen.temperature_model import gs_fit_from_pressure_decay, hot_end_fill_bracket
 
 
 WORKBOOK = Path(__file__).resolve().parents[1] / "plant/sources/Storage_H2_System_Specs_Master.xlsx"
+
+
+def test_h2_compressor_module_and_package_export_are_identical():
+    assert H2Compressor is AirDrivenBooster
 
 
 def test_tara_and_ps_match_nameplate_rows_not_calculated_rows():

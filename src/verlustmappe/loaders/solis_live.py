@@ -14,12 +14,14 @@ F8 facade (Fachada Leste, BYD 28 x 455 Wp = 12.74 kWp): both units are
 S6-GR1P6K string inverters serving the 28-module array (STATION_F8_A /
 STATION_F8_B below; machine name verified via inveterList 2026-10-22).
 Their PV-path vocabulary feeds the F8 profile of the preliminary channel
-(devices/pv_array.PLANT_PROFILES["F8_12.74kWp"], measured mode)
+(devices/pv_array.pv_account, measured mode with the F8 identifier)
 just like the legacy building-array telemetry did, but via the
 SolisCloud API.
 
-The inverterDay DC channels run ~+3-4% above the eToday counter; eta_dc_ac
-is diagnostic only, not an efficiency. Use eToday as the F8 E_AC reference.
+A legacy comparison reported a ~3-4% difference between integrated inverterDay
+DC channels and the eToday counter; the cause, including any DC-channel bias,
+is unconfirmed. eta_dc_ac is diagnostic only, not an efficiency. Use eToday
+as the F8 E_AC reference.
 
 Inverter 2 (battery/FC side, the LAST conversion loss in the chain) is
 covered separately by loaders/solis.py (S5-EO1P5K-48: ac_out_W,
@@ -267,7 +269,7 @@ def solis_day_df(inverter_sn: str, date: str,
     eToday in kWh; the unit strings (pacStr/eTodayStr) are EMPTY in these
     records, so fixed factors are used.
     dc_power_W is computed from the measured MPPT channels (sum of uPv*iPv)
-    and is the DC-side input for the inverter efficiency account.
+    and provides a DC-side estimate for energy diagnostics.
     """
     key_id, key_secret = _credentials()
     station_id = station_id or DEFAULT_STATION_ID
@@ -348,10 +350,10 @@ def f8_day_balance(start: str, end: str) -> pd.DataFrame:
     Daily energy balance per F8 inverter over a date range.
     Columns (per day and sn):
       e_ac_counter_kWh  MEASURED AC energy (eToday counter, daily max)
-      e_dc_channel_kWh  PRELIM DC energy (uPv*iPv channels, +3-4% bias
-                        vs counter, verified 2026-09-10..15)
+      e_dc_channel_kWh  PRELIM DC energy (integrated uPv*iPv channels)
       eta_dc_ac         e_dc_channel / e_ac_counter; NOT an efficiency
-                        (DC channels read high); diagnostic only.
+                        (diagnostic only; the cause of the reported
+                        3-4% difference is unconfirmed).
     """
     rows = []
     for sn, df in f8_range_dfs(start, end).items():

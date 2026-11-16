@@ -17,6 +17,9 @@ EXACT_KEYS = {
     "sys.p_h2_out_project_barg",
     "meas.p_sensor_fso_bar",
     "meas.p_sensor_thermal_bar_per_10K",
+    "pv.n_modules",
+    "pv.p_dc_stc_W",
+    "pv.module_model",
 }
 
 

@@ -1,38 +1,35 @@
-"""Water treatment system feeding the EL 2.1 (BWT bestaqua 14ROC COFFEE RO unit
-+ upstream Popular Filtros cartridge train: resin -> activated carbon -> 1/5 um).
+"""Water-system energy and water account for electrolyser supply.
 
-Why this is in the energy balance: the water chain is a REAL electrical
-consumer. The RO unit draws 200 W in operation and <3 W standby, and the
-standby is continuous (the unit stays powered). The cartridge media themselves
-are hydraulic; pump power and its connection to the RO are open items.
+The water chain is included in the plant energy balance because the RO unit
+consumes electrical energy. Water demand is taken from a measured value or
+caller input when available; otherwise it is derived from actual H2 production.
+That H2-based estimate is the stoichiometric minimum. Purges and bleeds may add
+water demand and are not modelled. If neither a water value nor H2 production
+is provided, the model uses the configured nominal electrolyser water rate as
+a fallback and marks that basis in the result.
 
-Physics:
-  - Water demand comes from the electrolyser, NOT from the water system: the
-    EL 2.1 refills automatically via its H2O IN solenoid valve. The demand is
-    the stoichiometric MINIMUM scaled by the ACTUAL hydrogen production
-    (0.4 L/h at 500 NL/h nominal = 0.0008 L/NL; route4_water.py: 9.0 g water
-    per g H2), so it follows part load. Purges/bleeds add on top; refills are
-    periodic, so the proportionality is the honest first-order model until a
-    water meter exists (BWT app inlet/outlet counters can replace it). The old
-    datasheet x duration value is only a loud fallback when no H2 is given.
-  - The RO does not run continuously: duty = t_production / duration with
-    t_production = water_demand / permeate_capacity (120 L/h at 15 C).
-  - Raw feed = permeate / WCF (factory ~50%); the difference is the
-    concentrate stream to drain. It costs no energy but DOUBLES the raw-water
-    draw and is a water-scope number for the plant balance.
-  - Energy model (until metered): E = t_production * P_op + t_on * P_standby
-    with t_on = duration (standby is continuous). A plug meter on the RO unit
-    replaces the whole model; the BWT app also shows inlet/outlet litre
-    counters that can be read as measured water volumes.
+The RO production duty is derived from water demand and configured permeate
+capacity, which is specified at 15 C. Modelled RO energy combines production
+and standby energy; measured RO energy replaces the modelled total. Feed and
+concentrate volumes are derived from the configured water conversion factor.
 
-Stoichiometric consistency: water_L * (M_H2 / M_H2O) is the H2 mass the water
-route implies; h2_from_water() in hydrogen/route4_water.py does exactly this.
-This module supplies the water side of Route 4.
+Filter-train pump energy is reported separately. When pump power is available,
+the current model applies it over the full calculation window; actual pump
+operating time is not measured or represented separately.
+
+This module supplies the water side of Route 4; hydrogen inferred from water
+is calculated in hydrogen/route4_water.py.
 """
 import math
 from numbers import Real
 
 from .. import registry as R
+
+
+def _require_finite_nonnegative(name, value):
+    if isinstance(value, bool) or not isinstance(value, Real) or not math.isfinite(value) or value < 0:
+        raise ValueError(f"{name} must be a finite non-negative number")
+
 
 class WaterSystem:
     def account(self, duration_h, water_consumed_L=None, measured_kWh=None,
@@ -45,20 +42,36 @@ class WaterSystem:
                              water demand = h2_produced_NL x L/NL (part-load aware)
         measured_kWh         plug-meter energy of the RO unit over the window
                              (replaces the model; model values still reported)
-        measured_water_L     water meter / BWT app inlet-or-outlet counter over
-                             the window (replaces the datasheet estimate)
-        ro_standby_always_on standby counts over the WHOLE window when True
-                             (as built); set False if the RO is switched off
-                             with the electrolyser
+        measured_water_L     water meter / BWT app reading; currently treated
+                             as permeate volume (replaces the datasheet estimate)
+        ro_standby_always_on when True, standby counts over the whole window;
+                             when False, it counts over production time only
         """
-        if duration_h <= 0:
+        _require_finite_nonnegative("duration_h", duration_h)
+        if duration_h == 0:
             raise ValueError("duration_h must be > 0")
+        for name, value in (
+                ("water_consumed_L", water_consumed_L),
+                ("measured_kWh", measured_kWh),
+                ("measured_water_L", measured_water_L),
+                ("h2_produced_NL", h2_produced_NL)):
+            if value is not None:
+                _require_finite_nonnegative(name, value)
+
         perm_Lh = R.get("water.ro_perm_Lh")
         p_op_W = R.get("water.ro_power_op_W")
         p_stb_W = R.get("water.ro_power_standby_W")
         wcf = R.get("water.wcf")
+        _require_finite_nonnegative("water.ro_perm_Lh", perm_Lh)
+        if perm_Lh == 0:
+            raise ValueError("water.ro_perm_Lh must be > 0")
+        _require_finite_nonnegative("water.ro_power_op_W", p_op_W)
+        _require_finite_nonnegative("water.ro_power_standby_W", p_stb_W)
+        if (isinstance(wcf, bool) or not isinstance(wcf, Real) or not math.isfinite(wcf)
+                or not 0 < wcf <= 1):
+            raise ValueError("water.wcf must be finite and in (0, 1]")
 
-        h2_known = h2_produced_NL is not None and h2_produced_NL == h2_produced_NL
+        h2_known = h2_produced_NL is not None
         water_basis = None
         fallback_warning = None
         if measured_water_L is not None:
@@ -72,11 +85,12 @@ class WaterSystem:
             water_status = "DATASHEET (scaled by H2 production)"
             water_basis = "H2-production-scaled"
         else:
-            water_L = R.get("el.water_consumption_mLh") / 1000.0 * duration_h
+            fallback_rate_Lh = R.get("el.water_consumption_mLh") / 1000.0
+            water_L = fallback_rate_Lh * duration_h
             water_status = "DATASHEET (EL 2.1 x duration)"
             water_basis = "nominal-rate x duration"
             fallback_warning = ("water demand FALLBACK: no H2 production given, using nominal "
-                                "0.4 L/h x duration (ignores part load)")
+                                f"{fallback_rate_Lh:g} L/h x duration (ignores part load)")
 
         # duty: the RO must produce water_L at perm_Lh capacity
         t_prod_h = water_L / perm_Lh
@@ -93,8 +107,8 @@ class WaterSystem:
         pump_status = pump_entry["status"] if pump_entry is not None else "BACKLOG"
         if p_filter_W is not None and (
                 isinstance(p_filter_W, bool) or not isinstance(p_filter_W, Real)
-                or not math.isfinite(p_filter_W)):
-            raise ValueError("water.filter_train_power_W must be a finite number or missing")
+                or not math.isfinite(p_filter_W) or p_filter_W < 0):
+            raise ValueError("water.filter_train_power_W must be a finite non-negative number or missing")
         if p_filter_W is None or pump_status == "BACKLOG":
             e_filter = None
             pump_status = "BACKLOG"
@@ -106,8 +120,9 @@ class WaterSystem:
         if fallback_warning:
             warnings.append(fallback_warning)
         if not energy_is_measured:
-            warnings.append("RO-unit energy is modelled (duty x 200 W + "
-                            "continuous <3 W standby); meter the RO unit for a MEASURED bar")
+            warnings.append("RO-unit energy is modelled using configured production and standby "
+                            f"power ({p_op_W:g} W and {p_stb_W:g} W); meter the RO unit for a "
+                            "MEASURED bar")
         if pump_status == "BACKLOG":
             warnings.append("filter-train pump energy OPEN (BACKLOG): missing value; "
                             "dependent sums stay open per CONTRACT sec. 7")

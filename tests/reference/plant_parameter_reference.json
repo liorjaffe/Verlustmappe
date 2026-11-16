@@ -609,20 +609,20 @@
    "effect": "battery SoC energy conversion; P=V*I bookkeeping"
   },
   "pv.module_model": {
-   "value": "BYD455MGEK-36",
+   "value": "BYD455MGTK-36",
    "unit": "-",
-   "source": "Nameplate photos; technical basis BYD MGK-36 series datasheet DS.PD.E.003 Rev.06 (2024) until the official MGEK-36 datasheet is obtained from BYD Energy do Brasil (proxy)",
-   "status": "DATASHEET",
+   "source": "Owner decision 2026-11-16; PV_F8_System_Specs_Master.xlsx, Module row 6 and Sources [S1b]. Official MGTK datasheet and legible frame-label photo remain open.",
+   "status": "OWNER_DECISION",
    "uncertainty": 0.0,
-   "effect": "identifies the F8 module; all pv.* values below follow it"
+   "effect": "identifies the F8 module; other parameter values require independent source review"
   },
   "pv.n_modules": {
    "value": 28,
    "unit": "-",
-   "source": "user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm",
-   "status": "DATASHEET",
+   "source": "Owner confirmation in chat 2026-11-15: F8 module count is 28; see decisions/2026-11-15-pv-module-count.md",
+   "status": "OWNER_DECISION",
    "uncertainty": 0.0,
-   "effect": "array power = n_modules x 455 Wp"
+   "effect": "confirmed module count; array power = n_modules x 455 Wp"
   },
   "pv.string_config": {
    "value": "2 strings x 7 modules per inverter (assumed; verify at the DC junction boxes)",
@@ -643,10 +643,10 @@
   "pv.p_dc_stc_W": {
    "value": 12740,
    "unit": "W",
-   "source": "28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None",
-   "status": "DATASHEET",
+   "source": "Owner decision in chat 2026-11-15: F8 rated DC power is 12.74 kWp (28 x 455 Wp), rather than 12.78 kWp in the Solis station list; see decisions/2026-11-15-pv-module-count.md",
+   "status": "OWNER_DECISION",
    "uncertainty": 0.0,
-   "effect": "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the removed legacy ~184 kWp building array)"
+   "effect": "owner-selected F8 rated DC power; capture ratio in PVSystem.account (NOT valid for the removed legacy ~184 kWp building array)"
   },
   "pv.p_tc_pmax_per_K": {
    "value": -0.0038,
@@ -667,10 +667,10 @@
   "pv.bifacial_gain_frac": {
    "value": 0.0,
    "unit": "-",
-   "source": "MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05",
-   "status": "DATASHEET",
+   "source": "Owner-confirmed interim assumption 2026-11-16: rear-side energy gain remains 0.0 pending a facade-specific decision. PV_F8_System_Specs_Master.xlsx, Module row 29: the cited 0.70 bifaciality factor is a module property, not the installation energy gain.",
+   "status": "GUESS",
    "uncertainty": 0.0,
-   "effect": "DC energy bonus; 0 while monofacial (pending confirmation)"
+   "effect": "assumed DC energy gain from rear-side irradiance; actual facade gain remains unverified"
   },
   "pv.degradation_per_year": {
    "value": 0.0071,
@@ -793,12 +793,12 @@
    "effect": "UPS-like transfer behaviour, relevant to POC analysis context"
   },
   "cable.dc_loss_rel": {
-   "value": 0.01,
+   "value": null,
    "unit": "-",
-   "source": "PRELIMINARY: typical DC-side wiring loss 1-2% for short, well-sized runs; DISTANCES UNKNOWN - placeholder until real lengths/gauges exist",
-   "status": "PRELIM",
-   "uncertainty": 0.5,
-   "effect": "DC cable bar"
+   "source": "BACKLOG: no reviewed source or site data; value pending owner review",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "DC cable loss bar; unavailable until a verified value is supplied"
   },
   "cable.ac_loss_rel": {
    "value": 0.005,
@@ -811,10 +811,10 @@
   "cable.distance_pv_inverter_m": {
    "value": null,
    "unit": "m",
-   "source": "UNKNOWN - to be measured once layout exists",
+   "source": "BACKLOG: no reviewed route data; value pending owner review",
    "status": "BACKLOG",
    "uncertainty": 0.0,
-   "effect": "drives cable losses"
+   "effect": "PV-to-inverter cable route length"
   },
   "cable.distance_inverter_EL_m": {
    "value": null,
@@ -1104,9 +1104,9 @@
  "source_blocks": {
   "pv_inverter": {
    "title": "F8 SolisCloud portal chart cadence (docs/03; D32)",
-   "text": "- **Value and unit:** `300 s` minimum observed interval; nominal grid derived under D32(a), not a registry parameter.\n- **Source:** SolisCloud portal, `data/raw/Daily+Power+Station+Chart_29-10-2026.xls`, owner-provided export; SHA-256 `754740b3eb2e8f119bfa1b200fa2f0ae2c66b872c28bdc3166d416281d742621`.\n- **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.\n- **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.\n- **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.\n- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the F8 nameplate capacity remains 12.74 kWp (28 x 455 W) per the registry, pending a separate owner decision on the discrepancy.\n- **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).\n- **Used by:** docs/03 nominal-sampling table.\n- **Reviewer/date:** owner approved 2026-10-29."
+   "text": "- **Value and unit:** `300 s` minimum observed interval; nominal grid derived under D32(a), not a registry parameter.\n- **Source:** SolisCloud portal, `data/raw/Daily+Power+Station+Chart_29-10-2026.xls`, owner-provided export; SHA-256 `754740b3eb2e8f119bfa1b200fa2f0ae2c66b872c28bdc3166d416281d742621`.\n- **Location:** Sheet `Daily Power Station Chart_29-10`; metadata rows 1, 3-4; column headings row 29; data rows 30-191. The filename date is 29-10-2026; the sheet title identifies the chart date as 28/10/2026.\n- **Verbatim quote:** `Plant_28/10/2026Chart`; `Plant:F8_Fachada Leste`; `Installed Capacity:12.780kWp`; headers `Number`, `Time`, `Working State`, `PV(W)`; time cells include `05:45:00`, `05:50:00`, `05:55:00`, `19:05:00`, and `19:25:00`. The 162 readings yield 160 intervals of 300 s and one interval of 1200 s.\n- **Source conditions:** F8 station portal daily chart for 28-10-2026; station total, with no per-inverter serial-number breakdown.\n- **Transferability:** Supports the 300-s nominal grid for the F8 portal daily chart and the docs/03 SolisCloud daily-PV source under D32. It does not assert that every Solis interface emits timestamps exactly on that grid; the `inverterDay` API history is a separate jitter observation. The quoted capacity figure is verbatim file content for provenance; the owner selected 12.74 kWp (28 x 455 Wp) for the F8 array despite the station-list value 12.78 kWp (decisions/2026-11-15-pv-module-count.md).\n- **Registry status and uncertainty:** N/A (analysis property, not a registry value); basis `grid-derived` under D32(a). The official SolisCloud API documentation was checked 2026-10-29: no endpoint-specific resolution statement for `inverterDay`; its `dataTimestamp` field is described as `Update time`. The general statement `Device data upload frequency: 5 minutes` is not endpoint-specific and is not used as the basis. See SolisCloud Developer Platform, [Data Access API (User Auth)](https://developer.soliscloud.com/guide/data-access-user.html).\n- **Used by:** docs/03 nominal-sampling table.\n- **Reviewer/date:** owner approved 2026-10-29."
   },
-  "booster": {
+  "h2_compressor": {
    "title": "P05 workbook v2 entries (2026-10-27)",
    "text": "All entries below are transcribed from the owner workbook `Compressor_System_Specs_Master_v2.xlsx`\n(SHA-256 `0aa9f8ed0618d9bfd61123055674418969e0d7479d63b962afb18944cfd942ae`), Master and Sources\nsheets. The workbook carries document and page only, no verbatim quotes. Every quote field is\n`BACKLOG`: the owner supplies it from the original PDF/photo. Uncertainty 0.0 follows existing\ndatasheet entries; transfer risk is stated per entry. Pressures: convention assumed gauge (barg),\nsee open point P-2.\n\nOpen points: (P-1) Maximator / H2 Core Systems: conditions of the TDS air-consumption chart\n(gas pressures, booster version, purge/control air, volume basis, continuous vs intermittent).\n(P-3) Same inquiry: an older Maximator repair manual (drawings dated 1985/1996) lists lower maximum pressures for the base types (DLE 15: 150 bar, DLE 30: 300 bar, instead of 300/600 in the current catalog); which limits apply to part numbers 3630.3019 / 3630.2374 (installed 2021)? (P-2) Same inquiry: are pressures in the DLE tables gauge or absolute? If absolute, the status\nof the affected keys changes by decision."
   }

@@ -1,52 +1,30 @@
-# plant/pv_array.toml - PV array F8 (BYD455MGEK-36, east facade)
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# plant/pv_array.toml - PV array F8 (BYD455MGTK-36, east facade)
 # Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "pv_array"
-title = "PV array F8 (BYD455MGEK-36, east facade)"
-
-[open]
-questions = [
-  "Rated power: 12.74 kWp (28 x 455 W) versus 12.78 kWp in the Solis station list. Owner decides.",
-]
+title = "PV array F8 (BYD455MGTK-36, east facade)"
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
-registry_comments = '''
-# ===================== PV / INVERTER =====================
-# PRELIMINARY VERSION ("vorerst"): no real hardware chosen yet. Every entry
-# here is a TYPICAL-MARKET value, not a datasheet claim, and is marked
-# status PRELIM so it is visually distinct from DATASHEET. When real
-# modules/inverters/cables are selected, replace each entry and flip its
-# status. The pv_account() function computes the same loss bars regardless
-# of which tier of inputs it receives.
-# --- module: typical 2025/26 N-type TOPCon monocrystalline, bifacial dual glass ---
-# (market anchors: Trina Vertex N series, 21.0-23.3% module efficiency,
-#  temp coefficient of Pmax -0.29%/K, NOCT ~43 C - datasheets in web search
-#  2025; NOT a commitment to Trina)
-# F8 integration 2026-10-21: the entries below were flipped from PRELIM to
-# DATASHEET with the real BYD455MGEK-36 data (PV_F8_System_Specs_Master.xlsx).
-# The superseded PRELIM values stay reproducible as PLANT_PROFILES
-# "reference_184kWp" in devices/pv_prelim_channel.py (eta 0.220, gamma -0.0029,
-# NOCT 43, bifacial 0.05, degradation 0.004) and are listed in docs/06.
-# --- soiling / mismatch / availability (site loss family) ---'''
+generation_modelling = "Owner decision 2026-11-16: PV generation modelling is deferred for now; module modelling evidence is not an active priority. Existing values and assumptions are not thereby validated. See decisions/2026-11-16-pv-generation-modelling-deferred.md."
+module_evidence = "Owner selected BYD455MGTK-36 and confirmed Imp = 10.90 A on 2026-11-16; see sources/PV_F8_System_Specs_Master.xlsx, Module rows 6 and 12. The official MGTK datasheet and legible frame-label photo remain open. Other parameter sources and statuses require separate review."
+owner_decision_rated_power = "F8 rated DC power is 12.74 kWp (28 x 455 Wp), not the 12.78 kWp shown in the Solis station list; owner decision 2026-11-15, see decisions/2026-11-15-pv-module-count.md"
 
 [param."pv.module_model"]
-value = "BYD455MGEK-36"
+value = "BYD455MGTK-36"
 unit = "-"
-status = "DATASHEET"
+status = "OWNER_DECISION"
 uncertainty = 0.0
-source = "Nameplate photos; technical basis BYD MGK-36 series datasheet DS.PD.E.003 Rev.06 (2024) until the official MGEK-36 datasheet is obtained from BYD Energy do Brasil (proxy)"
-effect = "identifies the F8 module; all pv.* values below follow it"
+source = "Owner decision 2026-11-16; PV_F8_System_Specs_Master.xlsx, Module row 6 and Sources [S1b]. Official MGTK datasheet and legible frame-label photo remain open."
+effect = "identifies the F8 module; other parameter values require independent source review"
 
 [param."pv.n_modules"]
 value = 28
 unit = "-"
-status = "DATASHEET"
+status = "OWNER_DECISION"
 uncertainty = 0.0
-source = "user specification 2026-10-21 (PV F8 workbook, Notes 3); count on site to confirm"
-effect = "array power = n_modules x 455 Wp"
+source = "Owner confirmation in chat 2026-11-15: F8 module count is 28; see decisions/2026-11-15-pv-module-count.md"
+effect = "confirmed module count; array power = n_modules x 455 Wp"
 
 [param."pv.string_config"]
 value = "2 strings x 7 modules per inverter (assumed; verify at the DC junction boxes)"
@@ -67,10 +45,10 @@ effect = "nominal DC power per m2 of array"
 [param."pv.p_dc_stc_W"]
 value = 12740
 unit = "W"
-status = "DATASHEET"
+status = "OWNER_DECISION"
 uncertainty = 0.0
-source = "28 x 455 Wp BYD455MGEK-36 nameplate (PV_F8_System_Specs_Master.xlsx). Superseded: BACKLOG/None"
-effect = "capture ratio in PVSystem.account; now ACTIVE for F8 (NOT valid for the removed legacy ~184 kWp building array)"
+source = "Owner decision in chat 2026-11-15: F8 rated DC power is 12.74 kWp (28 x 455 Wp), rather than 12.78 kWp in the Solis station list; see decisions/2026-11-15-pv-module-count.md"
+effect = "owner-selected F8 rated DC power; capture ratio in PVSystem.account (NOT valid for the removed legacy ~184 kWp building array)"
 
 [param."pv.p_tc_pmax_per_K"]
 value = -0.0038
@@ -91,10 +69,10 @@ effect = "cell temperature model: T_cell = T_amb + (NOCT-20)/800 * G"
 [param."pv.bifacial_gain_frac"]
 value = 0.0
 unit = "-"
-status = "DATASHEET"
+status = "GUESS"
 uncertainty = 0.0
-source = "MGK-36 series is monofacial (single glass); NOTE nameplate OCR hints at 'MGEK' suffix - bifacial status to be confirmed on the module frame. Superseded PRELIM: 0.05"
-effect = "DC energy bonus; 0 while monofacial (pending confirmation)"
+source = "Owner-confirmed interim assumption 2026-11-16: rear-side energy gain remains 0.0 pending a facade-specific decision. PV_F8_System_Specs_Master.xlsx, Module row 29: the cited 0.70 bifaciality factor is a module property, not the installation energy gain."
+effect = "assumed DC energy gain from rear-side irradiance; actual facade gain remains unverified"
 
 [param."pv.degradation_per_year"]
 value = 0.0071

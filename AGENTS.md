@@ -23,10 +23,10 @@ by applicable instructions or explicitly requested; report checks actually run, 
    commit reference in that handoff, not `START.md`; the owner or integration agent rewrites
    `START.md` from the combined state.
 5. Run applicable gates and report exit codes. Fix task-caused red gates and rerun; report
-   known/unrelated failures. A red gate remains red; completion requires only failures whose
-   IDs and relevant details match `START.md`, and all other checks passing. Report non-matching
-   failures as new. Report newly passing listed tests and remove them at the next `START.md`
-   update. Never weaken tests.
+   known/unrelated failures. A red gate remains red. Completion is allowed only if every
+   failure matches a `START.md` entry (ID and relevant details) and all other checks pass.
+   Report non-matching failures as new. Report newly passing listed tests and remove them at
+   the next `START.md` update. Never weaken tests.
 
 ## Map: question → starting point
 | Question | Starting point |
@@ -57,8 +57,8 @@ values are missing, disputed or need verification. Tests show checked behavior, 
 Task defines scope; explicit owner approval covers only what it names. `CONTRACT.md` and owner
 decisions define intended behavior (parameter truth/evidence: rule 2). On conflict, pause the
 affected change, show evidence/impact and ask; continue independent authorized work if possible.
-Report `START.md` contradictions and their impact; classify under rule 9 and pause affected work
-when necessary.
+`START.md` records state; on conflict, `CONTRACT.md` and owner decisions prevail. Report
+contradictions and their impact; classify under rule 9 and pause affected work when necessary.
 
 ## Rules
 1. Never invent numbers, claims, sources or explanations. Missing information stays open; ask.
@@ -68,11 +68,12 @@ when necessary.
    immutable truth. Source authorization covers only named values or parameter groups.
    Trace origin, unit and status; flag transfer errors or physical implausibility for the owner.
    If code differs from TOML, report the actual value and impact; never reconcile silently.
+   For approved changes to `tests/reference/plant_parameter_reference.json`, report added,
+   removed and changed keys and count delta, reviewed against approval; regeneration does not
+   replace content review.
 3. Never derive expected values from the model under test; put independent derivations in tests.
    New tests with independently derived expectations are allowed within task scope. Only the
-   owner may change existing expected test values. For approved plant parameter snapshot changes,
-   report added, removed and changed keys and count delta, reviewed against approval;
-   regeneration does not replace content review.
+   owner may change existing expected test values.
 4. Never book a loss as `input - output`. Residuals may be diagnostics, never booked losses
    (`CONTRACT.md` §6).
 5. Physical quantities crossing function/file boundaries carry units in names (`power_W`,
@@ -97,17 +98,21 @@ when necessary.
     changed tracked/new retained files, side effects and out-of-scope or indirect changes.
     Omit temporary caches/logs unless retained or relevant.
 12. Changing `AGENTS.md`, `CONTRACT.md`, `tests/test_structure.py`, or gate/CI configuration
-    requires explicit owner approval naming that change; a task that already names the exact
-    change is that approval, do not ask twice. If a task touches these files without naming
-    the change, report and ask before editing.
+    requires explicit owner approval for the exact change: a task, an owner instruction in
+    this session, or an owner decision recorded before the task started. Do not ask twice.
+    If the change is not explicitly approved, report and ask before editing.
 
 ## Gates (from `.venv`)
-During code/data work, run focused tests as appropriate. Before completing code/data changes,
-run `.venv/bin/python tools/run_local_gates.py --log-dir <external-path>`. The wrapper runs
-`tests/run_all.py`, pytest, and `git diff --check` for both unstaged and staged changes.
-For documentation-only changes, run `git diff --check` and `git diff --cached --check`.
-Report checks performed. Report environment deviations and affected checks; do not silently
-install, upgrade or patch dependencies. Never report an unrun check as passed.
+During code/data work, run focused tests as appropriate. For changes to code, data (including
+`plant/`), tests or gate configuration, run the full wrapper before completion:
+`.venv/bin/python tools/run_local_gates.py --log-dir <external-path>` (outside the repository).
+It runs `tests/run_all.py`, pytest, and both unstaged and staged diff checks.
+For changes to `AGENTS.md` or `START.md`, run both diff checks and
+`.venv/bin/python -m pytest -q tests/test_structure.py`. If the known-failures list in
+`START.md` changes, also run the full wrapper and verify the list against its output.
+For other documentation-only changes, including `CONTRACT.md`, run both diff checks.
+Report checks performed and environment deviations; do not silently install, upgrade or patch
+dependencies. Never report an unrun check as passed.
 
 ## Report
 - Result (2–3 lines)

@@ -98,15 +98,13 @@ requires the flag `bundle_isolated`.
 | feed-water mass | scale on the feed tank | Route 4 |
 | battery SoC before/after test | BMS display | battery bookkeeping |
 
-## F8 plant profile and `pv_f8_*` tables
-`pv_account(profile=...)` returns `profile` (`reference_184kWp` default or `F8_12.74kWp`).
-Profile fields: `eta_module`, `gamma_pmax` (1/K), `noct_C`, `bifacial_gain`, `p_dc_stc_W`,
-`A_array_m2`, `module_status`, `warning`.
-
-| File | Columns |
-|---|---|
-| `results/tables/pv_f8_losses.csv` | `stage`, `kWh`, `status` (PRELIM/DERIVED/MEASURED), `note` (DERIVED label of the temperature bar) |
-| `results/tables/pv_f8_summary.csv` | `quantity`, `value`, `unit`: profile, bars (status composition), STC potential, DC, AC, capture ratio, eta DC-to-AC, warning |
+## F8 measured PV accounting
+`pv_account` accepts inverter-terminal DC and AC energies. Its provisional PV-start
+boundary is `inverter_dc_input`; the upstream DC cable is `OUTSIDE_BOUNDARY`, not
+assumed lossless. Including it later requires reviewed cable data and a model.
+`profile="F8_12.74kWp"` selects the interim F8 inverter model; the default `None`
+selects no model. PV generation modelling is an unavailable placeholder. The full
+case report and its PV result tables are not implemented.
 
 `PVSystem.account(..., p_stc_W=None)` adds `p_stc_source` whenever `H_poa_kWh_m2` is given:
 "explicit p_stc_W argument" or "registry default (12740 W, F8 array) - override p_stc_W for other plants".

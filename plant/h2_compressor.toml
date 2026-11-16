@@ -1,9 +1,9 @@
-# plant/booster.toml - H2 booster HULC (two-stage, DLE15-H2 + DLE30-H2)
+# plant/h2_compressor.toml - H2 booster HULC (two-stage, DLE15-H2 + DLE30-H2)
 # Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
 # Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
-name = "booster"
+name = "h2_compressor"
 title = "H2 booster HULC (two-stage, DLE15-H2 + DLE30-H2)"
 
 [open]
