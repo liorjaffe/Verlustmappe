@@ -38,3 +38,18 @@ accounting (including ledger) must not import scenarios.
 Report must reject scenario objects and computed compression values while
 the canonical compression basis remains unresolved. This API guard prevents
 booking by relabelling; it is not a physical validation or a security boundary.
+
+After the architecture commit, the owner deferred assessment of chart
+applicability, module addition, reference-volume compatibility and actual
+Kaeser consumption until the work is substantially complete and can be
+reviewed in the overall-system context. Independent work may continue.
+This is a scheduling decision, not approval of those assumptions or a change
+to accounting rules: compression energy remains MISSING, the scenario remains
+UNVERIFIED and all booking guards stay in place. Revisit these questions during
+that overall assessment and before adopting any productive compression result.
+
+The owner clarified that these provisional working assumptions are revisable,
+not established plant truths. Source identity pins and historical regressions
+preserve traceability, not physical validity. Better evidence may justify
+reviewed changes to assumptions, inputs and model choices; the current scenario
+must not silently become a runtime default or an accepted plant-energy model.

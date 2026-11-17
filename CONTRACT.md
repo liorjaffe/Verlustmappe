@@ -175,8 +175,13 @@ layer 3 (D34).
   control-air losses are not H₂ losses; they are candidates when investigating the
   unresolved air-demand discrepancy. Actual leakage needs measurement.
 - [E] HULC air demand (D13): manufacturer curve as a function of H₂ flow at the plant
-  operating point; operating point open. 14.6 Nm³/Nm³ applies only at maximum flow and is
-  not a bound. Geometry (4.59–6.30) is a physical lower bound.
+  operating point; operating point open. The historical estimate of 14.6 Nm³ air per
+  Nm³ H₂ belongs to the former 5 Nm³/h example; the derivation of its underlying addends
+  is unclear. Its retention as a historical comparison is provisional and UNVERIFIED,
+  not approval as a plant parameter, runtime constant, general factor or operating
+  limit. Reassess it with better evidence and in the overall-system review; do not
+  substitute it for missing compression energy. Geometry (4.59–6.30) is a physical
+  lower bound.
 - [E] FC inverter, discharge path (D3b): PV-AC datasheet values do not apply. Never
   MEASURED until measured.
 
