@@ -19,8 +19,10 @@ text = '''
 The workbook records approximate GRAPH-READ points from the H2 Core HydroHulc
 chart, not from the separate Maximator base-device charts. At H2 flow in
 NL/min, the workbook records air demand in NL/min as:
-  Hulc 140: 10 -> 150, 50 -> 280, 80 -> 380, 100 -> 475, 200 -> 900.
-  Hulc 400: 10 -> 350, 50 -> 600, 80 -> 800, 100 -> 975, 200 -> 1750.
+  Hulc 140: 10 -> 150, 20 -> 175, 30 -> 200, 40 -> 250, 50 -> 280,
+            80 -> 380, 100 -> 475, 200 -> 900.
+  Hulc 400: 10 -> 350, 20 -> 400, 30 -> 450, 40 -> 550, 50 -> 600,
+            80 -> 800, 100 -> 975, 200 -> 1750.
 The workbook estimates chart-reading uncertainty at about 25 NL/min per point.
 Gas pressures, air-volume reference, module configuration and inclusion of
 purge/control air are not established. The datasheet footnote gives an air
@@ -29,8 +31,8 @@ to the chart needs confirmation. Transfer to the installed -H2 variants and
 adding both module curves for the two-stage system are UNVERIFIED (P-1).
 
 At the illustrative 5 Nm3/h H2 maximum, not an adopted operating point, the
-workbook estimates 390 + 825 = 1215 NL/min air demand and 14.6 Nm3 air per
-Nm3 H2. These are assumptions and graphical estimates, not measured demand.
+historical workbook estimated 390 + 825 = 1215 NL/min air demand and 14.6 Nm3
+air per Nm3 H2. The origin of the addends is unclear; neither is measured demand.
 Linear interpolation of the rounded workbook points at 83.33 NL/min H2 gives
 approximately 396 + 829 = 1225 NL/min, not 1215; re-read the chart and check
 the interpolation before using either estimate. These air-volume bases must be
@@ -56,12 +58,12 @@ conditions. The Path B lower-bound ratios give about 344 and 473 NL/min for
 their respective assumed pressures. These lower bounds being below the derived
 Kaeser capacity in kaeser.toml [layer1_evidence] does not establish sufficient supply: real
 demand can exceed a lower bound. Conversely Path A is not confirmed as the
-installed system's demand. The 14.6 ratio is the workbook's maximum-flow
-estimate, not a validated constant at 75 NL/min. On matching volume bases,
+installed system's demand. The 14.6 ratio is a historical estimate at the 5 Nm3/h example,
+not a validated constant at 75 NL/min. On matching volume bases,
 the derived Kaeser capacity divided by 75 is about 8.2 NL air per NL H2.
 
 Conditional capacity finding at the illustrative HULC maximum of 5 Nm3/h,
-not the nine-EL case: if the workbook's estimated 1215 NL/min demand and the
+not the nine-EL case: if the historical 1215 NL/min estimate and the
 derived Kaeser capacity at its 10 bar datasheet point apply simultaneously
 to the same stationary full-load case and compatible normal-volume bases,
 supply/demand is approximately 0.51; HULC demand alone then exceeds supply,
@@ -87,9 +89,8 @@ title = "HULC source conditions and open questions"
 text = '''
 Evidence: sources/Compressor_System_Specs_Master_v2.xlsx, Master and Sources
 sheets; individual parameters identify the relevant rows and sources.
-Workbook SHA-256: 839a34eb5068ba48f6ece87ebce62c535daf24966e81826e0c7c221c1dc9b755.
-This differs from the hash pinned by the workbook identity test; the workbook
-revision and its acceptance remain open. The test pin is not updated.
+Workbook SHA-256: 07b082dbacf00dc6b9332d3d7ce0f262041003bdf3913cce0dacedad07a33145.
+The prior workbook SHA-256 was c5585d5f4e6b73458c524106cdbc5b8002b67d57c1139220a9a704d30f1f1218.
 The workbook is evidence, not the runtime parameter source. Manufacturer data
 for DLE base devices are not verified for the installed -H2 variants. The
 pressure reference is assumed gauge where marked; uncertainty 0.0 does not

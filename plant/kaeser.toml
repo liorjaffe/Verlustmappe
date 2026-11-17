@@ -15,9 +15,10 @@ The delivery capacity and its reference conditions are recorded under
 kaeser.q_fad_m3min; it is not HULC demand. Workbook Master row 9 states the
 normal basis of 1.01325 bar absolute and 0 degC; row 10 records the rounded
 factor 0.9196 with humidity neglected. The following dry ideal-gas formula
-is reconstructed from these bases, not copied from an intact workbook formula:
+is reconstructed from these bases:
   Q_normal = Q_FAD * (1 / 1.01325) * (273.15 / 293.15).
-Workbook cell D37 contains a formula with the cached error #NAME?.
+The prior workbook's D37 contained a formula with the cached error #NAME?;
+the current workbook records the derivation as text.
 The factor is approximately 0.91959; the registered FAD gives about
 616 NL/min. This is a calculated capacity at the datasheet point, not a measurement.
 The conversion neglects humidity; applicability of the workbook's normal basis
