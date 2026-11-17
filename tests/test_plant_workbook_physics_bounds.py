@@ -3,6 +3,9 @@
 These can FAIL for a physically impossible dataset even when every number was
 transcribed correctly. They encode inequalities (2nd law, eta_vol <= 1,
 stroke-rate limit), not point values.
+Historical calculated values are from git 3fae5d4, workbook SHA-256
+839a34eb5068ba48f6ece87ebce62c535daf24966e81826e0c7c221c1dc9b755;
+their comparisons are conditional, not validation of the installed plant.
 
 Independence: this file has its OWN data access and its OWN physics, written via
 mole amounts (n = pV/RT) instead of the ratio formulas used in test_plant_workbook_hand_calcs. Only
@@ -58,17 +61,17 @@ def test_second_law_floor_for_every_air_path():
     """Electrical kWh per Nm3 H2 must exceed the isothermal compression work."""
     floor = w_iso_kwh_per_nm3(300)
     for key in ("energy.hulc_A_kwh_nm3", "energy.hulc_B_kwh_nm3"):
-        assert O(key) > floor, f"{key}={O(key)} <= isothermal floor {floor:.4f}"
+        assert X.HISTORICAL_O[key] > floor, f"{key}={X.HISTORICAL_O[key]} <= isothermal floor {floor:.4f}"
 
 
 def test_implied_isothermal_efficiency_is_between_0_and_1():
     for key in ("energy.hulc_A_kwh_nm3", "energy.hulc_B_kwh_nm3"):
-        assert 0 < w_iso_kwh_per_nm3(300) / O(key) < 1
+        assert 0 < w_iso_kwh_per_nm3(300) / X.HISTORICAL_O[key] < 1
 
 
 def test_kaeser_shaft_below_electrical_input():
     """Physical order only: motor output < motor input; no invented spread limit."""
-    assert O("kaeser.motor.p_out_kw") < O("kaeser.motor.p_in_rated_kw")
+    assert O("kaeser.motor.p_out_kw") < X.HISTORICAL_O["kaeser.motor.p_in_rated_kw"]
     assert 0.5 < O("kaeser.motor.eta") < 1.0       # a motor, not a heater or a perpetuum mobile
 
 
@@ -80,7 +83,7 @@ def test_dryer_power_is_positive_and_below_package_power():
 
 def test_pathB_not_above_pathA():
     """B is a geometric lower bound (no pilot/purge air); A is a chart value."""
-    assert O("hulc.airB.ratio_pl9") < O("hulc.airA.ratio_nm3_per_nm3")
+    assert X.HISTORICAL_O["hulc.airB.ratio_pl9"] < X.HISTORICAL_O["hulc.airA.ratio_nm3_per_nm3"]
 
 
 def test_pathB_monotone_in_drive_pressure():
@@ -125,11 +128,12 @@ def test_stroke_counters_are_flagged_as_undefined_evidence():
 
 def test_tank_limit_vs_stall_capability():
     """Stall at pL=9 exceeds the 300 bar tank limit: a shut-off/relief MUST bound it."""
-    assert O("hulc.stall_tank_pl9_barg") > O("hulc.tank_limit_bar")
+    assert X.HISTORICAL_O["hulc.stall_tank_pl9_barg"] > O("hulc.tank_limit_bar")
 
 
 def test_kaeser_supply_below_hulc_A_demand_flagged():
-    assert O("cap.hulc_A_h2_max_nm3h") < O("hulc.mod.q_h2_max_nm3h")
+    # Historical ratio extrapolation, not the actual curve/supply intersection.
+    assert X.HISTORICAL_O["cap.hulc_A_h2_max_nm3h"] < O("hulc.mod.q_h2_max_nm3h")
 
 
 def test_rotex_pressure_not_above_any_quoted_limit():
@@ -151,5 +155,4 @@ def test_dual_implementations_agree():
         assert abs(path_b_ratio(pl, pi) - T21.pathB_ratio(pl, pi)) < 1e-4
     assert abs(w_iso_kwh_per_nm3(300) - 0.0641) < 5e-5
     assert abs(w_iso_kwh_per_nm3(400) - 0.0728) < 5e-5
-
 

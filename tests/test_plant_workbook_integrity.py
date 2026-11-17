@@ -12,7 +12,7 @@ import sys
 
 import xlsx_reader as X
 
-EXPECTED_SHEETS = ["Overview", "Master", "Sources", "Corrections", "Open_Points"]
+EXPECTED_SHEETS = ["Overview", "Master", "Sources", "Corrections", "Open_Points", "Migration"]
 EXPECTED_LAST_MASTER_ROW = 191
 EXPECTED_KEY_COUNT = 170
 EXPECTED_SOURCE_IDS = {f"S{i}" for i in range(1, 28)}
@@ -22,19 +22,19 @@ FORMULAS = {
     'D10': ' (1/1.01325)*(273.15/293.15); dry ideal gas, humidity ignored',
     'D27': ' kaeser.motor.p_out_kw / kaeser.motor.eta; motor only',
     'D30': ' 24 V x 1.5 A; upper bound for controller electronics in READY (PSU losses excluded)',
-    'D37': ' kaeser.q_fad_m3min x sys.f_fad_to_nm3',
+    'D37': ' kaeser.q_fad_m3min x sys.f_fad_to_nm3 x 60; result Nm3/h',
     'D119': ' min(400, 30*pL + min(140, 15*pL + 35)); equal pL on both stages assumed; zero flow at stall',
     'D120': ' min(400, 30*pL + min(140, 15*pL + 35)); equal pL on both stages assumed; zero flow at stall',
     'D121': ' min(400, 30*pL + min(140, 15*pL + 35)); equal pL on both stages assumed; zero flow at stall',
     'D122': ' min(400, 30*pL + min(140, 15*pL + 35)); equal pL on both stages assumed; zero flow at stall',
     'D123': ' min(400, 30*pL + min(140, 15*pL + 35)); equal pL on both stages assumed; zero flow at stall',
     'D124': ' (400-140)/30',
-    'D132': ' 1215 / 83.3. Candidate primary L1 parameter (owner decision, see Open_Points)',
+    'D132': ' Former workbook estimate; its exact derivation is not documented (stored addends 390 + 825, whether read from the chart or computed is unclear), so 1215 must not be presented as a safely read manufacturer value. Linear interpolation of the rounded anchor points (rows 128-129) gives about 1225 instead; documented in h2_compressor.toml. The two are different approximations, not one chain. The ratio is NOT a constant factor for all operating points; it derives from the old 5 Nm3/h example. For the initial Layer 1 scenario, linear interpolation and provisional addition of both module curves were selected (owner-approved 2026-11-17); this does not establish their applicability to the installed system.',
     'D133': ' 0.244 l x (35+1.01325)/1.01325 x 273.15/293.15; ideal gas, 20 degC suction, eta_vol = 1',
     'D169': ' p_N*(T/T_N)*ln(p_out,abs/p_in,abs); ideal gas, 20 degC. NOT electrical consumption',
-    'D171': ' kaeser.p_package_dealer_kw / (kaeser.q_fad_m3min x 60); mixes 11 bar power and 10 bar flow (source conflict)',
+    'D171': ' kaeser.p_package_dealer_kw / (kaeser.q_fad_m3min x 60) / sys.f_fad_to_nm3; kWh/m3 FAD -> kWh/Nm3; mixes 11 bar power and 10 bar flow (source conflict)',
     'D172': ' hulc.airA.ratio_nm3_per_nm3 x energy.e_air_kwh_nm3 (chart basis assumed Nm3)',
-    'D173': ' hulc.airB.ratio x energy.e_air_kwh_nm3; lower bound',
+    'D173': ' hulc.airB.ratio x energy.e_air_kwh_nm3. Path B is an air-demand LOWER BOUND under its geometry assumptions; the derived electrical figure inherits that status only together with the assumed specific air energy, it is not a secured electrical lower bound',
     'D177': ' kaeser.q_nm3h (10 bar rating)',
 }
 
@@ -43,7 +43,6 @@ FORMULAS = {
 # the reason, so a later change of O in these rows is still detected.
 EXPECTED_O = {
     'kaeser.p_rated_nameplate_kw': (5.85, 'O = 5.5 + 0.35'),
-    'kaeser.q_nm3h': (37.0, 'O = Nm3/h, C leads with Nm3/min'),
     'sys.p_h2_out_project_barg': (300.0, "C = '35 -> 300 barg', O = outlet"),
     'sys.p_h2_out_nameplate_barg': (400.0, "C = '35 -> 400 bar', O = outlet"),
     'kaeser.motor.eta': (0.892, 'C in percent, O fraction'),
@@ -52,16 +51,11 @@ EXPECTED_O = {
     'hulc.s1.eps_max': (20.0, "C = '1:20', O = 20"),
     'hulc.s2.eps_max': (20.0, "C = '1:20', O = 20"),
     'hulc.h2_ratio_limit': (4.0, "C = '1:4', O = 4"),
-    'hulc.airA.q_air_at_qmax_nlmin': (1215.0, 'O = 390 + 825'),
-    'hulc.airB.s2_nl_per_dstroke': (15.56, 'C lists two values; O = upper (pI 140)'),
     'hulc.pl_max_bar': (10.0, "C = '1 - 10 bar', O = upper"),
     'kaeser.sc2_current_a': (1.5, "C = '24 V DC, 1.5 A', O = current"),
     'hulc.air_prep.p_max_bar': (10.0, "C = '1.0 MPa (10 bar)', O = bar"),
     'hulc.s2.counter_delta': (434.0, 'O = delta of two counter readings'),
     'hulc.s1.counter_delta': (1085.0, 'O = delta of two counter readings'),
-    'cap.hulc_A_h2_max_nm3h': (2.5, "C = 'approx. 73 Nm3/h air ...; max H2 approx. 2.5'"),
-    'cap.hulc_B_air_nm3h': (31.5, "C = 'approx. 23 - 32', O = 31.5 (upper)"),
-    'energy.e_air_kwh_nm3': (0.168, "C = '0.154 kWh/m3 FAD = 0.168 kWh/Nm3', O = Nm3 value"),
     # OWNER QUESTION: text is coded as number 0 here; keep, or force O empty?
     'kaeser.has_idle': (0.0, "text 'not available' encoded as boolean 0"),
     'hulc.sys.p_electric_kw': (0.0, "text 'None (pneumatic)' encoded as 0 kW"),
@@ -132,6 +126,19 @@ def test_open_rows_carry_no_number():
         if d["F"].strip().lower().startswith("open"):
             assert d["O"] is None, f"{key}: status Open but numeric value {d['O']}"
 
+def test_migrated_calculations_have_empty_O():
+    keys = X.by_key()
+    expected = {
+        **{key: "Test reference (code)" for key in X.HISTORICAL_O},
+        "hulc.air_discrepancy": "Calculation planned (code)",
+        "cap.rotex": "Calculation planned (code)",
+    }
+    found = {key for key, d in keys.items() if d["F"] in set(expected.values())}
+    assert found == set(expected), found ^ set(expected)
+    for key, status in expected.items():
+        assert keys[key]["F"] == status, key
+        assert keys[key]["O_raw"] in ("", None), key
+
 
 def test_no_real_formula_cells_remain():
     """The 17 prose cells were invalid Excel formulas (#NAME?/repair dialog); none may come back."""
@@ -146,9 +153,42 @@ def test_description_text_is_pinned_for_all_17():
 
 
 def test_calculated_rows_name_their_formula():
-    for key, d in X.by_key().items():
-        if d["F"].lower().startswith("calculated"):
-            assert d["D"].strip(), f"{key}: calculated row without formula/description"
+    # Migration rows documenting formerly calculated values must keep input chains explicit.
+    migration = X.load()["Migration"]
+    expected = {
+        2: ("Master 9", "FAD basis", "humidity ignored"),
+        3: ("Master 23-24", "rated-point efficiency"),
+        4: ("Master 29", "excluding power-supply losses"),
+        5: ("Master 36", "Master 9-10", "Normal-basis compatibility"),
+        6: ("Master 7, 77-78, 86 and 97", "Equal drive pressure", "unverified"),
+        7: ("Master 7, 77-78, 86 and 97", "Equal drive pressure", "unverified"),
+        8: ("Master 7, 77-78, 86 and 97", "Equal drive pressure", "unverified"),
+        9: ("Master 7, 77-78, 86 and 97", "Equal drive pressure", "unverified"),
+        10: ("Master 7, 77-78, 86 and 97", "Equal drive pressure", "unverified"),
+        11: ("Master 77-78 and 97", "(400-140)/30", "not a verified operating pressure"),
+        12: ("Master 75", "Master 128-129", "390+825=1215", "unverified"),
+        13: ("Master 75", "390+825", "Not a general factor or limit"),
+        14: ("Master 87", "Master 7", "Master 9", "eta_vol=1"),
+        15: ("Master 98", "Master 135/136", "actual pI open in 126", "eta_vol=1"),
+        16: ("Master 86-87 and 97-98", "Master 135", "actual pressures open in 125-126"),
+        17: ("Master 86-87 and 97-98", "Master 136", "actual pressures open in 125-126"),
+        18: ("Master 131-132", "Path B examples in 135-136", "no calculation is implemented"),
+        19: ("Master 147", "150", "gauge-only", "gauge+1"),
+        20: ("Master 5, 7 and 9", "Master 169", "Not electrical consumption"),
+        21: ("Master 6, 7 and 9", "Master 169", "not electrical consumption"),
+        22: ("Master 28", "9-10: conditional dry normal-volume conversion", "Pressure/source conflict", "historical"),
+        23: ("Master 132", "described in 171", "unverified"),
+        24: ("Master 135/136", "described in 171", "not established"),
+        25: ("Master 36", "9-10", "not a measurement"),
+        26: ("Master 177", "former 5 Nm3/h ratio in 132", "not a confirmed operating limit"),
+        27: ("Master 75", "Path B ratios in 135-136", "does not establish sufficient supply"),
+        28: ("Master 147 and 150", "switching frequency", "No switching in the first scenario"),
+    }
+    for row, snippets in expected.items():
+        text = migration[row]["D"]["v"]
+        assert text.strip(), f"Migration D{row} is empty"
+        for snippet in snippets:
+            assert snippet in text, f"Migration D{row} missing {snippet!r}"
 
 
 def test_numeric_O_matches_first_number_in_C_unless_pinned():
@@ -189,5 +229,3 @@ def test_l3_backlog_is_unmeasured():
     for r in range(182, 192):
         for col in "JKLMN":
             assert rows[r].get(col, "") == "", f"row {r} col {col} now filled: needs a measurement protocol"
-
-

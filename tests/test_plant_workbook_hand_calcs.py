@@ -1,7 +1,10 @@
-"""LAYER 2 - independent hand calculations vs. workbook column O.
+"""LAYER 2 - hand calculations vs. historical workbook column O.
 
 Every expected value is computed HERE from physical definitions and from
 inputs read out of the workbook; no project model is imported (Rule 4).
+Expected calculated values are historical, from git 3fae5d4, workbook SHA-256
+839a34eb5068ba48f6ece87ebce62c535daf24966e81826e0c7c221c1dc9b755,
+not the current workbook or verified manufacturer values.
 Tolerance = half a unit in the last printed digit of the workbook number
 (pure rounding), never a fitted band. Reading-error bands (+-25 NL/min for
 the digitised charts) are the workbook's own stated uncertainty.
@@ -13,6 +16,8 @@ import math
 import re
 import sys
 from decimal import Decimal
+
+import pytest
 
 import xlsx_reader as X
 
@@ -29,13 +34,20 @@ def O(key):
 
 
 def half_ulp(printed):
-    """Half unit of the last printed decimal digit; safe for e-notation (1e-05)."""
-    exp = Decimal(repr(printed)).as_tuple().exponent
+    """Match the prior workbook reader's float precision, including integer literals."""
+    exp = Decimal(repr(float(printed))).as_tuple().exponent
     return 0.5 * 10 ** (exp if exp < 0 else 0)
 
 
+def test_half_ulp_preserves_historical_float_precision():
+    for value in (36, 36.0, 37, 37.0):
+        assert half_ulp(value) == 0.05
+    for key in ("kaeser.p_sc2_max_w", "kaeser.q_nm3h"):
+        assert half_ulp(X.HISTORICAL_O[key]) == 0.05
+
+
 def close(actual, key_or_value, tol=None):
-    exp = O(key_or_value) if isinstance(key_or_value, str) else key_or_value
+    exp = X.HISTORICAL_O[key_or_value] if isinstance(key_or_value, str) else key_or_value
     t = half_ulp(exp) if tol is None else tol
     assert abs(actual - exp) <= t + 1e-12, f"{key_or_value}: hand={actual:.6g} xlsx={exp} tol={t}"
 
@@ -117,7 +129,7 @@ def test_pl_for_400_bar():
 def test_module_limits_inside_booster_limits():
     assert O("hulc.m140.limits") <= O("hulc.s1.pb_max_bar")
     assert O("hulc.m400.limits") <= O("hulc.s2.pb_max_bar")
-    assert O("hulc.pl_for_400_bar") <= O("hulc.pl_max_bar")
+    assert X.HISTORICAL_O["hulc.pl_for_400_bar"] <= O("hulc.pl_max_bar")
 
 
 # ---------- Path B (geometry) ----------------------------------------------
@@ -160,12 +172,12 @@ def test_pathB_is_a_lower_bound_for_every_pI_up_to_the_stated_one():
         top = int(row_pi_barg(key))
         values = [pathB_ratio(pl, p) for p in range(lo, top + 1)]
         assert all(a > b for a, b in zip(values, values[1:])), "not monotone in pI"
-        assert min(values) >= O(key) - half_ulp(O(key))
+        assert min(values) >= X.HISTORICAL_O[key] - half_ulp(X.HISTORICAL_O[key])
 
 
 def test_pathB_above_stated_pI_is_NOT_a_lower_bound():
     """Documents the boundary: at pI = 140 for the pL 6 row the ratio is below the stored 4.59."""
-    assert pathB_ratio(6, 140) < O("hulc.airB.ratio_pl6")
+    assert pathB_ratio(6, 140) < X.HISTORICAL_O["hulc.airB.ratio_pl6"]
 
 
 # ---------- Path A (chart) ---------------------------------------------------
@@ -179,14 +191,40 @@ def interp(points, x):
 
 M140 = {10: 150, 50: 280, 80: 380, 100: 475, 200: 900}
 M400 = {10: 350, 50: 600, 80: 800, 100: 975, 200: 1750}
+M140_ADJACENT = {**M140, 20: 175, 30: 200, 40: 250}
+M400_ADJACENT = {**M400, 20: 400, 30: 450, 40: 550}
 
 
 def test_pathA_digitised_points_match_text():
     c128, c129 = K["hulc.airA.m140_curve"]["C"], K["hulc.airA.m400_curve"]["C"]
-    for h2, air in M140.items():
+    for h2, air in M140_ADJACENT.items():
         assert f"{h2}->{air}" in c128
-    for h2, air in M400.items():
+    for h2, air in M400_ADJACENT.items():
         assert f"{h2}->{air}" in c129
+
+
+def test_two_el_chart_interpolation_both_reading_bases():
+    q_nl_min = 2 * 500 / 60
+    # Historical sparse anchors: fraction 1/6 of the interval from 10 to 50.
+    assert interp(M140, q_nl_min) == pytest.approx(150 + 130 / 6)
+    assert interp(M400, q_nl_min) == pytest.approx(350 + 250 / 6)
+    assert interp(M140, q_nl_min) + interp(M400, q_nl_min) == pytest.approx(563.3333333333)
+    # Current candidate's adjacent points: fraction 2/3 from 10 to 20.
+    assert interp(M140_ADJACENT, q_nl_min) == pytest.approx(150 + 25 * 2 / 3)
+    assert interp(M400_ADJACENT, q_nl_min) == pytest.approx(350 + 50 * 2 / 3)
+    assert interp(M140_ADJACENT, q_nl_min) + interp(M400_ADJACENT, q_nl_min) == pytest.approx(550)
+    for points in (M140, M400, M140_ADJACENT, M400_ADJACENT):
+        with pytest.raises(ValueError, match="outside digitised range"):
+            interp(points, 500 / 60)
+
+
+def test_historical_capacity_estimate_is_not_curve_intersection():
+    # Conditional counterexample only: matching normal-volume bases and chart applicability.
+    h2_nl_min = X.HISTORICAL_O["cap.hulc_A_h2_max_nm3h"] * 1000 / 60
+    air_nl_min = interp(M140_ADJACENT, h2_nl_min) + interp(M400_ADJACENT, h2_nl_min)
+    supply_nl_min = O("kaeser.q_fad_m3min") * 1000 * (1 / P_N_BAR) * (T_N_K / T_REF_K)
+    assert air_nl_min == pytest.approx(813.3333333333)
+    assert air_nl_min > supply_nl_min
 
 
 def test_pathA_interpolation_within_stated_reading_band():
@@ -194,11 +232,11 @@ def test_pathA_interpolation_within_stated_reading_band():
     band = 25                               # workbook: 'Reading +-~25 NL/min'
     assert abs(interp(M140, q) - 390) <= band
     assert abs(interp(M400, q) - 825) <= band
-    assert abs(interp(M140, q) + interp(M400, q) - O("hulc.airA.q_air_at_qmax_nlmin")) <= 2 * band
+    assert abs(interp(M140, q) + interp(M400, q) - X.HISTORICAL_O["hulc.airA.q_air_at_qmax_nlmin"]) <= 2 * band
 
 
 def test_pathA_ratio():
-    close(O("hulc.airA.q_air_at_qmax_nlmin") / (5000 / 60), "hulc.airA.ratio_nm3_per_nm3", tol=0.05)
+    close(X.HISTORICAL_O["hulc.airA.q_air_at_qmax_nlmin"] / (5000 / 60), "hulc.airA.ratio_nm3_per_nm3", tol=0.05)
 
 
 # ---------- energy chain & capacity -----------------------------------------
@@ -213,19 +251,21 @@ def test_isothermal_work():
 
 def test_hulc_electric_per_nm3():
     # tol 0.005 = half unit of the printed O; actual deviation of the rounded chain: 0.0028 / 0.0011
-    e = O("energy.e_air_kwh_nm3")
-    close(O("hulc.airA.ratio_nm3_per_nm3") * e, "energy.hulc_A_kwh_nm3", tol=0.005)
-    close(O("hulc.airB.ratio_pl6") * e, "energy.hulc_B_kwh_nm3", tol=0.005)
-    close(O("hulc.airB.ratio_pl9") * e, 1.06, tol=0.005)
+    e = X.HISTORICAL_O["energy.e_air_kwh_nm3"]
+    close(X.HISTORICAL_O["hulc.airA.ratio_nm3_per_nm3"] * e, "energy.hulc_A_kwh_nm3", tol=0.005)
+    close(X.HISTORICAL_O["hulc.airB.ratio_pl6"] * e, "energy.hulc_B_kwh_nm3", tol=0.005)
+    close(X.HISTORICAL_O["hulc.airB.ratio_pl9"] * e, 1.06, tol=0.005)
 
 
 def test_capacity_check():
-    close(O("hulc.airA.ratio_nm3_per_nm3") * 5, 73, tol=0.5)
-    close(O("cap.supply_nm3h") / O("hulc.airA.ratio_nm3_per_nm3"), "cap.hulc_A_h2_max_nm3h", tol=0.05)
-    close(O("hulc.airB.ratio_pl6") * 5, 23, tol=0.5)
-    close(O("hulc.airB.ratio_pl9") * 5, "cap.hulc_B_air_nm3h", tol=0.05)
-    assert O("hulc.airA.ratio_nm3_per_nm3") * 5 > O("cap.supply_nm3h")      # A: supply-limited
-    assert O("hulc.airB.ratio_pl9") * 5 < O("cap.supply_nm3h")              # B: not limited
+    h = X.HISTORICAL_O
+    close(h["hulc.airA.ratio_nm3_per_nm3"] * 5, 73, tol=0.5)
+    close(h["cap.supply_nm3h"] / h["hulc.airA.ratio_nm3_per_nm3"], "cap.hulc_A_h2_max_nm3h", tol=0.05)
+    close(h["hulc.airB.ratio_pl6"] * 5, 23, tol=0.5)
+    close(h["hulc.airB.ratio_pl9"] * 5, "cap.hulc_B_air_nm3h", tol=0.05)
+    assert h["hulc.airA.ratio_nm3_per_nm3"] * 5 > h["cap.supply_nm3h"]
+    # A lower bound below supply cannot establish that actual demand fits.
+    assert h["hulc.airB.ratio_pl9"] * 5 < h["cap.supply_nm3h"]
 
 
 # ---------- Rotex ------------------------------------------------------------
@@ -234,6 +274,4 @@ def test_rotex_air_per_actuation():
     p = O("rotex.p_max_bar")                 # 8 bar plate maximum
     assert abs(out * p - 0.88) < 0.005           # gauge rule
     close(out * (p + 1), "rotex.v_per_actuation_8bar_l_anr")    # gauge+1 rule: 0.99
-    assert "0.88" in K["rotex.v_per_actuation_8bar_l_anr"]["C"]
-
-
+    assert K["rotex.v_per_actuation_8bar_l_anr"]["O"] is None

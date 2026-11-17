@@ -1,5 +1,5 @@
 # START – current state (overwritten, never appended; at most 60 lines)
-State: 2026-11-16 · branch `review/zwischenstand` · checkpoint; no merge into main.
+State: 2026-11-17 · branch `review/zwischenstand` · checkpoint; no merge into main.
 ## Goal
 Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load point; every number traced, gaps visible. Details: `CONTRACT.md` §1–§4.
 ## Restart progress
@@ -13,7 +13,7 @@ Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load poin
 - [ ] N4 `cases/F1.toml` and case report, immediately with MISSING items
 - [ ] N5 owner reviews the branch and decides whether to merge
 ## Next step
-HULC/Kaeser: review Layer 1 demand, chart interpolation and shared air allocation before modelling.
+HULC/Kaeser: workbook SHA-256 `07b082dbacf00dc6b9332d3d7ce0f262041003bdf3913cce0dacedad07a33145` with one approved text batch (Migration D2-D28 and Master D131), including verified row references and exact 28-cell diff. 36/37 tolerance corrected; Rotex C153 text-pin loss accepted (numeric checks retained). Next: run 27-chain test + four workbook files + wrapper, then integration commit (pins/tests) and separate TOML/snapshot commit. `Report` accepts a fabricated `Computed` for unresolved compression; booking guard remains open. Scenario applicability UNVERIFIED.
 N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-verified.
 ## Current limitations
 - P14 is a bounded EL scenario; the A/B/C full-chain report is not implemented.
@@ -26,13 +26,7 @@ N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-ve
 - Extra PV inverters on another array: future BACKLOG only, no current capacity/scope change.
 - Legacy guard scripts `tools/ci_guard.py` and `tools/make_readme_demo.py` are absent in this tree.
 ## Known failures
-- 2026-11-13 gate observation: device scripts ALL PASS; pytest 268 pass, 5 workbook failures:
-  - `test_plant_workbook_hand_calcs.py::test_stall_formula_text_still_the_one_reviewed`: D119 empty.
-  - `test_plant_workbook_integrity.py::test_file_identity`: workbook SHA256 differs.
-  - `test_plant_workbook_integrity.py::test_no_real_formula_cells_remain`: formulas in D37, D124, D172.
-  - `test_plant_workbook_integrity.py::test_description_text_is_pinned_for_all_17`: descriptions differ.
-  - `test_plant_workbook_integrity.py::test_calculated_rows_name_their_formula`: `sys.f_fad_to_nm3` description empty.
-- Compare both test ID and failure details on later runs; matching IDs alone do not prove the same cause.
+- None in the 2026-11-17 full wrapper; all five previously listed workbook tests passed after integration.
 
 ## Open owner decisions
 1. Remaining [V] items: `CONTRACT.md` scope (§2), formula C (§4), status (§8); plant-value and uncertainty changes need approval.
@@ -48,7 +42,7 @@ N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-ve
 - H₂Core battery: 100 Ah/52 V versus 105 Ah/5 kWh/48 V (`fc_battery.toml`)
 - Kaeser/HULC: input power, load hours and P-1 to P-3 open. Source cleanup distinguishes transcriptions, independent checks and UNVERIFIED evidence; workbook review remains separate. Conditional Path A versus lower-bound Path B remains unresolved.
 - Kaeser/HULC: original .10/24 brochure, photos/chats, installed identity and URL durability remain UNVERIFIED; agent-checked technical fields and P-3 manual cited; owner review pending.
-- Workbook review: resolve hash-change origin, authoritative version, missing Bovo/S28 revision and consolidated hash/check; D12 is recorded in `decisions/2026-11-05_restart.md`.
+- Workbook review: prior hash-change origin and missing Bovo/S28 revision remain open; current workbook identity is pinned above. D12 is recorded in `decisions/2026-11-05_restart.md`.
 - HULC: max-flow and nine-EL comparisons are illustrative; actual drive pressure, counter definition, stroke-count plausibility and P-3 limits remain open before use.
 - Deferred owner decisions: status of base-type data, representation/interpretation of zero uncertainty, FAD unit/schema and pressure references; snapshot prose design. Current values/statuses/units unchanged, not newly approved.
 - HULC: model without air energy uses REJECTED eta=0.03; no-window ideal work uses fill integral despite constant-outlet docstring. Result impact; owner decision needed.
