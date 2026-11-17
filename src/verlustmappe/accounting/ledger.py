@@ -174,6 +174,8 @@ class Report:
     def __post_init__(self) -> None:
         if self.scope not in ("bounded", "full"):
             raise ValueError(f"unknown declared scope {self.scope!r}")
+        if any(not isinstance(result, (Computed, Blocked)) for result in self.results):
+            raise ValueError("report results: expected Computed or Blocked; scenarios are not bookable")
         keys = [result.item.key for result in self.results]
         duplicates = sorted({key for key in keys if keys.count(key) > 1})
         if duplicates:
@@ -183,6 +185,10 @@ class Report:
             if canonical is not None and not _identical(result.item, canonical):
                 raise ValueError(f"{result.item.key}: item definition differs from the "
                                  "central inventory")
+            if (canonical is not None and canonical.key == "compression_air_energy_kWh"
+                    and canonical.unresolved and isinstance(result, Computed)):
+                raise ValueError(f"{canonical.key}: unresolved compression basis; "
+                                 "hypothetical scenario energy cannot be booked")
         present = set(keys)
         missing = tuple(
             Cause(CauseCode.MISSING_REQUIRED_ITEM, item.key,

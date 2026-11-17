@@ -19,10 +19,79 @@ The registered eta_overall is REJECTED (D11, wrong device basis DLE 30-2) and is
 used ONLY so the frozen legacy-1.0 chain reproduces; see docs/94 C11.
 Until E_air_compressor is metered, E is estimated as W_ideal / eta_GUESS.
 """
+from dataclasses import dataclass
+import math
+
 from .. import registry as R
 from ..physics import constants as C
 from ..physics.conversions import isothermal_work_kWh, NL_to_mol
 from ..hydrogen.temperature_model import isothermal_work_mol_integral
+
+
+@dataclass(frozen=True)
+class AirCurve:
+    basis: str
+    source: str
+    points_NL_min: tuple[tuple[float, float], ...]
+
+
+def _curve_number(value: float, name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{name}: expected a finite number")
+    if not math.isfinite(value) or value < 0:
+        raise ValueError(f"{name}: expected a finite nonnegative number")
+    return float(value)
+
+
+def _air_at_flow_NL_min(curve: AirCurve, h2_flow_NL_min: float) -> float:
+    if not isinstance(curve.basis, str) or not curve.basis.strip():
+        raise ValueError("curve basis must be a nonempty string")
+    if not isinstance(curve.source, str) or not curve.source.strip():
+        raise ValueError("curve source must be a nonempty string")
+    if len(curve.points_NL_min) < 2:
+        raise ValueError("curve requires at least two points")
+    points = tuple(
+        (_curve_number(h2, "curve H2 flow NL/min"),
+         _curve_number(air, "curve air flow NL/min"))
+        for h2, air in curve.points_NL_min
+    )
+    if any(a[0] >= b[0] for a, b in zip(points, points[1:])):
+        raise ValueError("curve H2 flows must be strictly increasing")
+    if h2_flow_NL_min < 10:
+        raise ValueError("H2 flow below 10 NL/min: chart extrapolation is not allowed")
+    for (x1, y1), (x2, y2) in zip(points, points[1:]):
+        if x1 <= h2_flow_NL_min <= x2:
+            return y1 + (y2 - y1) * (h2_flow_NL_min - x1) / (x2 - x1)
+    raise ValueError("H2 flow outside supplied chart range: extrapolation is not allowed")
+
+
+def chart_air_demand_NL_min(
+    h2_flow_NL_min: float, module_140: AirCurve, module_400: AirCurve, *,
+    assume_module_addition: bool, nominal_air_flow_NL_min: float,
+) -> float:
+    """Conditional curve sum, separate from AirDrivenBooster's energy path.
+
+    The owner-approved scenario guards (decision 2026-11-17) prohibit
+    extrapolation below 10 NL/min H2 and output above nominal air delivery.
+    They are not confirmed physical plant limits. Applicability, module
+    addition and volume-basis compatibility remain UNVERIFIED.
+    """
+    if assume_module_addition is not True:
+        raise ValueError("module addition requires an explicit True assumption")
+    flow_NL_min = _curve_number(h2_flow_NL_min, "H2 flow NL/min")
+    nominal_NL_min = _curve_number(nominal_air_flow_NL_min, "nominal air flow NL/min")
+    if nominal_NL_min == 0:
+        raise ValueError("nominal air flow must be positive")
+    if module_140.basis != module_400.basis:
+        raise ValueError("module curve bases must match")
+    air_NL_min = (_air_at_flow_NL_min(module_140, flow_NL_min)
+                  + _air_at_flow_NL_min(module_400, flow_NL_min))
+    if not math.isfinite(air_NL_min):
+        raise ValueError("interpolated air flow must be finite")
+    if air_NL_min > nominal_NL_min:
+        raise ValueError("HULC air demand exceeds nominal delivery; no scenario result")
+    return air_NL_min
+
 
 class AirDrivenBooster:
     def account(self, throughput_NL, p_in_barg, p_out_barg, T_C=None, air_compressor_kWh=None,

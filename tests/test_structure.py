@@ -11,7 +11,7 @@ TOP_LEVEL = {
     "AGENTS.md", "CLAUDE.md", "CONTRACT.md", "LICENSE", "README.md", "START.md",
     "pyproject.toml", "data", "decisions", "plant", "src", "tests", "tools",
 }
-PACKAGES = {"accounting", "devices", "hydrogen", "loaders", "physics"}
+PACKAGES = {"accounting", "devices", "hydrogen", "loaders", "physics", "scenarios"}
 
 
 def _visible(path):

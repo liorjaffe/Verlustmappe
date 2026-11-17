@@ -8,12 +8,14 @@ Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load poin
 - [x] Agent workflow and documentation gates clarified; see `decisions/2026-11-13-agent-workflow-clarifications.md`.
 - [x] N2 values in `plant/<device>.toml` (107 keys, owner-approved reference checked by test); real gas, loader tests, formats, workbook kept; legacy removed
 - [x] Correction: device models (`devices/`, `hydrogen/`, `conversions`, `constants`) and their tests restored; analyses, old balance, Monte Carlo, reports stay in the archive
-- [x] Architecture: `physics/`, `hydrogen/`, `devices/` (same names as `plant/`), `accounting/`, `loaders/`; no duplicate constants; tests named `test_<package>_<topic>.py`; `tests/test_structure.py` guards the layout
+- [x] Architecture: `physics/`, `hydrogen/`, `devices/` (same names as `plant/`), `accounting/`, `loaders/`, `scenarios/`; no duplicate constants; tests named `test_<package>_<topic>.py`; `tests/test_structure.py` guards the layout
 - [ ] N3 accounts A/B/C built on existing device models; rework only with a comparison test against the existing model.
 - [ ] N4 `cases/F1.toml` and case report, immediately with MISSING items
 - [ ] N5 owner reviews the branch and decides whether to merge
 ## Next step
-HULC/Kaeser: workbook SHA-256 `07b082dbacf00dc6b9332d3d7ce0f262041003bdf3913cce0dacedad07a33145` with one approved text batch (Migration D2-D28 and Master D131), including verified row references and exact 28-cell diff. 36/37 tolerance corrected; Rotex C153 text-pin loss accepted (numeric checks retained). Next: run 27-chain test + four workbook files + wrapper, then integration commit (pins/tests) and separate TOML/snapshot commit. `Report` accepts a fabricated `Computed` for unresolved compression; booking guard remains open. Scenario applicability UNVERIFIED.
+HULC/Kaeser: workbook SHA-256 `07b082dbacf00dc6b9332d3d7ce0f262041003bdf3913cce0dacedad07a33145`; integration committed as `38e04c1`, TOML/snapshot texts separately as `d6fc860`. Four workbook files: 62 passed; full wrapper: 378 passed, all checks exit 0. 36/37 tolerances restored; Rotex C153 text-pin loss accepted (numeric checks retained).
+Workbook cleanup: owner approved removal of the older untracked `Compressor_System_Specs_Master_v2_anara_fd1ee2e6.xlsx` after comparison (36 changed cells, all other cell values/formulas equal); only the canonical Compressor XLSX remains. Its hash is unchanged.
+Kaeser architecture: dry FAD conversion in `devices/kaeser.py`; chart interpolation, explicit addition assumption and guards in `devices/h2_compressor.py`; hypothetical formula only in `scenarios/kaeser.py`. Accounting-to-device ban unchanged; reverse scenario-import guard and Report rejection of scenario/Computed compression booking added. Legacy HULC energy path unchanged. Focused checks: 171 passed; full wrapper: 425 passed, all checks exit 0. Next: review remaining evidence/operating-point gaps before any productive compression model. Applicability remains UNVERIFIED.
 N4/F1 reports and unit grouping remain open; 9 EL is OWNER_DECISION, not site-verified.
 ## Current limitations
 - P14 is a bounded EL scenario; the A/B/C full-chain report is not implemented.

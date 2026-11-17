@@ -3,7 +3,9 @@
 Expected values are the P10 hand values (tests/reference/hand/), not model output. The two
 fill-work implementations in hydrogen/temperature_model.py are compared with each other.
 """
+import ast
 import os
+from pathlib import Path
 import re
 import sys
 
@@ -17,6 +19,52 @@ HAND_B_RT = {(1.0, 2.0): 0.386294, (40.0, 200.0): 1.011797,
              (36.01325, 141.01325): 0.833128, (36.01325, 301.01325): 1.411817}
 R_HAND = 8.31446261815324   # k_B * N_A, hand/constants.md
 KWH_PER_J = 1.0 / 3.6e6
+
+
+def _scenario_imports(text):
+    """Resolve static absolute and accounting-relative scenario imports."""
+    for node in ast.walk(ast.parse(text)):
+        if isinstance(node, ast.Import):
+            names = [alias.name for alias in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                # Accounting modules live at verlustmappe.accounting.<module>.
+                parent = ["verlustmappe", "accounting"][:3 - node.level]
+                module = ".".join(parent + ([node.module] if node.module else []))
+            else:
+                module = node.module or ""
+            names = [module] + [f"{module}.{alias.name}" for alias in node.names]
+        else:
+            continue
+        if any(name == "verlustmappe.scenarios"
+               or name.startswith("verlustmappe.scenarios.") for name in names):
+            yield node.lineno
+
+
+def test_accounting_cannot_import_scenarios():
+    base = Path(ROOT) / "src" / "verlustmappe" / "accounting"
+    for path in base.rglob("*.py"):
+        assert not list(_scenario_imports(path.read_text())), path
+
+
+@pytest.mark.parametrize("text", [
+    "import verlustmappe.scenarios.kaeser as scenario",
+    "from verlustmappe.scenarios import kaeser",
+    "from verlustmappe import scenarios as hypothetical",
+    "from ..scenarios.kaeser import calculate",
+    "from .. import scenarios",
+    "def hidden():\n    from ..scenarios import kaeser",
+])
+def test_scenario_import_guard_detects_static_import_forms(text):
+    assert list(_scenario_imports(text))
+
+
+def test_scenario_import_guard_allows_existing_accounting_dependencies():
+    assert not list(_scenario_imports(
+        "from .validity import check_nonnegative\n"
+        "from ..physics.constants import J_PER_KWH\n"
+        "from .. import registry as _registry\n"
+    ))
 
 
 def test_work_matches_hand_values():
