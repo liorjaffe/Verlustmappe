@@ -1,6 +1,7 @@
 """Independent checks for the isolated hypothetical scenario, not plant validation."""
 
-from dataclasses import replace
+from dataclasses import FrozenInstanceError, replace
+from fractions import Fraction
 from pathlib import Path
 import sys
 
@@ -12,6 +13,27 @@ from verlustmappe.scenarios.kaeser import KaeserScenario, calculate
 from verlustmappe.accounting.ledger import Blocked, Computed, Report
 from verlustmappe.accounting.params import ParamSet
 from verlustmappe.accounting.static_map import Scenario, calculate as calculate_ledger
+
+
+@pytest.mark.parametrize("points", [
+    [[10, 150], [20, 175]],
+    [(10, 150), (20, 175)],
+    ([10, 150], [20, 175]),
+])
+def test_mutable_curve_containers_are_rejected(points):
+    with pytest.raises(ValueError, match="immutable tuple"):
+        AirCurve("adjacent graph readings", "workbook Master C128", points)
+
+
+def test_result_curve_provenance_is_immutable(scenario):
+    result = calculate(scenario)
+    with pytest.raises(FrozenInstanceError):
+        result.inputs.module_140.points_NL_min = ((10, 150), (20, 200))
+    with pytest.raises(TypeError):
+        result.inputs.module_140.points_NL_min[1][1] = 200
+    with pytest.raises(FrozenInstanceError):
+        result.inputs.module_140 = scenario.module_400
+    assert calculate(result.inputs) == result
 
 
 @pytest.fixture
@@ -34,7 +56,11 @@ def test_two_adjacent_readings_and_metadata(scenario):
     result = calculate(scenario)
     # 2/3 of the 10-to-20 interval: 150 + 25*2/3, 350 + 50*2/3.
     assert result.hulc_air_flow_NL_min == pytest.approx(550)
-    assert result.scenario_energy_kWh == pytest.approx(5.5345822114)
+    # 6.2 kWh reference energy; deliberately rounded fixture nominal 616.126,
+    # not the full registry conversion 616.1259440673... NL/min.
+    expected_kWh = Fraction(31, 5) * 550 / Fraction("616.126")
+    # Owner-approved arithmetic tolerance, not physical uncertainty.
+    assert result.scenario_energy_kWh == pytest.approx(float(expected_kWh), rel=0, abs=1e-12)
     assert result.inputs == scenario
     assert result.inputs.module_140.basis == "adjacent graph readings"
     assert result.status == "HYPOTHETICAL / UNVERIFIED"
@@ -53,7 +79,9 @@ def test_historical_sparse_anchor_comparison(scenario):
     result = calculate(old)
     # 1/6 of the 10-to-50 interval: 150+130/6 + 350+250/6.
     assert result.hulc_air_flow_NL_min == pytest.approx(563 + 1 / 3)
-    assert result.scenario_energy_kWh == pytest.approx(5.6687553098)
+    # Same rounded fixture nominal as above; independent exact reference energy.
+    expected_kWh = Fraction(31, 5) * Fraction(1690, 3) / Fraction("616.126")
+    assert result.scenario_energy_kWh == pytest.approx(float(expected_kWh), rel=0, abs=1e-12)
     assert result.inputs.module_400.basis == "historical sparse anchors"
 
 
@@ -143,6 +171,12 @@ def test_single_energy_formula_units_and_zero_duration(scenario):
     assert calculate(replace(synthetic, operating_time_s=0)).scenario_energy_kWh == 0
     with pytest.raises(ValueError, match="finite"):
         calculate(replace(synthetic, reference_power_W=1e308, operating_time_s=1e308))
+
+
+def test_notes_name_linear_scenario_assumption(scenario):
+    notes = calculate(scenario).notes
+    assert any("linear scenario assumption" in note.lower() for note in notes)
+    assert any("not a validated part-load power curve" in note.lower() for note in notes)
 
 
 @pytest.mark.parametrize("field,value", [

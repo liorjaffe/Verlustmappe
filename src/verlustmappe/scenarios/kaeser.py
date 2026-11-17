@@ -58,6 +58,7 @@ def calculate(scenario: KaeserScenario) -> ScenarioResult:
         (
             "Not a measurement, actual energy allocation, ledger value, or physical bound.",
             "Scenario energy = reference power x operating time x HULC air flow / nominal delivery.",
+            "Linear scenario assumption only; not a validated part-load power curve or actual-consumption model.",
             "Nominal delivery is not measured total air flow; compatible volume bases are unverified.",
             "Example sources conflict: dealer power at 11 bar versus manufacturer delivery at 10 bar.",
             "Chart applicability, module addition and dryer inclusion are unverified.",

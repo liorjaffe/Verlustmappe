@@ -30,9 +30,17 @@ from ..hydrogen.temperature_model import isothermal_work_mol_integral
 
 @dataclass(frozen=True)
 class AirCurve:
+    """Chart provenance with immutable point containers; lists are rejected."""
+
     basis: str
     source: str
     points_NL_min: tuple[tuple[float, float], ...]
+
+    def __post_init__(self) -> None:
+        if type(self.points_NL_min) is not tuple or any(
+            type(point) is not tuple for point in self.points_NL_min
+        ):
+            raise ValueError("curve points must be an immutable tuple of tuples")
 
 
 def _curve_number(value: float, name: str) -> float:

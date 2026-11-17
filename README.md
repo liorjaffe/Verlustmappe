@@ -64,7 +64,10 @@ PY
 ```
 
 The returned inputs, basis and notes are part of the result; they must not be
-omitted when reporting it. Delivery is a nominal manufacturer value, not
+omitted when reporting it. `AirCurve.points_NL_min` requires a tuple of tuple
+pairs; mutable lists are rejected to keep result provenance immutable.
+The energy scaling is a linear scenario assumption, not a validated part-load
+power curve or actual-consumption model. Delivery is a nominal manufacturer value, not
 measured total flow. Power and flow sources differ in pressure; volume basis,
 curve applicability, module addition and dryer inclusion remain unverified.
 The API raises `ValueError` rather than extrapolating or calculating above

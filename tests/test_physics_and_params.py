@@ -4,6 +4,7 @@ Expected values are the P10 hand values (tests/reference/hand/), not model outpu
 fill-work implementations in hydrogen/temperature_model.py are compared with each other.
 """
 import ast
+from importlib.util import resolve_name
 import os
 from pathlib import Path
 import re
@@ -21,16 +22,14 @@ R_HAND = 8.31446261815324   # k_B * N_A, hand/constants.md
 KWH_PER_J = 1.0 / 3.6e6
 
 
-def _scenario_imports(text):
+def _scenario_imports(text, package="verlustmappe.accounting"):
     """Resolve static absolute and accounting-relative scenario imports."""
     for node in ast.walk(ast.parse(text)):
         if isinstance(node, ast.Import):
             names = [alias.name for alias in node.names]
         elif isinstance(node, ast.ImportFrom):
             if node.level:
-                # Accounting modules live at verlustmappe.accounting.<module>.
-                parent = ["verlustmappe", "accounting"][:3 - node.level]
-                module = ".".join(parent + ([node.module] if node.module else []))
+                module = resolve_name("." * node.level + (node.module or ""), package)
             else:
                 module = node.module or ""
             names = [module] + [f"{module}.{alias.name}" for alias in node.names]
@@ -42,9 +41,11 @@ def _scenario_imports(text):
 
 
 def test_accounting_cannot_import_scenarios():
-    base = Path(ROOT) / "src" / "verlustmappe" / "accounting"
+    package_root = Path(ROOT) / "src" / "verlustmappe"
+    base = package_root / "accounting"
     for path in base.rglob("*.py"):
-        assert not list(_scenario_imports(path.read_text())), path
+        package = ".".join(("verlustmappe", *path.parent.relative_to(package_root).parts))
+        assert not list(_scenario_imports(path.read_text(), package)), path
 
 
 @pytest.mark.parametrize("text", [
@@ -65,6 +66,31 @@ def test_scenario_import_guard_allows_existing_accounting_dependencies():
         "from ..physics.constants import J_PER_KWH\n"
         "from .. import registry as _registry\n"
     ))
+
+
+@pytest.mark.parametrize("package,text", [
+    ("verlustmappe.accounting.nested", "from ...scenarios import kaeser"),
+    ("verlustmappe.accounting.nested", "from ... import scenarios as hypothetical"),
+    ("verlustmappe.accounting.nested.deeper", "from ....scenarios.kaeser import calculate"),
+])
+def test_scenario_import_guard_resolves_nested_packages(package, text):
+    assert list(_scenario_imports(text, package))
+
+
+def test_scenario_import_guard_distinguishes_local_package_names():
+    assert not list(_scenario_imports(
+        "from .scenarios import local_helper", "verlustmappe.accounting.nested",
+    ))
+
+
+@pytest.mark.parametrize("filename", ["__init__.py", "helper.py"])
+def test_scenario_import_guard_scans_nested_accounting_files(tmp_path, monkeypatch, filename):
+    nested = tmp_path / "src" / "verlustmappe" / "accounting" / "nested"
+    nested.mkdir(parents=True)
+    (nested / filename).write_text("from ...scenarios import kaeser\n")
+    monkeypatch.setitem(globals(), "ROOT", str(tmp_path))
+    with pytest.raises(AssertionError, match=filename):
+        test_accounting_cannot_import_scenarios()
 
 
 def test_work_matches_hand_values():

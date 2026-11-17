@@ -53,3 +53,20 @@ not established plant truths. Source identity pins and historical regressions
 preserve traceability, not physical validity. Better evidence may justify
 reviewed changes to assumptions, inputs and model choices; the current scenario
 must not silently become a runtime default or an accepted plant-energy model.
+
+Following the critical review, the owner approved rejecting mutable curve
+containers to preserve result provenance, resolving the reverse import guard
+against each file's actual package (including nested package initializers),
+and naming the existing linear scenario assumption in the result notes.
+No monotonic-air-value guard or new physical constraint is adopted.
+
+The owner separately approved replacing exactly two scenario energy test
+references with independent Fraction derivations: (31/5)*550/(616126/1000)
+and (31/5)*(1690/3)/(616126/1000) kWh. These deliberately use the rounded
+fixture nominal 616.126 NL/min, not the full registry conversion
+616.1259440673... NL/min. Absolute comparison tolerance 1e-12 kWh, relative
+tolerance zero, covers floating-point arithmetic only, not physical uncertainty.
+All other existing expected test values remain unchanged.
+
+The legacy booster window-quantity clip without a visible result note is
+recorded as an open result-impact finding, not repaired in this review task.
