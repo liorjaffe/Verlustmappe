@@ -25,10 +25,11 @@ Owner decisions recorded here:
   1/2 in recommendation) and manual p. 12 (PFC inputs/outputs).
 - The H2 mass flow meter is out of scope and is not reconsidered.
 
-Not decided: D3b wording in `CONTRACT.md` §6 for the 0.94 FC inverter working
-value; the workbook row-structure repair (shifted merged ranges on the Fuel
-Cell sheet, empty Instruments rows 2-11, own rows for Restart Delay and
-telemetry units).
+Later the same day the owner approved the D3b wording in `CONTRACT.md` §6
+(`decisions/2026-11-18-fc-inverter-discharge-working-value.md`) and the
+workbook row-structure repair: Fuel Cell merged header ranges and row heights
+realigned, own rows for telemetry units (59) and Restart Delay (82),
+Instruments rows moved up; no Fuel Cell rows deleted (Notes 18).
 
 Known TOML errors for the later rewrite from this workbook: `fc_battery.toml`
 calls 48 V the target-voltage factory default (manual p. 24: 52 V);

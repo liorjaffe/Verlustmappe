@@ -182,8 +182,10 @@ layer 3 (D34).
   limit. Reassess it with better evidence and in the overall-system review; do not
   substitute it for missing compression energy. Geometry (4.59–6.30) is a physical
   lower bound.
-- [E] FC inverter, discharge path (D3b): PV-AC datasheet values do not apply. Never
-  MEASURED until measured.
+- [E] FC inverter, discharge path (D3b): PV-AC datasheet and manual values are not evidence
+  for the discharge path. Until measured, `inv_fc.eta` may carry an owner-chosen working
+  value with status ASSUMED and an owner-stated band; it is never MEASURED or DATASHEET and
+  is never calibrated.
 
 ## 7 Missing values and validity [E]
 
