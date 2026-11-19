@@ -37,3 +37,27 @@ calls 48 V the target-voltage factory default (manual p. 24: 52 V);
 its +/-0.02 band has no source; `fc.toml` marks the manual POC duration as
 DERIVED; workbook and TOML keys differ; workbook statuses must be mapped to
 the CONTRACT §8 scheme.
+
+2026-11-19, owner-approved status mapping for the FC TOML rewrite (workbook
+status -> active D26 vocabulary): Measured -> MEASURED; Datasheet ->
+DATASHEET; Calculated -> DERIVED, with the derivation in the source text;
+Literature -> DATASHEET_SECONDARY; Assumed -> GUESS; Unknown -> no value
+(MISSING). The mapping only translates labels; no value gains an evidence
+status it does not have.
+
+2026-11-19, owner decisions for the FC TOML rewrite: (A) an uncertainty
+without a source is set to 0.0 (NOT ASSESSED), as for PV on 2026-11-13; this
+applies to fc.h2_consumption_g_per_kWh, fc.n_cells, fc.faradaic_efficiency,
+fc.control_input_W_max, inv_fc.eta_peak_pv_ac and inv_fc.standby_W. (B)
+bat.nominal_V = 48 V, DATASHEET (battery nameplate); the 52 V bus voltage is
+not a battery nominal value and would need its own key.
+
+2026-11-19, FC TOML rewrite applied (owner-approved value list):
+`plant/fc.toml`, `plant/fc_battery.toml`, `plant/fc_inverter.toml`. Existing
+keys kept; two new keys `inv_fc.eta_envelope_lower` / `_upper`; registry 107
+-> 109 entries; `tests/reference/plant_parameter_reference.json` updated for
+the FC keys only. Result effect: the nameplate FC H2 route reports
+uncertainty 0.0 (NOT ASSESSED) instead of 0.05; inverter energies unchanged.
+Follow-up maintenance: the `fc_inverter.py` docstring/note still says
+"DERIVED 0.94". Next steps: POC plan, then POC implementation; key renaming
+separately.

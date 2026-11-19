@@ -1,13 +1,17 @@
 # plant/fc.toml - Fuel cell 2 x Intelligent Energy IE-LIFT 802
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
-# Only the owner changes values. Missing value = no 'value' field (MISSING).
+# Current runtime record; supporting workbook reviewed 2026-11-18.
+# Only owner-approved corrections applied. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "fc"
 title = "Fuel cell 2 x Intelligent Energy IE-LIFT 802"
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
+workbook = "plant/sources/Fuel_Cell_System_Specs_Master_2026-11-12.xlsx (18 Nov 2026 revision)"
+owner_decision = "decisions/2026-11-18-fc-workbook-review.md"
+transfer_scope = "Owner-approved rewrite 2026-11-19: existing keys kept (workbook keys differ; key renaming is a separate later step); workbook statuses mapped to D26; uncertainties without a source set to 0.0 (NOT ASSESSED). No new parameters; POC model extension is a separate later step."
+deferred = "Manufacturer and site confirmations are deferred, not dropped (decisions/2026-11-18-fc-workbook-review.md); affected values keep their actual status."
+# Comments from registry.py, verbatim, historical:
 registry_comments = '''
 # ============ FUEL CELL: Intelligent Energy IE-LIFT 802 (x2) ============'''
 
@@ -16,47 +20,47 @@ value = 2500
 unit = "W at 48 V"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "IE-LIFT 802 nameplate"
+source = "IE-LIFT 802 nameplate 'Rated Output 2.5 kW @ +48V' (FC workbook, Fuel Cell row 10). The FCM-802/804 manual states 2.4 kW rated power and a factory output power limit of 2400 W per module (row 18); tension documented, not resolved."
 effect = "load-bin normalisation"
 
 [param."fc.h2_consumption_g_per_kWh"]
 value = 70
 unit = "g/kWh"
 status = "DATASHEET"
-uncertainty = 0.05
-source = "IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life"
+uncertainty = 0.0
+source = "IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life (FC workbook, Fuel Cell row 26). Cross-check: manufacturer reference point 34 SLPM at 2.4 kW (manual p. 18; Intelligent Energy correspondence 16 Sep 2026, owner-confirmed) is approx. 168 g/h, i.e. approx. 70 g/kWh; SLPM T/p basis not confirmed. Uncertainty 0.0 = NOT ASSESSED: the nameplate gives a bound, no tolerance."
 effect = "nameplate H2 route. NOTE: it is an UPPER BOUND on consumption, hence a LOWER BOUND on efficiency (42.9% LHV), and makes FC efficiency a constant by construction. Load dependence needs the stack-current route."
 
 [param."fc.n_cells"]
 value = 120
 unit = "-"
 status = "GUESS"
-uncertainty = 0.05
-source = "ASSUMPTION (IE-LIFT stack spec not public); CONFIRM"
+uncertainty = 0.0
+source = "ASSUMPTION (IE-LIFT stack spec not public; not in the FC workbook); CONFIRM. Uncertainty 0.0 = NOT ASSESSED (no source)."
 effect = "reverse-Faraday route"
 
 [param."fc.faradaic_efficiency"]
 value = 1.0
 unit = "-"
 status = "GUESS"
-uncertainty = 0.02
-source = "ASSUMPTION: all stack current from H2 oxidation (no crossover)"
+uncertainty = 0.0
+source = "ASSUMPTION: all stack current from H2 oxidation (no crossover); not in the FC workbook. Uncertainty 0.0 = NOT ASSESSED (no source)."
 effect = "reverse-Faraday route"
 
 [param."fc.control_input_W_max"]
 value = 150
 unit = "W"
 status = "DATASHEET"
-uncertainty = 0.05
-source = "IE-LIFT 802 nameplate 'Rated Input 150 W max'"
-effect = "auxiliary/control energy on discharge; nameplate MAX, so an upper envelope"
+uncertainty = 0.0
+source = "IE-LIFT 802 nameplate 'Rated Input +20V to +56V DC, 150 W max' (FC workbook, Fuel Cell row 12). Uncertainty 0.0 = NOT ASSESSED (nameplate maximum, no tolerance)."
+effect = "auxiliary/control energy on discharge; nameplate MAX, so an upper envelope. Reading the 150 W rated input as the auxiliary consumption is an ASSUMPTION (Fuel Cell row 12); Intelligent Energy confirmation deferred."
 
 [param."fc.poc_max_duration_s"]
 value = 12
 unit = "s"
-status = "DERIVED"
+status = "DATASHEET"
 uncertainty = 0.0
-source = "FCM802_Test research plan / user manual"
+source = "FCM-802/804 User Manual (Intelligent Energy, doc. 10009655 A1), p. 14, sec. 8.3: power production reduced or suspended for up to 12 s (FC workbook, Fuel Cell row 62). Bound, not a typical duration."
 effect = "POC event window"
 
 [param."fc.has_internal_dcdc"]
@@ -64,5 +68,53 @@ value = true
 unit = "bool"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "IE-LIFT 802 telemetry exposes 'DC/DC Voltage Set Point' and 'DC/DC Current Limit'; output 20-56 V follows the bus"
+source = "FCM-802/804 User Manual (doc. 10009655 A1): in the fault state the controller disconnects the internal DC-DC converter (FC workbook, Fuel Cell row 65). Consistent with the telemetry channels 'DC/DC Voltage Set Point' and 'DC/DC Current Limit'."
 effect = "Terminal V/I is NOT stack V/I. Terminal V-I curve is a converter characteristic, not a polarisation curve."
+
+[param."fc.power_limit_W"]
+value = 2400
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "FCM-802/804 User Manual (doc. 10009655 A1), p. 24, sec. 13.1: factory Output Power Limit 2400 W per module (range 0-2400 W), 48V configuration; tension with the 2.5 kW nameplate (FC workbook, Fuel Cell row 18). Installed setting not read back over CAN (deferred). Uncertainty 0.0 = NOT ASSESSED."
+effect = "POC layer 1: recharge headroom check (decisions/2026-11-19-fc-poc-plan.md)"
+
+[param."fc.poc_max_rate_per_h"]
+value = 15
+unit = "1/h"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "FCM-802/804 User Manual (doc. 10009655 A1), pp. 8, 14: fewer than 15 POC per hour during running (FC workbook, Fuel Cell row 62). Bound, not a typical rate."
+effect = "POC layer 1: bound the case rate is checked against"
+
+[param."fc.poc_case_rate_per_h"]
+value = 15
+unit = "1/h"
+status = "GUESS"
+uncertainty = 0.0
+source = "Owner convention 2026-11-19 (decisions/2026-11-19-fc-poc-plan.md): the manual bound 'fewer than 15 per hour' (fc.poc_max_rate_per_h) used as the conservative layer 1 case value; not a measured or published typical rate. Uncertainty 0.0 = NOT ASSESSED."
+effect = "POC layer 1: events per hour per module"
+
+[param."fc.poc_case_duration_s"]
+value = 12
+unit = "s"
+status = "GUESS"
+uncertainty = 0.0
+source = "Owner convention 2026-11-19 (decisions/2026-11-19-fc-poc-plan.md): the manual bound 'up to 12 s' (fc.poc_max_duration_s) used as the conservative layer 1 case value, with the module output fully suspended; recovery ramp not modelled. Uncertainty 0.0 = NOT ASSESSED."
+effect = "POC layer 1: suspension duration per event"
+
+[param."fc.standby_uc_A"]
+value = 4
+unit = "A"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "FCM-802/804 User Manual (doc. 10009655 A1), p. 24: factory Delayed Stop Under-Current 4 A, 48V configuration (FC workbook, Fuel Cell row 75; manual narrative states 6 A for FCM-804, row 63). Installed setting not read back (deferred)."
+effect = "POC layer 3 (planned): separates standby from POC events; not used in layer 1"
+
+[param."fc.standby_uc_qual_s"]
+value = 20
+unit = "s"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "FCM-802/804 User Manual (doc. 10009655 A1), p. 24: factory Delayed Stop UC Qualification Time 20 s, 48V configuration (FC workbook, Fuel Cell row 76). Installed setting not read back (deferred)."
+effect = "POC layer 3 (planned): separates standby from POC events; not used in layer 1"

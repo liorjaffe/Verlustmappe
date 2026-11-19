@@ -539,7 +539,7 @@
   "fc.rated_power_W": {
    "value": 2500,
    "unit": "W at 48 V",
-   "source": "IE-LIFT 802 nameplate",
+   "source": "IE-LIFT 802 nameplate 'Rated Output 2.5 kW @ +48V' (FC workbook, Fuel Cell row 10). The FCM-802/804 manual states 2.4 kW rated power and a factory output power limit of 2400 W per module (row 18); tension documented, not resolved.",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "load-bin normalisation"
@@ -547,66 +547,122 @@
   "fc.h2_consumption_g_per_kWh": {
    "value": 70,
    "unit": "g/kWh",
-   "source": "IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life",
+   "source": "IE-LIFT 802 nameplate: '<70 g per kWh' at 25 C, beginning of life (FC workbook, Fuel Cell row 26). Cross-check: manufacturer reference point 34 SLPM at 2.4 kW (manual p. 18; Intelligent Energy correspondence 16 Sep 2026, owner-confirmed) is approx. 168 g/h, i.e. approx. 70 g/kWh; SLPM T/p basis not confirmed. Uncertainty 0.0 = NOT ASSESSED: the nameplate gives a bound, no tolerance.",
    "status": "DATASHEET",
-   "uncertainty": 0.05,
+   "uncertainty": 0.0,
    "effect": "nameplate H2 route. NOTE: it is an UPPER BOUND on consumption, hence a LOWER BOUND on efficiency (42.9% LHV), and makes FC efficiency a constant by construction. Load dependence needs the stack-current route."
   },
   "fc.n_cells": {
    "value": 120,
    "unit": "-",
-   "source": "ASSUMPTION (IE-LIFT stack spec not public); CONFIRM",
+   "source": "ASSUMPTION (IE-LIFT stack spec not public; not in the FC workbook); CONFIRM. Uncertainty 0.0 = NOT ASSESSED (no source).",
    "status": "GUESS",
-   "uncertainty": 0.05,
+   "uncertainty": 0.0,
    "effect": "reverse-Faraday route"
   },
   "fc.faradaic_efficiency": {
    "value": 1.0,
    "unit": "-",
-   "source": "ASSUMPTION: all stack current from H2 oxidation (no crossover)",
+   "source": "ASSUMPTION: all stack current from H2 oxidation (no crossover); not in the FC workbook. Uncertainty 0.0 = NOT ASSESSED (no source).",
    "status": "GUESS",
-   "uncertainty": 0.02,
+   "uncertainty": 0.0,
    "effect": "reverse-Faraday route"
   },
   "fc.control_input_W_max": {
    "value": 150,
    "unit": "W",
-   "source": "IE-LIFT 802 nameplate 'Rated Input 150 W max'",
+   "source": "IE-LIFT 802 nameplate 'Rated Input +20V to +56V DC, 150 W max' (FC workbook, Fuel Cell row 12). Uncertainty 0.0 = NOT ASSESSED (nameplate maximum, no tolerance).",
    "status": "DATASHEET",
-   "uncertainty": 0.05,
-   "effect": "auxiliary/control energy on discharge; nameplate MAX, so an upper envelope"
+   "uncertainty": 0.0,
+   "effect": "auxiliary/control energy on discharge; nameplate MAX, so an upper envelope. Reading the 150 W rated input as the auxiliary consumption is an ASSUMPTION (Fuel Cell row 12); Intelligent Energy confirmation deferred."
   },
   "fc.poc_max_duration_s": {
    "value": 12,
    "unit": "s",
-   "source": "FCM802_Test research plan / user manual",
-   "status": "DERIVED",
+   "source": "FCM-802/804 User Manual (Intelligent Energy, doc. 10009655 A1), p. 14, sec. 8.3: power production reduced or suspended for up to 12 s (FC workbook, Fuel Cell row 62). Bound, not a typical duration.",
+   "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "POC event window"
   },
   "fc.has_internal_dcdc": {
    "value": true,
    "unit": "bool",
-   "source": "IE-LIFT 802 telemetry exposes 'DC/DC Voltage Set Point' and 'DC/DC Current Limit'; output 20-56 V follows the bus",
+   "source": "FCM-802/804 User Manual (doc. 10009655 A1): in the fault state the controller disconnects the internal DC-DC converter (FC workbook, Fuel Cell row 65). Consistent with the telemetry channels 'DC/DC Voltage Set Point' and 'DC/DC Current Limit'.",
    "status": "DATASHEET",
    "uncertainty": 0.0,
    "effect": "Terminal V/I is NOT stack V/I. Terminal V-I curve is a converter characteristic, not a polarisation curve."
   },
+  "fc.power_limit_W": {
+   "value": 2400,
+   "unit": "W",
+   "source": "FCM-802/804 User Manual (doc. 10009655 A1), p. 24, sec. 13.1: factory Output Power Limit 2400 W per module (range 0-2400 W), 48V configuration; tension with the 2.5 kW nameplate (FC workbook, Fuel Cell row 18). Installed setting not read back over CAN (deferred). Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "POC layer 1: recharge headroom check (decisions/2026-11-19-fc-poc-plan.md)"
+  },
+  "fc.poc_max_rate_per_h": {
+   "value": 15,
+   "unit": "1/h",
+   "source": "FCM-802/804 User Manual (doc. 10009655 A1), pp. 8, 14: fewer than 15 POC per hour during running (FC workbook, Fuel Cell row 62). Bound, not a typical rate.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "POC layer 1: bound the case rate is checked against"
+  },
+  "fc.poc_case_rate_per_h": {
+   "value": 15,
+   "unit": "1/h",
+   "source": "Owner convention 2026-11-19 (decisions/2026-11-19-fc-poc-plan.md): the manual bound 'fewer than 15 per hour' (fc.poc_max_rate_per_h) used as the conservative layer 1 case value; not a measured or published typical rate. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "POC layer 1: events per hour per module"
+  },
+  "fc.poc_case_duration_s": {
+   "value": 12,
+   "unit": "s",
+   "source": "Owner convention 2026-11-19 (decisions/2026-11-19-fc-poc-plan.md): the manual bound 'up to 12 s' (fc.poc_max_duration_s) used as the conservative layer 1 case value, with the module output fully suspended; recovery ramp not modelled. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "POC layer 1: suspension duration per event"
+  },
+  "fc.standby_uc_A": {
+   "value": 4,
+   "unit": "A",
+   "source": "FCM-802/804 User Manual (doc. 10009655 A1), p. 24: factory Delayed Stop Under-Current 4 A, 48V configuration (FC workbook, Fuel Cell row 75; manual narrative states 6 A for FCM-804, row 63). Installed setting not read back (deferred).",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "POC layer 3 (planned): separates standby from POC events; not used in layer 1"
+  },
+  "fc.standby_uc_qual_s": {
+   "value": 20,
+   "unit": "s",
+   "source": "FCM-802/804 User Manual (doc. 10009655 A1), p. 24: factory Delayed Stop UC Qualification Time 20 s, 48V configuration (FC workbook, Fuel Cell row 76). Installed setting not read back (deferred).",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "POC layer 3 (planned): separates standby from POC events; not used in layer 1"
+  },
   "bat.capacity_Ah": {
-   "value": 100,
+   "value": 105,
    "unit": "Ah",
-   "source": "PLACEHOLDER - enter the real battery capacity",
-   "status": "BACKLOG",
-   "uncertainty": 0.05,
+   "source": "Battery nameplate GTEM-48V5000-E (Shanghai Green Tech): rated capacity 105 Ah, energy 5 kWh (FC workbook, Internal Battery rows 11-12). Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
    "effect": "SoC bookkeeping route for the battery branch"
   },
   "bat.nominal_V": {
-   "value": 52,
+   "value": 48,
    "unit": "V",
-   "source": "Regatron README (tested): FCM-802 regulates the bus to 52 V; 48 V is only the factory default. CONFLICTS with the earlier 48 V assumption - CONFIRM at the plant",
-   "status": "DERIVED",
-   "uncertainty": 0.02,
+   "source": "Battery nameplate GTEM-48V5000-E: nominal voltage 48 V DC, operating range 37.8-58.8 V (FC workbook, Internal Battery rows 9-10). Not the bus voltage: the FCM regulates the bus to its 52 V target output voltage (manual p. 24). Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
    "effect": "battery SoC energy conversion; P=V*I bookkeeping"
+  },
+  "bat.round_trip_efficiency": {
+   "value": 0.97,
+   "unit": "-",
+   "source": "RECHECK (owner 2026-11-19): maker web listing GTEM-48V5000-E, round-trip efficiency approx. 97%, EM-series datasheet values 96.8-97.8% depending on variant, at 25 degC, 100 A, beginning of life (greenteche.com / made-in-china.com product pages; FC workbook, Internal Battery row 18, web cross-check); not confirmed for the installed unit. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "POC layer 1: battery throughput loss of the energy shifted through the battery"
   },
   "pv.module_model": {
    "value": "BYD455MGTK-36",
@@ -742,7 +798,7 @@
    "source": "Solis datasheet: rated output 5 kVA / 5 kW (+-1%)",
    "status": "DATASHEET",
    "uncertainty": 0.0,
-   "effect": "matches the 2x 2.5 kW FC bank; load-bin normalisation"
+   "effect": "covers the FC bank (2x 2.5 kW nameplate, 2x 2.4 kW manual rated power); load-bin normalisation"
   },
   "inv_fc.battery_V_range": {
    "value": "40-60",
@@ -755,9 +811,9 @@
   "inv_fc.eta_peak_pv_ac": {
    "value": 0.966,
    "unit": "-",
-   "source": "Solis datasheet: peak efficiency PV-AC path (MPPT + inverter)",
+   "source": "Solis datasheet: peak efficiency PV-AC path (MPPT + inverter); manual table states 93-95% (Inverter2 workbook, Master row 43: manufacturer documents disagree). Uncertainty 0.0 = NOT ASSESSED (no tolerance stated).",
    "status": "DATASHEET",
-   "uncertainty": 0.01,
+   "uncertainty": 0.0,
    "effect": "PV-AC peak reference; NOT the battery-discharge path"
   },
   "inv_fc.eta_manual_range": {
@@ -766,22 +822,38 @@
    "source": "Solis instruction manual series table: peak efficiency PV-AC 93-95% (differs from the datasheet 96.6% - discrepancy documented, both quoted)",
    "status": "DATASHEET",
    "uncertainty": 0.0,
-   "effect": "bracket for the discharge-path estimate"
+   "effect": "PV-AC reference only; NOT evidence for the battery-discharge path (CONTRACT.md section 6, D3b)"
   },
   "inv_fc.eta": {
    "value": 0.94,
    "unit": "-",
-   "source": "DERIVED: midpoint of the instruction-manual range (93-95%) as the battery->AC discharge efficiency; the datasheet 96.6% refers to the PV-AC path which we do NOT use for the FC discharge. MEASURE on the installed unit",
-   "status": "DERIVED",
-   "uncertainty": 0.02,
-   "effect": "FC DC->AC conversion bar (discharge side)"
+   "source": "Owner working value (CONTRACT.md section 6, D3b; decisions/2026-11-18-fc-inverter-discharge-working-value.md): midpoint of the manual PV-AC range 93-95% (Inverter2 workbook, Master!D44). The discharge path is unpublished; PV-AC values are not evidence for it. Never MEASURED, DATASHEET or calibrated until measured (LCD counters, Inverter2 Master rows 79/85). Envelope in inv_fc.eta_envelope_lower/upper; no distribution adopted, uncertainty 0.0 = NOT ASSESSED.",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "FC DC->AC conversion bar (discharge side); energy-weighted mean excluding standby; part load not covered"
+  },
+  "inv_fc.eta_envelope_lower": {
+   "value": 0.914,
+   "unit": "-",
+   "source": "Owner convention 2026-11-19, provisional (decisions/2026-11-18-fc-inverter-discharge-working-value.md): no source; mirrored about the 0.94 working value (0.94 - 0.026). At part or low load the real value may be lower.",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "lower limit of the inv_fc.eta envelope; reference only, not propagated automatically"
+  },
+  "inv_fc.eta_envelope_upper": {
+   "value": 0.966,
+   "unit": "-",
+   "source": "Owner decision 2026-11-19, provisional (decisions/2026-11-18-fc-inverter-discharge-working-value.md): Solis datasheet PV-AC peak 96.6%, carried over to the discharge path by the owner assumption that the 40-60 V step-up path is not better (Inverter2 workbook, Master!D44). The number is a datasheet value; as a discharge-path limit it is an assumption.",
+   "status": "GUESS",
+   "uncertainty": 0.0,
+   "effect": "upper limit of the inv_fc.eta envelope; reference only, not propagated automatically"
   },
   "inv_fc.standby_W": {
    "value": 20,
    "unit": "W",
-   "source": "ASSUMPTION: datasheet/manual do not publish idle consumption; 20-50 W typical for 48 V off-grid class",
+   "source": "ASSUMPTION: datasheet/manual do not publish idle consumption; the '20-50 W typical for 48 V off-grid class' range has no recorded source. Uncertainty 0.0 = NOT ASSESSED.",
    "status": "GUESS",
-   "uncertainty": 0.5,
+   "uncertainty": 0.0,
    "effect": "FC inverter standby bar"
   },
   "inv_fc.transfer_time_ms": {

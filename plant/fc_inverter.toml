@@ -1,13 +1,17 @@
 # plant/fc_inverter.toml - FC inverter (Solis, off-grid)
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
-# Only the owner changes values. Missing value = no 'value' field (MISSING).
+# Current runtime record; supporting workbook reviewed 2026-11-18 (D3b, band 2026-11-19).
+# Only owner-approved corrections applied. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "fc_inverter"
 title = "FC inverter (Solis, off-grid)"
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
+workbook = "plant/sources/Inverter2_FC_Solis_S5-EO1P5K-48_Specs_Master.xlsx"
+owner_decision = "decisions/2026-11-18-fc-inverter-discharge-working-value.md"
+transfer_scope = "Owner-approved rewrite 2026-11-19: inv_fc.eta per CONTRACT.md section 6 (D3b) as GUESS with two separate envelope-limit keys; uncertainties without a source set to 0.0 (NOT ASSESSED); existing keys kept."
+registry_comments_status = "Historical. The 'DERIVED status' and 'matches exactly' statements below are superseded by D3b and by inv_fc.eta / inv_fc.nominal_power_W."
+# Comments from registry.py, verbatim, historical:
 registry_comments = '''
 # FC-side inverter: CHOSEN DEVICE - Solis S5-EO1P5K-48 off-grid inverter
 # (datasheet + instruction manual in the "Inverter 2" folder; nameplate photo
@@ -37,7 +41,7 @@ unit = "W"
 status = "DATASHEET"
 uncertainty = 0.0
 source = "Solis datasheet: rated output 5 kVA / 5 kW (+-1%)"
-effect = "matches the 2x 2.5 kW FC bank; load-bin normalisation"
+effect = "covers the FC bank (2x 2.5 kW nameplate, 2x 2.4 kW manual rated power); load-bin normalisation"
 
 [param."inv_fc.battery_V_range"]
 value = "40-60"
@@ -51,8 +55,8 @@ effect = "bus compatibility: FCM-regulated 52 V bus sits inside"
 value = 0.966
 unit = "-"
 status = "DATASHEET"
-uncertainty = 0.01
-source = "Solis datasheet: peak efficiency PV-AC path (MPPT + inverter)"
+uncertainty = 0.0
+source = "Solis datasheet: peak efficiency PV-AC path (MPPT + inverter); manual table states 93-95% (Inverter2 workbook, Master row 43: manufacturer documents disagree). Uncertainty 0.0 = NOT ASSESSED (no tolerance stated)."
 effect = "PV-AC peak reference; NOT the battery-discharge path"
 
 [param."inv_fc.eta_manual_range"]
@@ -61,22 +65,38 @@ unit = "-"
 status = "DATASHEET"
 uncertainty = 0.0
 source = "Solis instruction manual series table: peak efficiency PV-AC 93-95% (differs from the datasheet 96.6% - discrepancy documented, both quoted)"
-effect = "bracket for the discharge-path estimate"
+effect = "PV-AC reference only; NOT evidence for the battery-discharge path (CONTRACT.md section 6, D3b)"
 
 [param."inv_fc.eta"]
 value = 0.94
 unit = "-"
-status = "DERIVED"
-uncertainty = 0.02
-source = "DERIVED: midpoint of the instruction-manual range (93-95%) as the battery->AC discharge efficiency; the datasheet 96.6% refers to the PV-AC path which we do NOT use for the FC discharge. MEASURE on the installed unit"
-effect = "FC DC->AC conversion bar (discharge side)"
+status = "GUESS"
+uncertainty = 0.0
+source = "Owner working value (CONTRACT.md section 6, D3b; decisions/2026-11-18-fc-inverter-discharge-working-value.md): midpoint of the manual PV-AC range 93-95% (Inverter2 workbook, Master!D44). The discharge path is unpublished; PV-AC values are not evidence for it. Never MEASURED, DATASHEET or calibrated until measured (LCD counters, Inverter2 Master rows 79/85). Envelope in inv_fc.eta_envelope_lower/upper; no distribution adopted, uncertainty 0.0 = NOT ASSESSED."
+effect = "FC DC->AC conversion bar (discharge side); energy-weighted mean excluding standby; part load not covered"
+
+[param."inv_fc.eta_envelope_lower"]
+value = 0.914
+unit = "-"
+status = "GUESS"
+uncertainty = 0.0
+source = "Owner convention 2026-11-19, provisional (decisions/2026-11-18-fc-inverter-discharge-working-value.md): no source; mirrored about the 0.94 working value (0.94 - 0.026). At part or low load the real value may be lower."
+effect = "lower limit of the inv_fc.eta envelope; reference only, not propagated automatically"
+
+[param."inv_fc.eta_envelope_upper"]
+value = 0.966
+unit = "-"
+status = "GUESS"
+uncertainty = 0.0
+source = "Owner decision 2026-11-19, provisional (decisions/2026-11-18-fc-inverter-discharge-working-value.md): Solis datasheet PV-AC peak 96.6%, carried over to the discharge path by the owner assumption that the 40-60 V step-up path is not better (Inverter2 workbook, Master!D44). The number is a datasheet value; as a discharge-path limit it is an assumption."
+effect = "upper limit of the inv_fc.eta envelope; reference only, not propagated automatically"
 
 [param."inv_fc.standby_W"]
 value = 20
 unit = "W"
 status = "GUESS"
-uncertainty = 0.5
-source = "ASSUMPTION: datasheet/manual do not publish idle consumption; 20-50 W typical for 48 V off-grid class"
+uncertainty = 0.0
+source = "ASSUMPTION: datasheet/manual do not publish idle consumption; the '20-50 W typical for 48 V off-grid class' range has no recorded source. Uncertainty 0.0 = NOT ASSESSED."
 effect = "FC inverter standby bar"
 
 [param."inv_fc.transfer_time_ms"]

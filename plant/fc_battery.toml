@@ -1,6 +1,6 @@
 # plant/fc_battery.toml - H2Core battery on the FC DC bus
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
-# Only the owner changes values. Missing value = no 'value' field (MISSING).
+# Current runtime record; supporting workbook reviewed 2026-11-18.
+# Only owner-approved corrections applied. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "fc_battery"
@@ -8,26 +8,38 @@ title = "H2Core battery on the FC DC bus"
 
 [open]
 questions = [
-  "D10: registry 100 Ah (BACKLOG) / 52 V versus datasheet GTEM-48V5000-E 105 Ah / 5 kWh / 48 V (52 V is the Regatron bus setpoint). Owner decides.",
+  "Deferred (owner): Green Tech confirmation of 200 A (nameplate) vs 100 A (web listing) and cell chemistry/count; site check of the battery variant (decisions/2026-11-18-fc-workbook-review.md).",
+  "The 52 V FC bus voltage (FCM target output voltage, manual p. 24) is not a battery nominal value; a separate key is needed if the model uses it.",
 ]
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
+workbook = "plant/sources/Fuel_Cell_System_Specs_Master_2026-11-12.xlsx (18 Nov 2026 revision), sheet Internal Battery"
+owner_decision = "decisions/2026-11-18-fc-workbook-review.md"
+transfer_scope = "Owner-approved rewrite 2026-11-19: former open question D10 resolved with the GTEM-48V5000-E nameplate (105 Ah, 48 V); existing keys kept; uncertainties without a source set to 0.0 (NOT ASSESSED)."
+# Comments from registry.py, verbatim, historical:
 registry_comments = '''
 # ===================== BATTERY (no sensor) ====================='''
 
 [param."bat.capacity_Ah"]
-value = 100
+value = 105
 unit = "Ah"
-status = "BACKLOG"
-uncertainty = 0.05
-source = "PLACEHOLDER - enter the real battery capacity"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Battery nameplate GTEM-48V5000-E (Shanghai Green Tech): rated capacity 105 Ah, energy 5 kWh (FC workbook, Internal Battery rows 11-12). Uncertainty 0.0 = NOT ASSESSED."
 effect = "SoC bookkeeping route for the battery branch"
 
 [param."bat.nominal_V"]
-value = 52
+value = 48
 unit = "V"
-status = "DERIVED"
-uncertainty = 0.02
-source = "Regatron README (tested): FCM-802 regulates the bus to 52 V; 48 V is only the factory default. CONFLICTS with the earlier 48 V assumption - CONFIRM at the plant"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Battery nameplate GTEM-48V5000-E: nominal voltage 48 V DC, operating range 37.8-58.8 V (FC workbook, Internal Battery rows 9-10). Not the bus voltage: the FCM regulates the bus to its 52 V target output voltage (manual p. 24). Uncertainty 0.0 = NOT ASSESSED."
 effect = "battery SoC energy conversion; P=V*I bookkeeping"
+
+[param."bat.round_trip_efficiency"]
+value = 0.97
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "RECHECK (owner 2026-11-19): maker web listing GTEM-48V5000-E, round-trip efficiency approx. 97%, EM-series datasheet values 96.8-97.8% depending on variant, at 25 degC, 100 A, beginning of life (greenteche.com / made-in-china.com product pages; FC workbook, Internal Battery row 18, web cross-check); not confirmed for the installed unit. Uncertainty 0.0 = NOT ASSESSED."
+effect = "POC layer 1: battery throughput loss of the energy shifted through the battery"

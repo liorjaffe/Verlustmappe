@@ -30,7 +30,7 @@ def _params():
 def test_registry_keys_identical():
     from verlustmappe import registry as R
     assert set(R.REGISTRY) == set(SNAPSHOT["registry"])
-    assert len(R.REGISTRY) == 107
+    assert len(R.REGISTRY) == 116
 
 
 def test_every_field_identical_including_type():

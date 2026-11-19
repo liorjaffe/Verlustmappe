@@ -185,7 +185,10 @@ layer 3 (D34).
 - [E] FC inverter, discharge path (D3b): PV-AC datasheet and manual values are not evidence
   for the discharge path. Until measured, `inv_fc.eta` may carry an owner-chosen working
   value with status ASSUMED and an owner-stated band; it is never MEASURED or DATASHEET and
-  is never calibrated.
+  is never calibrated. While the §8 scheme is not in force, ASSUMED is recorded as GUESS in
+  the active D26 vocabulary. This mapping changes only the label; it relaxes no rule: a
+  value not proven by data is never given an evidence status, and every derivation and
+  owner choice stays marked as such with its basis.
 
 ## 7 Missing values and validity [E]
 
