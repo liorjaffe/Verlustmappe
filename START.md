@@ -13,7 +13,7 @@ Energy ledger of the pilot plant (PV DC → H₂ → FC AC) per static load poin
 - [ ] N4 `cases/F1.toml` and case report, immediately with MISSING items
 - [ ] N5 owner reviews the branch and decides whether to merge
 ## Next step
-The agreed Kaeser/HULC work block is complete; no immediate task remains in this block before independent work continues. This is a workflow checkpoint, not acceptance of a physically verified compression model. Select the next independent plant/model topic with the owner; do not reopen deferred questions automatically.
+Optional observer in `tools/project_observer/` per CONTRACT §12 and both `decisions/2026-11-18-*observer*`/`*overview*` files: owner-reviewed plant flow diagram (`topology.toml`; four Rotex shown, not assessed pending owner clarification; Marte role open) with an all-MISSING energy-flow slot view and station cards (draft descriptions, no key parameters yet), device-progress view (status labels, value presence, no values), manual snapshot or live view on 127.0.0.1; no CI/model imports, no hooks. Status-label grouping/colours deferred with §8. Uncommitted.
 Workbook: canonical `plant/sources/Compressor_System_Specs_Master_v2.xlsx`, SHA-256 `07b082dbacf00dc6b9332d3d7ce0f262041003bdf3913cce0dacedad07a33145`; integration `38e04c1`, TOML/snapshot texts `d6fc860`. Older repository upload removed with owner approval; only one Compressor XLSX remains in the repository. Desktop copies are not maintained project sources.
 Architecture `081df38`: dry FAD conversion in `devices/kaeser.py`; HULC interpolation, explicit module-addition assumption and hard guards in `devices/h2_compressor.py`; hypothetical formula only in `scenarios/kaeser.py`. Accounting import boundaries and Report booking guards enforced; legacy HULC energy path unchanged. Latest full code gates after approved review fixes: 436 passed, device scripts and both diff checks exit 0.
 Review fixes: mutable point containers rejected; package-relative import checks include nested modules; linear scenario assumption explicit in notes. Two energy expectations independently derived with Fraction using rounded fixture nominal 616.126, owner-approved abs=1e-12/rel=0. Focused selection below: formerly 171 tests, now 182 passed; physical assumptions unchanged.
@@ -32,7 +32,7 @@ Provisionality/deferral recorded in `4566906`, CONTRACT and `decisions/2026-11-1
 - Extra PV inverters on another array: future BACKLOG only, no current capacity/scope change.
 - Legacy guard scripts `tools/ci_guard.py` and `tools/make_readme_demo.py` are absent in this tree.
 ## Known failures
-- None in the 2026-11-18 full wrapper (device scripts ALL PASS, 436 passed, both diff checks exit 0).
+- None in the 2026-11-18 full wrapper (device scripts ALL PASS, 436 passed, both diff checks exit 0); the earlier `.venv` pytest/numpy blocker no longer occurs.
 ## Open owner decisions
 1. Remaining [V] items: `CONTRACT.md` scope (§2), formula C (§4), status (§8); plant-value and uncertainty changes need approval.
 2. Water I/O: separate measured feed/permeate; legacy `measured_water_L` means permeate; add pump runtime, leave energy MISSING until known.

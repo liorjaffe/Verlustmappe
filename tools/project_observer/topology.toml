@@ -1,0 +1,444 @@
+# Plant topology for the observer's overview diagram (CONTRACT.md section 12).
+# Display aid only: CONTRACT.md section 4 and plant/*.toml remain the source of truth.
+# Every node and edge names its basis. Contains no parameter values.
+# Agent transcription of CONTRACT section 4 and plant file titles. Owner review 2026-11-18:
+# order, FC control, auxiliary-supplier marking, water path and Kaeser drive air confirmed;
+# the four Rotex are shown but not assessed until the owner clarifies them.
+reviewed = true
+# Station descriptions below are agent drafts from the named basis; set true after owner review.
+descriptions_reviewed = false
+
+# Units shown per flow medium in the station cards (no values). Basis: quantity names in
+# src/verlustmappe/accounting/ledger.py (energies in kWh, hydrogen as kg / mol / LHV kWh,
+# compression air as energy in kWh) and plant/water.toml (water volume in L).
+[units]
+dc = "kWh"
+ac = "kWh"
+aux = "kWh"
+h2 = "kg · mol · kWh (LHV)"
+water = "L"
+air = "kWh (compression air energy)"
+
+[layout]
+width = 1460
+height = 540
+node_w = 140
+node_h = 58
+# energy-flow view: taller boxes for the value slots
+node_h_flow = 90
+height_flow = 570
+
+# ---------- Nodes (x, y = top-left corner) ----------
+# kind: device | outside (outside the provisional boundary) | terminal | supply
+#       | unassessed (shown, but deliberately not assessed until the owner clarifies)
+# account: A (series path) | B (auxiliary) | outside | not assessed  (CONTRACT section 4)
+# description: what happens at the station; agent draft until descriptions_reviewed = true
+# slots: value fields shown in the energy-flow view (no values; filled later from an approved
+#        src pipeline result): in, out, eta, loss, stock, elec, air, ctrl, eout, total
+
+[[node]]
+id = "pv_array"
+label = "PV array F8"
+sub = "east facade"
+plant = "pv_array"
+kind = "outside"
+x = 30
+y = 50
+account = "outside"
+description = "Generates DC electricity on the east facade (F8). Outside the provisional boundary: PV generation modelling is deferred and the series path starts at the PV inverter DC input."
+basis = "CONTRACT §2 (F8 only), §4 A (boundary starts at PV inverter DC input)"
+slots = ["out"]
+
+[[node]]
+id = "pv_dc_cable"
+label = "PV DC cable"
+sub = "outside boundary"
+plant = "pv_dc_cable"
+kind = "outside"
+x = 240
+y = 50
+account = "outside"
+description = "Carries DC from the array to the PV inverters. Outside the provisional boundary until reviewed cable data exists; its loss is not assumed to be zero."
+basis = "CONTRACT §4 A: upstream and outside the provisional boundary; loss not assumed zero"
+slots = ["loss"]
+
+[[node]]
+id = "pv_inverter"
+label = "PV inverters"
+sub = "2 x Solis S6"
+plant = "pv_inverter"
+kind = "device"
+x = 450
+y = 50
+account = "A"
+description = "Converts PV DC into AC; first station of the series path. Its standby consumption is booked in B."
+basis = "CONTRACT §4 A; plant/pv_inverter.toml title"
+slots = ["in", "out", "eta", "loss"]
+
+[[node]]
+id = "ac_cable"
+label = "AC distribution"
+sub = "and cable path"
+plant = "ac_cable"
+kind = "device"
+x = 660
+y = 50
+account = "A"
+description = "Carries AC from the PV inverters towards the electrolyser. The PV share is an allocation; the actual EL supply route, including the house distribution, is open."
+basis = "CONTRACT §4 A; plant/ac_cable.toml title"
+slots = ["in", "out", "loss"]
+
+[[node]]
+id = "el"
+label = "Electrolyser"
+sub = "Enapter AEM EL 2.1"
+plant = "el"
+kind = "device"
+x = 870
+y = 50
+account = "A"
+description = "Splits process water into hydrogen and oxygen using electricity. Its standby consumption is booked in B."
+basis = "CONTRACT §4 A; plant/el.toml title"
+slots = ["in", "out", "eta", "loss"]
+
+[[node]]
+id = "water"
+label = "Water treatment"
+sub = "filter train + RO (BWT)"
+plant = "water"
+kind = "device"
+x = 1080
+y = 50
+account = "B"
+description = "Treats collected rainwater into permeate for the electrolyser: Marte filter train, then BWT reverse osmosis; concentrate goes to the drain. Its electricity is auxiliary (B); the role of the Marte unit is open."
+basis = "CONTRACT §4 (auxiliary energy includes water treatment); plant/water.toml title and notes; owner description 2026-11-18: rainwater from the PV roof -> collection tank -> Marte filter train (RESINA, CARVAO, 1 and 5 micron) -> BWT bestaqua 14ROC RO -> permeate to EL H2O IN, concentrate to drain. Open: whether the Marte unit only pre-treats for the BWT or operates independently (plant/water.toml [open])"
+slots = ["elec", "out"]
+
+[[node]]
+id = "dryer"
+label = "Dryer"
+sub = "Enapter DRY 2.1"
+plant = "dryer"
+kind = "device"
+x = 870
+y = 250
+account = "A"
+description = "Dries the hydrogen before compression. Its electricity is booked in B."
+basis = "CONTRACT §4 A; plant/dryer.toml title"
+slots = ["in", "out", "elec", "loss"]
+
+[[node]]
+id = "h2_compressor"
+label = "H2 booster"
+sub = "HULC, two-stage"
+plant = "h2_compressor"
+kind = "device"
+x = 660
+y = 250
+account = "A"
+description = "Raises the hydrogen pressure in two stages for storage, driven by compressed air from the Kaeser."
+basis = "CONTRACT §4 A; plant/h2_compressor.toml title"
+slots = ["in", "out", "air", "loss"]
+
+[[node]]
+id = "kaeser"
+label = "Air compressor"
+sub = "Kaeser SXC 8"
+plant = "kaeser"
+kind = "device"
+x = 1080
+y = 250
+account = "B"
+description = "Supplies the compressed air that drives the H2 booster; it also supplies four Rotex (not assessed). Its electricity is in B; the air is allocated."
+basis = "CONTRACT §4 B (Kaeser in B); plant/kaeser.toml title"
+slots = ["elec", "out"]
+
+[[node]]
+id = "rotex"
+label = "4 x Rotex"
+sub = "not assessed"
+plant = ""
+kind = "unassessed"
+x = 1290
+y = 250
+account = "not assessed"
+description = "Further compressed-air consumers on the Kaeser, relevant mainly at start-up according to the owner. Not assessed until clarified."
+basis = "plant/kaeser.toml title (Kaeser also supplies four Rotex); owner 2026-11-18: consumption relevant mainly at start-up; deliberately not assessed until the owner clarifies"
+slots = []
+
+[[node]]
+id = "storage"
+label = "H2 storage"
+sub = "VITKOVICE"
+plant = "storage"
+kind = "device"
+x = 450
+y = 250
+account = "A"
+description = "Holds compressed hydrogen between production and the fuel cell. Its stock change stays visible separately."
+basis = "CONTRACT §4 A; plant/storage.toml title"
+slots = ["in", "out", "stock", "loss"]
+
+[[node]]
+id = "fc"
+label = "Fuel cell"
+sub = "2 x IE-LIFT 802"
+plant = "fc"
+kind = "device"
+x = 240
+y = 250
+account = "A"
+description = "Converts hydrogen into DC electricity on the FC DC bus."
+basis = "CONTRACT §4 A; plant/fc.toml title"
+slots = ["in", "out", "eta", "loss"]
+
+[[node]]
+id = "fc_battery"
+label = "H2Core battery"
+sub = "part of FC system"
+plant = "fc_battery"
+kind = "device"
+x = 30
+y = 450
+account = "A"
+description = "Battery on the FC DC bus, part of the FC system. Charge, discharge and stock change stay visible; battery discharge is not reconversion from hydrogen."
+basis = "CONTRACT §4 A and last item (belongs to FC system); plant/fc_battery.toml title"
+slots = ["in", "out", "stock", "loss"]
+
+[[node]]
+id = "dc_bus"
+label = "FC DC bus"
+sub = ""
+plant = ""
+kind = "device"
+x = 240
+y = 450
+account = "A"
+description = "Connects fuel cell, H2Core battery and the DC cable to the FC inverter. FC control is assumed to draw from here before the inverter (D22); measurement point open."
+basis = "CONTRACT §4 A: DC bus and H2Core battery"
+slots = ["in", "out", "ctrl", "loss"]
+
+[[node]]
+id = "fc_dc_cable"
+label = "DC cable"
+sub = "to FC inverter"
+plant = ""
+kind = "device"
+x = 450
+y = 450
+account = "A"
+description = "Carries DC from the FC DC bus to the FC inverter."
+basis = "CONTRACT §4 A"
+slots = ["in", "out", "loss"]
+
+[[node]]
+id = "fc_inverter"
+label = "FC inverter"
+sub = "Solis, off-grid"
+plant = "fc_inverter"
+kind = "device"
+x = 660
+y = 450
+account = "A"
+description = "Converts DC into the AC output. The conversion is in A; its own auxiliary consumption is in B."
+basis = "CONTRACT §4 A; plant/fc_inverter.toml title"
+slots = ["in", "out", "eta", "loss"]
+
+[[node]]
+id = "ac_out"
+label = "AC output"
+sub = "end of series path"
+plant = ""
+kind = "terminal"
+x = 870
+y = 450
+account = "A"
+description = "End of the series path: AC output of the FC inverter."
+basis = "CONTRACT §1, §4 A"
+slots = ["eout"]
+
+[[node]]
+id = "aux_supply"
+label = "Auxiliary supply (B)"
+sub = "supplier open"
+plant = ""
+kind = "supply"
+x = 1080
+y = 450
+account = "B"
+description = "Collects all auxiliary electricity (account B) from the house grid, the separate PV battery system or an internal bus. The supplier of each consumer is still open, except the water pump (house grid)."
+basis = "CONTRACT §4 B: house grid, separate PV battery system or internal bus; actual supplier and phase per consumer still to be identified"
+slots = ["total"]
+
+# ---------- Auxiliary electricity bus (drawn as one line) ----------
+
+[[bus]]
+medium = "aux"
+points = [[1220, 479], [1450, 479], [1450, 170], [555, 170]]
+
+[[bus]]
+medium = "aux"
+points = [[1450, 390], [770, 390]]
+
+# ---------- Edges ----------
+# medium: dc | ac | h2 | water | air | aux
+# Either `from` (node id) or `from_point` (a point on a bus) is required; with both, `from`
+# names the source and `from_point` only sets where the line starts.
+# `value_at_station = true` omits the flow's value slot because the amount has a slot at a station.
+# `via` adds orthogonal routing points. `both = true` draws arrows at both ends.
+# `label_side = "left"` puts the label of a vertical line on its left.
+# `assess = false` draws a flow faded and without a value slot (deliberately not assessed).
+
+[[edge]]
+from = "pv_array"
+to = "pv_dc_cable"
+medium = "dc"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "pv_dc_cable"
+to = "pv_inverter"
+medium = "dc"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "pv_inverter"
+to = "ac_cable"
+medium = "ac"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "ac_cable"
+to = "el"
+medium = "ac"
+label = "allocation"
+basis = "CONTRACT §4 A: PV slice is an allocation; actual EL supply route open"
+
+[[edge]]
+from = "water"
+to = "el"
+medium = "water"
+label = "permeate"
+basis = "Owner description 2026-11-18: RO permeate to EL H2O IN; plant/water.toml notes (water quality). Marte role open"
+
+[[edge]]
+from = "el"
+to = "dryer"
+medium = "h2"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "dryer"
+to = "h2_compressor"
+medium = "h2"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "kaeser"
+to = "h2_compressor"
+medium = "air"
+label = "drive air (allocated)"
+via = [[1150, 365], [730, 365]]
+basis = "plant/kaeser.toml title (supplies the HULC and four Rotex); CONTRACT §4 allocated compressed-air supply"
+
+[[edge]]
+from = "kaeser"
+to = "rotex"
+medium = "air"
+assess = false
+basis = "plant/kaeser.toml title; owner 2026-11-18: not assessed until clarified"
+
+[[edge]]
+from = "h2_compressor"
+to = "storage"
+medium = "h2"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "storage"
+to = "fc"
+medium = "h2"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "fc"
+to = "dc_bus"
+medium = "dc"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "fc_battery"
+to = "dc_bus"
+medium = "dc"
+both = true
+basis = "CONTRACT §4 A: battery throughput and stock change separately visible; not reconversion from H2"
+
+[[edge]]
+from = "dc_bus"
+to = "fc_dc_cable"
+medium = "dc"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "fc_dc_cable"
+to = "fc_inverter"
+medium = "dc"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "fc_inverter"
+to = "ac_out"
+medium = "ac"
+basis = "CONTRACT §4 A"
+
+[[edge]]
+from = "dc_bus"
+from_point = [270, 450]
+to = "fc"
+medium = "dc"
+value_at_station = true
+label = "FC control"
+label_side = "left"
+basis = "CONTRACT §4 (D22): FC control is netted in the series path (account A), booked once; drawing it from the DC bus before the inverter is an assumption; measurement point open"
+
+[[edge]]
+from_point = [555, 170]
+to = "pv_inverter"
+medium = "aux"
+label = "standby"
+basis = "CONTRACT §4 A/B boundary: standby of series-path devices is in B"
+
+[[edge]]
+from_point = [900, 170]
+to = "el"
+medium = "aux"
+label = "standby"
+label_side = "left"
+basis = "CONTRACT §4 A/B boundary: standby of series-path devices is in B"
+
+[[edge]]
+from_point = [1110, 170]
+to = "water"
+medium = "aux"
+label = "house grid"
+basis = "CONTRACT §4 B; plant/water.toml open entry: pump supplied from the house grid"
+
+[[edge]]
+from_point = [985, 170]
+to = "dryer"
+medium = "aux"
+label = "electricity"
+basis = "CONTRACT §4 A/B boundary: dryer electricity is in B"
+
+[[edge]]
+from_point = [1190, 170]
+to = "kaeser"
+medium = "aux"
+basis = "CONTRACT §4 B: the Kaeser is in B"
+
+[[edge]]
+from_point = [770, 390]
+to = "fc_inverter"
+medium = "aux"
+label = "own aux"
+basis = "CONTRACT §4 A/B boundary: FC inverter's own auxiliary consumption is in B"

@@ -282,3 +282,28 @@ like a measured one. "Validated" only from layer 3 and only for the checked wind
 Agent workflow, scope, approvals, verification and reporting are governed by `AGENTS.md`.
 Project-specific requirements in this contract remain binding. If they conflict, pause the
 affected work and ask the owner.
+
+## 12 Optional static project overview [E]
+
+An optional static project overview may provide orientation about code and
+owner-maintained semantics. The isolated observer may live under `tools/project_observer/`;
+it is not imported by the simulation and is not part of CI or the required development
+workflow. It runs only when started manually, either as a one-off HTML export or as a
+live view: a manually started local process bound to `127.0.0.1` that regenerates the page
+on each request and ends when stopped. No hook, watcher, scheduler or other automatic
+mechanism starts it. It does not consume simulation-run or measurement values, execute or
+change the plant model, or claim to validate physical flows, balances or results.
+From `plant/*.toml` it may read key paths, the `status`, `unit` and `source` fields and
+`[open]` entries, and whether a `value` field is present; it never reads `value`,
+`uncertainty` or other numeric contents. Per device it may show work progress derived from
+static facts (parameters with a value present, matching device module, test references,
+references from accounting code, validation per layer 3) next to the verbatim status labels
+and UNVERIFIED markers in use. It shows absolute counts with named denominators only; no
+ranking, colour grading, shares, scores or completeness percentages unless the owner
+approves a grouping. Unknown labels and read errors are shown, not skipped. Every view shows
+generation time, commit and uncommitted-change state, and states that it is a display, not a
+review or assessment.
+HTML output must be written under the observer's Git-ignored `tools/project_observer/output/`
+directory so it remains locally accessible without appearing as a project change. Example
+semantics are unverified and are not project truth. Any later runtime-data analysis,
+calculation, validation, CI integration or other expansion requires a separate owner decision.

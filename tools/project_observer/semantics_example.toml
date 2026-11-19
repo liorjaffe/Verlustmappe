@@ -1,0 +1,26 @@
+# Unverified example semantics file; not project truth.
+# Contains NO numeric values or parameters (those remain in plant/*.toml).
+# All entries below are placeholders and must be reviewed.
+# The generator defaults to ../_overview/semantics.toml outside the repository.
+
+[[signal]]
+name = "h2_amount"                # one physical signal
+kind = "Amount"                   # Amount or Rate
+unit = "NL"
+basis = "Normal volume"           # Reference basis, as defined in the contract
+window = "Evaluation window"      # Time window for the amount
+code_names = ["NL", "h2_produced_NL", "throughput_NL"]   # Names in code
+produced_in = "el"                # Module name (filename without .py) or path such as devices/el
+consumed_in = ["water", "dryer", "h2_compressor"]
+confirmed = false                 # Set true only after engineering review
+
+[[signal]]
+name = "fc_dc_energy"
+kind = "Amount"
+unit = "kWh"
+basis = "DC side"
+window = "Evaluation window"
+code_names = ["energy_out_kWh", "e_dc_in_kWh"]
+produced_in = "fc"
+consumed_in = ["fc_inverter"]
+confirmed = false

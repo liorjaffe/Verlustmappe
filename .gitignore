@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
+/tools/project_observer/output/
 # macOS copies ("file 2.csv") cause duplicate hits in every search
 * 2.*
