@@ -3,130 +3,82 @@
   "el.production_rate_NLh": {
    "value": 500,
    "unit": "NL/h",
-   "source": "Enapter EL 2.1 datasheet (ELE21-DTS-COM02)",
+   "source": "Enapter EL 2.1 datasheet (ELE21-DTS-COM02) Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DATASHEET",
-   "uncertainty": 0.02,
+   "uncertainty": 0.0,
    "effect": "nominal H2 output; cross-check for Faraday route"
   },
   "el.power_operative_W": {
    "value": 2400,
    "unit": "W",
-   "source": "Enapter EL 2.1 datasheet",
+   "source": "Enapter EL 2.1 datasheet Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DATASHEET",
-   "uncertainty": 0.02,
+   "uncertainty": 0.0,
    "effect": "nominal AC input; steady-state expectation"
   },
   "el.power_standby_W": {
    "value": 15,
    "unit": "W",
-   "source": "Enapter EL 2.1 datasheet",
+   "source": "Enapter EL 2.1 datasheet Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DATASHEET",
-   "uncertainty": 0.05,
+   "uncertainty": 0.0,
    "effect": "standby loss bar in the loss map"
   },
   "el.spec_energy_kWh_per_Nm3": {
    "value": 4.8,
    "unit": "kWh/Nm3",
-   "source": "Enapter EL 2.1 datasheet, beginning of life",
+   "source": "Enapter EL 2.1 datasheet, beginning of life Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DATASHEET",
-   "uncertainty": 0.03,
+   "uncertainty": 0.0,
    "effect": "FALLBACK H2 estimate when no stack current is logged; WARNING: makes EL efficiency a constant 62.4% by construction"
   },
   "el.output_pressure_barg": {
    "value": 35,
    "unit": "barg",
-   "source": "Enapter EL 2.1 datasheet",
+   "source": "Enapter EL 2.1 datasheet (ELE21-DTS-COM02, p. 2): 'Up to 35 barg'. Installed 35 barg version confirmed by unit nameplate photo 2026-11-19 (owner; image 20261119_160707, S/N AA21122322SP1; one unit, assignment to EL1-EL9 not visible, other units assumed identical): 'H2 OUTPUT PRESSURE (MPa) 3.5' (read from the photo; owner confirms barg). Consistent with DRY 2.1 35 bar version and HULC nameplate 'from 35bar to 400bar' (Compressor workbook rows 68-69). EL workbook row 27, Notes 3 and 14.",
    "status": "DATASHEET",
    "uncertainty": 0.0,
-   "effect": "compressor inlet pressure"
+   "effect": "maximum outlet pressure of the device; the actual operating pressure is regulated downstream (battery limits p. 6 of 8) and remains a case input or measurement, not a fixed compressor inlet pressure"
   },
   "el.h2_purity": {
    "value": 0.999,
    "unit": "mol fraction",
-   "source": "Enapter EL 2.1 datasheet (35 bar)",
+   "source": "Enapter EL 2.1 datasheet (35 bar) Nameplate approx. 99.9 %; 35 barg version confirmed by unit nameplate photo 2026-11-19 (owner; image 20261119_160707, S/N AA21122322SP1; one unit, assignment to EL1-EL9 not visible, other units assumed identical) (EL workbook row 26). Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DATASHEET",
-   "uncertainty": 0.0005,
+   "uncertainty": 0.0,
    "effect": "mass bookkeeping: impurities are not H2"
   },
   "el.water_consumption_mLh": {
    "value": 400,
    "unit": "mL/h",
-   "source": "Enapter EL 2.1 datasheet",
+   "source": "Enapter EL 2.1 datasheet Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DATASHEET",
-   "uncertainty": 0.1,
+   "uncertainty": 0.0,
    "effect": "Route 4 (water balance) expectation"
   },
   "el.n_cells": {
    "value": 120,
    "unit": "-",
-   "source": "ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public)",
+   "source": "ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public) Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "GUESS",
-   "uncertainty": 0.05,
+   "uncertainty": 0.0,
    "effect": "Faraday route scales linearly with this number"
   },
   "el.faradaic_efficiency": {
    "value": 0.98,
    "unit": "-",
-   "source": "ASSUMPTION: PEM literature current efficiency >96% (Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792). CAVEAT: the paper is PEM; our device is AEM with 35 bar output pressure, where crossover raises faradaic losses; 0.98 is carried as an extrapolation and must be validated from the stack-current route",
+   "source": "WORKING ASSUMPTION (owner 2026-11-19), no AEM evidence: kept so the stack-current route yields output; to be replaced by a sourced or measured value. Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792 (DOI identity checked 2026-11-19; contents UNVERIFIED here) measured a PEM electrolyser up to approx. 10 bar and reports >96 %; 0.98 is not a value of that paper. Transferable is at most the direction (faradaic losses rise with pressure and are largest at low current density, i.e. part load), not the magnitude: our device is AEM at up to 35 barg. Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in any source; owner 2026-11-19.",
    "status": "GUESS",
-   "uncertainty": 0.03,
+   "uncertainty": 0.0,
    "effect": "Faraday route H2 mass; blind to shunt current and crossover"
   },
   "el.startup_duration_s": {
    "value": 990,
    "unit": "s",
-   "source": "UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s",
+   "source": "UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19.",
    "status": "DERIVED",
-   "uncertainty": 0.15,
+   "uncertainty": 0.0,
    "effect": "operating-mode partition: startup window length"
-  },
-  "dry.power_operative_W": {
-   "value": 200,
-   "unit": "W",
-   "source": "DRY 2.1 datasheet",
-   "status": "DATASHEET",
-   "uncertainty": 0.02,
-   "effect": "dryer electrical loss bar; NOTE datasheet also states 0.045 kWh/Nm3 at 2.5 Nm3/h = 112 W average, so 200 W is an UPPER envelope"
-  },
-  "dry.power_standby_W": {
-   "value": 10,
-   "unit": "W",
-   "source": "DRY 2.1 datasheet",
-   "status": "DATASHEET",
-   "uncertainty": 0.05,
-   "effect": "standby loss"
-  },
-  "dry.rate_Nm3h": {
-   "value": 2.5,
-   "unit": "Nm3/h",
-   "source": "DRY 2.1 datasheet (35 bar version)",
-   "status": "DATASHEET",
-   "uncertainty": 0.0,
-   "effect": "capacity check"
-  },
-  "dry.spec_energy_kWh_Nm3": {
-   "value": 0.045,
-   "unit": "kWh/Nm3",
-   "source": "DRY 2.1 datasheet",
-   "status": "DATASHEET",
-   "uncertainty": 0.03,
-   "effect": "alternative dryer energy estimate: flow-proportional"
-  },
-  "dry.max_h2_content_NL": {
-   "value": 47,
-   "unit": "NL",
-   "source": "DRY 2.1 datasheet (safety: max H2 in device)",
-   "status": "DATASHEET",
-   "uncertainty": 0.0,
-   "effect": "upper bound of H2 lost per regeneration blow-down"
-  },
-  "dry.vent_fraction": {
-   "value": 0.04,
-   "unit": "fraction of throughput",
-   "source": "ASSUMPTION: TSA/PSA regeneration vents the cartridge hold-up; unmeasured",
-   "status": "GUESS",
-   "uncertainty": 0.5,
-   "effect": "gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual"
   },
   "water.ro_perm_Lh": {
    "value": 120.0,
@@ -147,10 +99,10 @@
   "water.ro_power_standby_W": {
    "value": 3.0,
    "unit": "W",
-   "source": "BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load",
+   "source": "BWT EBA sec. 2: '<3 W standby'. Owner 2026-11-19: the RO is powered only while the EL are switched on (with WTM and dryers), not permanently.",
    "status": "DATASHEET",
    "uncertainty": 0.33,
-   "effect": "water-system energy bar, standby share"
+   "effect": "water-system energy bar, standby share = standby power x EL on-time"
   },
   "water.wcf": {
    "value": 0.5,
@@ -413,7 +365,7 @@
    "unit": "degC",
    "source": "Owner decision 2026-11-13 (decisions/2026-11-13-storage-data.md): 20 degC GUESS for provisional storage/booster calculations; rectangular band +/-10 K, standard u_T=10/sqrt(3) K. The uncertainty field is relative to ABSOLUTE temperature 293.15 K, not to 20 degC. Transferability: deliberate model convention for this plant, not measured/validated; no claimed seasonal coverage.",
    "status": "GUESS",
-   "uncertainty": 0.019694704731012306,
+   "uncertainty": 0.019694704731012307,
    "effect": "defined model temperature for static main runs, not a measured state. Rectangular-band uncertainty is used only with analyze_temperature_uncertainty=True: fixed-Z first-order u_T/T, separate from Route 2's existing 3 K allowance. Common-offset correlation is an optional-analysis model choice; mixed sources make only that analysis incomplete. Actual Z(T) local mass sensitivity at 300 bar absolute / 20 degC is -0.286176%/K; fixed-Z context -0.341122%/K. Sensitivities are references, not model inputs."
   },
   "stor.volume_L": {
@@ -651,10 +603,10 @@
   "bat.nominal_V": {
    "value": 48,
    "unit": "V",
-   "source": "Battery nameplate GTEM-48V5000-E: nominal voltage 48 V DC, operating range 37.8-58.8 V (FC workbook, Internal Battery rows 9-10). Not the bus voltage: the FCM regulates the bus to its 52 V target output voltage (manual p. 24). Uncertainty 0.0 = NOT ASSESSED.",
+   "source": "Battery nameplate GTEM-48V5000-E: nominal voltage 48 V DC, operating range 37.8-58.8 V (FC workbook, Internal Battery rows 9-10). Not a bus value: the FCM factory-set target output voltage is 52 V (manual p. 24); the installed setting has not been read back (CAN read-back deferred) and the actual bus voltage is not measured. Uncertainty 0.0 = NOT ASSESSED.",
    "status": "DATASHEET",
    "uncertainty": 0.0,
-   "effect": "battery SoC energy conversion; P=V*I bookkeeping"
+   "effect": "nominal voltage of the battery (nameplate), not the bus setpoint or a measured bus voltage; not a basis for P = V x I on the bus"
   },
   "bat.round_trip_efficiency": {
    "value": 0.97,
@@ -927,6 +879,182 @@
    "status": "BACKLOG",
    "uncertainty": 0.0,
    "effect": "candidate input for route1 uncertainty once a sourced value exists and the owner approves wiring; never use in quadrature before then"
+  },
+  "water.tank_power_standby_W": {
+   "value": 3.0,
+   "unit": "W",
+   "source": "Enapter Water Tank WTM 2.1 (WTM21 REV1, product code WTM21A5V01) nameplate 'STAND BY / OPERATIVE POWER CONS. (W) 3 / 35' (owner photo 2026-11-19, S/N AT21..., Prod. Wk 42); datasheet WTM21-DTS-COM01_rev05 p.2 'Stand-by power consumption 3W'. Owner decision 2026-11-19: nameplate values apply (decisions/2026-11-19-water-tank-wtm21-nameplate.md; workbook tab 'Water Tank WTM 2.1' row 8). Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in either source.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "water-system energy bar, WTM standby share: standby power x EL on-time; the WTM is powered only while the EL are on (production and start-up), like the dryers (owner 2026-11-19)"
+  },
+  "water.tank_power_op_W": {
+   "value": 35.0,
+   "unit": "W",
+   "source": "Enapter WTM 2.1 nameplate 'STAND BY / OPERATIVE POWER CONS. (W) 3 / 35' (owner photo 2026-11-19); datasheet WTM21-DTS-COM01_rev05 p.2 'Operative power consumption 35 W', footnote 1 'Internal demand pump: pressure switch setting at 2.75 barg'. That 35 W applies only while the pump runs is an inference from footnote 1, not an explicit statement. Owner decision 2026-11-19 (workbook tab 'Water Tank WTM 2.1' row 9). Uncertainty 0.0 = NOT ASSESSED: no tolerance stated.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "WTM pump energy = operative power x pump duty x EL on-time; stays open while water.tank_pump_duty is BACKLOG"
+  },
+  "water.tank_pump_duty": {
+   "value": null,
+   "unit": "-",
+   "source": "BACKLOG: fraction of the EL on-time during which the WTM 2.1 internal demand pump runs; stated in no source (workbook tab 'Water Tank WTM 2.1' row 10). Telemetry or a plug energy meter is required. Empty = OPEN, never 0 (CONTRACT sec. 7).",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "WTM operative energy remains open until the pump running time is established; a 3-35 W band may be shown in reports only as bounds from the two DATASHEET values"
+  },
+  "water.tank_volume_L": {
+   "value": 40.0,
+   "unit": "L",
+   "source": "Owner decision 2026-11-19: WTM 2.1 nameplate 'WATER CONTENT (L) 40' applies; datasheet WTM21-DTS-COM01_rev05 states 'Capacity 38.5 L' and 'storage for 38 litres' (kept as reference only). decisions/2026-11-19-water-tank-wtm21-nameplate.md; workbook tab 'Water Tank WTM 2.1' row 13. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "upper limit for the refill levels (plausibility check only); drives no model result while water.tank_refill_start_L / stop_L are BACKLOG"
+  },
+  "water.tank_refill_start_L": {
+   "value": null,
+   "unit": "L",
+   "source": "BACKLOG: tank level at which the WTM 2.1 opens its refill valve; stated in no source. Handbook levels 8.55 L / 23.7 L are warning thresholds (WL_2 / WL_3), not switching points. Read from Enapter WTM level telemetry.",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "refill volume per cycle = stop - start; refill count, interval and RO run time per refill stay open until set"
+  },
+  "water.tank_refill_stop_L": {
+   "value": null,
+   "unit": "L",
+   "source": "BACKLOG: tank level at which the WTM 2.1 closes its refill valve; stated in no source. Read from Enapter WTM level telemetry.",
+   "status": "BACKLOG",
+   "uncertainty": 0.0,
+   "effect": "refill volume per cycle = stop - start; refill count, interval and RO run time per refill stay open until set"
+  },
+  "water.tank_max_outlet_flow_Lmin": {
+   "value": 3.8,
+   "unit": "L/min",
+   "source": "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Max outlet flow rate 3.8 L/min (1 gal/min)'; workbook tab 'Water Tank WTM 2.1' row 18. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "minimum pump running time = water delivered / max outlet flow; lower bound of WTM pump energy"
+  },
+  "water.tank_outlet_p_barg": {
+   "value": 2.75,
+   "unit": "barg",
+   "source": "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Output Pressure up to 2.75 barg', footnote 1 'Internal demand pump: pressure switch setting at 2.75 barg'; workbook tab 'Water Tank WTM 2.1' row 17. Nameplate 0.4 MPa is the outlet maximum, a different quantity. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "check: WTM delivery pressure inside the EL 2.1 H2O IN window"
+  },
+  "water.tank_min_inlet_flow_Lmin": {
+   "value": 0.28,
+   "unit": "L/min",
+   "source": "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Water inlet flow requirement >0,28 L/min'; workbook tab 'Water Tank WTM 2.1' row 16. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "check: RO permeate flow covers the WTM inlet flow requirement"
+  },
+  "water.tank_max_el": {
+   "value": 11,
+   "unit": "-",
+   "source": "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Recommended number of electrolyzer modules to be supplied: Up to 11'; workbook tab 'Water Tank WTM 2.1' row 6.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "check: number of EL supplied by the WTM within its rating"
+  },
+  "water.n_el_supplied": {
+   "value": 9,
+   "unit": "-",
+   "source": "Owner statement 2026-11-19: 9 identical EL 2.1, all supplied by the one WTM 2.1 (water path RO permeate -> WTM 2.1 -> 9 EL); workbook tab 'Water Tank WTM 2.1' row 5.",
+   "status": "OWNER_DECISION",
+   "uncertainty": 0.0,
+   "effect": "design water demand of the chain = n x EL nominal water consumption (capacity checks only; actual demand follows H2 production)"
+  },
+  "water.el_inlet_p_min_barg": {
+   "value": 1.0,
+   "unit": "barg",
+   "source": "EL 2.1 Battery Limits ELE21-BLI-INT02 sec. 7.1, H2O IN '1-4 barg'; '<1 barg stops refilling' (water workbook tab 'EL 2.1 Water & Power' row 7, Sources No. 10). PDF not independently checked in this repository. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "check: lower end of the EL H2O IN pressure window"
+  },
+  "water.el_inlet_p_max_barg": {
+   "value": 4.0,
+   "unit": "barg",
+   "source": "EL 2.1 Battery Limits ELE21-BLI-INT02 sec. 7.1, H2O IN '1-4 barg'; '>4 barg warning' (water workbook tab 'EL 2.1 Water & Power' row 7, Sources No. 10). PDF not independently checked in this repository. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "check: upper end of the EL H2O IN pressure window"
+  },
+  "dryer.n_units": {
+   "value": 2,
+   "unit": "-",
+   "source": "Owner statement 2026-11-19: two identical DRY 2.1 units (35 bar version, nameplate S18). Device register lists three records; ID mapping pending (workbook rows 5-7, 9).",
+   "status": "OWNER_DECISION",
+   "uncertainty": 0.0,
+   "effect": "scales rated/standby power and purge bounds to both units"
+  },
+  "dryer.power_operative_W": {
+   "value": 200,
+   "unit": "W",
+   "source": "Nameplate photo 2026-11-19 'RATED POWER (W) 200 W' (S18); Owner's Manual Rev.08 sec. 1.1 p.6 'Operative power consumption 200 W' (S14); workbook row 25. Uncertainty 0.0 = NOT ASSESSED: no tolerance stated.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "per unit; upper bound of dryer electrical energy = 200 W x units x EL on-time (envelope, not the value)"
+  },
+  "dryer.power_standby_W": {
+   "value": 10,
+   "unit": "W",
+   "source": "Owner's Manual Rev.08 sec. 1.1 p.6 and datasheet Rev.04 (S14, S15), 'Stand-by power consumption 10 W'; not on the nameplate; workbook row 26. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "per unit; lower bound of dryer electrical energy = 10 W x units x EL on-time (envelope, not the value)"
+  },
+  "dryer.rate_Nm3h": {
+   "value": 2.5,
+   "unit": "Nm3/h",
+   "source": "Nameplate photo 2026-11-19 'H2 DRYING RATE (Nm3/h) 2.5' (S18), 35 bar non-ETL version; Owner's Manual Rev.08 sec. 1.1 p.6 (S14); workbook row 11. Maximum rating, not measured throughput. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "per unit; capacity check: H2 flow vs units x rate"
+  },
+  "dryer.spec_energy_kWh_Nm3": {
+   "value": 0.045,
+   "unit": "kWh/Nm3",
+   "source": "Owner's Manual Rev.08 sec. 1.1 p.6 'Nominal power consumption 0.045 kWh/Nm3' (35 bar version) (S14); workbook row 27. Owner decision 2026-11-19: this production-coupled figure is the dryer electrical value. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "dryer electrical energy = 0.045 kWh/Nm3 x H2 throughput of both units"
+  },
+  "dryer.regen_purge_max_NLh": {
+   "value": 30,
+   "unit": "NL/h",
+   "source": "Owner's Manual Rev.08 sec. 4.5.3 'a regeneration flow of up to 30 NL/h is released through the purge line together with water vapor' (S14; page 23 in workbook, 24 per external reading - check PDF); interface spec p.8 'up to 28 NL H2/h during some operational states'; DRY21-BLI-INT01 'up to 14 NL H2/h' (external reading, variant unassigned, not a workbook source). Largest documented value used because it serves only as an upper bound. Workbook row 29. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "per unit; upper bound of regeneration H2 loss = 30 NL/h x units x EL on-time (envelope, not a value)"
+  },
+  "dryer.shutdown_purge_max_NL": {
+   "value": 47,
+   "unit": "NL",
+   "source": "Owner's Manual Rev.08 p.8 and sec. 4.5.3 'up to 47 NL H2 per shutdown, released within about 2 s' (35 bar version) (S14); workbook row 30. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "per shutdown event; upper bound of shutdown H2 loss = 47 NL x dryer shutdown events (envelope, not a value)"
+  },
+  "dryer.max_h2_content_NL": {
+   "value": 47,
+   "unit": "NL",
+   "source": "Owner's Manual Rev.08 sec. 1.1 p.6 'max H2 contained in device 47 NL' (S14); workbook row 31. Uncertainty 0.0 = NOT ASSESSED.",
+   "status": "DATASHEET",
+   "uncertainty": 0.0,
+   "effect": "per unit; device hold-up (safety figure), not a routine loss rate and not a regeneration blow-down; not used by the dryer model"
+  },
+  "dryer.max_el_per_unit": {
+   "value": 5,
+   "unit": "-",
+   "source": "Owner statement 2026-11-20: EL 1-5 are connected to one dryer, EL 6-9 to the second; the larger group (5 EL) sets the per-unit load.",
+   "status": "OWNER_DECISION",
+   "uncertainty": 0.0,
+   "effect": "per-unit capacity check: max EL per dryer x EL nominal production rate vs dryer rated drying rate"
   }
  },
  "sources": {

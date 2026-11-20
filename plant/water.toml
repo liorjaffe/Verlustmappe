@@ -43,8 +43,8 @@ value = 3.0
 unit = "W"
 status = "DATASHEET"
 uncertainty = 0.33
-source = "BWT EBA sec. 2: '<3 W standby'; unit stays powered -> continuous base load"
-effect = "water-system energy bar, standby share"
+source = "BWT EBA sec. 2: '<3 W standby'. Owner 2026-11-19: the RO is powered only while the EL are switched on (with WTM and dryers), not permanently."
+effect = "water-system energy bar, standby share = standby power x EL on-time"
 
 [param."water.wcf"]
 value = 0.5
@@ -76,3 +76,104 @@ status = "BACKLOG"
 uncertainty = 0.0
 source = "Water_System_Specs_Master.xlsx, Inputs B9 and Water System row 28: pump wattage not documented; site nameplate or measurement required"
 effect = "pump energy remains open until power and operating time are established"
+
+[param."water.tank_power_standby_W"]
+value = 3.0
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter Water Tank WTM 2.1 (WTM21 REV1, product code WTM21A5V01) nameplate 'STAND BY / OPERATIVE POWER CONS. (W) 3 / 35' (owner photo 2026-11-19, S/N AT21..., Prod. Wk 42); datasheet WTM21-DTS-COM01_rev05 p.2 'Stand-by power consumption 3W'. Owner decision 2026-11-19: nameplate values apply (decisions/2026-11-19-water-tank-wtm21-nameplate.md; workbook tab 'Water Tank WTM 2.1' row 8). Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in either source."
+effect = "water-system energy bar, WTM standby share: standby power x EL on-time; the WTM is powered only while the EL are on (production and start-up), like the dryers (owner 2026-11-19)"
+
+[param."water.tank_power_op_W"]
+value = 35.0
+unit = "W"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter WTM 2.1 nameplate 'STAND BY / OPERATIVE POWER CONS. (W) 3 / 35' (owner photo 2026-11-19); datasheet WTM21-DTS-COM01_rev05 p.2 'Operative power consumption 35 W', footnote 1 'Internal demand pump: pressure switch setting at 2.75 barg'. That 35 W applies only while the pump runs is an inference from footnote 1, not an explicit statement. Owner decision 2026-11-19 (workbook tab 'Water Tank WTM 2.1' row 9). Uncertainty 0.0 = NOT ASSESSED: no tolerance stated."
+effect = "WTM pump energy = operative power x pump duty x EL on-time; stays open while water.tank_pump_duty is BACKLOG"
+
+[param."water.tank_pump_duty"]
+unit = "-"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "BACKLOG: fraction of the EL on-time during which the WTM 2.1 internal demand pump runs; stated in no source (workbook tab 'Water Tank WTM 2.1' row 10). Telemetry or a plug energy meter is required. Empty = OPEN, never 0 (CONTRACT sec. 7)."
+effect = "WTM operative energy remains open until the pump running time is established; a 3-35 W band may be shown in reports only as bounds from the two DATASHEET values"
+
+[param."water.tank_volume_L"]
+value = 40.0
+unit = "L"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Owner decision 2026-11-19: WTM 2.1 nameplate 'WATER CONTENT (L) 40' applies; datasheet WTM21-DTS-COM01_rev05 states 'Capacity 38.5 L' and 'storage for 38 litres' (kept as reference only). decisions/2026-11-19-water-tank-wtm21-nameplate.md; workbook tab 'Water Tank WTM 2.1' row 13. Uncertainty 0.0 = NOT ASSESSED."
+effect = "upper limit for the refill levels (plausibility check only); drives no model result while water.tank_refill_start_L / stop_L are BACKLOG"
+
+[param."water.tank_refill_start_L"]
+unit = "L"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "BACKLOG: tank level at which the WTM 2.1 opens its refill valve; stated in no source. Handbook levels 8.55 L / 23.7 L are warning thresholds (WL_2 / WL_3), not switching points. Read from Enapter WTM level telemetry."
+effect = "refill volume per cycle = stop - start; refill count, interval and RO run time per refill stay open until set"
+
+[param."water.tank_refill_stop_L"]
+unit = "L"
+status = "BACKLOG"
+uncertainty = 0.0
+source = "BACKLOG: tank level at which the WTM 2.1 closes its refill valve; stated in no source. Read from Enapter WTM level telemetry."
+effect = "refill volume per cycle = stop - start; refill count, interval and RO run time per refill stay open until set"
+
+[param."water.tank_max_outlet_flow_Lmin"]
+value = 3.8
+unit = "L/min"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Max outlet flow rate 3.8 L/min (1 gal/min)'; workbook tab 'Water Tank WTM 2.1' row 18. Uncertainty 0.0 = NOT ASSESSED."
+effect = "minimum pump running time = water delivered / max outlet flow; lower bound of WTM pump energy"
+
+[param."water.tank_outlet_p_barg"]
+value = 2.75
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Output Pressure up to 2.75 barg', footnote 1 'Internal demand pump: pressure switch setting at 2.75 barg'; workbook tab 'Water Tank WTM 2.1' row 17. Nameplate 0.4 MPa is the outlet maximum, a different quantity. Uncertainty 0.0 = NOT ASSESSED."
+effect = "check: WTM delivery pressure inside the EL 2.1 H2O IN window"
+
+[param."water.tank_min_inlet_flow_Lmin"]
+value = 0.28
+unit = "L/min"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Water inlet flow requirement >0,28 L/min'; workbook tab 'Water Tank WTM 2.1' row 16. Uncertainty 0.0 = NOT ASSESSED."
+effect = "check: RO permeate flow covers the WTM inlet flow requirement"
+
+[param."water.tank_max_el"]
+value = 11
+unit = "-"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Enapter datasheet WTM21-DTS-COM01_rev05 p.2 'Recommended number of electrolyzer modules to be supplied: Up to 11'; workbook tab 'Water Tank WTM 2.1' row 6."
+effect = "check: number of EL supplied by the WTM within its rating"
+
+[param."water.n_el_supplied"]
+value = 9
+unit = "-"
+status = "OWNER_DECISION"
+uncertainty = 0.0
+source = "Owner statement 2026-11-19: 9 identical EL 2.1, all supplied by the one WTM 2.1 (water path RO permeate -> WTM 2.1 -> 9 EL); workbook tab 'Water Tank WTM 2.1' row 5."
+effect = "design water demand of the chain = n x EL nominal water consumption (capacity checks only; actual demand follows H2 production)"
+
+[param."water.el_inlet_p_min_barg"]
+value = 1.0
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "EL 2.1 Battery Limits ELE21-BLI-INT02 sec. 7.1, H2O IN '1-4 barg'; '<1 barg stops refilling' (water workbook tab 'EL 2.1 Water & Power' row 7, Sources No. 10). PDF not independently checked in this repository. Uncertainty 0.0 = NOT ASSESSED."
+effect = "check: lower end of the EL H2O IN pressure window"
+
+[param."water.el_inlet_p_max_barg"]
+value = 4.0
+unit = "barg"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "EL 2.1 Battery Limits ELE21-BLI-INT02 sec. 7.1, H2O IN '1-4 barg'; '>4 barg warning' (water workbook tab 'EL 2.1 Water & Power' row 7, Sources No. 10). PDF not independently checked in this repository. Uncertainty 0.0 = NOT ASSESSED."
+effect = "check: upper end of the EL H2O IN pressure window"

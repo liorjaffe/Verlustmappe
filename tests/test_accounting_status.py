@@ -20,6 +20,9 @@ EXACT_KEYS = {
     "pv.n_modules",
     "pv.p_dc_stc_W",
     "pv.module_model",
+    "water.n_el_supplied",
+    "dryer.n_units",
+    "dryer.max_el_per_unit",
 }
 
 

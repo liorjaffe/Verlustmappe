@@ -11,6 +11,7 @@ current export. Until then, efficiency is the nameplate constant and the
 returned dict says so.
 """
 import math
+import re
 
 import numpy as np
 from .. import registry as R
@@ -19,6 +20,9 @@ from ..physics.conversions import energy_kWh_from_power
 from ..hydrogen import h2_from_stack_current, h2_from_energy_nameplate
 from ._common import t_seconds
 
+_FC_TERM = re.compile(r"fc\d+_current_A")
+_FC_STACK = re.compile(r"fc\d+_stack_current_A")
+
 class FuelCellSystem:
     def __init__(self, n_modules=2):
         self.n = n_modules
@@ -26,9 +30,10 @@ class FuelCellSystem:
     def account(self, df, max_gap_s=30.0):
         t = t_seconds(df.index)
         P = df["fc_power_W"].values.astype(float)
-        stack_cols = [c for c in df.columns if c.endswith("_stack_current_A")]
-        term_cols = [c for c in df.columns if c.endswith("_current_A")
-                     and "stack" not in c and c != "load_current_A"]
+        # FC channels only by explicit name (fcN_...): battery, load or inverter
+        # current columns on the same bus are never counted as FC modules
+        stack_cols = [c for c in df.columns if _FC_STACK.fullmatch(c)]
+        term_cols = [c for c in df.columns if _FC_TERM.fullmatch(c)]
         keep = np.isfinite(P)
         if stack_cols:
             for c in stack_cols: keep &= np.isfinite(df[c].values.astype(float))
@@ -116,6 +121,10 @@ def poc_layer1(P_W_per_module, n_modules):
     eta = _poc_number(R.get("bat.round_trip_efficiency"), "bat.round_trip_efficiency")
     if not 0 < eta <= 1:
         raise ValueError("bat.round_trip_efficiency: outside (0, 1]")
+    for name, value in (("fc.poc_case_rate_per_h", n), ("fc.poc_case_duration_s", t),
+                        ("fc.power_limit_W", p_lim)):
+        if value < 0:
+            raise ValueError(f"{name}: must be nonnegative")
     t_on = 3600.0 - n * t
     if t_on <= 0:
         raise ValueError("POC case: events x duration fill the whole hour")

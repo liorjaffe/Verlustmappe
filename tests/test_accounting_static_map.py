@@ -74,8 +74,10 @@ def test_input_bands_not_propagated_output_uncertainty(scenario, parameters):
         assert inputs == {
             "stack_current_A": ("NOT ASSESSED", None),
             "operating_time_s": ("NOT ASSESSED", None),
-            "el.n_cells": ("assessed", 0.05),
-            "el.faradaic_efficiency": ("assessed", 0.03),
+            # owner 2026-11-19: unsourced bands set to NOT ASSESSED
+            # (decisions/2026-11-19-el-uncertainty-not-assessed.md)
+            "el.n_cells": ("NOT ASSESSED", 0.0),
+            "el.faradaic_efficiency": ("NOT ASSESSED", 0.0),
         }
         assert not result.output_uncertainty_propagated
 
@@ -243,7 +245,7 @@ def test_full_scope_independent_inventory_and_open_ac1(scenario, parameters):
     report = calculate(scenario, parameters, scope="full")
     expected_open = {
         "dryer_electrical_energy_kWh", "dryer_vent_energy_kWh", "water_energy_kWh",
-        "filter_energy_kWh", "compression_air_energy_kWh", "ready_energy_kWh",
+        "water_tank_energy_kWh", "filter_energy_kWh", "compression_air_energy_kWh", "ready_energy_kWh",
         "leakage_energy_kWh", "fc_control_energy_kWh", "fc_inverter_loss_kWh",
         "fc_inverter_standby_energy_kWh", "el_conversion_loss_kWh",
         "fc_conversion_loss_kWh", "storage_change_kWh",

@@ -1,60 +1,84 @@
-# plant/dryer.toml - H2 dryer Enapter DRY 2.1
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# plant/dryer.toml - H2 dryers Enapter DRY 2.1 (35 bar version), two identical units
+# Keys renamed dry.* -> dryer.* (owner, 2026-11-19). Evidence: plant/sources/Dryer_2.1_Technical_Specs_download.xlsx
+# (S14 Owner's Manual Rev.08, S15 datasheet Rev.04, S18 nameplate photo 2026-11-19).
 # Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
 name = "dryer"
-title = "H2 dryer Enapter DRY 2.1"
+title = "H2 dryers Enapter DRY 2.1 (35 bar), two units"
 
 [notes]
-# Comments from registry.py, verbatim, unchecked:
-registry_comments = '''
-# ===================== DRYER: Enapter DRY 2.1 (35 bar) ====================='''
+operation = "Owner 2026-11-19: the dryers are powered only while the EL are switched on (production and start-up phases); they can technically be switched off separately but run with the EL. Electrical value = dryer.spec_energy_kWh_Nm3 x H2 throughput (owner decision 2026-11-19); 200 W rated / 10 W standby per unit only bound it."
+open = "Open: 200 W vs 0.045 kWh/Nm3 (= 112.5 W at 2.5 Nm3/h) not reconciled by the manufacturer; purge values 14 / 28 / 30 NL/h; gateway IDs (3 records, 2 units)."
 
-[param."dry.power_operative_W"]
+[param."dryer.n_units"]
+value = 2
+unit = "-"
+status = "OWNER_DECISION"
+uncertainty = 0.0
+source = "Owner statement 2026-11-19: two identical DRY 2.1 units (35 bar version, nameplate S18). Device register lists three records; ID mapping pending (workbook rows 5-7, 9)."
+effect = "scales rated/standby power and purge bounds to both units"
+
+[param."dryer.max_el_per_unit"]
+value = 5
+unit = "-"
+status = "OWNER_DECISION"
+uncertainty = 0.0
+source = "Owner statement 2026-11-20: EL 1-5 are connected to one dryer, EL 6-9 to the second; the larger group (5 EL) sets the per-unit load."
+effect = "per-unit capacity check: max EL per dryer x EL nominal production rate vs dryer rated drying rate"
+
+[param."dryer.power_operative_W"]
 value = 200
 unit = "W"
 status = "DATASHEET"
-uncertainty = 0.02
-source = "DRY 2.1 datasheet"
-effect = "dryer electrical loss bar; NOTE datasheet also states 0.045 kWh/Nm3 at 2.5 Nm3/h = 112 W average, so 200 W is an UPPER envelope"
+uncertainty = 0.0
+source = "Nameplate photo 2026-11-19 'RATED POWER (W) 200 W' (S18); Owner's Manual Rev.08 sec. 1.1 p.6 'Operative power consumption 200 W' (S14); workbook row 25. Uncertainty 0.0 = NOT ASSESSED: no tolerance stated."
+effect = "per unit; upper bound of dryer electrical energy = 200 W x units x EL on-time (envelope, not the value)"
 
-[param."dry.power_standby_W"]
+[param."dryer.power_standby_W"]
 value = 10
 unit = "W"
 status = "DATASHEET"
-uncertainty = 0.05
-source = "DRY 2.1 datasheet"
-effect = "standby loss"
+uncertainty = 0.0
+source = "Owner's Manual Rev.08 sec. 1.1 p.6 and datasheet Rev.04 (S14, S15), 'Stand-by power consumption 10 W'; not on the nameplate; workbook row 26. Uncertainty 0.0 = NOT ASSESSED."
+effect = "per unit; lower bound of dryer electrical energy = 10 W x units x EL on-time (envelope, not the value)"
 
-[param."dry.rate_Nm3h"]
+[param."dryer.rate_Nm3h"]
 value = 2.5
 unit = "Nm3/h"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DRY 2.1 datasheet (35 bar version)"
-effect = "capacity check"
+source = "Nameplate photo 2026-11-19 'H2 DRYING RATE (Nm3/h) 2.5' (S18), 35 bar non-ETL version; Owner's Manual Rev.08 sec. 1.1 p.6 (S14); workbook row 11. Maximum rating, not measured throughput. Uncertainty 0.0 = NOT ASSESSED."
+effect = "per unit; capacity check: H2 flow vs units x rate"
 
-[param."dry.spec_energy_kWh_Nm3"]
+[param."dryer.spec_energy_kWh_Nm3"]
 value = 0.045
 unit = "kWh/Nm3"
 status = "DATASHEET"
-uncertainty = 0.03
-source = "DRY 2.1 datasheet"
-effect = "alternative dryer energy estimate: flow-proportional"
+uncertainty = 0.0
+source = "Owner's Manual Rev.08 sec. 1.1 p.6 'Nominal power consumption 0.045 kWh/Nm3' (35 bar version) (S14); workbook row 27. Owner decision 2026-11-19: this production-coupled figure is the dryer electrical value. Uncertainty 0.0 = NOT ASSESSED."
+effect = "dryer electrical energy = 0.045 kWh/Nm3 x H2 throughput of both units"
 
-[param."dry.max_h2_content_NL"]
+[param."dryer.regen_purge_max_NLh"]
+value = 30
+unit = "NL/h"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Owner's Manual Rev.08 sec. 4.5.3 'a regeneration flow of up to 30 NL/h is released through the purge line together with water vapor' (S14; page 23 in workbook, 24 per external reading - check PDF); interface spec p.8 'up to 28 NL H2/h during some operational states'; DRY21-BLI-INT01 'up to 14 NL H2/h' (external reading, variant unassigned, not a workbook source). Largest documented value used because it serves only as an upper bound. Workbook row 29. Uncertainty 0.0 = NOT ASSESSED."
+effect = "per unit; upper bound of regeneration H2 loss = 30 NL/h x units x EL on-time (envelope, not a value)"
+
+[param."dryer.shutdown_purge_max_NL"]
 value = 47
 unit = "NL"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "DRY 2.1 datasheet (safety: max H2 in device)"
-effect = "upper bound of H2 lost per regeneration blow-down"
+source = "Owner's Manual Rev.08 p.8 and sec. 4.5.3 'up to 47 NL H2 per shutdown, released within about 2 s' (35 bar version) (S14); workbook row 30. Uncertainty 0.0 = NOT ASSESSED."
+effect = "per shutdown event; upper bound of shutdown H2 loss = 47 NL x dryer shutdown events (envelope, not a value)"
 
-[param."dry.vent_fraction"]
-value = 0.04
-unit = "fraction of throughput"
-status = "GUESS"
-uncertainty = 0.5
-source = "ASSUMPTION: TSA/PSA regeneration vents the cartridge hold-up; unmeasured"
-effect = "gas loss bar in the loss map; bound it via long-run tank-pV vs Faraday residual"
+[param."dryer.max_h2_content_NL"]
+value = 47
+unit = "NL"
+status = "DATASHEET"
+uncertainty = 0.0
+source = "Owner's Manual Rev.08 sec. 1.1 p.6 'max H2 contained in device 47 NL' (S14); workbook row 31. Uncertainty 0.0 = NOT ASSESSED."
+effect = "per unit; device hold-up (safety figure), not a routine loss rate and not a regeneration blow-down; not used by the dryer model"

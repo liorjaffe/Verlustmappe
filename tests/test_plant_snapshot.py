@@ -30,7 +30,7 @@ def _params():
 def test_registry_keys_identical():
     from verlustmappe import registry as R
     assert set(R.REGISTRY) == set(SNAPSHOT["registry"])
-    assert len(R.REGISTRY) == 116
+    assert len(R.REGISTRY) == 132
 
 
 def test_every_field_identical_including_type():
@@ -57,4 +57,5 @@ def test_source_blocks_identical():
 
 def test_param_tables_have_only_known_fields():
     for key, p in _params().items():
-        assert set(p) <= set(FIELDS) | {"sources_md"}, key
+        # uncertainty_open: owner 2026-11-19 (decisions/2026-11-19-uncertainty-open-register.md)
+        assert set(p) <= set(FIELDS) | {"sources_md", "uncertainty_open"}, key

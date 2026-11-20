@@ -1,0 +1,14 @@
+# plant/ventilation.toml - H2 room ventilation (CELAB), safety system (account S)
+# Prepared skeleton (owner 2026-11-19, decisions/2026-11-19-safety-system-group-s.md).
+# No parameters yet; only the owner adds values. Missing value = no 'value' field (MISSING).
+
+[device]
+name = "ventilation"
+title = "H2 room ventilation (CELAB), safety system S"
+
+[open]
+questions = [
+  "BACKLOG: owner direct measurement planned; record meter, measuring point, duration, energy or power, operating stages and whether the unit runs continuously.",
+  "BACKLOG: confirm that the measured consumption can be used as a constant input for all case phases.",
+  "BACKLOG: CELAB model, rating plate and supply connection at the PMS.",
+]

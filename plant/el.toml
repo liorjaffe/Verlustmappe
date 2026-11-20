@@ -1,5 +1,6 @@
 # plant/el.toml - Electrolyser Enapter AEM EL 2.1
-# Values, status and sources taken 1:1 from registry.py and SOURCES.md (2026-11-05).
+# Originally taken 1:1 from registry.py and SOURCES.md (2026-11-05); EL workbook review 2026-11-19
+# (plant/sources/EL21_Electrolyser_Specs_Master_2026-11-12.xlsx, 19 Nov revision, Notes 14).
 # Only the owner changes values. Missing value = no 'value' field (MISSING).
 
 [device]
@@ -15,78 +16,88 @@ registry_comments = '''
 value = 500
 unit = "NL/h"
 status = "DATASHEET"
-uncertainty = 0.02
-source = "Enapter EL 2.1 datasheet (ELE21-DTS-COM02)"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet (ELE21-DTS-COM02) Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "nominal H2 output; cross-check for Faraday route"
+uncertainty_open = "No tolerance stated (workbook row 24). Candidate evidence: external H2 measurement was cancelled 08.10.2026; storage mass curve or site measurement campaign."
 
 [param."el.power_operative_W"]
 value = 2400
 unit = "W"
 status = "DATASHEET"
-uncertainty = 0.02
-source = "Enapter EL 2.1 datasheet"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "nominal AC input; steady-state expectation"
+uncertainty_open = "No tolerance stated (workbook row 11). Candidate evidence: AC power logging at the plant (workbook G11); Fluke 435-II data of Walter et al. 2024 belong to the paper campaign."
 
 [param."el.power_standby_W"]
 value = 15
 unit = "W"
 status = "DATASHEET"
-uncertainty = 0.05
-source = "Enapter EL 2.1 datasheet"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "standby loss bar in the loss map"
+uncertainty_open = "Nameplate value, no tolerance (workbook rows 13, 96). Candidate evidence: AC power logging in standby and after shutdown (workbook row 96)."
 
 [param."el.spec_energy_kWh_per_Nm3"]
 value = 4.8
 unit = "kWh/Nm3"
 status = "DATASHEET"
-uncertainty = 0.03
-source = "Enapter EL 2.1 datasheet, beginning of life"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet, beginning of life Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "FALLBACK H2 estimate when no stack current is logged; WARNING: makes EL efficiency a constant 62.4% by construction"
+uncertainty_open = "Beginning-of-life value, no tolerance, no degradation curve (workbook rows 14, 97). Not independent of el.power_operative_W and el.production_rate_NLh (2400 W / 0.5 Nm3/h = 4.8). Candidate evidence: kWh/Nm3 tracked over run hours (workbook row 97)."
 
 [param."el.output_pressure_barg"]
 value = 35
 unit = "barg"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "Enapter EL 2.1 datasheet"
-effect = "compressor inlet pressure"
+source = "Enapter EL 2.1 datasheet (ELE21-DTS-COM02, p. 2): 'Up to 35 barg'. Installed 35 barg version confirmed by unit nameplate photo 2026-11-19 (owner; image 20261119_160707, S/N AA21122322SP1; one unit, assignment to EL1-EL9 not visible, other units assumed identical): 'H2 OUTPUT PRESSURE (MPa) 3.5' (read from the photo; owner confirms barg). Consistent with DRY 2.1 35 bar version and HULC nameplate 'from 35bar to 400bar' (Compressor workbook rows 68-69). EL workbook row 27, Notes 3 and 14."
+effect = "maximum outlet pressure of the device; the actual operating pressure is regulated downstream (battery limits p. 6 of 8) and remains a case input or measurement, not a fixed compressor inlet pressure"
+uncertainty_open = "Version confirmed (nameplate 2026-11-19). Version and gauge basis settled (nameplate 3.5 MPa read from the photo 2026-11-19, no gauge/absolute marking; datasheet 'Up to 35 barg'; owner confirms barg). Open: actual operating pressure (regulated downstream). Candidate evidence: downstream pressure measurement."
 
 [param."el.h2_purity"]
 value = 0.999
 unit = "mol fraction"
 status = "DATASHEET"
-uncertainty = 0.0005
-source = "Enapter EL 2.1 datasheet (35 bar)"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet (35 bar) Nameplate approx. 99.9 %; 35 barg version confirmed by unit nameplate photo 2026-11-19 (owner; image 20261119_160707, S/N AA21122322SP1; one unit, assignment to EL1-EL9 not visible, other units assumed identical) (EL workbook row 26). Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "mass bookkeeping: impurities are not H2"
+uncertainty_open = "Approximate datasheet/nameplate value (~99.90 %), no tolerance (workbook row 26). Candidate evidence: manufacturer; gas analysis."
 
 [param."el.water_consumption_mLh"]
 value = 400
 unit = "mL/h"
 status = "DATASHEET"
-uncertainty = 0.1
-source = "Enapter EL 2.1 datasheet"
+uncertainty = 0.0
+source = "Enapter EL 2.1 datasheet Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "Route 4 (water balance) expectation"
+uncertainty_open = "Approximate value (~400 mL/h) equal to the stoichiometric demand at 500 NL/h (approx. 402 g/h); O2-vent vapour (up to 25 mL/h, workbook row 41) and purge water not included. Candidate evidence: feed/permeate metering."
 
 [param."el.n_cells"]
 value = 120
 unit = "-"
 status = "GUESS"
-uncertainty = 0.05
-source = "ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public)"
+uncertainty = 0.0
+source = "ASSUMPTION consistent with 2400 W / (120 x 2.0 V) = 10 A; CONFIRM from Enapter (stack spec not public) Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "Faraday route scales linearly with this number"
+uncertainty_open = "Value itself is a GUESS; its derivation is not independent (Faraday fixes only N x I, approx. 1196 A at 500 NL/h). Candidate evidence: Enapter; stack voltage PSU_in_v from telemetry (indirect, needs a sourced cell voltage)."
 
 [param."el.faradaic_efficiency"]
 value = 0.98
 unit = "-"
 status = "GUESS"
-uncertainty = 0.03
-source = "ASSUMPTION: PEM literature current efficiency >96% (Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792). CAVEAT: the paper is PEM; our device is AEM with 35 bar output pressure, where crossover raises faradaic losses; 0.98 is carried as an extrapolation and must be validated from the stack-current route"
+uncertainty = 0.0
+source = "WORKING ASSUMPTION (owner 2026-11-19), no AEM evidence: kept so the stack-current route yields output; to be replaced by a sourced or measured value. Yodwong et al., Energies 2020, 13, 4792, DOI 10.3390/en13184792 (DOI identity checked 2026-11-19; contents UNVERIFIED here) measured a PEM electrolyser up to approx. 10 bar and reports >96 %; 0.98 is not a value of that paper. Transferable is at most the direction (faradaic losses rise with pressure and are largest at low current density, i.e. part load), not the magnitude: our device is AEM at up to 35 barg. Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in any source; owner 2026-11-19."
 effect = "Faraday route H2 mass; blind to shunt current and crossover"
+uncertainty_open = "Value is a GUESS extrapolated from PEM literature (Yodwong et al. 2020); magnitude not transferable to AEM at 35 barg. Candidate evidence: stack-current route against an independent H2 quantity; manufacturer."
 
 [param."el.startup_duration_s"]
 value = 990
 unit = "s"
 status = "DERIVED"
-uncertainty = 0.15
-source = "UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s"
+uncertainty = 0.0
+source = "UFSC PV-electrolysis study: EL2.1 ramp to nominal after ~990 s Uncertainty 0.0 = NOT ASSESSED: no tolerance stated in the source (EL workbook column G '-'); owner 2026-11-19."
 effect = "operating-mode partition: startup window length"
+uncertainty_open = "Single cold-start measurement of one unit at 100 % rate (Walter et al. 2024, p. 86; workbook G71: variance over units and seasons not quantified); 990 s vs 1260 s basis open. Candidate evidence: start events in plant telemetry."

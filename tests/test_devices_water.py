@@ -38,14 +38,14 @@ def main():
     assert 250.0 * stoich >= a50["water_consumed_L"] - 1e-12
 
     # 3. zero production: no water, no production energy, standby still booked
-    a0 = WaterSystem().account(duration_h=1.0, h2_produced_NL=0.0)
+    a0 = WaterSystem().account(duration_h=1.0, h2_produced_NL=0.0, el_on_h=1.0)
     assert a0["water_consumed_L"] == 0.0
     assert a0["energy_kWh_production"] == 0.0
     assert abs(a0["energy_kWh_standby"] - 0.003) < 1e-12
     assert abs(a0["energy_kWh_model"] - 0.003) < 1e-12
 
     # 4. full load via h2_produced_NL equals the old nominal picture
-    af = WaterSystem().account(duration_h=1.0, h2_produced_NL=500.0)
+    af = WaterSystem().account(duration_h=1.0, h2_produced_NL=500.0, el_on_h=1.0)
     assert abs(af["water_consumed_L"] - wf) < 1e-9
     assert abs(af["duty"] - wf / 120.0) < 1e-12
     assert abs(af["energy_kWh_model"] - (wf / 120.0 * 0.2 + 0.003)) < 1e-12
@@ -69,12 +69,16 @@ def main():
     assert am["water_status"] == "MEASURED" and abs(am["water_consumed_L"] - 4.0) < 1e-9
     assert not any("modelled" in w for w in (am["warnings"] or []))
 
-    # 8. standby switchable: RO powered off with the EL
-    asw = WaterSystem().account(duration_h=1.0, h2_produced_NL=500.0, ro_standby_always_on=False)
-    assert abs(asw["energy_kWh_model"] - (wf / 120.0 * 0.2 + wf / 120.0 * 0.003)) < 1e-12
+    # 8. RO powered only while the EL are on (owner 2026-11-19): standby x EL on-time;
+    #    without the on-time the standby and the modelled total stay open
+    asw = WaterSystem().account(duration_h=1.0, h2_produced_NL=500.0, el_on_h=0.5)
+    assert abs(asw["energy_kWh_model"] - (wf / 120.0 * 0.2 + 0.5 * 0.003)) < 1e-12
+    aopen = WaterSystem().account(duration_h=1.0, h2_produced_NL=500.0)
+    assert aopen["energy_kWh_standby"] is None and aopen["energy_kWh_model"] is None
+    assert any("RO standby OPEN" in w for w in aopen["warnings"])
 
     # 9. illustrative annual extrapolation with standby over the same window
-    a_y = WaterSystem().account(duration_h=7566.0, h2_produced_NL=500.0 * 7566.0)
+    a_y = WaterSystem().account(duration_h=7566.0, h2_produced_NL=500.0 * 7566.0, el_on_h=7566.0)
     assert abs(a_y["energy_kWh_model"] - (wf * 7566 / 120.0 * 0.2 + 7566 * 0.003)) < 1e-6
     assert abs(a_y["energy_kWh_model"] - 27.742) < 0.05, a_y["energy_kWh_model"]
 

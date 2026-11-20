@@ -6,6 +6,7 @@ The script does not calculate plant behaviour or modify project source files. It
   - plant/*.toml: key paths, the status/unit/source fields, [open] entries and whether a
     value field is present; value, uncertainty and other numeric contents are never emitted
   - START.md restart progress and known failures (checklist lines only)
+  - summary.toml: three owner-written sentences (goal, to do, current state), shown verbatim
   - documents (only lines containing markers such as BACKLOG, PAUSED, UNVERIFIED)
   - an optional engineer-maintained semantics file (semantics.toml)
 
@@ -162,6 +163,24 @@ def start_state(path):
     return {"found": True, "progress": progress, "failures": failures}
 
 
+SUMMARY_FIELDS = (("goal", "My goal"), ("todo", "What I have to do"), ("status", "Where I am at"))
+
+
+def load_summary(path):
+    """Owner-written summary sentences, verbatim and in fixed order; read errors are reported."""
+    if not path.exists():
+        return {"found": False, "items": [], "error": None}
+    try:
+        data = tomllib.loads(path.read_text(encoding="utf-8"))
+    except (tomllib.TOMLDecodeError, OSError, UnicodeDecodeError) as e:
+        return {"found": True, "items": [], "error": f"{path.name}: {e}"}
+    items = [{"label": label, "text": data[key].strip()}
+             for key, label in SUMMARY_FIELDS if isinstance(data.get(key), str) and data[key].strip()]
+    unknown = sorted(set(data) - {k for k, _ in SUMMARY_FIELDS})
+    error = f"{path.name}: unknown keys {', '.join(unknown)}" if unknown else None
+    return {"found": True, "items": items, "error": error}
+
+
 # ---------- Plant TOML (no values) ----------
 
 def strings_in(obj):
@@ -222,8 +241,8 @@ def plant_device(path, root):
 # ---------- Topology (owner-maintained display semantics) ----------
 
 MEDIA = ("dc", "ac", "h2", "water", "air", "aux")
-NODE_KINDS = ("device", "outside", "terminal", "supply", "unassessed")
-SLOTS = ("in", "out", "eta", "loss", "stock", "elec", "air", "ctrl", "eout", "total")
+NODE_KINDS = ("device", "outside", "terminal", "supply", "unassessed", "prepared")
+SLOTS = ("in", "out", "eta", "loss", "start", "stock", "elec", "air", "ctrl", "eout", "total")
 
 
 def is_point(p):
@@ -234,8 +253,8 @@ def is_point(p):
 def load_topology(path, plant_stems):
     """Read the diagram description; problems are reported, never silently dropped."""
     topo = {"found": False, "path": str(path), "reviewed": False, "descriptions_reviewed": False,
-            "units": {}, "layout": {},
-            "nodes": [], "edges": [], "buses": [], "errors": []}
+            "units": {}, "layout": {}, "shared_supply": [],
+            "nodes": [], "edges": [], "buses": [], "groups": [], "errors": []}
     if not path.exists():
         return topo
     topo["found"] = True
@@ -296,6 +315,11 @@ def load_topology(path, plant_stems):
             err(f"bus with invalid medium or points: {b.get('medium')!r}")
             continue
         topo["buses"].append({"medium": b["medium"], "points": pts})
+    for g in t.get("group", []):
+        if not all(isinstance(g.get(k), (int, float)) for k in ("x", "y", "w", "h")) or not g.get("label"):
+            err(f"group with invalid frame or no label: {g.get('label')!r}")
+            continue
+        topo["groups"].append({k: g[k] for k in ("x", "y", "w", "h")} | {"label": str(g["label"])})
     for i, e in enumerate(t.get("edge", []), 1):
         src, dst, med = e.get("from"), e.get("to"), e.get("medium")
         ok = True
@@ -319,6 +343,11 @@ def load_topology(path, plant_stems):
                                   "value_at_station": e.get("value_at_station") is True,
                                   "label": str(e.get("label", "")), "basis": str(e.get("basis", "")),
                                   "label_side": "left" if e.get("label_side") == "left" else "right"})
+    shared = t.get("shared_supply", [])
+    if not isinstance(shared, list) or any(x not in ids for x in shared):
+        err("shared_supply: must list node ids")
+    else:
+        topo["shared_supply"] = shared
     return topo
 
 
@@ -449,6 +478,7 @@ def build(a):
     return {
         "generated": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "git": git_info(root),
         "start": start_state(root / "START.md"), "devices": devices,
+        "summary": load_summary(root / a.summary),
         "topology": topo,
         "modules": out, "signals": signals, "doc_markers": docs,
         "semantics_found": sem_path.exists(), "semantics_path": str(sem_path),
@@ -475,6 +505,8 @@ header h1{font-size:16px;margin:0}
 .prog{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:13px}
 .prog span{white-space:nowrap}
 .disc{font-size:12.5px;color:var(--mute);margin-top:4px}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px;margin:8px 0 2px;font-size:13.5px}
+.sum b{display:block;font-size:12px;color:var(--mute);font-weight:600}
 .fail{font-size:12.5px;color:var(--warn);margin-top:4px}
 nav.tabs{display:flex;gap:2px;padding:0 20px;border-bottom:1px solid var(--line)}
 nav.tabs a{padding:8px 12px;color:var(--mute);text-decoration:none;border-bottom:2px solid transparent}
@@ -503,6 +535,10 @@ svg .nd.supply rect{fill:var(--panel);stroke:var(--m-aux);stroke-width:1.6}
 svg .nd.terminal rect{fill:var(--panel)}
 svg .nd.unassessed rect{fill:none;stroke:var(--mute);stroke-dasharray:2 3}
 svg .nd.unassessed .t{fill:var(--mute)} svg .nd.unassessed .s{font-style:italic}
+svg .nd.prepared rect{fill:none;stroke:var(--mute);stroke-dasharray:2 3}
+svg .nd.prepared .t{fill:var(--mute)} svg .nd.prepared .s{font-style:italic}
+svg .grp rect{fill:none;stroke:var(--line);stroke-width:1.4;stroke-dasharray:6 4}
+svg .grp text{font-size:11.5px;font-weight:600;fill:var(--mute)}
 svg .faded{opacity:.4}
 svg .nd .t{font:600 13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--ink)}
 svg .nd .s{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--mute)}
@@ -516,8 +552,12 @@ svg .sk{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:var(--mute)
 svg .sv{font:600 10.5px ui-monospace,Menlo,Consolas,monospace;fill:var(--warn)}
 svg .pill rect{fill:var(--bg);stroke-width:1.2} svg .pill text{font:600 9.5px ui-monospace,Menlo,Consolas,monospace;fill:var(--warn)}
 .accts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin:12px 0}
+svg .shared rect{fill:var(--panel);stroke:var(--m-aux);stroke-width:1.2}
+svg .shared text{font-size:9.5px;font-weight:600;fill:var(--m-aux)}
+.tagAB{display:inline-block;border:1.2px solid var(--m-aux);color:var(--m-aux);border-radius:8px;padding:0 6px;font-size:11px;font-weight:600;margin-right:6px}
 .acct{border:1px solid var(--line);border-radius:8px;padding:10px 14px;background:var(--panel)}
 .acct h3{margin:0 0 6px;font-size:14px} .acct dl{display:grid;grid-template-columns:1fr auto;gap:3px 12px;margin:0;font-size:13px}
+.acct h4.sub{margin:8px 0 3px;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
 .acct dd{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:var(--warn);font-weight:600}
 .stage{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;align-items:start}
 .stage.sel{grid-template-columns:minmax(0,1fr) 320px}
@@ -534,7 +574,7 @@ svg .pill rect{fill:var(--bg);stroke-width:1.2} svg .pill text{font:600 9.5px ui
 svg .nd.on rect{stroke:var(--accent);stroke-width:2.6}
 .legend{display:flex;flex-wrap:wrap;gap:6px 22px;margin:10px 2px;font-size:13px}
 .legend span{display:inline-flex;align-items:center;gap:7px}
-@media (max-width:760px){.cols{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
+@media (max-width:760px){.cols,.sum{grid-template-columns:1fr}header,main{padding-left:16px;padding-right:16px}}
 </style></head><body>
 <header id="hdr"></header>
 <nav class="tabs" id="tabs"></nav>
@@ -569,6 +609,8 @@ function renderHeader() {
       h('span', {class: 'mute'}, 'Generated ' + D.generated),
       g.commit ? h('span', {class: 'mono'}, (g.branch || '?') + ' @ ' + g.commit) : null,
       h('span', {}, g.dirty ? 'uncommitted changes' : 'clean worktree')),
+    ...[D.summary.items.length ? h('div', {class: 'sum'}, D.summary.items.map(it => h('div', {}, h('b', {}, it.label), it.text))) : null,
+      D.summary.error ? h('div', {class: 'err'}, 'Summary not read: ' + D.summary.error) : null].filter(Boolean),
     s.found ? h('div', {class: 'prog'}, s.progress.map(p =>
       h('span', {title: p.text}, (p.done ? '☑ ' : '☐ ') + p.text.split(/[ ;:]/)[0]))) : h('div', {class: 'err'}, 'START.md not found'),
     s.failures.length ? h('div', {class: 'fail'}, 'Known failures (START.md): ' + s.failures.join(' · ')) : null,
@@ -607,7 +649,7 @@ function attach(r, p) {  // point on rectangle r facing point p (orthogonal layo
   return [r.x + r.w / 2, r.y + r.h / 2];
 }
 
-const SLOT_LABEL = {in: 'in', out: 'out', eta: 'η', loss: 'loss', stock: 'Δ stock', elec: 'electricity',
+const SLOT_LABEL = {in: 'in', out: 'out', eta: 'η', loss: 'loss', start: 'start-up', stock: 'Δ stock', elec: 'electricity',
   air: 'drive air', ctrl: 'FC control', eout: 'E AC out', total: 'total B'};
 const MISSING = 'MISSING';
 
@@ -624,7 +666,7 @@ function stationCard(T, n, flow) {
     if (e.both && e.to === n.id) outs.push(item(e, 'to ' + name(e.from)));
     if (e.both && e.from === n.id) ins.push(item(e, 'from ' + name(e.to)));
   });
-  if (n.id === 'aux_supply') outs = T.edges.filter(e => e.medium === 'aux' && !e.from).map(e => item(e, 'to ' + name(e.to)));
+  if (n.kind === 'supply') outs = outs.concat(T.edges.filter(e => e.medium === 'aux' && !e.from).map(e => item(e, 'to ' + name(e.to))));
   const list = (title, arr) => arr.length ? [h('h4', {}, title), h('ul', {}, arr)] : null;
   const dev = n.plant ? byDev[n.plant] : null;
   const back = '#' + (flow ? 'flow' : 'plant');
@@ -632,7 +674,8 @@ function stationCard(T, n, flow) {
     h('div', {class: 'hd'}, h('h3', {}, n.label), h('a', {class: 'x', href: back, title: 'Close'}, '✕')),
     n.sub ? h('div', {class: 'mute'}, n.sub) : null,
     n.account ? h('span', {class: 'acc'}, n.account === 'A' ? 'Account A · series path' : n.account === 'B' ? 'Account B · auxiliary'
-      : n.account === 'outside' ? 'Outside the provisional boundary' : n.account) : null,
+      : n.account === 'S' ? 'Account S · safety system (prepared)' : n.account === 'outside' ? 'Outside the provisional boundary' : n.account) : null,
+    T.shared_supply.includes(n.id) ? h('span', {class: 'acc'}, 'Shared by A and B · losses split pro rata to energy (CONTRACT §4)') : null,
     h('h4', {}, 'What happens'), h('p', {}, n.description || '–'),
     T.descriptions_reviewed ? null : h('div', {class: 'draft'}, 'Draft text, owner review pending.'),
     list('In', ins), list('Out', outs), list('Auxiliary energy (B)', aux),
@@ -667,6 +710,8 @@ function plant(flow, selId) {
     s('path', {d: 'M0,0 L10,5 L0,10 z', fill: 'var(--m-' + k + ')'}))));
   svg.append(defs);
   const flows = s('g'), labels = s('g'), nodes = s('g');
+  T.groups.forEach(g => flows.append(s('g', {class: 'grp'}, s('rect', {x: g.x, y: g.y, width: g.w, height: g.h, rx: 10}),
+    s('text', {x: g.x + 12, y: g.y + g.h - 8}, g.label))));
   T.buses.forEach(b => flows.append(s('polyline', {...lineAttrs(b.medium), points: b.points.map(p => p.join(',')).join(' ')})));
   T.edges.forEach(e => {
     const to = rect[e.to];
@@ -709,13 +754,18 @@ function plant(flow, selId) {
     const body = flow
       ? [s('text', {class: 't', x: cx, y: r.y + 19, 'text-anchor': 'middle'}, n.label),
          n.kind === 'unassessed' ? s('text', {class: 's', x: cx, y: r.y + 44, 'text-anchor': 'middle'}, 'not assessed') : null,
-         n.slots.map((k, i) => [s('text', {class: 'sk', x: r.x + 10, y: r.y + 37 + i * 15}, SLOT_LABEL[k]),
-           s('text', {class: 'sv', x: r.x + r.w - 10, y: r.y + 37 + i * 15, 'text-anchor': 'end'}, MISSING)])]
+         n.kind === 'prepared' ? s('text', {class: 's', x: cx, y: r.y + 44, 'text-anchor': 'middle'}, 'prepared, not calculated') : null,
+         n.slots.map((k, i) => { const y = r.y + (n.slots.length > 4 ? 34 + i * 12.5 : 37 + i * 15);  // five slots fit the same box height
+           return [s('text', {class: 'sk', x: r.x + 10, y}, SLOT_LABEL[k]),
+             s('text', {class: 'sv', x: r.x + r.w - 10, y, 'text-anchor': 'end'}, MISSING)]; })]
       : [s('text', {class: 't', x: cx, y: r.y + (n.sub ? 25 : 34), 'text-anchor': 'middle'}, n.label),
          n.sub ? s('text', {class: 's', x: cx, y: r.y + 42, 'text-anchor': 'middle'}, n.sub) : null];
     const g = s('g', {class: 'nd ' + n.kind + (n.id === selId ? ' on' : '')},
       s('rect', {x: r.x, y: r.y, width: r.w, height: r.h, rx: n.kind === 'terminal' ? Math.min(r.h / 2, 18) : 7}),
       body,
+      T.shared_supply.includes(n.id) ? s('g', {class: 'shared'},
+        s('rect', {x: r.x + r.w - 44, y: r.y - 8, width: 40, height: 15, rx: 7.5}),
+        s('text', {x: r.x + r.w - 24, y: r.y + 3, 'text-anchor': 'middle'}, 'A + B')) : null,
       s('title', {}, n.label + (n.sub ? ' — ' + n.sub : '') + '\nClick for description'));
     nodes.append(s('a', {href: '#' + (flow ? 'flow' : 'plant') + '/' + n.id}, g));
   });
@@ -728,27 +778,42 @@ function plant(flow, selId) {
     e.append(s('rect', {x: 1, y: 1, width: 24, height: 14, rx: 3, fill: 'none', stroke: 'var(--node-edge)', ...(dash ? {'stroke-dasharray': dash === 'dot' ? '2 3' : '4 3'} : {})})); return e; };
   m.append(h('div', {class: 'legend'}, Object.entries(MEDIA).map(([k, v]) => h('span', {}, sample(k), v.label)),
     h('span', {}, box(true), 'Outside the provisional boundary (CONTRACT §4)'),
-    T.nodes.some(n => n.kind === 'unassessed') ? h('span', {}, box('dot'), 'Not assessed until clarified by the owner') : null));
+    T.shared_supply.length ? h('span', {}, h('span', {class: 'tagAB'}, 'A + B'), 'Carries series-path and auxiliary electricity; losses split pro rata to energy') : null,
+    T.nodes.some(n => n.kind === 'unassessed') ? h('span', {}, box('dot'), 'Not assessed until clarified by the owner') : null,
+    T.nodes.some(n => n.kind === 'prepared') ? h('span', {}, box('dot'), 'Prepared, not calculated yet') : null));
   if (flow) {
     const name = id => (T.nodes.find(n => n.id === id) || {}).label || id;
-    const series = T.nodes.filter(n => n.kind === 'device' && n.slots.includes('loss'));  // inside the boundary, with a loss slot
-    const bItems = T.edges.filter(e => e.medium === 'aux').map(e => name(e.to) + (e.label ? ' — ' + e.label : ''));
+    const series = T.nodes.filter(n => (n.kind === 'device' || n.kind === 'supply') && n.slots.includes('loss'));  // inside the boundary, with a loss slot
+    const acc = id => (T.nodes.find(n => n.id === id) || {}).account;
+    const bItems = T.edges.filter(e => e.medium === 'aux' && acc(e.to) !== 'S').map(e => name(e.to) + (e.label ? ' — ' + e.label : ''));
     const dl = rows => h('dl', {}, rows.flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v)]));
     m.append(h('div', {class: 'accts'},
       h('div', {class: 'acct'}, h('h3', {}, 'A — series path'),
         dl([['E in (PV DC share, allocation)', MISSING], ['E AC out (FC inverter)', MISSING],
-            ...series.map(n => ['loss ' + n.label, MISSING]),
+            ...series.flatMap(n => [['loss ' + n.label + (T.shared_supply.includes(n.id) ? ' (A share, pro rata energy)' : ''), MISSING],
+              ...(n.slots.includes('start') ? [['start-up energy ' + n.label, MISSING]] : [])]),
             ['battery stock change', MISSING]])),
       h('div', {class: 'acct'}, h('h3', {}, 'B — auxiliary consumers'),
-        dl([...bItems.map(x => [x, MISSING]), ['total B', MISSING]]),
-        T.nodes.filter(n => n.kind === 'unassessed').map(n => h('p', {class: 'mute', style: 'margin:6px 0 0;font-size:12.5px'},
+        h('h4', {class: 'sub'}, 'B at the device'), dl(bItems.map(x => [x, MISSING])),
+        h('h4', {class: 'sub'}, 'B supply losses'),
+        dl([...T.shared_supply.map(id => ['loss ' + name(id) + ' (B share, pro rata energy)', MISSING]),
+            ['cables PMS → B consumers', MISSING], ['total B', MISSING]]),
+        T.nodes.some(n => n.kind === 'supply') ? h('p', {class: 'mute', style: 'margin:6px 0 0;font-size:12.5px'},
+          'Supplied from PV via the PMS (island assumption, owner 2026-11-19).') : null,
+        T.nodes.filter(n => n.kind === 'unassessed' && n.account !== 'S').map(n => h('p', {class: 'mute', style: 'margin:6px 0 0;font-size:12.5px'},
           n.label + ': not assessed until clarified by the owner.'))),
+      T.nodes.some(n => n.account === 'S') ? h('div', {class: 'acct'}, h('h3', {}, 'S — safety system'),
+        dl(T.nodes.filter(n => n.account === 'S').map(n => [n.label, n.kind === 'unassessed' ? 'not assessed' : 'not calculated'])),
+        h('p', {class: 'mute', style: 'margin:6px 0 0;font-size:12.5px'}, 'Prepared only (CONTRACT §4). Shown separately from B; supplied via the PMS. ',
+          'Its share of the shared supply losses and its role in C are not calculated yet.')) : null,
       h('div', {class: 'acct'}, h('h3', {}, 'C — system efficiency'),
         h('p', {class: 'mute', style: 'margin:0;font-size:13px'}, 'Not reported until compression and battery have a status (CONTRACT §4). ',
+          'Under the island assumption E_B,external is the PV energy for B: B at the device plus B supply losses. ',
           'A and B are shown side by side without a summed total. While any item is MISSING, dependent totals stay open (§7).'))));
   }
-  m.append(h('p', {class: 'mute'}, 'Hover a line or box for its basis. Dots mark where a consumer is tapped from the auxiliary line; ',
-    'which supplier (house grid, separate PV battery system, internal bus) feeds each consumer is still open, except the water pump (house grid).'));
+  m.append(h('p', {class: 'mute'}, 'Hover a line or box for its basis. Dots mark where a consumer is tapped from the auxiliary line. ',
+    T.nodes.some(n => n.kind === 'supply') ? 'Island assumption (owner 2026-11-19): every consumer is fed from PV via the PMS; grid and PV-side batteries are not modelled.'
+      : 'Which supplier feeds each consumer is still open.'));
 }
 
 // ----- Devices -----
@@ -939,6 +1004,7 @@ def main():
     ap.add_argument("--docs", nargs="*", default=["CONTRACT.md", "START.md"], help="Documents to scan for markers")
     ap.add_argument("--semantics", default="../_overview/semantics.toml", help="Semantics file")
     ap.add_argument("--topology", default="tools/project_observer/topology.toml", help="Plant diagram description")
+    ap.add_argument("--summary", default="tools/project_observer/summary.toml", help="Owner-written project summary")
     ap.add_argument(
         "--out",
         default="tools/project_observer/output/overview.html",

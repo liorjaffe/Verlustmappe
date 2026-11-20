@@ -4,13 +4,20 @@
 # Agent transcription of CONTRACT section 4 and plant file titles. Owner review 2026-11-18:
 # order, FC control, auxiliary-supplier marking, water path and Kaeser drive air confirmed;
 # the four Rotex are shown but not assessed until the owner clarifies them.
-reviewed = true
+# Owner 2026-11-19 (decisions/2026-11-19-island-supply-via-pms.md): the lab is treated as an
+# island; all electricity at run time comes from the PV modules via the PMS, which feeds the
+# electrolyser and every auxiliary consumer. Grid, PV-side batteries and their inverter are
+# not modelled. Layout changed accordingly; owner review of the redrawn diagram pending.
+reviewed = false
 # Station descriptions below are agent drafts from the named basis; set true after owner review.
 descriptions_reviewed = false
 
 # Units shown per flow medium in the station cards (no values). Basis: quantity names in
 # src/verlustmappe/accounting/ledger.py (energies in kWh, hydrogen as kg / mol / LHV kWh,
 # compression air as energy in kWh) and plant/water.toml (water volume in L).
+# Stations shared by A and B; their losses are split pro rata to energy (CONTRACT §4).
+shared_supply = ["pv_inverter", "ac_cable", "pms"]
+
 [units]
 dc = "kWh"
 ac = "kWh"
@@ -21,17 +28,19 @@ air = "kWh (compression air energy)"
 
 [layout]
 width = 1460
-height = 540
+height = 785
 node_w = 140
 node_h = 58
 # energy-flow view: taller boxes for the value slots
 node_h_flow = 90
-height_flow = 570
+height_flow = 785
 
 # ---------- Nodes (x, y = top-left corner) ----------
-# kind: device | outside (outside the provisional boundary) | terminal | supply
+# kind: device | outside (outside the provisional boundary) | terminal
+#       | supply (electricity source; its card also lists the auxiliary taps)
 #       | unassessed (shown, but deliberately not assessed until the owner clarifies)
-# account: A (series path) | B (auxiliary) | outside | not assessed  (CONTRACT section 4)
+#       | prepared (in scope and drawn, not calculated yet)
+# account: A (series path) | B (auxiliary) | S (safety system) | outside | not assessed  (CONTRACT section 4)
 # description: what happens at the station; agent draft until descriptions_reviewed = true
 # slots: value fields shown in the energy-flow view (no values; filled later from an approved
 #        src pipeline result): in, out, eta, loss, stock, elec, air, ctrl, eout, total
@@ -77,15 +86,15 @@ slots = ["in", "out", "eta", "loss"]
 
 [[node]]
 id = "ac_cable"
-label = "AC distribution"
-sub = "and cable path"
+label = "AC cable"
+sub = "inverters -> PMS"
 plant = "ac_cable"
 kind = "device"
 x = 660
 y = 50
 account = "A"
-description = "Carries AC from the PV inverters towards the electrolyser. The PV share is an allocation; the actual EL supply route, including the house distribution, is open."
-basis = "CONTRACT §4 A; plant/ac_cable.toml title"
+description = "Carries AC from the PV inverters to the power management system (PMS). Cable specifications will follow; until then its loss is MISSING, not zero. Note: plant/ac_cable.toml still describes a cable PV inverter -> EL."
+basis = "CONTRACT §4 A (AC distribution and cable path); owner 2026-11-19: EL supplied via the PMS (lab figure, Fotovoltaica/UFSC Fig. 3); plant/ac_cable.toml title still names the route PV inverter -> EL"
 slots = ["in", "out", "loss"]
 
 [[node]]
@@ -94,12 +103,12 @@ label = "Electrolyser"
 sub = "Enapter AEM EL 2.1"
 plant = "el"
 kind = "device"
-x = 870
+x = 1080
 y = 50
 account = "A"
-description = "Splits process water into hydrogen and oxygen using electricity. Its standby consumption is booked in B."
-basis = "CONTRACT §4 A; plant/el.toml title"
-slots = ["in", "out", "eta", "loss"]
+description = "Splits process water into hydrogen and oxygen using electricity. During production the whole AC input is in A, its own auxiliaries embedded; start-up energy is a separate A line; standby is in B."
+basis = "CONTRACT §4 A; §5 EL start-up (owner 2026-11-19); plant/el.toml title and el.startup_duration_s"
+slots = ["in", "out", "eta", "loss", "start"]
 
 [[node]]
 id = "water"
@@ -107,7 +116,7 @@ label = "Water treatment"
 sub = "filter train + RO (BWT)"
 plant = "water"
 kind = "device"
-x = 1080
+x = 1290
 y = 50
 account = "B"
 description = "Treats collected rainwater into permeate for the electrolyser: Marte filter train, then BWT reverse osmosis; concentrate goes to the drain. Its electricity is auxiliary (B); the role of the Marte unit is open."
@@ -120,7 +129,7 @@ label = "Dryer"
 sub = "Enapter DRY 2.1"
 plant = "dryer"
 kind = "device"
-x = 870
+x = 1080
 y = 250
 account = "A"
 description = "Dries the hydrogen before compression. Its electricity is booked in B."
@@ -133,11 +142,11 @@ label = "H2 booster"
 sub = "HULC, two-stage"
 plant = "h2_compressor"
 kind = "device"
-x = 660
+x = 870
 y = 250
 account = "A"
-description = "Raises the hydrogen pressure in two stages for storage, driven by compressed air from the Kaeser."
-basis = "CONTRACT §4 A; plant/h2_compressor.toml title"
+description = "Raises the hydrogen pressure in two stages for storage, driven by compressed air from the Kaeser. Exclusively air-driven; no electrical connection (owner 2026-11-19)."
+basis = "CONTRACT §4 A; plant/h2_compressor.toml title; owner 2026-11-19: exclusively compressed-air driven, therefore no auxiliary electricity tap"
 slots = ["in", "out", "air", "loss"]
 
 [[node]]
@@ -146,7 +155,7 @@ label = "Air compressor"
 sub = "Kaeser SXC 8"
 plant = "kaeser"
 kind = "device"
-x = 1080
+x = 1290
 y = 250
 account = "B"
 description = "Supplies the compressed air that drives the H2 booster; it also supplies four Rotex (not assessed). Its electricity is in B; the air is allocated."
@@ -160,10 +169,10 @@ sub = "not assessed"
 plant = ""
 kind = "unassessed"
 x = 1290
-y = 250
-account = "not assessed"
-description = "Further compressed-air consumers on the Kaeser, relevant mainly at start-up according to the owner. Not assessed until clarified."
-basis = "plant/kaeser.toml title (Kaeser also supplies four Rotex); owner 2026-11-18: consumption relevant mainly at start-up; deliberately not assessed until the owner clarifies"
+y = 650
+account = "S"
+description = "Compressed-air consumers on the Kaeser that belong to the H2 safety system; relevant mainly at start-up according to the owner. Their air share is booked in S, not B. Not assessed until clarified."
+basis = "plant/kaeser.toml title (Kaeser also supplies four Rotex); owner 2026-11-18: consumption relevant mainly at start-up, not assessed until clarified; owner 2026-11-19: part of the safety system (S)"
 slots = []
 
 [[node]]
@@ -172,7 +181,7 @@ label = "H2 storage"
 sub = "VITKOVICE"
 plant = "storage"
 kind = "device"
-x = 450
+x = 660
 y = 250
 account = "A"
 description = "Holds compressed hydrogen between production and the fuel cell. Its stock change stays visible separately."
@@ -185,7 +194,7 @@ label = "Fuel cell"
 sub = "2 x IE-LIFT 802"
 plant = "fc"
 kind = "device"
-x = 240
+x = 450
 y = 250
 account = "A"
 description = "Converts hydrogen into DC electricity on the FC DC bus."
@@ -198,7 +207,7 @@ label = "H2Core battery"
 sub = "part of FC system"
 plant = "fc_battery"
 kind = "device"
-x = 30
+x = 240
 y = 450
 account = "A"
 description = "Battery on the FC DC bus, part of the FC system. Charge, discharge and stock change stay visible; battery discharge is not reconversion from hydrogen."
@@ -211,7 +220,7 @@ label = "FC DC bus"
 sub = ""
 plant = ""
 kind = "device"
-x = 240
+x = 450
 y = 450
 account = "A"
 description = "Connects fuel cell, H2Core battery and the DC cable to the FC inverter. FC control is assumed to draw from here before the inverter (D22); measurement point open."
@@ -224,7 +233,7 @@ label = "DC cable"
 sub = "to FC inverter"
 plant = ""
 kind = "device"
-x = 450
+x = 660
 y = 450
 account = "A"
 description = "Carries DC from the FC DC bus to the FC inverter."
@@ -237,7 +246,7 @@ label = "FC inverter"
 sub = "Solis, off-grid"
 plant = "fc_inverter"
 kind = "device"
-x = 660
+x = 870
 y = 450
 account = "A"
 description = "Converts DC into the AC output. The conversion is in A; its own auxiliary consumption is in B."
@@ -250,7 +259,7 @@ label = "AC output"
 sub = "end of series path"
 plant = ""
 kind = "terminal"
-x = 870
+x = 1080
 y = 450
 account = "A"
 description = "End of the series path: AC output of the FC inverter."
@@ -258,27 +267,64 @@ basis = "CONTRACT §1, §4 A"
 slots = ["eout"]
 
 [[node]]
-id = "aux_supply"
-label = "Auxiliary supply (B)"
-sub = "supplier open"
+id = "pms"
+label = "PMS"
+sub = "distribution board"
 plant = ""
 kind = "supply"
+x = 870
+y = 50
+account = "A and B (allocation)"
+description = "Power management system: distributes PV electricity to the electrolyser (series path, A) and to every auxiliary consumer (B), down to the standby of the FC inverter. Island assumption: at run time all electricity comes from the PV modules; grid, PV-side batteries and their inverter are not modelled. Physically a passive distribution board without readings (owner 2026-11-19). Losses only from component data (e.g. breaker power loss per pole, scaled with the operating current), never as a difference; until then MISSING. Own consumption only if the board holds active elements (contactor coils, meters, monitoring); that would be auxiliary energy (B). Its loss is split between A and B pro rata to energy (CONTRACT §4)."
+basis = "Owner 2026-11-19 (decisions/2026-11-19-island-supply-via-pms.md); lab figure Fotovoltaica/UFSC Fig. 3 (PV inverter, grid and battery inverter feed the PMS, PMS feeds the AEM electrolyser bank); CONTRACT §4 supply (2026-11-19)"
+slots = ["in", "out", "loss"]
+
+[[node]]
+id = "ventilation"
+label = "Room ventilation"
+sub = "CELAB"
+plant = "ventilation"
+kind = "prepared"
+x = 870
+y = 650
+account = "S"
+description = "Ventilates the H2 room as part of the safety system. A direct measurement by the owner is planned; its consumption will then be used as a constant input. Prepared, not calculated."
+basis = "Owner 2026-11-19 (decisions/2026-11-19-safety-system-group-s.md); CONTRACT §2 and §4 (S)"
+slots = []
+
+[[node]]
+id = "h2_sensors"
+label = "H2 sensors"
+sub = "gas detection"
+plant = "h2_sensors"
+kind = "prepared"
 x = 1080
-y = 450
-account = "B"
-description = "Collects all auxiliary electricity (account B) from the house grid, the separate PV battery system or an internal bus. The supplier of each consumer is still open, except the water pump (house grid)."
-basis = "CONTRACT §4 B: house grid, separate PV battery system or internal bus; actual supplier and phase per consumer still to be identified"
-slots = ["total"]
+y = 650
+account = "S"
+description = "Detect hydrogen in the room as part of the safety system. Details to follow from the owner. Prepared, not calculated."
+basis = "Owner 2026-11-19 (decisions/2026-11-19-safety-system-group-s.md); CONTRACT §2 and §4 (S)"
+slots = []
+
+[[group]]
+label = "S – safety system (prepared, not calculated)"
+x = 850
+y = 615
+w = 600
+h = 150
 
 # ---------- Auxiliary electricity bus (drawn as one line) ----------
 
 [[bus]]
 medium = "aux"
-points = [[1220, 479], [1450, 479], [1450, 170], [555, 170]]
+points = [[555, 170], [1450, 170], [1450, 390], [980, 390]]
 
 [[bus]]
 medium = "aux"
-points = [[1450, 390], [770, 390]]
+points = [[940, 108], [940, 170]]
+
+[[bus]]
+medium = "aux"
+points = [[1450, 390], [1450, 600], [940, 600]]
 
 # ---------- Edges ----------
 # medium: dc | ac | h2 | water | air | aux
@@ -309,10 +355,16 @@ basis = "CONTRACT §4 A"
 
 [[edge]]
 from = "ac_cable"
+to = "pms"
+medium = "ac"
+basis = "Owner 2026-11-19: PV inverters feed the PMS"
+
+[[edge]]
+from = "pms"
 to = "el"
 medium = "ac"
-label = "allocation"
-basis = "CONTRACT §4 A: PV slice is an allocation; actual EL supply route open"
+label = "PV (island)"
+basis = "Owner 2026-11-19: the PMS feeds the EL; at run time all electricity is assumed to come from PV (island). The PV slice for the series path remains an allocation (CONTRACT §4 A). Cable PMS -> EL: specifications to follow"
 
 [[edge]]
 from = "water"
@@ -338,7 +390,7 @@ from = "kaeser"
 to = "h2_compressor"
 medium = "air"
 label = "drive air (allocated)"
-via = [[1150, 365], [730, 365]]
+via = [[1330, 365], [940, 365]]
 basis = "plant/kaeser.toml title (supplies the HULC and four Rotex); CONTRACT §4 allocated compressed-air supply"
 
 [[edge]]
@@ -346,7 +398,7 @@ from = "kaeser"
 to = "rotex"
 medium = "air"
 assess = false
-basis = "plant/kaeser.toml title; owner 2026-11-18: not assessed until clarified"
+basis = "plant/kaeser.toml title; owner 2026-11-18: not assessed until clarified; owner 2026-11-19: Rotex air share belongs to S"
 
 [[edge]]
 from = "h2_compressor"
@@ -393,7 +445,7 @@ basis = "CONTRACT §4 A"
 
 [[edge]]
 from = "dc_bus"
-from_point = [270, 450]
+from_point = [480, 450]
 to = "fc"
 medium = "dc"
 value_at_station = true
@@ -406,39 +458,53 @@ from_point = [555, 170]
 to = "pv_inverter"
 medium = "aux"
 label = "standby"
-basis = "CONTRACT §4 A/B boundary: standby of series-path devices is in B"
+basis = "CONTRACT §4 A/B boundary: standby of series-path devices is in B; supplied via the PMS from PV (owner 2026-11-19)"
 
 [[edge]]
-from_point = [900, 170]
+from_point = [1110, 170]
 to = "el"
 medium = "aux"
 label = "standby"
 label_side = "left"
-basis = "CONTRACT §4 A/B boundary: standby of series-path devices is in B"
+basis = "CONTRACT §4 A/B boundary: standby of series-path devices is in B; supplied via the PMS from PV (owner 2026-11-19)"
 
 [[edge]]
-from_point = [1110, 170]
+from_point = [1320, 170]
 to = "water"
 medium = "aux"
-label = "house grid"
-basis = "CONTRACT §4 B; plant/water.toml open entry: pump supplied from the house grid"
+label = "pump"
+basis = "CONTRACT §4 B; owner 2026-11-19: supplied via the PMS from PV. Conflict: plant/water.toml open entry still says the pump is supplied from the house grid (not changed)"
 
 [[edge]]
-from_point = [985, 170]
+from_point = [1190, 170]
 to = "dryer"
 medium = "aux"
 label = "electricity"
 basis = "CONTRACT §4 A/B boundary: dryer electricity is in B"
 
 [[edge]]
-from_point = [1190, 170]
+from_point = [1400, 170]
 to = "kaeser"
 medium = "aux"
 basis = "CONTRACT §4 B: the Kaeser is in B"
 
 [[edge]]
-from_point = [770, 390]
+from_point = [980, 390]
 to = "fc_inverter"
 medium = "aux"
 label = "own aux"
 basis = "CONTRACT §4 A/B boundary: FC inverter's own auxiliary consumption is in B"
+
+[[edge]]
+from_point = [940, 600]
+to = "ventilation"
+medium = "aux"
+assess = false
+basis = "Owner 2026-11-19: safety system (S), supplied via the PMS; prepared, not calculated"
+
+[[edge]]
+from_point = [1150, 600]
+to = "h2_sensors"
+medium = "aux"
+assess = false
+basis = "Owner 2026-11-19: safety system (S), supplied via the PMS; prepared, not calculated"

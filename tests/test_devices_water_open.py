@@ -35,22 +35,23 @@ def test_missing_pump_and_independent_annual_ro_components():
         pump = tomllib.load(stream)["param"]["water.filter_train_power_W"]
     assert "value" not in pump
     assert pump["status"] == "BACKLOG"
-    result = WaterSystem().account(duration_h=8760, water_consumed_L=3026.4)
+    result = WaterSystem().account(duration_h=8760, water_consumed_L=3026.4, el_on_h=7566)
     assert result["filter_train_energy_kWh"] is None
     assert result["filter_train_status"] == "BACKLOG"
     assert any("BACKLOG" in warning and "CONTRACT sec. 7" in warning
                for warning in result["warnings"])
     # 0.4 L/h * 7566 h / 120 L/h * 200 W / 1000.
     assert math.isclose(result["energy_kWh_production"], 5.044, abs_tol=1e-12)
-    # 3 W * 8760 h / 1000; 3 W is the existing standby model basis.
-    assert math.isclose(result["energy_kWh_standby"], 26.28, abs_tol=1e-12)
+    # 3 W * 7566 h EL on-time / 1000: the RO is powered only while the EL are on
+    # (owner 2026-11-19), no longer over the 8760 h window.
+    assert math.isclose(result["energy_kWh_standby"], 22.698, abs_tol=1e-12)
     assert math.isclose(result["feed_L"], 6052.8, abs_tol=1e-9)
     assert math.isclose(result["concentrate_L"], 3026.4, abs_tol=1e-9)
 
 
 def test_absent_pump_parameter_is_open(monkeypatch):
     monkeypatch.delitem(registry.REGISTRY, "water.filter_train_power_W")
-    result = WaterSystem().account(duration_h=2, water_consumed_L=0.4)
+    result = WaterSystem().account(duration_h=2, water_consumed_L=0.4, el_on_h=2)
     assert result["filter_train_energy_kWh"] is None
     assert result["filter_train_status"] == "BACKLOG"
     assert any("BACKLOG" in warning and "CONTRACT sec. 7" in warning

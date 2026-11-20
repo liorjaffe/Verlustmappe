@@ -1,0 +1,7 @@
+# Owner-maintained project summary, shown as one row at the top of the observer header.
+# Plain sentences written by the owner; display only, not evidence and not a model input.
+# Rule: decisions/2026-11-19-observer-project-summary.md
+
+goal = "Build an energy flow map of a power-to-H2-to-power system that makes each loss along the chain visible and traceable."
+todo = "Collect the plant data, model the whole chain, run it over time within different scenarios and calibrate it against measurements."
+status = "Most plant data is collected and nearly all devices are modelled. I am now connecting them into one working chain, with correct conversions and properly combined interfaces. Everything is still based on datasheet values; no measurements are used yet."

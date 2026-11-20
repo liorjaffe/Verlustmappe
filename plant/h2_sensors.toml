@@ -1,0 +1,12 @@
+# plant/h2_sensors.toml - H2 gas detection, safety system (account S)
+# Prepared skeleton (owner 2026-11-19, decisions/2026-11-19-safety-system-group-s.md).
+# No parameters yet; only the owner adds values. Missing value = no 'value' field (MISSING).
+
+[device]
+name = "h2_sensors"
+title = "H2 sensors (gas detection), safety system S"
+
+[open]
+questions = [
+  "BACKLOG: details to follow from the owner: number, type, controller or evaluation unit, power per unit, supply and operating time.",
+]

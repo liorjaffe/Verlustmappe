@@ -61,3 +61,45 @@ uncertainty 0.0 (NOT ASSESSED) instead of 0.05; inverter energies unchanged.
 Follow-up maintenance: the `fc_inverter.py` docstring/note still says
 "DERIVED 0.94". Next steps: POC plan, then POC implementation; key renaming
 separately.
+
+2026-11-19, owner decisions after the independent review of `07d2bf1`:
+- FC inverter measured mode follows the PV inverter rule (CONTRACT §6): AC/DC
+  of the supplied window is that window's eta; DC - AC is a diagnostic, never
+  a booked loss; the booked loss is always modelled, DC x (1 - inv_fc.eta). A
+  measured AC of 0 is a measurement, not a missing value; DC = 0 with AC != 0
+  is flagged `dc0_ac_nonzero`. A window eta is MEASURED only with an
+  independent cross-check (D3b).
+- `bat.nominal_V` source/effect text reworded (value unchanged): 52 V is the
+  FCM factory-set target, installed setting not read back, bus voltage not
+  measured; not a basis for P = V x I on the bus.
+- Fixed with tests: FC module channels only `fcN_current_A` /
+  `fcN_stack_current_A` (a `batt_current_A` column was counted as a module);
+  POC layer 1 rejects negative case rate, duration and power limit.
+- The 97% battery round-trip efficiency status belongs to the deferred
+  "status of base-type data" decision (START.md).
+
+2026-11-19, owner: automatic FC transfer check instead of key renaming
+(`tests/test_plant_fc_vs_workbook.py`). It checks, for `plant/fc.toml`,
+`plant/fc_battery.toml` and `plant/fc_inverter.toml`: every key mapped to a
+workbook row or explained; row label and workbook key; status per the
+approved mapping; FC sources cite their row; every keyed workbook row
+classified; known duplicate keys. Status only; values need machine-readable
+value/unit columns in the FC workbook (separate owner decision). Key renaming
+is not done. Inverter2 workbook findings, update pending owner approval: row
+44 still says DERIVED (D3b: GUESS); row 3 says MEASURED for the model identity
+read from the nameplate photo (workbook convention, Overview B10) while the TOML
+says DATASHEET (owner decision open); row 46 still says measured mode "flips the post to MEASURED"
+(superseded by the 2026-11-19 diagnostic rule); duplicate keys in rows 47/80,
+50/81, 51/82, 66/85.
+
+2026-11-19, Inverter2 workbook text corrections applied (owner-approved, no
+value changes; 27 cells, Notes 13): 0.94 GUESS with the provisional envelope
+(rows 44, 79; Sources 6; Notes 2; Overview B6), measured-mode rule (row 46),
+FCM 52 V factory target vs 48 V Delayed Start Under-Voltage (row 11), code
+file name `devices/fc_inverter.py`, duplicate keys in rows 80-82 and 85
+renamed. Owner 2026-11-19: nothing on this unit has been measured; rows 3-5
+and 75 (nameplate photo readings) relabelled MEASURED -> Nameplate (=
+DATASHEET, as in the compressor workbook). Still open: rows 6 and 65 (site
+and project observations) still say MEASURED (owner decision);
+standby "20 W +/-50%" in rows 50 and Overview B7 while the TOML has
+u = 0.0 under rule A (not changed).

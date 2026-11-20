@@ -72,3 +72,25 @@ def test_above_power_limit_warns_not_clips():
 def test_invalid_inputs_raise(P, n):
     with pytest.raises(ValueError):
         poc_layer1(P, n)
+
+
+@pytest.mark.parametrize("key,value", [("fc.poc_case_rate_per_h", -15), ("fc.poc_case_duration_s", -12),
+                                       ("fc.power_limit_W", -2400)])
+def test_negative_registry_inputs_raise(monkeypatch, key, value):
+    import verlustmappe.devices.fc as F
+    original = F.R.get
+    monkeypatch.setattr(F.R, "get", lambda k: value if k == key else original(k))
+    with pytest.raises(ValueError):
+        poc_layer1(2000, 1)
+
+
+@pytest.mark.parametrize("key", ["fc.poc_case_rate_per_h", "fc.poc_case_duration_s", "fc.power_limit_W"])
+def test_zero_registry_inputs_are_valid(monkeypatch, key):
+    import verlustmappe.devices.fc as F
+    original = F.R.get
+    monkeypatch.setattr(F.R, "get", lambda k: 0 if k == key else original(k))
+    r = poc_layer1(2000, 1)
+    if key == "fc.power_limit_W":
+        assert r["fully_recharged"] is False and r["battery_recharge_Wh_per_h"] == 0.0
+    else:
+        assert r["battery_discharge_Wh_per_h"] == 0.0 and r["fully_recharged"] is True

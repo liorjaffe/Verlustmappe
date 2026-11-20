@@ -37,7 +37,7 @@ def test_required_item_absence_invalidates_report(scenario, parameters, case):
     }
     full_additional_required = {
         "dryer_electrical_energy_kWh", "dryer_vent_energy_kWh", "water_energy_kWh",
-        "filter_energy_kWh", "compression_air_energy_kWh", "ready_energy_kWh",
+        "water_tank_energy_kWh", "filter_energy_kWh", "compression_air_energy_kWh", "ready_energy_kWh",
         "leakage_energy_kWh", "fc_control_energy_kWh", "fc_inverter_loss_kWh",
         "el_conversion_loss_kWh", "fc_conversion_loss_kWh", "storage_change_kWh",
     }
@@ -147,6 +147,7 @@ def test_inventory_signs_match_explicit_d31_requirements():
         "dryer_electrical_energy_kWh": Sign.NONNEGATIVE,
         "dryer_vent_energy_kWh": Sign.NONNEGATIVE,
         "water_energy_kWh": Sign.NONNEGATIVE,
+        "water_tank_energy_kWh": Sign.NONNEGATIVE,
         "filter_energy_kWh": Sign.NONNEGATIVE,
         "compression_air_energy_kWh": Sign.NONNEGATIVE,
         "ready_energy_kWh": Sign.NONNEGATIVE,
@@ -171,7 +172,7 @@ def test_registry_snapshot_is_requested_immutable_and_run_local(scenario):
     parameters = ParamSet.from_registry(("el.n_cells", "el.faradaic_efficiency"))
     assert tuple(p.key for p in parameters.parameters) == ("el.n_cells", "el.faradaic_efficiency")
     with pytest.raises(KeyError):
-        parameters["dry.vent_fraction"]
+        parameters["dryer.spec_energy_kWh_Nm3"]
     with pytest.raises(FrozenInstanceError):
         parameters.parameters = ()
     with pytest.raises(FrozenInstanceError):
@@ -387,7 +388,7 @@ def test_report_rejects_duplicate_result_keys(scenario, parameters, kind, first)
     ("hydrogen_lhv_energy_kWh", {"role": Role.LOSS}),
     ("storage_change_kWh", {"required": False}),
     ("fc_inverter_standby_energy_kWh", {"condition": ""}),
-    ("dryer_electrical_energy_kWh", {"unresolved": ()}),
+    ("dryer_vent_energy_kWh", {"unresolved": ()}),
 ])
 def test_report_rejects_noncanonical_known_item_definition(scenario, parameters, key, change):
     full = calculate(scenario, parameters, scope="full")
@@ -435,7 +436,7 @@ def _plain_cause_codes(item):
                  lambda item: replace(item, role=item.role.value), id="role_as_str"),
     pytest.param("el_standby_energy_kWh",
                  lambda item: replace(item, required=int(item.required)), id="required_as_int"),
-    pytest.param("dryer_electrical_energy_kWh", _plain_cause_codes, id="cause_code_as_str"),
+    pytest.param("dryer_vent_energy_kWh", _plain_cause_codes, id="cause_code_as_str"),
 ])
 def test_report_rejects_equal_but_retyped_known_item(scenario, parameters, key, retype):
     full = calculate(scenario, parameters, scope="full")

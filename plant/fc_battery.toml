@@ -9,7 +9,7 @@ title = "H2Core battery on the FC DC bus"
 [open]
 questions = [
   "Deferred (owner): Green Tech confirmation of 200 A (nameplate) vs 100 A (web listing) and cell chemistry/count; site check of the battery variant (decisions/2026-11-18-fc-workbook-review.md).",
-  "The 52 V FC bus voltage (FCM target output voltage, manual p. 24) is not a battery nominal value; a separate key is needed if the model uses it.",
+  "The 52 V FCM factory-set target output voltage (manual p. 24; installed setting not read back, bus voltage not measured) is not a battery nominal value; a separate key is needed if the model uses it.",
 ]
 
 [notes]
@@ -33,8 +33,8 @@ value = 48
 unit = "V"
 status = "DATASHEET"
 uncertainty = 0.0
-source = "Battery nameplate GTEM-48V5000-E: nominal voltage 48 V DC, operating range 37.8-58.8 V (FC workbook, Internal Battery rows 9-10). Not the bus voltage: the FCM regulates the bus to its 52 V target output voltage (manual p. 24). Uncertainty 0.0 = NOT ASSESSED."
-effect = "battery SoC energy conversion; P=V*I bookkeeping"
+source = "Battery nameplate GTEM-48V5000-E: nominal voltage 48 V DC, operating range 37.8-58.8 V (FC workbook, Internal Battery rows 9-10). Not a bus value: the FCM factory-set target output voltage is 52 V (manual p. 24); the installed setting has not been read back (CAN read-back deferred) and the actual bus voltage is not measured. Uncertainty 0.0 = NOT ASSESSED."
+effect = "nominal voltage of the battery (nameplate), not the bus setpoint or a measured bus voltage; not a basis for P = V x I on the bus"
 
 [param."bat.round_trip_efficiency"]
 value = 0.97

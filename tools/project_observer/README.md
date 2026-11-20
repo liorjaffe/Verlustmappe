@@ -18,7 +18,15 @@ simulation does not import it, and it is not part of CI or the normal workflow. 
 - `topology.toml` in this folder: nodes, flows and layout of the plant diagram, each with
   its basis in `CONTRACT.md` §4 or plant file titles. It is a display aid, not project truth,
   and records whether the owner has reviewed it. Nodes of kind `unassessed` and edges with
-  `assess = false` are shown faded and are deliberately not assessed.
+  `assess = false` are shown faded and are deliberately not assessed. A node of kind
+  `supply` (the PMS) also lists the auxiliary taps as its outputs. Stations listed in
+  `shared_supply` carry an "A + B" tag: they carry series-path and auxiliary electricity,
+  and their losses are split pro rata to energy (CONTRACT §4). Nodes of kind `prepared`
+  (safety system S) are drawn but not calculated; `[[group]]` draws a labelled frame.
+- `summary.toml` in this folder: three owner-written sentences (my goal, what I have to do,
+  where I am at), shown verbatim as one row at the top of the header. Display only, not
+  evidence or a model input; the owner edits them there
+  (`decisions/2026-11-19-observer-project-summary.md`).
 - An optional semantics TOML (`signal` entries).
 
 It does not execute the model or consume simulation-run or measurement values. Progress

@@ -3,6 +3,7 @@
 | Item | Role | Runs where |
 |---|---|---|
 | project_observer/ | optional static device-progress and code overview; manual, read-only; snapshot in Git-ignored `output/` or live view on 127.0.0.1 | local, on demand |
+| list_open_uncertainties.py | manual read-only list of `uncertainty_open` items and unreviewed u = 0.0 parameters (CONTRACT §8) | local, on demand |
 | regatron/ | tested G5.BT blueprint + HTTP bridge + fast-log analyzer; the control & 20 Hz input channel | bridge on the Regatron PC; Lua in Enapter blueprint |
 | fuelcell_analyzer.html | interactive CSV inspection (regions, IV, dynamics, degradation) | double-click locally, drag CSVs in |
 | server.py + simulate_data.py + requirements_server.txt | live WebSocket feed for the HTML tool | PC with network access to the Gateway |

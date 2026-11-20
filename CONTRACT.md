@@ -19,8 +19,9 @@ market-standard devices may be black boxes with documented inputs and outputs.
 ## 2 Scope
 
 - [E] Only devices with a **direct influence on production**. Room and building
-  infrastructure is excluded: ventilation, gas detection, heating, frost protection,
-  room equipment.
+  infrastructure is excluded: heating, frost protection, room equipment. The H₂ safety
+  system (room ventilation, H₂ sensors, the four Rotex) is in scope as account S (§4;
+  owner, 2026-11-19).
 - [E] There is no central plant control (PLC, control computer). Controls are built into
   the devices and are not devices of their own. Their consumption belongs to the device;
   where a device reports it separately (FC control, §4), it is booked there.
@@ -49,19 +50,32 @@ layer 3 (D34).
 ## 4 Accounts
 
 - **A – series path** [E]: PV inverter DC input → PV inverters →
-  AC distribution and cable path → EL → dryer → booster → storage →
+  AC cable → PMS → AC cable → EL → dryer → booster → storage →
   FC → DC bus and H₂Core battery → DC cable → FC inverter → AC out.
   Until reviewed DC cable data is available, the PV DC cable is upstream and outside
   this provisional boundary; its loss is not assumed to be zero. Once suitable data
   is available, include the cable in the path with an explicitly reviewed model and
   boundary; do not silently change the meaning of existing results.
-  The PV slice is an **allocation**, not proof of direct physical supply. The actual
-  EL supply route, including the house distribution and any direct cable, is open.
+  The PV slice is an **allocation**, not proof of direct physical supply.
+- [E] Supply (owner, 2026-11-19): the lab is treated as an **island**. The power management
+  system (PMS) distributes PV electricity to the EL (A) and to every B consumer, down to
+  the standby of the FC inverter. During every case phase, electricity is assumed to be
+  available from PV without limit (declared case assumption); energy origin is not
+  modelled. Grid, PV-side batteries and their inverter at the PMS are not modelled (a
+  battery scenario may follow later). AC cable losses are modelled per segment (PV
+  inverters → PMS, PMS → EL, PMS → B consumers) from reviewed cable data, PMS losses from
+  PMS data; missing data stay MISSING.
+- [E] Supply losses (owner, 2026-11-19): A and B share the PV inverters, the cable to the
+  PMS and the PMS. Their losses are allocated to A and B pro rata to the energy each
+  draws (a convention, named as such; not exact because cable loss scales with current
+  squared). A cable serving a single consumer carries its loss fully to that consumer.
+  B is shown in two lines: **B at the device** (consumption of the B consumers) and
+  **B supply losses** (B's share of the shared losses plus its own cables).
+  [E] The PMS is the building's common power distribution, where all energy comes
+  together and from which everything is fed; it is not a central plant control (§2).
   Battery throughput losses and stock change are separately visible.
 - **B – auxiliary consumers** [E]: electrical consumption outside the series conversion,
-  each with its actual supplier and phase, including consumption supplied by the house
-  grid, the separate PV battery system or an internal bus. The separate PV battery
-  system is only an external supplier; its internals are not modelled. The Kaeser
+  each with its phase, supplied via the PMS (see supply above). The Kaeser
   (compression) is in B.
 - [E] A case report has three named perspectives for the same case:
   - **PV-start path:** the A series path from PV DC to FC inverter AC output.
@@ -81,13 +95,21 @@ layer 3 (D34).
 - [E] FC control is netted in the series path per D22:
   E_out_net = (E_fc_terminal − E_ctrl) · η_inv. Assumption: drawn from the DC bus before
   the inverter; measurement point open. Booked once.
+- **S – safety system** [E] (owner, 2026-11-19): room ventilation (CELAB), H₂ sensors and
+  the four Rotex. Shown separately from B, supplied via the PMS. Prepared only: no
+  calculation until the owner releases it. Ventilation is planned as a constant
+  consumption from a direct owner measurement; H₂ sensor details follow. The Rotex air
+  share of the Kaeser belongs to S; the Rotex stay not assessed until clarified. S's
+  share of the shared supply losses and its role in C are open.
 - **C – system efficiency** [V name and formula; E reporting rule]:
   η_sys = E_AC,out / (E_PV,DC,share + E_B,external + ΔS_correction).
+  [E] Under the island assumption, E_B,external is the PV energy supplied to B: B at the
+  device plus B supply losses.
   [E] Reported only once compression and battery have a status. Until then A and B are
   shown side by side with their own totals, **without a summed total**; A never appears
   alone.
-- [E] The H₂Core battery belongs to the FC system. It is not the separate PV battery system
-  for auxiliary consumers. Battery discharge must not appear as reconversion from H₂.
+- [E] The H₂Core battery belongs to the FC system. It is not one of the PV-side batteries
+  at the PMS. Battery discharge must not appear as reconversion from H₂.
 
 ## 5 Case (layer 1)
 
@@ -95,6 +117,12 @@ layer 3 (D34).
   comes from the model.
 - [E] EL anchor: AC power, stack current, operating time, standby power, standby time.
   None of them is derived from another without a documented relation.
+- [E] EL start-up (owner, 2026-11-19): start-up is its own case phase (count and
+  duration per start, power during start-up), separate from production and standby. Its
+  energy is booked in A as a **separate line "EL start-up energy"**, not merged into the
+  EL operating loss, so the EL efficiency stays a steady-operation value. Missing
+  start-up power stays MISSING. Standby stays in B; during production the whole EL AC
+  input is A, with the EL's own auxiliaries embedded and identified as such (§4).
 - [E] Unit grouping: plant inventory and case operation are separate. Each static phase
   states active, standby and off counts consistent with the installed inventory, and
   the operating point per active unit. Identical units may be grouped under an explicit
@@ -220,6 +248,9 @@ layer 3 (D34).
   raise conflicts or unsupported values for owner review rather than silently accepting them.
 - [E] Most values still lack a page reference and verbatim quote; that is open work, not a
   confirmation of the values.
+- [E] Open uncertainties are registered per parameter in the optional TOML field
+  `uncertainty_open` (what is unknown, candidate evidence) and listed manually by
+  `tools/list_open_uncertainties.py`; the field never changes a value, status or uncertainty.
 - [E] The `comp.*` keys (wrong device, Maximator DLE 30-2) must never be used in new code
   (D11).
 
