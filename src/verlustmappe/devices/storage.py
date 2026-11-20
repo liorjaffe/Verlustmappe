@@ -7,7 +7,7 @@ from ..hydrogen.temperature_model import assumed_temperature_standard_uncertaint
 
 class Tank:
     def stored(self, p_barg, T_C=None, *, analyze_temperature_uncertainty=False):
-        """Model state at defined temperature; optional band analysis, no Pt100 path."""
+        """Model state at defined temperature; optional band analysis, no tank temperature sensor."""
         temperature_is_assumed = T_C is None
         if temperature_is_assumed:
             T_C = R.get("stor.T_assumed_C")

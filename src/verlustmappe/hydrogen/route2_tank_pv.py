@@ -1,6 +1,7 @@
 """Paused independent tank route and retained synthetic pVT model.
 
-Route 2 is unavailable: DCT 541 and Pt100 are not installed and independent
+Route 2 is unavailable: DCT 541 is not installed, no tank temperature sensor exists
+or is planned (owner 2026-11-20), and independent
 tank-state data are missing. Scenario pressures/temperatures are not evidence.
 
 model_tank_pressure_change retains synthetic physics/test calculations:
@@ -13,8 +14,8 @@ Tiers (see tank_thermal.py and handbook card C):
           +-15 K fast-fill scenario
           -> the isothermal/adiabatic bracket quantifies the latter
   tier 2: explicitly supplied synthetic/future temperature inputs, +-2 K placement
-          (existing assumption, not validated for the planned shell sensor).
-          Pt100 data path suspended; future shell concept retained as BACKLOG.
+          (existing assumption, not sensor evidence). No tank temperature
+          sensor exists or is planned (owner 2026-11-20).
   tier 3: model T from the GS_tank fit (pressure-decay calibration)
 """
 import numpy as np
@@ -28,7 +29,8 @@ from ..accounting.status import weakest
 
 ROUTE2_UNAVAILABLE_REASON = (
     "Route 2 paused: independent tank pressure and suitable temperature data are missing; "
-    "DCT 541 and Pt100 are not installed. Reactivation requires approved independent "
+    "DCT 541 is not installed and no tank temperature sensor exists (owner 2026-11-20). "
+    "Reactivation requires approved independent "
     "state data, connected volume/isolation, matching time boundaries and gas-flow accounting.")
 
 def h2_from_tank_pressure(p_start_barg, p_end_barg, T_start_C=None, T_end_C=None,
@@ -63,7 +65,7 @@ def model_tank_pressure_change(p_start_barg, p_end_barg, T_start_C=None, T_end_C
         raise NotImplementedError("tier 3 (GS_tank model) is not wired in yet")
     if tier == 2 and T_top_C is None and T_bottom_C is None:
         raise ValueError("tier=2 requires explicit T_top_C or T_bottom_C; "
-                         "Pt100 data path is suspended; no ambient fallback is allowed")
+                         "no tank temperature sensor exists; no ambient fallback is allowed")
 
     V = R.get("stor.volume_L") / 1000.0
     p1, p2 = p_start_barg + C.P_ATM_BAR, p_end_barg + C.P_ATM_BAR

@@ -8,9 +8,8 @@ title = "Water system: BWT bestaqua 14ROC COFFEE and photographed filter train"
 
 [open]
 questions = [
-  "BACKLOG: pump power and operating time require a nameplate or on-site measurement; the pump is supplied from the house grid.",
+  "BACKLOG: pump power and operating time require a nameplate or on-site measurement; the pump is supplied via the PMS (island supply, CONTRACT sec. 4; owner 2026-11-20).",
   "BACKLOG: confirm the installed Marte model and whether it feeds the BWT unit or operates independently.",
-  "BACKLOG: verify permeate conductivity at the site before assuming EL water quality.",
 ]
 
 [notes]
@@ -20,6 +19,7 @@ filter_train = "Workbook Water System row 27: photographed labels RESINA, CARVAO
 pump = "Workbook Water System row 28: the ORM30F manual describes the pressurisation pump starting with the ON/OFF switch; 220 V supply is documented, pump wattage is not. Applicability to the installed unit and the actual operating time require site confirmation."
 water_quality = "Workbook EL 2.1 Water & Power row 5 and Notes 5: Owner's Manual specifies conductivity <5 uS/cm at 25 C as the operational/design limit; Battery Limits ELE21-BLI-INT02 sec. 7.1 and the EL datasheet specify <20 uS/cm as the interface limit. The workbook quotes the original sources; PDFs have not been independently checked in this repository."
 ro_limits = "Workbook Water System rows 8, 10, 13-15 and 18: 120 L/h is nominal at 15 C; WCF is approximately 50% at the factory setting and can change with blending; standby is less than 3 W, not a measured 3 W."
+water_source = "Owner 2026-11-20: feed water is still rooftop rainwater (Walter et al. 2024, sec. 2.1, Fig. 2/3). Owner assumption: water quality after the filter train and RO is constant and always sufficient for the EL; water quality is not assessed in this project."
 maintenance = "Workbook Water System row 30: Popular Filtros manuals describe an approximately 12-month media interval, dependent on water quality; applicability to the installed Marte unit is not established."
 
 [param."water.ro_perm_Lh"]

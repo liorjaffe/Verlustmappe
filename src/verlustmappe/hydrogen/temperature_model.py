@@ -21,23 +21,18 @@ Tier 1 (today, no tank temperature sensor):
     assumption is then WRONG BY TENS OF KELVIN on a per-mass basis ~ (deltaT/T).
     Valid ONLY for slow cycles with long rest periods (hours).
 
-Tier 2 (generic explicit inputs; Pt100 data path suspended):
-    Decided concept: one Pt100, 4-wire, class A on the insulated cylinder shell,
-    lower/middle near the outlet valve (registry stor.temp_sensor_planned).
-    Wall temperature is a gas-temperature proxy only in equilibrated states.
-    Inline thermowell remains an open option. No measured tank temperature exists.
-    The helper accepts explicitly supplied synthetic or future measurements;
-    its top/bottom interface is not the decided hardware layout. Literature guidance:
+Tier 2 (generic explicit inputs only):
+    No tank temperature sensor exists or is planned (owner 2026-11-20). No measured tank temperature exists.
+    The helper accepts only explicitly supplied synthetic temperatures;
+    its top/bottom interface describes no hardware. Literature guidance:
       - during FILLING the gas is almost perfectly uniform (forced convection
         by the jet) -> ONE sensor anywhere in the gas is representative;
       - during HOLD/EMPTY the gas stratifies vertically -> top + bottom pair
         needed, mean is the estimate;
       - the Nexo study found the BOTTOM PIPE temperature (their T3) tracked the
         mean gas temperature best; surface temps lag with wall inertia.
-    Uncertainty budget: PT100 class A = +-0.15 K + 0.002*|T| (IEC 60751);
-    placement bias 1-3 K (boss/pipe vs gas mean, from de Miguel Fig. 4/6
-    lag behaviour). These existing uncertainty assumptions are not validated
-    for the planned shell sensor.
+    Existing synthetic uncertainty terms (placement bias 1-3 K, de Miguel
+    Fig. 4/6 lag behaviour) are literature assumptions, not sensor evidence.
 
 Tier 3 (model-based, no internal sensor):
     Lumped energy balance as in the Nexo paper (their eqs 2-3):

@@ -35,6 +35,7 @@ by applicable instructions or explicitly requested; report checks actually run, 
 | What applies (goal, scope, accounts, balance, status)? | `CONTRACT.md` |
 | Why was something decided? | `decisions/` |
 | Plant values/gaps and supporting evidence? | `plant/`; sources in `plant/sources/` |
+| Reference PDFs? | `plant/sources/library/README.md`; open a PDF only on owner request |
 | How does a device compute? | `src/verlustmappe/devices/`, inputs and dependencies |
 | Hydrogen, real gas, temperature? | `src/verlustmappe/hydrogen/` |
 | Constants, conversions, time integration? | `src/verlustmappe/physics/` |

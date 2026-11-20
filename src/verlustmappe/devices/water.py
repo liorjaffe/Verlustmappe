@@ -100,8 +100,6 @@ def _chain_checks(perm_Lh):
     checks["ro_permeate_pressure_vs_tank_inlet"] = dict(
         status="OPEN", detail="RO permeate outlet pressure is not documented "
                               "(1.5-4.0 bar is the RO intake pressure)")
-    checks["permeate_conductivity"] = dict(
-        status="OPEN", detail="permeate conductivity not measured (limit < 20 uS/cm)")
     return checks
 
 

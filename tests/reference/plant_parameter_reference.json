@@ -480,14 +480,6 @@
    "uncertainty": 0.0,
    "effect": "far above the 20 Hz fast-log requirement; latency budget"
   },
-  "stor.temp_sensor_planned": {
-   "value": "1 x Pt100, 4-wire, class A on the insulated cylinder shell (lower/middle, near outlet valve); wall temperature as gas-temperature proxy only in equilibrated states. Decided concept 2026-10-08; NOT installed, no hardware ordered, no measured tank temperature exists. Inline thermowell remains an open option.",
-   "unit": "-",
-   "source": "Storage_H2_System_Specs_Master.xlsx, Master row 56, Corrections row 8, Sources S7 (row 8): '00 CURRENT STATE' decision 2026-10-08, '1 x Pt100 4-wire class A on the cylinder shell'; owner confirmation 2026-11-13: not installed or ordered. Transferability: intended for this plant; no measurement evidence.",
-   "status": "BACKLOG",
-   "uncertainty": 0.0,
-   "effect": "future concept retained as BACKLOG; Pt100 data path suspended by owner 2026-11-13. No expected Pt100 channels or measurement dependency; provisional calculations use the registered assumption, not this concept."
-  },
   "fc.rated_power_W": {
    "value": 2500,
    "unit": "W at 48 V",

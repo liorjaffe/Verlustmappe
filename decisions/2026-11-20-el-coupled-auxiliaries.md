@@ -6,6 +6,10 @@
   the EL are switched on (production and start-up phases). They can technically be switched
   off separately but run together with the EL. None of them is a permanent base load.
 - EL 1-5 are connected to one dryer, EL 6-9 to the second.
+- Rack layout (owner, 2026-11-20; front view): left rack = EL 1-5 + dryer 1; right rack =
+  EL 6-9 + WTM 2.1 water tank + dryer 2. The Enapter app names the tank "Cab 2 Water Tank
+  Modulo" (device ID C8A499CEB9); that "Cab 2" is the right rack is an inference, not
+  confirmed. Walter et al. 2024, Fig. 4 shows the two racks.
 - Dryer electrical value = 0.045 kWh/Nm3 x H2 throughput (2026-11-19); 10 W standby and
   200 W rated per unit only bound it.
 

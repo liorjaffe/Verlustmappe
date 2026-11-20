@@ -265,19 +265,18 @@ layer 3 (D34).
   only this verdict, not calibration; until the repeatability test, measured closure is
   NOT VERIFIABLE (D20, D8).
 - Tank pressure and gas temperature are simulated states until the retrofit (D8).
-- [E] Independent Route 2 is PAUSED: DCT 541 and Pt100 are not installed and independent
-  tank-state data are missing. No countercheck quantity, sensor uncertainty, validation
+- [E] Independent Route 2 is PAUSED: DCT 541 is not installed, no tank temperature sensor
+  exists, and independent tank-state data are missing. No countercheck quantity, sensor uncertainty, validation
   contribution or production-minus-delivered residual is reported from this route.
   Static storage modelling and synthetic pVT tests remain available, but cannot vote
   in independent route comparison. Reactivation requires owner-approved independent
   pressures, suitable temperature determination, connected volume/isolation, matching
   time boundaries and accounted gas inflows/outflows. Sensor specifications are planning,
   not installed-sensor evidence.
-- [E] Storage temperature concept: one Pt100, 4-wire, class A on the insulated cylinder
-  shell (lower/middle near outlet valve), a gas-temperature proxy only at equilibrium.
-  Not installed, no hardware ordered, no measured tank temperature exists; inline well open.
-  Pt100 data path is suspended: no data integration or required Pt100 channels. Planning
-  remains BACKLOG. Enapter telemetry belongs only to its actual measurement points, not the tank.
+- [E] Storage temperature (owner, 2026-11-20): no tank temperature sensor will be installed;
+  the former sensor concept, including the inline-well option, is removed from the project. No measured
+  tank temperature exists or is planned; no tank temperature channels. Enapter telemetry
+  belongs only to its actual measurement points, not the tank.
 - [E] Provisional storage/booster calculations without explicit temperature use registered
   `stor.T_assumed_C` = 20 degC, GUESS, owner-chosen rectangular band +/-10 K,
   u_T = 10/sqrt(3) K; registry uncertainty is relative to 293.15 K, not to degC.

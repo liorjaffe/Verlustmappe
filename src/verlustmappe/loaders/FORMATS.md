@@ -78,12 +78,10 @@ Merge rule: join Enapter (~1 Hz) and fastlog (20 Hz) on the UTC clock
 Enapter clock. `analyze_fastlog.py` (tools/regatron) produces plateau means
 per commanded setpoint, the measured terminal V-I characteristic.
 
-## Tank instrumentation (DCT 541 + planned temperature sensors)
+## Tank instrumentation (DCT 541)
 | Column | Unit | Source | Meaning |
 |---|---|---|---|
 | `tank_pressure_barg` | barg | DCT 541 via Modbus RTU | storage pressure, range 0-400 bar gauge, 0.5% FSO = 2.0 bar, 500 Hz capable |
-| `tank_T_top_C`, `tank_T_bottom_C` | degC | planned surface PT100s | stratification pair (de Miguel) |
-| `tank_T_gaswell_C` | degC | planned bottom-pipe PT100 | best single estimate of mean gas T (Nexo T3) |
 
 Store: 2 bundles x 16 x 50 L steel cylinders; the sensors sit on bundle 1. The
 800 L volume holds only while that bundle is valved off from the second one; Route 2

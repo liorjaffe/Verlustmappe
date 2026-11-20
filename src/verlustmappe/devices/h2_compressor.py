@@ -114,7 +114,7 @@ class AirDrivenBooster:
         integral runs against the suction pressure p_in_barg (EL output).
         Without a window the single-shot form at (p_in -> p_out) is kept, which
         is the correct assumption when all gas is compressed at once.
-        Missing temperature uses stor.T_assumed_C (GUESS), not Pt100/telemetry."""
+        Missing temperature uses stor.T_assumed_C (GUESS), not tank telemetry (no tank temperature sensor exists)."""
         temperature_is_assumed = T_C is None
         if temperature_is_assumed:
             T_C = R.get("stor.T_assumed_C")

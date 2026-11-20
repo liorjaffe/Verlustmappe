@@ -26,7 +26,7 @@ Provisionality/deferral recorded in `4566906`, CONTRACT and `decisions/2026-11-1
 - Water pump energy is BACKLOG, not zero; independent RO results remain visible; accounting keeps water and filter energy blocked until connected.
 - TOML is current plant/runtime truth; XLSX/documents are reviewable evidence and inputs.
 - Storage: working-pressure key withdrawn; PS is only a limit; effective thermal mass open;
-  TARA only; independent Route 2 PAUSED (DCT/Pt100 absent); static pVT and synthetic tests retained.
+  TARA only; independent Route 2 PAUSED (DCT absent; no tank temperature sensor, 2026-11-20); static pVT and synthetic tests retained.
 - Faraday mass remains computable; uncertainty is open pending sourced, owner-approved stack-current uncertainty. Production-minus-delivered is diagnostic, not a booked loss.
 - EL supply/H₂ leakage open; zero line-loss assumption and FC A/B allocation not implemented.
 - Extra PV inverters on another array: future BACKLOG only, no current capacity/scope change.

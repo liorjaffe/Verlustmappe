@@ -38,22 +38,9 @@ def test_tara_and_ps_match_nameplate_rows_not_calculated_rows():
     assert "NOT thermally effective steel mass" in R.entry("stor.steel_mass_kg")["source"]
 
 
-def test_planned_temperature_matches_decided_concept_not_installed_hardware():
-    sheets = xlsx_reader.load(WORKBOOK)
-    cells = sheets["Master"][56]
-    assert cells["E"]["v"] == "[S7]"
-    assert cells["F"]["v"] == "Project decision"
-    assert "1 x Pt100 4-wire class A on the cylinder shell" in cells["C"]["v"]
-    assert sheets["Sources"][8]["A"]["v"] == "S7"
-    assert "00 CURRENT STATE" in sheets["Sources"][8]["B"]["v"]
-    entry = R.entry("stor.temp_sensor_planned")
-    assert entry["status"] == "BACKLOG"
-    for text in ("1 x Pt100", "4-wire", "class A", "insulated cylinder shell",
-                 "lower/middle", "near outlet valve", "NOT installed",
-                 "no hardware ordered", "no measured tank temperature",
-                 "Inline thermowell remains an open option"):
-        assert text in entry["value"]
-    assert "Master row 56" in entry["source"]
+def test_tank_temperature_sensor_concept_removed():
+    # Owner 2026-11-20: no tank temperature sensor will be installed; no registry entry remains.
+    assert "stor.temp_sensor_planned" not in R.REGISTRY
 
 
 def test_route2_stays_sensor_free_and_requires_explicit_pressure_endpoints():
@@ -83,7 +70,6 @@ def test_registered_temperature_is_a_scoped_rectangular_band_assumption():
     assert "rectangular band +/-10 K" in entry["source"]
     assert "actual" in entry["effect"].lower()
     assert "only with analyze_temperature_uncertainty=True" in entry["effect"]
-    assert "Pt100 data path suspended" in R.entry("stor.temp_sensor_planned")["effect"]
 
 
 def test_route2_rejects_sensor_tier_without_data():

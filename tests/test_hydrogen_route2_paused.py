@@ -14,7 +14,7 @@ def test_route2_returns_no_countercheck_quantities_even_with_scenario_inputs():
     result = h2_from_tank_pressure(
         50.0, 150.0, T_start_C=20.0, T_end_C=20.0, bundle_isolated=True)
     assert result["availability"] == "UNAVAILABLE"
-    assert "DCT 541 and Pt100 are not installed" in result["reason"]
+    assert "DCT 541 is not installed and no tank temperature sensor exists" in result["reason"]
     for key in ("mol", "kg", "NL", "kWh_LHV", "uncertainty_rel"):
         assert result[key] is None
     assert result["independent_of"] == []

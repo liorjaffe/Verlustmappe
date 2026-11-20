@@ -42,7 +42,9 @@ the on-time the standby value stays open. Workbook tab row 8 and Notes 11 correc
   The 35 W applying only while the demand pump runs is an inference from datasheet
   footnote 1.
 - The 20 uS/cm limit is less strict than the datasheet 2 uS/cm; RO permeate conductivity
-  is not measured (`water.perm_quality`).
+  is not measured (`water.perm_quality`). Owner 2026-11-20: water quality after filters
+  and RO is assumed constant and sufficient; it has no energy or consumption effect in the
+  chain, so the permeate-conductivity chain check was removed from `water.py`.
 - Gauge vs. absolute is not stated on the nameplate pressures.
 - Datasheet depth 643 mm (table) vs 635 mm (drawing): not model-relevant, unresolved.
 - `plant/water.toml` and `water.py` updated after owner approval (tank keys, chain checks).

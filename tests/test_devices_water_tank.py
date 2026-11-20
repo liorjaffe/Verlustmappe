@@ -143,7 +143,6 @@ def test_chain_checks_pass_and_open():
         "el_count_vs_tank_rating": "PASS",             # 9 vs up to 11
         "tank_outlet_vs_el_inlet_pressure": "PASS",    # 2.75 barg in 1-4 barg
         "ro_permeate_pressure_vs_tank_inlet": "OPEN",  # permeate pressure undocumented
-        "permeate_conductivity": "OPEN",               # not measured
     }
 
 
